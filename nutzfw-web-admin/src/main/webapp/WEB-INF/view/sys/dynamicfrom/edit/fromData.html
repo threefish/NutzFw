@@ -1,0 +1,16 @@
+<%if(oldData==""){%>
+<script>
+    var fromData={
+            id:"",
+            userid:"${userid!}",
+        <%for(item in table.fields){%>
+        ${item.fieldName}:"",//${item.name}
+    <%}%>
+    };
+</script>
+<%}else{%>
+<script>
+    var fromData=${oldData}
+</script>
+<%}%>
+

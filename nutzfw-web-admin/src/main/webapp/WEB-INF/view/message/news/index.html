@@ -1,0 +1,238 @@
+<%
+var title="新闻管理";
+layout("/layouts/blank.html",{title:title}){
+%>
+<style type="text/css">
+</style>
+<section class="content-header">
+    <h1>
+        ${title}
+        <small>控制面板</small>
+    </h1>
+</section>
+<section class="content" id="container" v-if="initLoad">
+    <div style="height: 40px">
+        <form class="searchFrom">
+            <div class="input-group">
+                <div class="input-group-addon">名称</div>
+                <input class="form-control" type="text" v-model="searchData.key">
+            </div>
+            <div class="input-group">
+                <input @click="handleSearchTable" class="layui-btn layui-btn-normal layui-btn-sm" type="button"
+                       value="查询">
+            </div>
+        </form>
+    </div>
+    <div style="background: #ffffff">
+        <div id="listTable" lay-filter='listTable'></div>
+    </div>
+</section>
+<script id="toolBarFixed" type="text/html">
+    <%if(so.hasPermission("News.index.edit")){%>
+    <div class="layui-btn layui-btn-sm layui-btn-normal" lay-event="edit">编辑</div>
+    <%}%>
+    <div class="layui-btn layui-btn-sm layui-btn-normal" lay-event="view">查看</div>
+</script>
+<script id="topToolbar" type="text/html">
+    <%if(so.hasPermission("News.index.edit")){%>
+    <div class="btn toptoolbar layui-btn-primary layui-btn-sm" lay-event="handleAdd">新增</div>
+    <%}%>
+    <%if(so.hasPermission("News.index.del")){%>
+    <div class="btn toptoolbar layui-btn-primary layui-btn-sm" lay-event="handleDel">批量删除</div>
+    <%}%>
+</script>
+<script id="AttachTypeTpl" type="text/html">
+    <div style="text-align: center">
+        {{#
+        var data=d[d.LAY_FIELD]!=null?d[d.LAY_FIELD]:0;
+        var num=data!=0?(data.split(",").length):0;
+        }}
+        {{#if(num>0){ }}
+        <div class="layui-btn layui-btn-xs layui-btn-normal" lay-event="showAttach" data-field="{{d.LAY_FIELD}}">
+            查看附件({{num}})
+        </div>
+        {{# }else{ }}
+        无附件
+        {{# } }}
+    </div>
+</script>
+<script id="AttachTypeImgTpl" type="text/html">
+    <div style="text-align: center">
+        {{#
+        var data=d[d.LAY_FIELD]!=null?d[d.LAY_FIELD]:0;
+        var num=data!=0?(data.split(",").length):0;
+        }}
+        {{#if(num>0){ }}
+        <div class="layui-btn layui-btn-xs layui-btn-normal" lay-event="showAttach" data-field="{{d.LAY_FIELD}}">
+            查看图片({{num}})
+        </div>
+        {{# }else{ }}
+        无图片
+        {{# } }}
+    </div>
+</script>
+<script type="text/javascript">
+    var listTable, table;
+    var vm = new Vue({
+        el: '#container',
+        data: {
+            fromData: {},
+            fromDataSubmit: false,
+            fromDataEdit: true,
+            initLoad: false,
+            synchronizeType: 0,
+            searchData: {
+                key: ''
+            },
+        },
+        methods: {
+            handleView: function (uuid) {
+                parent.core.openUrlOk("/News/view?uuid=" + uuid, "查看新闻", '80%', '80%', function (body, index) {
+                    parent.layer.closeAll();
+                });
+            },
+            handleAdd: function (uuid) {
+                uuid = uuid || '';
+                parent.core.openUrlOk("/News/edit?uuid=" + uuid, "编辑新闻", '80%', '80%', function (body, index) {
+                    var iframeVm = parent.window.frames['layui-layer-iframe' + index].window.vm;
+                    if (iframeVm.fromDataSubmit == false) {
+                        iframeVm.fromDataSubmit = true;
+                        $.post(base + "/News/save", {
+                            fromData: iframeVm.fromData,
+                        }, function (data) {
+                            iframeVm.fromDataSubmit = false;
+                            if (data.ok) {
+                                listTable.reload();
+                                parent.layer.closeAll();
+                                parent.core.msg("操作成功！");
+                            } else {
+                                parent.core.error(data.msg);
+                            }
+                        });
+                    } else {
+                        core.msg("您操作的太频繁了，请稍候再试")
+                    }
+                });
+            },
+            handleDel: function () {
+                var checkStatus = table.checkStatus('listTable')
+                if (checkStatus.data.length > 0) {
+                    core.confirm("删除后无法恢复!<br>确定删除?", function () {
+                        var ids = [];
+                        for (var i in  checkStatus.data) {
+                            ids.push(checkStatus.data[i].uuid);
+                        }
+                        var jsonre = core.postJSON("/News/del", {uuids: ids});
+                        core.msg(jsonre);
+                        if (jsonre.ok) {
+                            listTable.reload();
+                        }
+                    });
+                } else {
+                    core.error("请选择一条记录");
+                }
+            },
+            handleSearchTable: function () {
+                listTable.reload({
+                    where: vm.searchData,
+                    page: {curr: 1}
+                });
+            }
+        },
+        created: function () {
+            this.initLoad = true;
+        },
+        mounted: function () {
+            var sys_news_category = JSON.parse('${data.sys_news_category}');
+            var sys_news_level = JSON.parse('${data.sys_news_level}');
+            layui.use(['table'], function () {
+                table = layui.table;
+                listTable = table.render({
+                    id: 'listTable',
+                    elem: '#listTable',
+                    page: true,
+                    method: 'post',
+                    url: base + '/News/list',
+                    height: 'full-140',
+                    limit: 50,
+                    even: false,
+                    toolbar: '#topToolbar',
+                    defaultToolbar: ['filter', 'print'],
+                    request: {
+                        pageName: 'pageNum',
+                        limitName: 'pageSize',
+                    },
+                    where: vm.searchData,
+                    cols: [[
+                        {title: '序号', type: 'numbers', width: 50},
+                        {type: 'checkbox'},
+                        {
+                            field: 'categoryId', title: '新闻类别', templet: function (row) {
+                                return sys_news_category[row.categoryId];
+                            }
+                        },
+                        {field: 'title', title: '新闻标题'},
+                        {field: 'content', title: '新闻内容'},
+                        {field: 'newsFrom', title: '新闻来源'},
+                        {
+                            field: 'toped', title: '置顶', templet: function (row) {
+                                return row.toped ? '是' : '否';
+                            }
+                        },
+                        {
+                            field: 'locked', title: '冻结', templet: function (row) {
+                                return row.locked ? '是' : '否';
+                            }
+                        },
+                        {
+                            field: 'level', title: '级别', templet: function (row) {
+                                return sys_news_level[row.level];
+                            }
+                        },
+                        {field: 'publishTime', title: '定时发布'},
+                        {
+                            field: 'isrecomm', title: '新闻是否被推荐', templet: function (row) {
+                                return row.isrecomm ? '是' : '否';
+                            }
+                        },
+                        {field: 'recommimg', title: '推荐图', "templet": "#AttachTypeImgTpl", "width": 100},
+                        {field: 'attachidlist', title: '新闻附件id集合', "templet": "#AttachTypeTpl", "width": 100},
+                        {field: 'opAt', title: '创建时间'},
+                        {field: 'opByDesc', title: '发布人'},
+                        {title: '操作', width: 160, align: 'center', fixed: 'right', toolbar: '#toolBarFixed'},
+                    ]],
+                    done: function () {
+                        $('.layui-table-fixed-r').removeClass('layui-hide');
+                    }
+                });
+                table.on("tool(listTable)", function (obj) {
+                    var data = obj.data, layEvent = obj.event;
+                    if (layEvent == "edit") {
+                        vm.handleAdd(data.uuid);
+                    }
+                    if (layEvent == "view") {
+                        vm.handleView(data.uuid);
+                    }
+                    if (layEvent == 'showAttach') {
+                        var dataField = $(obj.tr).find("div[lay-event=showAttach]").attr("data-field");
+                        core.showAttachList(data[dataField]);
+                    }
+                });
+                table.on("toolbar(listTable)", function (obj) {
+                    var layEvent = obj.event;
+                    if (!$(this).hasClass("layui-btn-disabled")) {
+                        switch (layEvent) {
+                            case "handleAdd":
+                                vm.handleAdd();
+                                break;
+                            case "handleDel":
+                                vm.handleDel();
+                                break;
+                        }
+                    }
+                });
+            });
+        }
+    });
+</script>
+<%}%>

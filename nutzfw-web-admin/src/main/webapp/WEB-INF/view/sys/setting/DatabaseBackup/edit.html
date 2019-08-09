@@ -1,0 +1,189 @@
+<%
+var title="数据库备份编辑";
+layout("/layouts/blank.html",{title:title}){
+%>
+<style type="text/css">
+    .title-lable {
+        height: 35px;
+    }
+
+    .required {
+        color: red;
+        position: absolute;
+        top: 3px;
+        font-size: 18px;
+        left: 0px;
+    }
+    .edui-editor-bottomContainer{
+        display: none;
+    }
+    .edui-default .edui-editor-toolbarboxinner {
+        background: #fff;
+    }
+
+
+    .input-group-addon-right-icon {
+        height: 34px;
+        width: 40px;
+    }
+    .box-tips {
+        text-align: left;
+        background: #fff;
+        font-size: 12px;
+        padding: 10px 5px;
+        line-height: 20px;
+        color: #77b0e2;
+    }
+    .tree {
+        width: calc(100% - 40px) !important;
+    }
+    .width100{
+        width: 100% !important;
+    }
+</style>
+<section class="content" id="container" v-if="initLoad">
+    <div role="form">
+        <!-- text input -->
+        <div class="form-group col-xs-6">
+            <label>名称</label>
+            <input type="text" v-model="fromData.name" :disabled="!fromDataEdit" class="form-control"
+                   placeholder="名称必填" maxlength="50">
+        </div>
+        <div class="form-group col-xs-6">
+            <label>数据库用户名</label>
+            <input type="text" v-model="fromData.userName" :disabled="!fromDataEdit" class="form-control"
+                   placeholder="用户名必填" maxlength="50">
+        </div>
+        <div class="form-group col-xs-6">
+            <label>数据库密码</label>
+            <input type="text" v-model="fromData.userPass" :disabled="!fromDataEdit" class="form-control"
+                   placeholder="密码必填" maxlength="50">
+        </div>
+        <div class="form-group col-xs-6">
+            <label>数据库IP</label>
+            <input type="text" v-model="fromData.ip" :disabled="!fromDataEdit" class="form-control"
+                   placeholder="数据库IP必填" maxlength="50">
+        </div>
+        <div class="form-group col-xs-6">
+            <label>数据库端口</label>
+            <input type="text" v-model="fromData.port" :disabled="!fromDataEdit" class="form-control"
+                   placeholder="数据库端口必填" maxlength="50">
+        </div>
+        <div class="form-group col-xs-6">
+            <label>数据库名称</label>
+            <input type="text" v-model="fromData.dbNames" :disabled="!fromDataEdit" class="form-control"
+                   placeholder="数据库名称必填,多个采用 , 号隔开" maxlength="50">
+        </div>
+    </div>
+</section>
+<script type="text/javascript">
+    //计算附件个数
+    String.prototype.fileCount = function () {
+        var arr = this.split(',');
+        var count = 0;
+        for (var i in arr) {
+            var str = arr[i];
+            if (str != undefined && arr != "" && arr != null && arr != "null" && arr.length != 0) {
+                count++;
+            }
+        }
+        return count;
+    }
+</script>
+<script type="text/javascript" charset="utf-8"
+        src="${base}/static/plugins/ueditor/ueditor.config.js?_=${productVersion}"></script>
+<script type="text/javascript" charset="utf-8"
+        src="${base}/static/plugins/ueditor/ueditor.all.js?_=${productVersion}"></script>
+<script type="text/javascript" charset="utf-8"
+        src="${base}/static/plugins/ueditor/lang/zh-cn/zh-cn.js?_=${productVersion}"></script>
+<script type="text/javascript">
+    var ue = new Object();
+    var readOnly = "${data.fromDataEdit}" == "true";
+   var vm = new Vue({
+        el: '#container',
+        data: {
+            fromData: {
+                uuid: '${data.uuid!}',
+                name: '',
+                userName: '',
+                userPass: '',
+                ip: '',
+                port: '',
+                dbNames: '',
+            },
+            fromDataSubmit: false,
+            fromDataEdit: readOnly,
+            initLoad: false,
+        },
+        methods: {
+            init: function () {
+                this.initLoad = true;
+                if (this.fromData.uuid != '') {
+                    $.post(base + "/DatabaseBackup/details", {uuid: this.fromData.uuid}, function (json) {
+                        vm.fromData = json.data;
+                    });
+                }
+            },
+            handleViewAttach:function (fieldName) {
+                core.showAttachList(this.fromData[fieldName]);
+            },
+            reverEnumDesc: function (fieldName, sysCode) {
+                return core.postJSON("/sysDict/getDictName", {sysCode: sysCode, ids: this.fromData[fieldName]});
+            },
+            dictChange: function (fieldId, dictValFieldName) {
+                //字典变化，需要修改依赖值的内容
+                core.dictChange(fieldId, dictValFieldName, this)
+            },
+            handleShowEnumTree: function (fieldName, sysCode, multipleDict) {
+                core.handleShowEnumTree(fieldName, sysCode, multipleDict, this);
+            },
+        },
+        created: function () {
+            this.init();
+        },
+        updated: function () {
+        },
+        mounted: function () {
+            layui.use(['laydate'], function () {
+                laydate = layui.laydate;
+                $("[d-format]").each(function () {
+                    var fieldname = $(this).attr("d-name");
+                    var format = $(this).attr("d-format");
+                    var type = $(this).attr("d-type");
+                    var elstr = $(this).attr("el");
+                    var el = $(this)[0];
+                    if (elstr != undefined) {
+                        el = $(elstr)[0];
+                    }
+                    laydate.render({
+                        elem: el,
+                        type: type,
+                        format: format,
+                        done: function (value) {
+                            vm.fromData[fieldname] = value;
+                        }
+                    });
+                });
+            });
+            $("[ueditor]").each(function () {
+                var fieldname = $(this).attr("d-name");
+                ue[fieldname] = new UE.ui.Editor({
+                    toolbars: [['undo', 'redo', 'bold', 'indent', 'italic', 'underline', 'strikethrough', 'blockquote', 'pasteplain', 'selectall', 'horizontal', 'removeformat', 'unlink', 'cleardoc', 'fontfamily', 'fontsize', 'paragraph', 'edittable', 'edittd', 'link', 'justifyleft', 'justifyright', 'justifycenter', 'justifyjustify', 'forecolor', 'backcolor', 'insertorderedlist', 'insertunorderedlist', 'fullscreen', 'directionalityltr', 'directionalityrtl', 'pagebreak', 'imagecenter', 'lineheight', 'inserttable', 'preview']],
+                    allHtmlEnabled: false,
+                    autoHeightEnabled: false,
+                    autoFloatEnabled: false,
+                    elementPathEnabled: false,
+                    initialFrameHeight: 200,
+                    enableAutoSave: false,
+                    initialFrameWidth: '100%',
+                    readonly: !readOnly
+                });
+                ue[fieldname].render(fieldname);
+                ue[fieldname].addListener('contentChange', function () {
+                    vm.fromData[fieldname] = ue[fieldname].getContent();
+                })
+            });
+        }
+    });
+</script>
+<%}%>

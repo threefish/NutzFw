@@ -1,0 +1,19 @@
+<!--必须的组件 开始-->
+<meta charset="utf-8">
+<meta content="IE=edge" http-equiv="X-UA-Compatible">
+<meta content="${title!}" name="description">
+<title>${title!}</title>
+<script src="${base}/static/plugins/jquery/jquery-3.4.1.min.js?_=${productVersion}"></script>
+<script src="${base}/static/plugins/jquery/jquery.cookie.js?_=${productVersion}"></script>
+<script src="${base}/static/plugins/layer/layer.js?_=${productVersion}"></script>
+<%if(cfg.isDev=='true'){%>
+<link href="${base!}/static/plugins/magic-check/magic-check.css?_=${productVersion}" rel="stylesheet">
+<script src="${base!}/static/plugins/vue/2.5.17/vue.js?_=${productVersion}" type="text/javascript"></script>
+<%}else{%>
+<link href="${base!}/static/plugins/magic-check/magic-check.min.css?_=${productVersion}" rel="stylesheet">
+<script src="${base!}/static/plugins/vue/2.5.17/vue.min.js?_=${productVersion}" type="text/javascript"></script>
+<%}%>
+<!--必须的组件 结束-->
+<script>
+    var base="${base}";
+</script>

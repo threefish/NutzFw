@@ -1,0 +1,362 @@
+<%
+//两列排布
+var title=table.name;
+layout("/layouts/blank.html",{title:title}){
+%>
+<style type="text/css">
+    .form-group {
+        width: 50%;
+        float: left;
+        margin-bottom: 0px;
+    }
+
+    .input-group {
+        width: 100%;
+    }
+
+    .required {
+        color: red;
+        /*position: absolute;*/
+        /*top: 3px;*/
+        font-size: 18px;
+        /*left: 0px;*/
+    }
+
+    .edui-default .edui-editor-toolbarboxinner {
+        background: #fff;
+    }
+
+    .form-control[readonly] {
+        background-color: #eeeeee;
+        opacity: 1;
+        cursor: pointer;
+    }
+
+    .form-control[d-format] {
+        background-color: #ffffff;
+    }
+
+    .control-label {
+        height: 35px;
+        line-height: 35px;
+        overflow: hidden;
+        text-align: right;
+    }
+
+    .decimalPoint {
+        font-size: 12px;
+        font-weight: normal;
+    }
+
+    .hasNotAnyDisplay {
+        text-align: center;
+    }
+
+    .fa:hover {
+        cursor: pointer;
+    }
+
+    .fa-question:hover > .form-tips {
+        display: block;
+    }
+
+    .form-tips {
+        display: none;
+        text-align: left;
+        position: absolute;
+        width: 200px;
+        background: #fff;
+        z-index: 99;
+        border: 1px #cdcdcd solid;
+        top: 33px;
+        right: 0;
+        font-size: 12px;
+        padding: 10px 5px;
+        white-space: initial;
+        line-height: 20px;
+        color: #77b0e2;
+    }
+
+    .box-tips {
+        text-align: left;
+        background: #fff;
+        font-size: 12px;
+        padding: 10px 5px;
+        line-height: 20px;
+        color: #77b0e2;
+    }
+
+    .new-line-box {
+        width: 100%;
+        float: left;
+    }
+</style>
+<section class="content" id="container" v-if="initLoad">
+    <div class="from-box">
+        <form role="form" method="post" name="form1" id="form1">
+            <div v-if="hasAnyDisplay">
+                <form class="form-horizontal">
+                    <div class="box-body">
+                        <%if(table.tableType=='PrimaryTable'||table.tableType=='Schedule'){%>
+                        <div class="form-group clearfix" v-if="fromData.userid!=''">
+                            <label class="col-sm-4 control-label">姓名：</label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <input type="text" disabled value="${user.realName!}" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group clearfix" v-if="fromData.userid!=''">
+                            <label class="col-sm-4 control-label">用户名：</label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <input type="text" disabled value="${user.userName!}" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                        <%}%>
+                        <%
+                        for(item in table.fields){
+                        //表单显示
+                        if(item.fromDisplay==true){
+                        //是逻辑字段
+                        if(item.logic==true){
+                        %>
+                        <div class="form-group clearfix">
+                            <label class="col-sm-4 control-label">${item.fromLable}：</label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <input type="text" disabled v-model="fromData.${item.fieldName}"
+                                           class="form-control"
+                                           maxlength="${item.length}" title="${item.fromLableTips}">
+                                </div>
+                            </div>
+                        </div>
+                        <%}else{if(item.dictSysCode!=''){%>
+                        <!--字典-->
+                        <div class="form-group clearfix">
+                            <label class="col-sm-4 control-label">
+                                ${item.fromLable}：
+                            </label>
+                            <div class="col-sm-8 ">
+                                <div class="input-group">
+                                    ${dict(item.dictSysCode,item.multipleDict,"END","@change='dictChange("+item.id+",\"fromData."+item.fieldName+"\")'","v-model.number=fromData."+item.fieldName,"disabled")}
+                                </div>
+                            </div>
+                        </div>
+                        <%}else if(item.fieldType==2&&(item.controlType==5||item.controlType==6)){%>
+                        <!--日期-->
+                        <div class="form-group clearfix">
+                            <label class="col-sm-4 control-label">
+                                ${item.fromLable}：
+                            </label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <%if(item.controlType==5){%>
+                                    <input type="text" v-model="fromData.${item.fieldName}" class="form-control"
+                                           placeholder="请选择日期" disabled
+                                           title="${item.fromLableTips}">
+                                    <%}else{%>
+                                    <input type="text" v-model="fromData.${item.fieldName}" class="form-control"
+                                           placeholder="请选择日期时间" disabled
+                                           readonly title="${item.fromLableTips}">
+                                    <%}%>
+                                </div>
+                            </div>
+                        </div>
+                        <%}else if(item.controlType==2){%>
+                        <!--多行文本框-->
+                        <div class="new-line-box clearfix">
+                            <div class="form-group clearfix">
+                                <label class="col-sm-4 control-label">
+                                    ${item.fromLable}：
+                                </label>
+                            </div>
+                            <div class="form-group clearfix" style="width: 100%">
+                                <div class="col-sm-12" style="min-height: 70px">
+                                 <textarea rows="2" v-model="fromData.${item.fieldName}" class="form-control"
+                                           title="${item.fromLableTips}" disabled
+                                           style="resize: vertical;min-height: 60px"></textarea>
+                                    <%if(strutil.length(item.fromLableTips)>0){%>
+                                    <div class="box-tips">填写提示：${item.fromLableTips}</div>
+                                    <%}%>
+                                </div>
+                            </div>
+                        </div>
+                        <%}else if(item.controlType==3){%>
+                        <!--UE文本框-->
+                        <div class="new-line-box clearfix">
+                            <div class="form-group clearfix">
+                                <label class="col-sm-4 control-label">
+                                    ${item.fromLable}：
+                                </label>
+                            </div>
+                            <div class="form-group clearfix" style="width: 100%">
+                                <div class="col-sm-12" style="min-height: 300px">
+                                <textarea ueditor="true" v-model="fromData.${item.fieldName}" id="${item.fieldName}"
+                                          d-name="${item.fieldName}" disabled></textarea>
+                                    <%if(strutil.length(item.fromLableTips)>0){%>
+                                    <div class="box-tips">填写提示：${item.fromLableTips}</div>
+                                    <%}%>
+                                </div>
+                            </div>
+                        </div>
+                        <%}else if(item.controlType==4){%>
+                        <!--密码框-->
+                        <div class="form-group clearfix">
+                            <label class="col-sm-4 control-label">
+                                ${item.fromLable}：
+                            </label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <input type="password" v-model="fromData.${item.fieldName}"
+                                           title="${item.fromLableTips}" class="form-control" disabled>
+                                </div>
+                            </div>
+                        </div>
+                        <%}else if(item.controlType==7){%>
+                        <!--附件-->
+                        <div class="form-group clearfix">
+                            <label class="col-sm-4 control-label">
+
+                                ${item.fromLable}：
+                            </label>
+                            <div class="col-sm-8">
+                                <div class="form-control" style="border: none;">
+                                    <div class="layui-btn layui-btn-xs layui-btn-normal"
+                                         @click="handleViewAttach('${item.fieldName}')">查看({{
+                                        (fromData.${item.fieldName}+"").fileCount() }})
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <%}else if(item.controlType==8){%>
+                        <!--图片-->
+                        <div class="form-group clearfix">
+                            <label class="col-sm-4 control-label">
+                                ${item.fromLable}：
+                            </label>
+                            <div class="col-sm-8">
+                                <div class="form-control" style="border: none;">
+                                    <div class="layui-btn layui-btn-xs layui-btn-normal"
+                                         @click="handleViewAttach('${item.fieldName}')">查看({{
+                                        (fromData.${item.fieldName}+"").fileCount() }})
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <%}else if(item.fieldType==1&&item.dictDepend==0){%>
+                        <div class="form-group clearfix">
+                            <label class="col-sm-4 control-label">
+                                ${item.fromLable}
+                                ${item.decimalPoint>0?:'<span class="decimalPoint">('+item.decimalPoint+'位小数)</span>'}：
+                            </label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <input type="number" disabled v-model.number="fromData.${item.fieldName}"
+                                           class="form-control" title="${item.fromLableTips}">
+                                </div>
+                            </div>
+                        </div>
+                        <%}else if(item.dictDepend>0){%>
+                        <!--是字典依赖-->
+                        <div class="form-group clearfix">
+                            <label class="col-sm-4 control-label">
+                                ${item.fromLable}：
+                            </label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <input type="text" v-model="fromData.${item.fieldName}" class="form-control"
+                                           maxlength="${item.length}" title="${item.fromLableTips}" readonly>
+                                </div>
+                            </div>
+                        </div>
+                        <%}else{%>
+                        <div class="form-group clearfix">
+                            <label class="col-sm-4 control-label">
+                                ${item.fromLable}：
+                            </label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <input type="text" v-model="fromData.${item.fieldName}" class="form-control"
+                                           maxlength="${item.length}" title="${item.fromLableTips}" disabled>
+                                </div>
+                            </div>
+                        </div>
+                        <%}%>
+                        <%}%>
+                        <%}}%>
+                    </div>
+                </form>
+            </div>
+            <div v-if="!hasAnyDisplay" class="hasNotAnyDisplay">
+                <h2>字段权限不足！</h2>
+            </div>
+        </form>
+    </div>
+</section>
+<script id="fileBoxTpl" type="text/html">
+    <div style="height: 260px;overflow-x:auto">
+        <table class="table table-bordered">
+            <thead>
+            <th width="38px">#</th>
+            <th width="200px">文件名</th>
+            <th width="90px">格式</th>
+            <th width="90px">大小</th>
+            <th width="75px">操作</th>
+            </thead>
+            <tbody>
+            {{# for(var i in d.list){ }}
+            <tr id="td_{{ d.list[i].id }}">
+                <td width="38px">{{ Number(i)+1 }}.</td>
+                <td width="200px" title="{{ d.list[i].name }}">
+                    <div>{{ d.list[i].sortName }}</div>
+                </td>
+                <td width="90px">{{ d.list[i].ext }}</td>
+                <td width="90px">{{ d.list[i].size }}</td>
+                <td width="75px">
+                    <div onclick="vm.handleShowFile('{{ d.fieldName }}','{{ d.list[i].id }}','{{ d.list[i].ext }}')"
+                         class="layui-btn layui-btn-xs layui-btn-normal fa fa-eye" title="查看"></div>
+                </td>
+            </tr>
+            {{# } }}
+            {{# if(d.list.length==0){ }}
+            <tr>
+                <td colspan="5">
+                    <div style="text-align: center">无记录</div>
+                </td>
+            </tr>
+            {{# } }}
+            </tbody>
+        </table>
+    </div>
+</script>
+<script type="text/javascript" charset="utf-8"
+        src="${base}/static/plugins/ueditor/ueditor.config.js?_=${productVersion}"></script>
+<script type="text/javascript" charset="utf-8"
+        src="${base}/static/plugins/ueditor/ueditor.all.js?_=${productVersion}"></script>
+<script type="text/javascript" charset="utf-8"
+        src="${base}/static/plugins/ueditor/lang/zh-cn/zh-cn.js?_=${productVersion}"></script>
+<%include("edit/fromData.html"){}%>
+<script type="text/javascript">
+    /*这么写是避免html报错*/
+    var hasAnyDisplay = ("true" == "${hasAnyDisplay}");
+    var needReview = ("true" == "${needReview!}");
+    var tableId = "${table.id!}";
+    var readonly = true;
+    //计算附件个数
+    String.prototype.fileCount = function () {
+        var arr = this.split(',');
+        var count = 0;
+        for (var i in arr) {
+            var str = arr[i];
+            if (str != undefined && arr != "" && arr != null && arr != "null" && arr.length != 0) {
+                count++;
+            }
+        }
+        return count;
+    }
+</script>
+<%}%>
+<script type="text/javascript" charset="utf-8"
+        src="${base}/static/js/sys/dynamicfrom/edit.js?_=${productVersion}"></script>

@@ -1,0 +1,43 @@
+<%
+layout("/layouts/blank.html"){
+%>
+<input type="hidden" value="${id!}" id="id"/>
+<table id="dataTable" class="table table-bordered table-striped" style="padding: 10px;">
+    <thead>
+    <tr>
+        <th>编号</th>
+        <th>使用数</th>
+        <th>最后活动时间</th>
+        <th>连接时间</th>
+        <th>保持性</th>
+        <th title="Transaction Isolation">会话</th>
+        <th>自动提交</th>
+        <th>只读</th>
+    </tr>
+    </thead>
+    <tbody id="connectionPanel">
+    </tbody>
+</table>
+<script type="text/javascript">
+    $(function () {
+        var index = layer.load(0, {shade: false});
+        $.post(base + '/druid/connectionInfo-' + $('#id').val() + '.json', {}, function (data) {
+            layer.close(index);
+//            console.log(data);
+            if (data.ResultCode == 1) {
+                var connectionPanel = $('#connectionPanel').empty();
+                $(data.Content).each(
+                        function (i, item) {
+                            connectionPanel.append('<tr><td>' + item.id + '</td><td>' + item.useCount + '</td><td>' + item.lastActiveTime + '</td><td>' + item.connectTime
+                                    + '</td><td>' + item.holdability + '</td><td>' + item.transactionIsolation + '</td><td>' + item.autoCommit + '</td><td>' + item.readoOnly
+                                    + '</td></tr>');
+                        });
+            } else if (data.msg) {
+                core.showMsg(data.msg, data.ok);
+            } else {
+                core.showMsg("调用druid api失败!")
+            }
+        }, 'json');
+    })
+</script>
+<%}%>

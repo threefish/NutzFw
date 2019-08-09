@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="${title!}">
+    <title>单文件上传</title>
+    <%include("/inc/header.html"){}%>
+    <script type="text/javascript" src="${base}/static/plugins/webuploader/js/webuploader.js"></script>
+    <link rel="stylesheet" href="${base}/static/plugins/webuploader/css/webuploader.css">
+    <link rel="stylesheet" href="${base}/static/plugins/webuploader/css/style.css">
+    <link href="${base}/static/plugins/jquery-image-cut/dist/cropper.css" rel="stylesheet">
+    <style type="text/css">
+        #upload .filelist {
+            margin: 0;
+            padding: 0;
+            position: relative;
+            height: 450px;
+            border: 2px dashed #e4e4e4;
+            margin: 5px;
+        }
+
+        #upload .filelist li p.imgWrap.notimage {
+            margin-top: 0;
+            width: 102px;
+            height: 102px;
+            border: 1px #eeeeee solid;
+        }
+
+        .btns {
+            margin: 5px;
+        }
+
+        .btn-start {
+            background-color: #8BE23B;
+            color: #fff;
+            border: none;
+            width: 88px;
+            height: 34px;
+            font-size: 16px;
+        }
+
+        .file_extensions {
+            display: block;
+            position: absolute;
+            left: 50%;
+            top: 20%;
+            width: 400px;
+            text-align: center;
+            font-size: 16px;
+            color: #A7A2A2;
+            word-wrap: break-word;
+            margin-left: -250px;
+            line-height: 25px;
+        }
+
+        .max-info {
+            font-size: 14px;
+            color: #3C763D;
+            padding-left: 15px;
+            display: inline-block !important;
+            width: 430px;
+            vertical-align: middle;
+        }
+
+        .btn-start {
+            background: #58862D;
+        }
+
+        .btn-start:hover {
+            color: #fff;
+            background: #00A65A;
+        }
+
+        .info-title {
+            color: #A94442;
+        }
+
+        .ok {
+            background-color: #00a65a;
+            border-color: #008d4c;
+            color: #fff;
+        }
+
+        .ok:hover {
+            color: #fff;
+            background-color: orangered;
+            border-color: orangered;
+        }
+
+        .change {
+            background-color: #959C99;
+            border-color: #959C99;
+            color: #fff;
+        }
+
+        .change:hover {
+            color: #fff;
+            background-color: orangered;
+            border-color: orangered;
+        }
+    </style>
+    <script type="text/javascript">
+        var module = "${module}";
+    </script>
+</head>
+<body>
+<div id="upload">
+    <div class="btns">
+        <input type="file" id="fileimg" value="" accept="image/*" style="display:none;"/>
+        <button id="ctlBtn" class="btn btn-start">${i18n("chooseFile")}</button>
+        <button id="cutBtn" class="btn btn-start" dis="false">${i18n("cutting")}</button>
+        <button class="btn ok btn-start">${i18n("confirm")}</button>
+        <button class="btn change btn-start">${i18n("cancel")}</button>
+        <div class="max-info"><span class="info-title">单个文件最大允许${maxFileSizeMsg}.</span><br>(如无法添加至列表请检查文件格式和大小是否符合规范！)
+        </div>
+    </div>
+    <div id="fileList" class="filelist">
+        <div class="cropper" style="height: 450px">
+            <img style="width: 100%">
+        </div>
+        <div class="prew">
+            <img style="max-height:250px;display: block;margin: 0 auto;">
+        </div>
+    </div>
+</div>
+<script type="text/javascript" src="${base}/static/plugins/jquery-image-cut/dist/cropper.js"></script>
+<script type="text/javascript">
+    var index = parent.layer.getFrameIndex(window.name);
+    var data = "";
+    jQuery(function () {
+        var $ctlBtn = $("#ctlBtn");
+        var $cutBtn = $("#cutBtn");
+        var $cropper = $(".cropper");
+        var $image = $('.cropper > img');
+        var $prew = $('.prew > img');
+
+        $ctlBtn.click(function () {
+            $("#fileimg").click();
+        });
+        $cutBtn.click(function () {
+            if ($(this).attr("dis") === "false") {
+                parent.layer.msg("请先上传图片", {icon: 7, time: 2000});
+            } else {
+                data = $image.cropper("getCroppedCanvas").toDataURL();
+                $cropper.hide();
+                $prew.show();
+                $prew.attr("src", data);
+            }
+        });
+
+        var options = {
+            zoomable: true,
+            aspectRatio: '${ratio!}',
+            preview: '.img-preview'
+        };
+        $image.cropper(options);
+        var $inputImage = $('#fileimg'),
+            URL = window.URL || window.webkitURL,
+            blobURL;
+        if (URL) {
+            $inputImage.change(function () {
+                $cropper.show();
+                $prew.hide();
+                var files = this.files,
+                    file;
+                if (files && files.length) {
+                    file = files[0];
+                    if (/^image\/\w+$/.test(file.type)) {
+                        blobURL = URL.createObjectURL(file);
+                        $image.one('built.cropper', function () {
+                            URL.revokeObjectURL(blobURL);
+                        }).cropper('reset', true).cropper('replace', blobURL);
+                        $inputImage.val('');
+                        $cutBtn.attr("dis", "true")
+                    } else {
+                        parent.layer.msg("请上传图片文件", {icon: 7, time: 2000});
+                        $cutBtn.attr("dis", "false")
+                    }
+                }
+            });
+        } else {
+            $inputImage.parent().remove();
+        }
+        $(".btn.ok").click(function () {
+            if (data != "") {
+                var load = layer.msg('上传中', {icon: 16, shade: 0.6});
+                $.ajax({
+                    url: base + '/File/uploadBase64Act',
+                    type: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify({module: "${module!}", filedate: data}),
+                    error: function (request) {
+                        layer.close(load);
+                        layer.msg("网络连接出错", {icon: 5, time: 1000});
+                    },
+                    dataType: "json",
+                    success: function (data) {
+                        layer.close(load);
+                        if (data && data.ok) {
+                            layer.msg('上传成功', {icon: 1});
+                            window.parent.HUCuploadFile.ok(data);
+                        } else {
+                            layer.msg(data.msg, {icon: 7, time: 2000});
+                        }
+                    }
+                });
+            } else {
+                parent.layer.msg("请先选择文件并裁剪", {icon: 7, time: 2000});
+            }
+        });
+        $(".btn.change").click(function () {
+            parent.layer.close(index);
+        });
+    });
+</script>
+</body>
+</html>

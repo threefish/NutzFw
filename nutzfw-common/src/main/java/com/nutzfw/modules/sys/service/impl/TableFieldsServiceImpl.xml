@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE Sqls PUBLIC "nutz-sqltpl" "https://threefish.gitee.io/nutz-sqltpl/nutz-sqltpl.dtd">
+<Sqls class="com.nutzfw.modules.sys.service.impl.TableFieldsServiceImpl">
+    <!--取得全部可读字段-->
+    <sql id="fetchAuthReadFields" wrap="true">
+        SELECT r.auth,f.* FROM sys_data_fields AS f LEFT JOIN sys_role_fields AS r ON r.field_id = f.id
+        WHERE tableId = @tableId AND FIND_IN_SET( r.role_id, @roleIds )
+        and (r.auth='r' or r.auth='rw') GROUP BY r.field_id,r.auth ORDER BY f.shortNo
+    </sql>
+    <!--取得全部可写字段-->
+    <sql id="fetchAuthReadWriteFields" wrap="true">
+        SELECT r.auth,f.* FROM sys_data_fields AS f LEFT JOIN sys_role_fields AS r ON r.field_id = f.id
+        WHERE tableId = @tableId AND FIND_IN_SET( r.role_id, @roleIds )
+        and r.auth='rw'  GROUP BY r.field_id,r.auth ORDER BY f.shortNo
+    </sql>
+</Sqls>

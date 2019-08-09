@@ -1,0 +1,39 @@
+/*.ztree *{*/
+    /*color: #fff;*/
+    /*background: #445167;*/
+/*}*/
+#tree .switch {
+    width: 20px!important;
+    height: 21px!important;
+
+}
+.ztree li ul.line{
+    background: none!important;
+}
+.ztree li span.button.ico_open{
+    background-position: -147px -84px!important;
+}
+.ztree li span.button.ico_close {
+    background-position: -147px -64px!important;
+}
+.ztree li span.button.ico_docu{
+    background-position: -147px -106px!important;
+}
+.ztree li span.button{
+    background-image: url("./img/metroChange.png")!important;
+}
+
+.ztree  *> a:hover ,.ztree li a.curSelectedNode,.ztree li a.curSelectedNode span{
+    color: #fff!important;
+    background-color:#00a5e0!important;
+    text-decoration:none!important;
+}
+.ztree  *>a:hover .button.ico_open,.ztree li a.curSelectedNode .button.ico_open{
+    background-position: -147px -21px!important;
+}
+.ztree  *>a:hover .button.ico_close,.ztree li a.curSelectedNode .button.ico_close{
+    background-position: -147px 0!important;
+}
+.ztree li a.curSelectedNode .button.ico_docu,.ztree  *>a:hover .button.ico_docu{
+    background-position: -147px -43px!important;
+}

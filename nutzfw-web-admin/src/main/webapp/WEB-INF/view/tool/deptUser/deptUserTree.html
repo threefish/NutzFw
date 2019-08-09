@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="utf-8">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="${title!}" name="description">
+    <title>人员选择</title>
+    <%include("/inc/header.html"){}%>
+    <style>
+        body {
+            overflow: hidden;
+            height: 600px;
+        }
+
+        .simple-list {
+            max-height: 280px;
+            overflow: auto;
+            overflow-x: hidden;
+        }
+
+        .user-line:hover {
+            cursor: pointer;
+            background: #00c0ef;
+            color: #fff;
+        }
+
+        .leader-line {
+            padding: 5px;
+            background: #f9f8f8;
+            margin: 5px 0px;
+        }
+
+        .leader-line:hover {
+            cursor: pointer;
+            background: #00c0ef;
+            color: #fff;
+        }
+
+        .deptName {
+            overflow: hidden;
+            height: 24px;
+        }
+
+
+        #selectedUsers > .simple-list li {
+            background: #eae5e5;
+            float: left;
+            padding: 5px;
+            margin-right: 5px;
+            margin-bottom: 5px;
+            width: 150px;
+        }
+
+        #selectedUsers > .simple-list li:hover {
+            background: #46cf91;
+            color: #ffffff;
+            cursor: pointer;
+            position: relative;
+        }
+
+        #selectedUsers > .simple-list li > a {
+            visibility: hidden;
+        }
+
+        #selectedUsers > .simple-list li:hover > a {
+            visibility: inherit;
+        }
+
+        .layui-card-header {
+            border-bottom: 1px solid #e6e6e6;
+            background: #f2f2f2;
+        }
+
+        .layui-card {
+            border: 1px solid #e6e6e6;
+        }
+
+        .fa-remove {
+            position: absolute;
+            right: 5px;
+            top: 10px;
+        }
+
+        #container {
+            margin: 5px;
+        }
+
+        .user-line div {
+            padding: 0px;
+        }
+    </style>
+</head>
+<body>
+<div id="container" v-if="initLoad">
+    <div class="col-sm-6" style="padding: 0;">
+        <div class="layui-collapse" lay-accordion="">
+            <div class="layui-colla-item">
+                <h2 class="layui-colla-title">按组织架构筛选</h2>
+                <div class="layui-colla-content layui-show">
+                    <div id='ztree_searchbox' style='position: relative;display: block;height: 35px'>
+                        <div class='ztree_searchbox'
+                             style='padding: 2px;background:#fff;display: block;height: 35px;overflow: hidden;width: 100%'>
+                            <input class=form-control placeholder='模糊查询快速定位'
+                                   style='display: inline-block;width: 65%;height: 33px;' type=text
+                                   v-model="searchKey">
+                            <input @click="fn_searchDeptNode" class='btn btn-info btn-sm' id='ztree_search_btn_1'
+                                   style='display: inline-block;height: 33px;border-radius: 4px;width: 30%;margin-top: -4px;'
+                                   type='button'
+                                   value='快速定位'>
+                        </div>
+                    </div>
+                    <div class="ztree" id="deptTree"
+                         style="height: calc(100% - 136px);max-height:400px;overflow-y: auto"></div>
+                </div>
+            </div>
+            <div class="layui-colla-item">
+                <h2 class="layui-colla-title">按部门领导选择</h2>
+                <div class="layui-colla-content">
+                    <div class="leader-line" @click="handleLoadLeaderUser('HEAD')">部门主管领导</div>
+                    <div class="leader-line" @click="handleLoadLeaderUser('LEADER')">部门分管领导</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6" v-if="initLoad">
+        <div class="layui-card">
+            <div class="layui-card-header">人员列表</div>
+            <div class="layui-card-body clearfix">
+                <ul class="col-sm-12 simple-list clearfix" style="padding:5px 0px;">
+                    <li class="col-sm-12 user-line" @click="handleAddUser(user)" v-for="user in unSelectedUsers">
+                        <div class="col-sm-3">{{user.realName}}</div>
+                        <div class="col-sm-2">{{user.userName}}</div>
+                        <div class="col-sm-2">{{user.sex}}</div>
+                        <div class="col-sm-5 deptName" :title="user.deptName">{{user.deptName}}</div>
+                    </li>
+                    <li class="col-sm-12 user-line" v-if="unSelectedUsers.length==0">
+                        <div style="text-align: center">{{nodata}}</div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="layui-card">
+            <div class="layui-card-header">
+                <span>已选人员</span>
+                <span v-if="config.multipleSelection">(多选)</span>
+                <span v-if="!config.multipleSelection">(单选)</span>
+            </div>
+            <div class="layui-card-body" id="selectedUsers">
+                <ul class="simple-list clearfix" style="max-height: 125px;">
+                    <li @click="handleRemoveUser(user)" v-for="user in selectedUsers">
+                        <i class="fa fa-user"></i>
+                        <span>{{user.realName}}&nbsp;&nbsp;({{user.userName}})</span>
+                        <a>
+                            <i class="fa fa-remove"></i>
+                        </a>
+                    </li>
+                </ul>
+                <div class="no-results" v-if="selectedUsers.length==0">
+                    没有选择...
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<script>
+    var deptTree, vm = new Vue({
+        el: '#container',
+        data: {
+            initLoad: false,
+            searchKey: "",
+            unSelectedUsers: [],
+            selectedUsers: [],
+            nodata: '无数据',
+            config: {
+                multipleSelection: true,
+            }
+        },
+        methods: {
+            handleAddUser: function (user) {
+                if (!this.config.multipleSelection) {
+                    this.selectedUsers = [];
+                }
+                var selecteds = this.selectedUsers;
+                var arr = [];
+                var isInArr = false;
+                for (var i in selecteds) {
+                    var temp = selecteds[i];
+                    if (temp.userName == user.userName) {
+                        isInArr = true;
+                    }
+                }
+                if (!isInArr) {
+                    this.selectedUsers.push(user);
+                }
+
+            },
+            handleRemoveUser: function (user) {
+                var selecteds = this.selectedUsers;
+                var arr = [];
+                for (var i in selecteds) {
+                    var temp = selecteds[i];
+                    if (temp.userName != user.userName) {
+                        arr.push(temp);
+                    }
+                }
+                this.selectedUsers = arr;
+            },
+            fn_searchDeptNode: function () {
+                core.showZtreeSearch(deptTree, vm.searchKey, "name");
+            },
+            loadDeptUsers: function (deptId, name) {
+                core.postSyncJSON("/selectUser/dept/users", {deptId: deptId}, function (data) {
+                    vm.unSelectedUsers = data;
+                    if (data.length == 0) {
+                        vm.nodata = "【" + name + "】 无符合数据"
+                    }
+                });
+            },
+            handleLoadLeaderUser: function (type) {
+                core.postSyncJSON("/selectUser/dept/deptLeaderUsers", {leaderType: type}, function (data) {
+                    vm.unSelectedUsers = data;
+                    if (data.length == 0) {
+                        vm.nodata = "【" + (type == 'HEAD' ? "部门主管领导" : "部门分管领导") + "】 无符合数据"
+                    }
+                });
+            },
+            handleInitZtree: function () {
+                deptTree = new showZtree({
+                    el: "#deptTree",
+                    url: "/selectUser/dept/treeAboutCount",
+                    data: {id: "id", pid: "pid", name: "name"},
+                    autoParam: ["id"],
+                    otherParam: {},
+                    edit: {
+                        drag: {
+                            autoExpandTrigger: true,
+                            inner: false,
+                        },
+                        enable: true,
+                        showRemoveBtn: false,
+                        showRenameBtn: false
+                    },
+                    onSelect: function (node) {
+                        deptTree.expandNode(node);
+                        vm.loadDeptUsers(node.id, node.name);
+                        return true;
+                    }
+                });
+            },
+        },
+        created: function () {
+            this.initLoad = true;
+        },
+        updated: function () {
+        },
+        mounted: function () {
+            this.handleInitZtree();
+            layui.use(['element']);
+        }
+    });
+</script>
+</html>

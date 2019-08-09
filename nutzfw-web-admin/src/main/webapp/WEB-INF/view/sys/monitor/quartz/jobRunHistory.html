@@ -1,0 +1,77 @@
+<%
+var title=job.jobName+"  错误记录";
+layout("/layouts/blank.html",{title:title}){
+%>
+<style type="text/css">
+    .dataTbleBox {
+        background: #ffffff;
+        margin: 15px 0px;
+        padding: 15px;
+    }
+</style>
+<section class="content-header">
+    <h1>
+        ${title}
+        <small>控制面板</small>
+    </h1>
+</section>
+<section class="content">
+    <div style="background: #ffffff">
+        <div id="joblistTable" lay-filter='joblistTable'></div>
+    </div>
+</section>
+<script type="text/html" id="toolBarFixed">
+    {{# if(d.status==false){ }}
+    <a class="layui-btn layui-btn-xs layui-btn-danger" lay-event="view">查看错误日志</a>
+    {{# } }}
+</script>
+<script type="text/javascript">
+    var quartzJobGrid;
+    $(function () {
+        layui.use(['table', 'element', 'laytpl'], function () {
+            var table = layui.table; //表格
+            quartzJobGrid = table.render({
+                id: 'joblistTable',
+                elem: '#joblistTable',
+                page: true,
+                method: 'post',
+                url: base + '/monitor/jobs/jobRunHistoryListData',
+                limit: 50,
+                even: true,
+                height: 550,
+                request: {
+                    pageName: 'pageNum',
+                    limitName: 'pageSize',
+                },
+                where: {
+                    jobId: '${job.uuid}'
+                },
+                cols: [[
+                    {title: '序号', type: 'numbers', width: 50},
+                    {field: 'opAt', title: '执行时间'},
+                    {field: 'consuming', title: '耗时'},
+                    {
+                        field: 'status', title: '状态', templet: function (row) {
+                            return row.status == true ? "成功" : "<span style='color: red'>失败</span>";
+                        }
+                    },
+                    {title: '操作', align: 'center',  fixed: 'right', toolbar: '#toolBarFixed'},
+                ]],
+            });
+            table.on("tool(joblistTable)", function (obj) {
+                var data = obj.data, layEvent = obj.event;
+                var ac = layEvent;
+                if (ac == "view") {
+                    layer.open({
+                        type: 1,
+                        title: ['错误日志'],
+                        shade: 0.3,
+                        area: ['80%', '80%'],
+                        content: "<pre style='padding: 5px;height: 100%;border: 0px;overflow: scroll'>" + data.errorLog + "</pre>",
+                    });
+                }
+            });
+        });
+    });
+</script>
+<%}%>

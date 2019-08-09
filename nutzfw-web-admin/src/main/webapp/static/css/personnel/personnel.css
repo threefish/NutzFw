@@ -1,0 +1,231 @@
+
+.content{
+    height: 100%;
+    padding-bottom: 42px;
+    overflow-x: auto;
+}
+.personnel{
+    height: 100%;
+    background: #f5f4f4;
+}
+.personnel,.personnel-body{
+    min-width: calc(1366px - 230px) !important;
+}
+.personnel-body{
+    width: 100%;
+    height: 100%;
+    background: #fff;
+    border-radius: 5px;
+    padding:5px 2px 2px 10px;
+}
+.personnel-btn{
+    width: 100%;
+    margin-bottom: 20px;
+}
+.personnel-btn>.btn{
+    margin-left: 10px;
+    float: left;
+}
+.personnel-num{
+    min-width: 240px;
+    float: right;
+}
+.personnel-num>.title{
+    text-align: right;
+    color:#0a99ec;
+    width: 130px;
+    line-height:34px;
+    float: left;
+}
+.personnel-num>.number{
+    margin-left: 140px;
+    line-height:34px;
+}
+
+
+/* 草稿箱 */
+.personnel-draft-search{
+    width: 80%;
+    float: left;
+}
+.personnel-draft-search .form-col{
+    width: 31%;
+    padding: 5px 10px;
+    margin: 0 1%;
+    float: left;
+}
+/* input 框架构 */
+.form-col>label{
+    width: 100px;
+    text-align: left;
+    line-height: 26px;
+    float: left;
+}
+.form-col>label:after{
+    content: ' : ';
+}
+.form-col>.form-group{
+    margin-left: 100px;
+    padding-left: 10px;
+}
+.form-col>.form-group>.form-control{
+    padding: 2px 6px;
+    height: auto;
+    font-size: 12px;
+    line-height: 20px;
+}
+
+#form_user_edit label{
+    text-align: right;
+    width: 100px;
+    line-height: 30px;
+    float: left;
+}
+#form_user_edit label:after{
+    content: ' : ';
+}
+#form_user_edit label span{
+    color:red;
+}
+#form_user_edit .form-group{
+    margin-left: 110px;
+}
+.personnel-draft-searchBtn{
+    text-align: center;
+    margin-left: 81%;
+}
+.layer-ext-myskin .layui-layer-btn2{
+    background: #ffb408;
+    color:#fff;
+}
+/* 修改个人资料 */
+/* 个人信息修改查看的css */
+#personnel-alter{
+    margin-bottom: 10px;
+    background: #fff;
+    border-left:1px solid #edf1f4;
+}
+
+#personnel-alter>.layui-this{
+    background: #edf1f4;
+    color:#505050;
+}
+#personnel-alter>.layui-this:after{
+    border-bottom-color:#edf1f4;
+}
+
+#userEdit{
+    padding: 0;
+    background: #edf1f4;
+}
+#userEdit .layui-tab{
+    margin: 0;
+}
+#userEdit .tab-con{
+    height: 100%;
+}
+#userEdit .tab-body{
+    height: 100%;
+}
+#userEdit .layui-tab-content{
+    padding-left: 220px;
+    padding-top: 0;
+    height: 100%;
+}
+#userEdit .layui-tab-content .layui-tab-item{
+    height: 100%;
+}
+#userEdit .tab-left{
+    width: 210px;
+    min-height: 200px;
+    background: #fff;
+    padding: 10px;
+    border-radius: 5px;
+    float: left;
+}
+#userEdit .layui-tab-item-con{
+    padding: 10px;
+    width: 100%;
+    border-radius: 5px;
+    height: 100%;
+    overflow-y: auto;
+    background: #fff;
+}
+#userEdit .tab-left .info-head{
+    width: 100%;
+    height: 210px;
+}
+#userEdit .tab-left .info-form{
+    width: 100%;
+    margin: 10px 0;
+}
+.info-form .form-col>label:after{
+    content: " : ";
+}
+.info-form .form-col>label{
+    width: 80px;
+    text-align: right;
+    margin-bottom: 2px;
+    float: left;
+}
+.info-form .form-col>label>span{
+    color:#fff;
+
+}
+#info_edit .info-form .requiredShow>label>span{
+    color:red;
+}
+.info-form .form-col>.form-group{
+    height: 26px;
+    margin-left: 80px;
+    margin-bottom: 0;
+}
+.info-form .form-col>.form-group>input{
+    border:1px solid #fff;
+    width: 100%;
+    height: 100%;
+    line-height: 26px;
+    padding-left: 5px;
+}
+.info-form .form-col>.form-group>input:hover{
+    border-color:#ceced3!important;
+}
+.info-form .form-col>.form-group>.form-control{
+    background: #fff;
+}
+.info-form .form-col>.form-group>.form-select{
+    border:1px solid #fff;
+    width: 100%;
+    height: 100%;
+    padding:2px 0;
+    line-height: 26px;
+}
+.info-form .form-col>.form-group>.form-input,
+.info-form .form-col>.form-groups,
+.info-form .form-col>.form-group>.formInput{
+    border:1px solid #ceced3;
+    border-radius: 2px;
+}
+#form_info_edit .form-group span{
+    float: left;
+}
+.info-form .form-col>.form-groups{
+    padding: 0;
+    margin-left: 90px
+}
+#userEdit .tab-left .info-btn{
+    margin-top: 30px;
+    width: 100%;
+}
+#userEdit .tab-left .info-btn .btn{
+    width: 80px !important;
+    float: left;
+}
+/* 表单显示上下按钮 */
+#userTable_wrapper .dataTables_info,#userTable_wrapper .dataTables_length{
+    display: none!important;
+}
+#userTable td,#userTable th{
+    padding-right: 8px;
+    text-align: center;
+}

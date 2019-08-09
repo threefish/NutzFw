@@ -1,0 +1,646 @@
+<%
+var title="在线表单管理";
+layout("/layouts/blank.html",{title:title}){
+%>
+<style type="text/css">
+    .required {
+        color: red;
+    }
+
+    .lable-right {
+        text-align: right;
+        line-height: 35px;
+    }
+
+    .form-group {
+        height: 40px;
+    }
+
+    .table-select {
+        height: 28px;
+        border: 1px #d6d5d5 solid;
+        line-height: 28px;
+        width: 100%;
+    }
+
+    #logicElExpressionValue {
+        padding: 5px;
+        border: 1px #cdcdcd solid;
+        width: 100%;
+        height: 180px;
+        resize: none;
+    }
+</style>
+<section id="container" v-if="initLoad">
+    <div class="layui-tab layui-tab-brief" lay-filter="tabChange">
+        <ul class="layui-tab-title">
+            <li class="layui-this">表单属性</li>
+            <li>字段属性</li>
+            <li>前台页面</li>
+            <li>字典效验</li>
+        </ul>
+        <div class="layui-tab-content">
+            <div class="layui-tab-item layui-show">
+                <div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label lable-right">表名称<span class="required">*</span>：</label>
+                        <div class="col-sm-6">
+                            <input type="text" data-rule="required" class="form-control" v-model="fromData.name">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label lable-right">表备注<span class="required">*</span>：</label>
+                        <div class="col-sm-6">
+                            <input type="text" data-rule="required" class="form-control" v-model="fromData.comment">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label lable-right">表类型<span class="required">*</span>：</label>
+                        <div class="col-sm-6">
+                            <select class="form-control" v-model="fromData.tableType">
+                                <option value="PrimaryTable">人员主表</option>
+                                <option value="Schedule">人员附表</option>
+                                <option value="SingleTable">数据单表</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label lable-right">表模版<span class="required">*</span>：</label>
+                        <div class="col-sm-6">
+                            <select class="form-control" v-model="fromData.formTemplate">
+                                <option value="1">三列排布</option>
+                                <option value="2">两列排布</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-tab-item" id="tab1">
+                <div class="layui-btn layui-btn-sm layui-btn-normal" @click="handleAdd">添加</div>
+                备注不填则默认为字段名称
+                <div style="background: #ffffff" id="table">
+                    <div id="listTable" lay-filter='listTable'></div>
+                </div>
+            </div>
+            <div class="layui-tab-item" id="tab2">
+                表单显示文字不填则默认为字段名称
+            </div>
+            <div class="layui-tab-item" id="tab3">
+
+            </div>
+        </div>
+    </div>
+</section>
+<script type="text/html" id="toolBarFixed">
+    {{# if(d.system != true){ }}
+    <div class="layui-btn layui-btn-sm layui-btn-normal" lay-event="del">删除</div>
+    {{# }else{ }}
+    不能修改字段属性
+    {{# } }}
+</script>
+<script type="text/html" id="fieldType">
+    <select lay-ignore class="table-select" onChange="vm.changeType(this)" data-index="{{d.LAY_TABLE_INDEX}}"
+            data-field="fieldType">
+        <option value="0" {{ d.fieldType==0?'selected':'' }}>字符串</option>
+        <option value="1" {{ d.fieldType==1?'selected':'' }}>数值型</option>
+        <option value="2" {{ d.fieldType==2?'selected':'' }}>日期</option>
+        <option value="3" {{ d.fieldType==3?'selected':'' }}>大文本</option>
+        <option value="4" {{ d.fieldType==4?'selected':'' }}>单附件</option>
+        <option value="5" {{ d.fieldType==5?'selected':'' }}>多附件(20个)</option>
+    </select>
+</script>
+<script type="text/html" id="controlType">
+    <select lay-ignore class="table-select" onChange="vm.changeType(this)" data-index="{{d.LAY_TABLE_INDEX}}"
+            data-field="controlType">
+        <option value="0" {{ d.controlType==0?'selected':'' }}>文本框</option>
+        <!--<option value="1" {{ d.controlType==1?'selected':'' }}>下拉框</option>-->
+        <option value="2" {{ d.controlType==2?'selected':'' }}>多行文本框</option>
+        <option value="3" {{ d.controlType==3?'selected':'' }}>UE编辑器</option>
+        <option value="4" {{ d.controlType==4?'selected':'' }}>密码框</option>
+        <option value="5" {{ d.controlType==5?'selected':'' }}>日期(yyyy-MM-dd)</option>
+        <option value="6" {{ d.controlType==6?'selected':'' }}>日期(yyyy-MM-dd HH:mm:ss)</option>
+        <option value="7" {{ d.controlType==7?'selected':'' }}>附件</option>
+        <option value="8" {{ d.controlType==8?'selected':'' }}>图片</option>
+    </select>
+</script>
+<script type="text/html" id="validationRulesType">
+    <select lay-ignore class="table-select" onChange="vm.changeType(this)" data-index="{{d.LAY_TABLE_INDEX}}"
+            data-field="validationRulesType">
+        <option value="-1" {{ d.validationRulesType==-1?'selected':'' }}>--请选择--</option>
+        <option value="0" {{ d.validationRulesType==0?'selected':'' }}>唯一效验</option>
+        <option value="1" {{ d.validationRulesType==1?'selected':'' }}>非空</option>
+        <option value="2" {{ d.validationRulesType==2?'selected':'' }}>数字</option>
+        <option value="3" {{ d.validationRulesType==3?'selected':'' }}>字母</option>
+        <option value="4" {{ d.validationRulesType==4?'selected':'' }}>手机号码</option>
+        <option value="5" {{ d.validationRulesType==5?'selected':'' }}>电子邮件</option>
+        <option value="6" {{ d.validationRulesType==6?'selected':'' }}>网址</option>
+        <option value="7" {{ d.validationRulesType==7?'selected':'' }}>中文</option>
+        <option value="8" {{ d.validationRulesType==8?'selected':'' }}>邮政编码</option>
+        <option value="9" {{ d.validationRulesType==9?'selected':'' }}>6到18位字符串</option>
+    </select>
+</script>
+<script type="text/html" id="dictDependTpl">
+    <select lay-ignore class="table-select" onChange="vm.changeType(this)" data-index="{{d.LAY_TABLE_INDEX}}"
+            data-field="dictDepend">
+        <option value="0" {{ d.dictDepend==0?'selected':'' }}>--请选择--</option>
+        <option value="1" {{ d.dictDepend==1?'selected':'' }}>依赖名称</option>
+        <option value="2" {{ d.dictDepend==2?'selected':'' }}>依赖键值</option>
+        <option value="3" {{ d.dictDepend==3?'selected':'' }}>依赖附加值1</option>
+        <option value="4" {{ d.dictDepend==4?'selected':'' }}>依赖附加值2</option>
+        <option value="5" {{ d.dictDepend==5?'selected':'' }}>依赖附加值3</option>
+        <option value="6" {{ d.dictDepend==6?'selected':'' }}>依赖附加值4</option>
+        <option value="7" {{ d.dictDepend==7?'selected':'' }}>依赖附加值5</option>
+        <option value="8" {{ d.dictDepend==8?'selected':'' }}>依赖附加值6</option>
+        <option value="9" {{ d.dictDepend==9?'selected':'' }}>依赖附加值7</option>
+        <option value="10" {{ d.dictDepend==10?'selected':'' }}>依赖附加值8</option>
+        <option value="11" {{ d.dictDepend==11?'selected':'' }}>依赖附加值9</option>
+        <option value="12" {{ d.dictDepend==12?'selected':'' }}>依赖附加值10</option>
+    </select>
+</script>
+
+
+<script type="text/html" id="switchTpl">
+    <input type="checkbox" id="nullValue_{{d.LAY_TABLE_INDEX}}" data-index="{{d.LAY_TABLE_INDEX}}"
+           lay-skin="switch" value="{{d.nullValue}}" lay-text="不允许|允许"
+           lay-filter="nullValue" {{ (d.nullValue=='true'||d.nullValue==true)?'checked':'' }}>
+</script>
+<script type="text/html" id="primaryKeyTpl">
+    <input type="checkbox" id="primaryKey_{{d.LAY_TABLE_INDEX}}" data-index="{{d.LAY_TABLE_INDEX}}"
+           lay-skin="switch" lay-text="是|否" lay-filter="primaryKey" value="{{d.primaryKey}}"
+           {{ (d.primaryKey=='true'||d.primaryKey==true)?'checked':'' }}>
+</script>
+<script type="text/html" id="logicTpl">
+    <input type="checkbox" id="logic_{{d.LAY_TABLE_INDEX}}" data-index="{{d.LAY_TABLE_INDEX}}"
+           lay-skin="switch" lay-text="逻辑字段|物理字段" lay-filter="logic" value="{{d.logic}}"
+           {{ (d.logic=='true'||d.logic==true)?'checked':'' }}>
+</script>
+<script type="text/html" id="fromDisplayTpl">
+    <input type="checkbox" id="fromDisplay_{{d.LAY_TABLE_INDEX}}" data-index="{{d.LAY_TABLE_INDEX}}"
+           lay-skin="switch" lay-text="是|否" lay-filter="fromDisplay" value="{{d.fromDisplay}}" {{
+           (d.fromDisplay=='true'||d.fromDisplay==true)?'checked':'' }}>
+</script>
+<script type="text/html" id="multipleDictTpl">
+    <input type="checkbox" id="multipleDict_{{d.LAY_TABLE_INDEX}}" data-index="{{d.LAY_TABLE_INDEX}}"
+           lay-skin="switch" lay-text="是|否" lay-filter="multipleDict" value="{{d.multipleDict}}"
+           {{(d.multipleDict=='true'||d.multipleDict==true)?'checked':'' }}>
+</script>
+<script type="text/javascript">
+    var listTable, table, tableScrollTop = 0, timeTimeout = undefined;
+    var cols = new Object();
+    cols.cols1 = [[
+        {title: '序号', type: 'numbers', width: 50},
+        {field: 'fieldName', title: '列名',style:"background: #f5f2f2;"},
+        {field: 'name', title: '字段名', edit: 'text'},
+        {field: 'comment', title: '备注', edit: 'text'},
+        {field: 'fieldType', title: '字段类型', templet: "#fieldType"},
+        {field: 'length', title: '字段长度', edit: 'text'},
+        {field: 'decimalPoint', title: '小数点', edit: 'text'},
+        {field: 'defaultValue', title: '默认值', edit: 'text'},
+        // {field: 'primaryKey', title: '主键', templet: "#primaryKeyTpl"},//暂时屏蔽，未发现用的地方
+        {field: 'logic', title: '逻辑字段', templet: "#logicTpl"},
+        {field: 'logicElExpression', title: '逻辑表达式', event: 'logicElExpression', style: 'cursor: pointer;'},
+        {field: 'nullValue', title: '允许空值', templet: "#switchTpl"},
+        {title: '操作', align: 'center', fixed: 'right', toolbar: '#toolBarFixed'},
+    ]];
+    cols.cols2 = [[
+        {title: '序号', type: 'numbers', width: 50},
+        {field: 'name', title: '字段名',},
+        {field: 'comment', title: '备注'},
+        {field: 'controlType', title: '控件类型', templet: "#controlType"},
+        {field: 'fromDisplay', title: '表单显示', templet: "#fromDisplayTpl"},
+        {field: 'fromLable', title: '表单显示文字', edit: 'text'},
+        {field: 'shortNo', title: '显示顺序', edit: 'text'},
+        {field: 'fromLableTips', title: '字段填写提示', edit: 'text'},
+        {field: 'attachSuffix', title: '附件后缀限制', edit: 'text'},
+    ]];
+    cols.cols3 = [[
+        {title: '序号', type: 'numbers', width: 50},
+        {field: 'name', title: '字段名',},
+        {field: 'comment', title: '备注',},
+        {field: 'validationRulesType', title: '效验规则', templet: "#validationRulesType"},
+        {field: 'dictSysCode', title: '字典CODE'},
+        {field: 'dictSysCodeDesc', title: '字典名称', event: 'dictSysCode', style: 'cursor: pointer;'},
+        {field: 'multipleDict', title: '字典多选', templet: "#multipleDictTpl"},
+        {field: 'dictDepend', title: '字典依赖类型', templet: "#dictDependTpl"},
+        {field: 'dictDependFieldDesc', title: '依赖字段', event: 'dictDepend', style: 'cursor: pointer;'},
+    ]]
+    var vm = new Vue({
+        el: '#container',
+        data: {
+            fromData: {
+                id: "${table.id!}",
+                tableType: "${table.tableType!}",
+                name: "${table.name!}",
+                comment: "${table.comment!}",
+                formTemplate: "${table.formTemplate!}",
+            },
+            fromDataSubmit: false,
+            fromDataEdit: true,
+            initLoad: false,
+        },
+        methods: {
+            handleSave: function () {
+                var data = this.getListPageData();
+                var json = core.postJSON("/sysDataTable/save", {
+                    table: JSON.stringify(this.fromData),
+                    list: JSON.stringify(data)
+                });
+                core.msg(json);
+                return json.ok;
+            },
+            changeType: function (t) {
+                var el = $(t);
+                var index = el.attr('data-index');
+                var field = el.attr('data-field');
+                var dataArr = vm.getListPageData();
+                var rowData = dataArr[index];
+                var val = el.val();
+                if (field == "dictDepend") {
+                    if (!((rowData.logic == "false" || rowData.logic == false) && (rowData.multipleDict == "false" || rowData.multipleDict == false) && rowData.dictSysCode == '')) {
+                        core.error("依赖类型必须是非逻辑字段，非多选字典，自己不能是字典字段！");
+                        vm.reloadData();
+                        return false;
+                    }
+                } else if (field == "fieldType") {
+                    //修改字段类型
+                    switch (Number(val)) {
+                        case 0://字符串
+                            rowData['decimalPoint'] = 0;
+                            break;
+                        case 1://数值型
+                            rowData['multipleDict'] = false;
+                            rowData['length'] = 10;
+                            break;
+                        case 2://日期
+                            rowData['length'] = 6;
+                            break;
+                        case 3://大文本
+                            rowData['length'] = 65530;
+                            rowData['controlType'] = 3;
+                            break;
+                        case 4://单附件
+                            rowData['length'] = 26;
+                            rowData['controlType'] = 7;
+                            break;
+                        case 5://多附件(20个)
+                            rowData['length'] = 550
+                            rowData['controlType'] = 7;
+                            break;
+                    }
+                } else if (field == "controlType") {
+                    //修改表单类型
+                    switch (Number(val)) {
+                        case 0://文本框
+                            break;
+                        case 1:
+                            break;
+                        case 2://多行文本框
+                            break;
+                        case 3://UE编辑器
+                            break;
+                        case 4://密码框
+                            break;
+                        case 5:
+                        case 6://日期
+                            rowData['fieldType'] = 2;
+                            rowData['length'] = 6;
+                            rowData['decimalPoint'] = 0;
+                            break;
+                        case 7://附件
+                        case 8://图片
+                            if (rowData['fieldType'] != 4 || rowData['fieldType'] != 5) {
+                                rowData['fieldType'] = 4;
+                                rowData['length'] = 26;
+                            }
+                            break;
+                    }
+                }
+                else if (field == "dictSysCode" && val != "") {
+                    if (rowData['multipleDict'] == 'true') {
+                        rowData['fieldType'] = 0;
+                        rowData['length'] = 100;
+                    } else {
+                        rowData['length'] = 10;
+                        rowData['fieldType'] = 1;
+                    }
+                    rowData['decimalPoint'] = 0;
+                }
+                rowData[field] = val;
+                var newDataArr = new Array();
+                for (var i in dataArr) {
+                    if (i == index) {
+                        newDataArr.push(rowData);
+                    } else {
+                        newDataArr.push(dataArr[i]);
+                    }
+                }
+                vm.reloadData(newDataArr);
+            },
+            handleAdd: function () {
+                var dataArr = this.getListPageData();
+                var defaultFields = {
+                    id: '',
+                    name: '',
+                    comment: '',
+                    length: '0',
+                    decimalPoint: '0',
+                    defaultValue: 'NULL',
+                    fieldType: 0,
+                    nullValue: false,
+                    primaryKey: false,
+                    fromDisplay: false,
+                    validationRulesType: -1,
+                    fromLable: '',
+                    fromLableTips: '',
+                    system: false,
+                    logic: false,
+                    logicElExpression: '',
+                    multipleDict: false,
+                    shortNo: 0,
+                    dictSysCode: '',
+                    dictSysCodeDesc: '',
+                    dictDepend: 0,
+                    dictDependFieldDesc: '',
+                    dictDependFieldId: 0,
+                    attachSuffix: '',
+                };
+                dataArr.push(defaultFields);
+                this.reloadData(dataArr);
+            },
+            reloadData: function (dataArr) {
+                tableScrollTop = $("#table .layui-table-main")[0].scrollTop;
+                if (dataArr == undefined) {
+                    listTable.reload({
+                        data: table.cache['listTable'], done: function () {
+                            $("#table .layui-table-main")[0].scrollTop = tableScrollTop;
+                        }
+                    });
+                } else {
+                    listTable.reload({
+                        data: dataArr, done: function () {
+                            $("#table .layui-table-main")[0].scrollTop = tableScrollTop;
+                        }
+                    })
+                }
+            },
+            getListPageData: function () {
+                var cacheDataArr = table.cache['listTable'];
+                var dataArr = new Array();
+                for (var i in cacheDataArr) {
+                    var row = cacheDataArr[i];
+                    if ((!(row instanceof Array)) && (row instanceof Object)) {
+                        dataArr.push(cacheDataArr[i]);
+                    }
+                }
+                return dataArr;
+            }
+        },
+        created: function () {
+            this.initLoad = true;
+        },
+        mounted: function () {
+            var editField = JSON.parse('${fields!}');
+            layui.use(['table', 'element'], function () {
+                table = layui.table;
+                var element = layui.element;
+                var form = layui.form;
+                element.on('tab(tabChange)', function (d) {
+                    var dataarr = vm.getListPageData();
+                    if (d.index > 0) {
+                        if (d.index == 1 && timeTimeout == undefined) {
+                            timeTimeout = setTimeout(function () {
+                                document.querySelector("#table .layui-table-main").onscroll = function () {
+                                    tableScrollTop = this.scrollTop;
+                                };
+                            }, 0);
+                        }
+                        $("#tab" + d.index).append($("#table"));
+                        listTable.reload({
+                            id: 'listTable',
+                            data: dataarr,
+                            elem: '#listTable',
+                            cols: cols['cols' + d.index],
+                            done: function () {
+                                $("#table .layui-table-main")[0].scrollTop = tableScrollTop;
+                            }
+                        });
+                    }
+                });
+                listTable = table.render({
+                    id: 'listTable',
+                    elem: '#listTable',
+                    data: editField,
+                    height: 'full-150',
+                    cellMinWidth: 80,
+                    page: false,
+                    limit: '9999',
+                    cols: cols['cols1']
+                });
+                //监听工具条
+                table.on("tool(listTable)", function (obj) {
+                    var data = obj.data, layEvent = obj.event;
+                    if (layEvent == "dictDepend") {
+                        if ((data.logic == "false" || data.logic == false) && (data.multipleDict == "false" || data.multipleDict == false) && data.dictSysCode == '') {
+                            var dataList = vm.getListPageData();
+                            var options = new Array();
+                            for (var i in dataList) {
+                                var item = dataList[i];
+                                if (item.dictSysCode != '') {
+                                    options.push("<option value='" + item.name + "'>" + item.name + "</option>")
+                                }
+                            }
+                            layer.open({
+                                type: 1,
+                                id: 'dictDepend',
+                                title: '选择字段',
+                                area: ['500px', '300px'],
+                                content: "<div style='margin: 5px'>依赖字段<select id='dictDepend' class='form-control'><option value=''>--请选择--</option>" + options.join(" ") + "</select></div>",
+                                btn: ['确定', '取消'],
+                                yes: function (index) {
+                                    obj.update({
+                                        dictDependFieldDesc: $("#dictDepend  option:selected").val(),
+                                    });
+                                    layer.close(index);
+                                },
+                                success: function (index) {
+                                    $("#dictDepend").val(data.dictDepend);
+                                }
+                            })
+                        } else {
+                            core.error("依赖类型必须是非逻辑字段，非多选字典，自己不能是字典字段！");
+                        }
+                    } else if (layEvent == "del") {
+                        obj.del();
+                    } else if (layEvent == "dictSysCode") {
+                        if (data.dictDependFieldDesc == "") {
+                            core.showMenusSimpleTree({
+                                title: "选择字典",
+                                url: "/sysDict/tree",
+                                data: {id: "id", pid: "pid", name: "lable"},
+                                onChange: function (index) {
+                                    obj.update({
+                                        dictSysCode: '',
+                                        dictSysCodeDesc: ''
+                                    });
+                                    layer.close(index);
+                                },
+                                onOk: function (data) {
+                                    if (data.grouping && data != undefined) {
+                                        obj.update({
+                                            dictSysCode: data.sysCode,
+                                            dictSysCodeDesc: data.lable
+                                        });
+                                        return true;
+                                    } else {
+                                        core.error("请选择字典分组")
+                                        return false;
+                                    }
+                                },
+                                onSuccess: function (ztree) {
+                                    var node = ztree.getNodesByParam('dictSysCode', data.dictSysCode)[0];
+                                    ztree.selectNode(node);
+                                }
+                            });
+                        } else {
+                            core.error("当前是字典依赖类型不能设置为字典字段");
+                        }
+                    } else if (layEvent == "logicElExpression" && data.logic) {
+                        layer.open({
+                            scrollbar: false,
+                            type: 1,
+                            id: 'editLogicElExpression',
+                            title: '修改逻辑表达式',
+                            area: ['500px', '300px'],
+                            shade: false,
+                            content: "<div style='margin: 5px'><textarea id='logicElExpressionValue'></textarea></div>",
+                            btn: ['确定提交', '查看逻辑表达式编写说明', '取消'],
+                            yes: function (index, no) {
+                                obj.update({
+                                    logicElExpression: $("#logicElExpressionValue").val()
+                                });
+                                layer.close(index);
+                            }, btn2: function (index, no) {
+                                core.openUrl("/sysDataTable/logicElExpressionHelp", "查看逻辑表达式编写说明", "800px", "600px");
+                                return false;
+                            },
+                            success: function (index) {
+                                $("#logicElExpressionValue").val(data.logicElExpression);
+                            }
+                        });
+                    }
+                });
+                form.on('switch(nullValue)', function (obj) {
+                    switchVal(obj, 'nullValue');
+                });
+                form.on('switch(logic)', function (obj) {
+                    switchVal(obj, 'logic');
+                });
+                form.on('switch(primaryKey)', function (obj) {
+                    switchVal(obj, 'primaryKey');
+                });
+                form.on('switch(fromDisplay)', function (obj) {
+                    switchVal(obj, 'fromDisplay');
+                });
+                form.on('switch(multipleDict)', function (obj) {
+                    switchVal(obj, 'multipleDict');
+                });
+                //监听表格编辑事件
+                table.on('edit(listTable)', function (obj) {
+                    var value = obj.value //得到修改后的值
+                        , data = obj.data //得到所在行所有键值
+                        , field = obj.field; //得到当前修改的字段
+                    switch (field) {
+                        case 'length':
+                            if (!testLength(value, data)) {
+                                data['' + field] = 10;
+                            }
+                            break;
+                        case 'decimalPoint':
+                            if (!testDecimalPoint(value, data)) {
+                                data['' + field] = 0;
+                            }
+                            break;
+                        case 'shortNo':
+                            if (!testIsNum(value, data)) {
+                                data['' + field] = 0;
+                            }
+                            break;
+                    }
+                    vm.reloadData();
+                });
+
+                function switchVal(obj, filed) {
+                    var el = $(obj.elem);
+                    var value = el.val();
+                    var index = el.attr('data-index');
+                    var dataArr = vm.getListPageData();
+                    var rowData = dataArr[index];
+                    if (value == 'false') {
+                        el.val('true');
+                    } else {
+                        el.val('false');
+                    }
+                    if (filed == "multipleDict") {
+                        if (el.val() == "false" && rowData['dictSysCode'] != "") {
+                            rowData['fieldType'] = 1;
+                            rowData['length'] = 10;
+                        } else if (el.val() == "true" && rowData['dictDependFieldDesc'] != "") {
+                            el.val("false");
+                            core.error("当前是字典依赖类型不能设置为字典字段");
+                        } else {
+                            rowData['fieldType'] = 0;
+                            rowData['length'] = 100;
+                        }
+                        rowData['decimalPoint'] = 0;
+                    } else if (filed == "logic") {
+                        if (el.val() == "false") {
+                            rowData['logicElExpression'] = "";
+                        }
+                    }
+                    rowData[filed] = el.val();
+                    var newDataArr = new Array();
+                    for (var i in dataArr) {
+                        if (i == index) {
+                            newDataArr.push(rowData);
+                        } else {
+                            newDataArr.push(dataArr[i]);
+                        }
+                    }
+                    vm.reloadData(newDataArr);
+                }
+            });
+        }
+    });
+
+    function testLength(val, data) {
+        var reg = /^\+?[1-9][0-9]*$/g;
+        if (reg.test(val) && Number(val) < 65533) {
+            return true;
+        } else {
+            layer.msg('长度不正确请重新输入', {icon: 2});
+            return false;
+        }
+    }
+
+    function testDecimalPoint(val, data) {
+        var reg = /^\+?[1-9][0-9]*$/g;
+        if (reg.test(val) && Number(val) <= 30) {
+            return true;
+        } else {
+            layer.msg('小数点位数不正确请重新输入', {icon: 2});
+            return false;
+        }
+    }
+
+    function testIsNum(val) {
+        var reg = /^\+?[1-9][0-9]*$/g;
+        if (reg.test(val)) {
+            return true;
+        } else {
+            layer.msg('输入不正确请重新输入', {icon: 2});
+            return false;
+        }
+    }
+
+</script>
+<%}%>

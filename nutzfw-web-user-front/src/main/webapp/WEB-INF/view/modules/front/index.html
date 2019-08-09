@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <!--资源请按需加载-->
+    <%include("/modules/front/inc/header.html",{title:"页"}){}%>
+</head>
+<body style="text-align: center">
+<%if(so.isAuthenticated()){%>
+${session.me.realName} <a href="${base!}/front/logout">登出</a>
+<%}%>
+<%if(so.isNotAuthenticated()){%>
+<a href="${base!}/front/user/register">注册</a>&nbsp;&nbsp;&nbsp;
+<a href="${base!}/front/login">登录</a>
+<%}%>
+&nbsp;&nbsp;<a href="${base!}/management/login">后台管理系统登录</a>
+</body>
+</html>

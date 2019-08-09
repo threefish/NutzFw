@@ -1,0 +1,20 @@
+  getActionUrl: function(action){
+            var actionName = this.getOpt(action) || action,
+                imageUrl = this.getOpt('imageUrl'),
+                serverUrl = this.getOpt('serverUrl');
+
+            if(!serverUrl && imageUrl) {
+                serverUrl = imageUrl.replace(/^(.*[\/]).+([\.].+)$/, '$1controller$2');
+            }
+
+            if(serverUrl) {
+                serverUrl = serverUrl + (serverUrl.indexOf('?') == -1 ? '?':'&') + 'action=' + (actionName || '');
+                return utils.formatUrl(serverUrl);
+            } else {
+                return '';
+            }
+        }
+    };
+
+
+    8000 行

@@ -1,0 +1,194 @@
+body {
+
+}
+
+@font-face {
+    font-family: 'Architects Daughter';
+    font-style: normal;
+    font-weight: 400;
+    src: local('Architects Daughter'), local('ArchitectsDaughter'), url(https://fonts.gstatic.com/s/architectsdaughter/v6/RXTgOOQ9AAtaVOHxx0IUBM3t7GjCYufj5TXV5VnA2p8.woff2) format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215, U+E0FF, U+EFFD, U+F000;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    font-size: 14px;
+    font-family: "Segoe UI", "Lucida Grande", Helvetica, Arial, "Microsoft YaHei", FreeSans, Arimo, "Droid Sans", "wenquanyi micro hei", "Hiragino Sans GB", "Hiragino Sans GB W3", FontAwesome, sans-serif;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+pre, pre *, .title *, .footer *, .m5 * {
+    font-family: 'Architects Daughter';
+}
+
+div,
+table,
+p {
+    margin: 0 auto;
+    text-align: left;
+}
+
+li {
+    list-style: none;
+}
+
+img {
+    border: 0;
+    vertical-align: middle;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    outline: none;
+}
+
+a {
+    text-decoration: none;
+}
+
+.lk {
+    width: 100%;
+    overflow: hidden;
+    text-align: center;
+    /*note: "..此处里面的样式有问题,请联系鲁康。"*/
+}
+
+.git {
+    position: fixed;
+    right: 0;
+    z-index: 99;
+    top: 0;
+}
+
+.lk .main {
+    width: 1100px;
+    /*note:"..此处调整整体宽度.."*/
+
+    padding: 50px 0;
+    overflow: hidden;
+
+}
+
+.lk .main .div {
+    margin: 10px 0;
+}
+
+.lk .main .h1 {
+    font-size: 25px;
+    padding-bottom: 20px;
+}
+
+.lk .main .l {
+    width: 300px;
+    float: left;
+    padding: 5px;
+}
+
+.lk .main .r {
+    width: 800px;
+    float: left;
+    padding: 5px;
+}
+
+.m1 {
+    background-color: #f2f3ee;
+    border-bottom: 1px dashed #fff;
+}
+
+.m1:last-child {
+    border-bottom: 0 !important;
+}
+
+.m2 {
+    border-bottom: 1px dashed #ddd;
+}
+
+.m3 {
+    background-color: #fff3e3;
+}
+
+.m4 {
+    background-color: #3d8ad1;
+}
+
+.m0 .main {
+    font-size: 35px;
+    text-align: center;
+    height: 350px;
+    line-height: 250px;
+    position: relative;
+    z-index: 99;
+    color: #fff;
+    font-family: 'Architects Daughter', 'Helvetica Neue', Helvetica, Arial, serif;
+}
+
+.iframe {
+    width: 100%;
+    height: 350px;
+    border: 0;
+    position: absolute;
+    top: 0;
+    z-index: 1;
+    left: 0;
+}
+
+.pre {
+    padding: 9px 14px;
+    margin-bottom: 14px;
+    background-color: #f7f7f9;
+    border: 1px solid #e1e1e8;
+}
+
+.pre .kwa {
+    color: #2f6f9f;
+}
+
+.pre .kwb {
+    color: #4f9fcf;
+}
+
+.pre .str {
+    color: #d44950;
+}
+
+.pre .kwd {
+    color: #aa6708;
+}
+
+.title .p1 {
+    margin-bottom: 20px;
+}
+
+.footer .p {
+    font-size: 18px;
+    line-height: 25px;
+}
+
+.footer .p a {
+    color: #000;
+}
+
+.m5 {
+    border-top: 1px solid #ddd;
+}
+
+.m5 .main {
+    text-align: center;
+    padding: 15px 0;
+}
+
+.m6 {
+    background: #f8ecf1;
+}
+
+.m7 {
+    background-color: #f3f3f3;
+}
+
+.m8 {
+    border-bottom: 1px solid #ddd;
+}

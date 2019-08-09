@@ -1,0 +1,39 @@
+/*系统主题皮肤*/
+#content-wrapper {
+    background-color: #f9f9f9;
+    border-left: 0px;
+}
+
+#platform > .content-tabs {
+    border-top: 0px;
+    border-bottom: solid 2px #169dab;
+    height: 35px;
+    line-height: 35px;
+}
+
+#platform > .content-tabs .roll-nav {
+    height: 33px;
+}
+
+#platform > .content-tabs button {
+    height: 33px;
+    line-height: 35px;
+}
+
+#platform > .content-tabs .page-tabs a.active {
+    background: #169dab;
+    border-right: solid 1px #169dab;
+}
+
+#platform > .content-tabs .page-tabs a i {
+    margin-top: -10px;
+    right: 0px;
+    position: relative;
+    color: #f39c12;
+    margin-left: 5px;
+}
+
+/*通讯录*/
+.search-address-book {
+    background: #374850;
+}

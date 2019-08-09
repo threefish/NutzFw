@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html style="overflow: hidden">
+	<head>
+	<meta charset="utf-8">
+    
+    <link rel="stylesheet" href="${base}/static/css/jOrgChart/bootstrap.min.css"/>
+    <link rel="stylesheet" href="${base}/static/css/jOrgChart/jquery.jOrgChart.css"/>
+    <link rel="stylesheet" href="${base}/static/css/jOrgChart/custom.css"/>
+    <link href="${base}/static/css/jOrgChart/prettify.css" type="text/css" rel="stylesheet" />
+    <script type="text/javascript" src="${base}/static/js/jOrgChart/prettify.js"></script>
+    <script type="text/javascript" src="${base}/static/js/jOrgChart/jquery.min.js"></script>
+    <script type="text/javascript" src="${base}/static/js/jOrgChart/jquery-ui.min.js"></script>
+    <script src="${base}/static/js/jOrgChart/jquery.jOrgChart.js"></script>
+    <script type="text/javascript" src="${base}/static/plugins/layui/layui.js"></script>
+    <script src="${base}/static/plugins/layer/layer.js"></script>
+        <style>
+            .jOrgChart{
+                margin-top:50px;
+                cursor: pointer;
+            }
+            .jOrgChart .node{
+                width: 140px;
+                padding: 10px 5px;
+                height: auto;
+                border-top: 0;
+                border-bottom: 0;
+            }
+            .node p{
+                line-height: 20px;
+            }
+            .jOrgChart>table{
+                margin: auto!important;
+                width: auto!important;
+            }
+            .postLi p{
+                color: #F8D714!important;
+            }
+            .jOrgChart .postLi{
+                background-color: #366FC3!important;
+            }
+            .autoHeight:after{
+                display: block;
+                clear: both;
+                content: " ";
+            }
+            html,body,#chartDiv,#chart{
+                width: 100%;
+                height: 100%;
+            }
+        </style>
+    <script>
+    /*$(function() {
+        $("#org").jOrgChart({
+            chartElement : '#chart',
+            dragAndDrop  : false
+        });
+    });*/
+    var base = '${base}';
+    $(function(){
+        //数据返回
+        $.ajax({
+            url:base+"/sysOrganize/job/jobDistr",
+            type: 'GET',
+            dataType: 'JSON',
+            data: {},
+            success: function(result){
+                if (result && result.ok){
+                    var showlist = $("<ul id='org' style='display:none;width: 100%'></ul>");
+                    showall(result.data, showlist);
+                    $("#chart").append(showlist);
+                    $("#org").jOrgChart( {
+                        chartElement : '#chart',//指定在某个dom生成jorgchart
+                        dragAndDrop : false //设置是否可拖动
+                    });
+                }else {
+                    layer.msg(result.msg, {icon: 7, time: 2000});
+                }
+
+
+            },
+            error: function () {
+                layer.msg("网络连接出错", {icon: 5, time: 1000});
+            },
+        });
+    });
+
+    function showall(menu_list, parent) {
+        $.each(menu_list, function(index, val) {
+            if(val.childrens.length > 0){
+                var li = $("<li></li>");
+                li.append("<p onclick=getOrgId("+val.id+");>"+val.name+"</p>").append("<ul></ul>").appendTo(parent);
+                //递归显示
+                showall(val.childrens, $(li).children().eq(1));
+            }else{
+                /*岗位进这里*/
+                if (val.type == "job"){
+                    $("<li class='postLi'></li>").append("<p onclick=getOrgId("+val.id+");>"+val.name+"</p>").appendTo(parent);
+                }else {
+                    $("<li></li>").append("<p onclick=getOrgId("+val.id+");>"+val.name+"</p>").appendTo(parent);
+                }
+            }
+        });
+
+    }
+    </script>
+  </head>
+
+  <body class="autoHeight">
+
+  <div id="chartDiv" class="autoHeight" style="position: absolute;top:0;left: 0;">
+      <div id="chart" class="orgChart autoHeight" style="position: absolute;top:0;left: 0;width: 100%;height: 100%;"></div>
+  </div>
+
+    
+    <script>
+        var mousewheelevt=(/Firefox/i.test(navigator.userAgent))?"DOMMouseScroll": "mousewheel";
+        var x = 1,y = 1;
+        //  滚动缩放后让chart缩放
+        function mousewheelEvent(e, delta) {
+            if(delta > 100){
+                x += 0.5;
+                y += 0.5
+            }else if(delta < 0){
+                x -= 0.5;
+                y -= 0.5
+            }
+            if(x < 1 || y < 1){
+                x = 0.5;
+                y = 0.5;
+            }
+            $("#chart").css('transform','scale('+x+','+y+')');
+            mouseClient();
+        }
+        if (document.addEventListener) {
+            document.addEventListener(mousewheelevt, function(e) {
+                e=e || window.event;
+                if(e.detail){//Firefox
+                    mousewheelEvent(e, e.detail*40);
+                }
+                else if(e.wheelDelta){
+                    mousewheelEvent(e, e.wheelDelta);
+                }
+            }, false);
+        }
+        // 拖动
+        function mouseClient() {
+            var startx;
+            var starty;
+            var startLeft;
+            var startTop;
+            var titleDiv=document.getElementById("chartDiv");
+            var mainDiv=document.getElementById("chart");
+            var isDown=false;
+            //    鼠标按下
+            function movedown(e){
+                e=e?e:window.event;
+                isDown=true;
+                startx=e.clientX;
+                starty=e.clientY;
+                startLeft=parseInt(mainDiv.style.left);
+                startTop=parseInt(mainDiv.style.top);
+            }
+            //    鼠标移动
+            function move(e){
+                e=e?e:window.event;
+                if(isDown) {
+                    mainDiv.style.left = e.clientX - (startx - startLeft)+"px";
+                    mainDiv.style.top = e.clientY - (starty - startTop)+"px";
+                }
+            }
+            //    鼠标松开
+            function  moveup(){
+                isDown=false;
+            }
+            titleDiv.onmousedown=movedown;
+            titleDiv.onmousemove=move;
+            titleDiv.onmouseup=moveup;
+        }
+        $(function() {
+            
+            /* Custom jQuery for the example */
+            $("#show-list").click(function(e){
+                e.preventDefault();
+                
+                $('#list-html').toggle('fast', function(){
+                    if($(this).is(':visible')){
+                        $('#show-list').text('Hide underlying list.');
+                        $(".topbar").fadeTo('fast',0.9);
+                    }else{
+                        $('#show-list').text('Show underlying list.');
+                        $(".topbar").fadeTo('fast',1);                  
+                    }
+                });
+            });
+            
+            $('#list-html').text($('#org').html());
+            
+            $("#org").bind("DOMSubtreeModified", function() {
+                $('#list-html').text('');
+                
+                $('#list-html').text($('#org').html());
+
+            });
+        });
+        $("#chart").on('scroll',function(){
+        })
+    </script>
+</body>
+</html>

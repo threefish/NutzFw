@@ -1,0 +1,125 @@
+<%
+var title="新闻管理";
+layout("/layouts/blank.html",{title:title}){
+%>
+<style type="text/css">
+</style>
+<section class="content" id="container" v-if="initLoad">
+    <div style="height: 40px">
+        <form class="searchFrom">
+            <div class="input-group">
+                <div class="input-group-addon">新闻标题</div>
+                <input class="form-control" type="text" v-model="searchData.key">
+            </div>
+            <div class="input-group">
+                <input @click="handleSearchTable" class="layui-btn layui-btn-normal layui-btn-sm" type="button"
+                       value="查询">
+            </div>
+        </form>
+    </div>
+    <div style="background: #ffffff">
+        <div id="listTable" lay-filter='listTable'></div>
+    </div>
+</section>
+<script id="toolBarFixed" type="text/html">
+    <div class="layui-btn layui-btn-sm layui-btn-normal" lay-event="view">查看</div>
+</script>
+<script type="text/javascript">
+    var listTable, table;
+    var vm = new Vue({
+        el: '#container',
+        data: {
+            fromData: {},
+            fromDataSubmit: false,
+            fromDataEdit: true,
+            initLoad: false,
+            synchronizeType: 0,
+            searchData: {
+                key: ''
+            },
+        },
+        methods: {
+            handleView: function (uuid) {
+                parent.core.openUrlOk("/News/lookNews/" + uuid, "查看新闻", '80%', '80%', function (body, index) {
+                    parent.layer.closeAll();
+                });
+            },
+            handleSearchTable: function () {
+                listTable.reload({
+                    where: vm.searchData,
+                    page: {curr: 1}
+                });
+            }
+        },
+        created: function () {
+            this.initLoad = true;
+        },
+        mounted: function () {
+            var sys_news_category = JSON.parse('${data.sys_news_category}');
+            var sys_news_level = JSON.parse('${data.sys_news_level}');
+            layui.use(['table'], function () {
+                table = layui.table;
+                listTable = table.render({
+                    id: 'listTable',
+                    elem: '#listTable',
+                    page: true,
+                    method: 'post',
+                    url: base + '/News/lookMoreList',
+                    height: 'full-100',
+                    limit: 50,
+                    even: false,
+                    toolbar: '#topToolbar',
+                    defaultToolbar: ['filter', 'print'],
+                    request: {
+                        pageName: 'pageNum',
+                        limitName: 'pageSize',
+                    },
+                    where: vm.searchData,
+                    cols: [[
+                        {title: '序号', type: 'numbers', width: 50},
+                        {
+                            field: 'categoryId', title: '新闻类别', templet: function (row) {
+                                return sys_news_category[row.categoryId];
+                            }
+                        },
+                        {field: 'title', title: '新闻标题'},
+                        {field: 'newsFrom', title: '新闻来源'},
+                        {
+                            field: 'toped', title: '置顶', templet: function (row) {
+                                return row.toped ? '是' : '否';
+                            }
+                        },
+                        {
+                            field: 'locked', title: '冻结', templet: function (row) {
+                                return row.locked ? '是' : '否';
+                            }
+                        },
+                        {
+                            field: 'level', title: '级别', templet: function (row) {
+                                return sys_news_level[row.level];
+                            }
+                        },
+                        {
+                            field: 'isrecomm', title: '新闻是否被推荐', templet: function (row) {
+                                return row.isrecomm ? '是' : '否';
+                            }
+                        },
+                        {field: 'opAt', title: '创建时间'},
+                        {field: 'opByDesc', title: '发布人'},
+                        {title: '操作', width: 160, align: 'center', fixed: 'right', toolbar: '#toolBarFixed'},
+                    ]],
+                    done: function () {
+                        $('.layui-table-fixed-r').removeClass('layui-hide');
+                    }
+                });
+                table.on("tool(listTable)", function (obj) {
+                    var data = obj.data, layEvent = obj.event;
+                    if (layEvent == "view") {
+                        vm.handleView(data.uuid);
+                    }
+                });
+            });
+        }
+    });
+</script>
+<%}%>

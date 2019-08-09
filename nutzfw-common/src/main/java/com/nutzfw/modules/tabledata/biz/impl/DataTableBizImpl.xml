@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE Sqls PUBLIC "nutz-sqltpl" "https://threefish.gitee.io/nutz-sqltpl/nutz-sqltpl.dtd">
+<Sqls class="com.nutzfw.modules.tabledata.biz.impl.DataTableBizImpl">
+    <sql id="alertTable">
+        ALTER TABLE ${t.tableName}
+        <exp>for(item in addlist){</exp>
+        ADD COLUMN ${item.fieldName} ${genMysqlFieldType(item)} COMMENT '${item.comment}',
+        <exp>}</exp>
+        <exp>for(item in modifylist){</exp>
+        MODIFY COLUMN ${item.fieldName} ${genMysqlFieldType(item)} COMMENT '${item.comment}',
+        <exp>}</exp>
+        DROP PRIMARY KEY,
+        ADD PRIMARY KEY (id<exp>for(item in list){if(item.primaryKey){</exp>${itemLP.last?',':''}f_${item.id}
+        <exp>}}</exp>);
+    </sql>
+    <sql id="createTable">
+        CREATE TABLE table_${t.id} (
+        id varchar(32) NOT NULL COMMENT '主键123',
+        <exp>if(t.tableType!='SingleTable'){</exp>
+        userid varchar(32) NOT NULL COMMENT '用户ID',
+        username varchar(32) NOT NULL COMMENT '用户名',
+        <exp>}else{</exp>
+        userid varchar(32) NULL COMMENT '用户ID',
+        username varchar(32) NULL COMMENT '用户名',
+        <exp>}</exp>
+        create_by_date DATETIME COMMENT '创建日期',
+        create_by_name varchar(32) COMMENT '创建人姓名',
+        create_by_userid varchar(32) COMMENT '创建人',
+        update_by_date DATETIME COMMENT '更新日期',
+        update_by_name varchar(32) COMMENT '更新人姓名',
+        update_by_userid varchar(32) COMMENT '更新人',
+        update_version int(11) DEFAULT 0 NOT NULL COMMENT '更新版本',
+        <exp>for(item in list){</exp>
+        ${item.fieldName} ${genMysqlFieldType(item)} COMMENT '${item.comment}',
+        <exp>}</exp>
+        PRIMARY KEY (id
+        <exp>for(item in list){</exp>
+        <exp>if(item.primaryKey){</exp>
+        ${itemLP.last?'':','}f_${item.id}
+        <exp>}</exp>
+        <exp>}</exp>)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='${t.comment}';
+    </sql>
+
+</Sqls>

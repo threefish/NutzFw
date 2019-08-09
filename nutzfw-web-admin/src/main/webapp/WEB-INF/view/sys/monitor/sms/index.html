@@ -1,0 +1,49 @@
+<%
+var title="短信管理";
+layout("/layouts/blank.html",{title:title}){
+%>
+<style type="text/css">
+</style>
+<section class="content-header">
+    <h1>
+        ${title}
+        <small>控制面板</small>
+    </h1>
+</section>
+<section class="content" id="container" v-if="initLoad">
+    待开发-（暂不开放，此功能需要针对具体的短信服务提供商开发接口）
+</section>
+<script type="text/javascript">
+    var vm = new Vue({
+        el: '#container',
+        data: {
+            fromData: {
+
+            },
+            fromDataSubmit: false,
+            fromDataEdit: true,
+            initLoad: false,
+        },
+        methods: {
+
+        },
+        created: function () {
+            this.initLoad = true;
+        },
+        updated: function () {
+        },
+        mounted: function () {
+        }
+    });
+    /*
+    beforeCreate（创建前）,
+    created（创建后）,
+    beforeMount(载入前),
+    mounted（载入后）,
+    beforeUpdate（更新前）,
+    updated（更新后）,
+    beforeDestroy（销毁前）,
+    destroyed（销毁后）
+    */
+</script>
+<%}%>

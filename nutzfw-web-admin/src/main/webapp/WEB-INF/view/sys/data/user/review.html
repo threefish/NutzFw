@@ -1,0 +1,229 @@
+<%
+var title="用户数据审核";
+layout("/layouts/blank.html",{title:title}){
+%>
+<style type="text/css">
+    .change-true {
+        display: block;
+        text-align: center;
+        color: red;
+    }
+
+    .change-false {
+        display: none;
+    }
+
+    .data-header {
+        position: fixed;
+        top: 0px;
+        width: 100%;
+        height: 30px;
+        line-height: 30px;
+        background: #ffffff;
+        z-index: 22;
+    }
+
+    .data-body {
+        margin-top: 40px;
+        margin-bottom: 100px;
+    }
+
+    .data-body > .line {
+        min-height: 40px;
+        margin-bottom: 5px;
+    }
+
+    .data-info {
+        position: fixed;
+        top: 0px;
+        margin-top: 30px;
+    }
+
+    .data-info > .line {
+        height: 30px;
+        line-height: 30px;
+    }
+
+    .control-label {
+        text-align: right;
+    }
+
+    .is-add {
+        display: ${data.data.status==0?"none":""};
+    }
+
+    .show-add {
+        display: ${data.data.status==0?"":"none"};
+    }
+
+    .reviewOpinion {
+        position: fixed;
+        bottom: 0px;
+        width: 97%;
+    }
+</style>
+<%if(data.data.status==2){%>
+<style>
+    .data-body {
+        margin-top: 0px;
+        margin-bottom: 0px;
+    }
+</style>
+<%}%>
+<section class="content" id="container" v-if="initLoad">
+    <div class="row">
+        <div class="col-sm-2">
+            <ul class="data-info">
+                <li style="text-align: center">
+                    <img src="${base!}/File/avatar?id=${data.user.avatar!}" style="width: 150px;height: 180px">
+                </li>
+                <li class="line">
+                    <span> 帐号：</span>
+                    <span> ${data.user.userName!}</span>
+                </li>
+                <li class="line">
+                    <span> 姓名：</span>
+                    <span> ${data.user.realName!}</span>
+                </li>
+                <li class="line">
+                    <span> 手机：</span>
+                    <span> ${data.user.phone!}</span>
+                </li>
+                <li class="line">
+                    <span> 邮箱：</span>
+                    <span> ${data.user.mail!}</span>
+                </li>
+                <li class="line">
+                    <span> 部门：</span>
+                    <span> ${data.user.dept.name!}</span>
+                </li>
+            </ul>
+        </div>
+        <div class="col-sm-10 ">
+            <%if(data.data.status!=2){%>
+            <ul class="data-header">
+                <li class="line">
+                    <div class="col-sm-3 control-label">&nbsp;</div>
+                    <div class="col-sm-4 is-add">修改前</div>
+                    <div class="col-sm-1 is-add">&nbsp;</div>
+                    <div class="col-sm-4 is-add">修改后</div>
+                    <div class="col-sm-4 show-add">新增记录</div>
+                </li>
+            </ul>
+            <%}%>
+            <ul class="data-body">
+                <%if(data.data.status==2){%>
+                <li class="line clearfix">
+                    <div class="content" style="margin-left: 80px;">
+                        <span>删除记录</span>
+                        <table lay-filter="parse-table-demo">
+                            <thead>
+                            <tr>
+                                <%for(var d in data.changeList[0]){%>
+                                <%if(!strutil.contain('userid|id|update_version|username|create_by_date|create_by_name',d.key)){%>
+                                <th lay-data="{field:'${d.key}', width:200}">${d.key}</th>
+                                <%}%>
+                                <%}%>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <%for(var item in data.changeList){%>
+                            <tr>
+                                <%for(var d in item){%>
+                                <%if(!strutil.contain('userid|id|update_version|username|create_by_date|create_by_name',d.key)){%>
+                                <td>${d.value}</td>
+                                <%}%>
+                                <%}%>
+                            </tr>
+                            <%}%>
+                            </tbody>
+                        </table>
+                    </div>
+                </li>
+                <%}else{%>
+                <%for(var item in data.changeList){%>
+                <%if(item.fieldType==3){%>
+                <li class="line clearfix">
+                    <div class="col-sm-3 control-label">${item.lable}：</div>
+                    <div class="col-sm-4 is-add" style="min-width: 260px;">
+                        <textarea class="form-control" style="resize: vertical;" readonly>${item.oldValue}</textarea>
+                    </div>
+                    <div class="col-sm-1 is-add">&nbsp;
+                        <div class="change-${item.change}">&nbsp;---->&nbsp;</div>
+                    </div>
+                    <div class="col-sm-4" style="min-width: 260px">
+                        <textarea class="form-control" style="resize: vertical;" readonly>${item.newValue}</textarea>
+                    </div>
+                </li>
+                <%}else if(item.fieldType==4||item.fieldType==5){%>
+                <li class="line clearfix">
+                    <div class="col-sm-3 control-label">${item.lable}：</div>
+                    <div class="col-sm-4 is-add" style="min-width: 260px">
+                        <div class="form-control" style="border: none;">
+                            <div class="layui-btn layui-btn-xs layui-btn-normal"
+                                 @click="handleShowFile('${item.oldValue}')">查看(${item.oldAttachNum})
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-1 is-add">&nbsp;
+                        <div class="change-${item.change}">&nbsp;---->&nbsp;</div>
+                    </div>
+                    <div class="col-sm-4" style="min-width: 260px">
+                        <div class="form-control" style="border: none;">
+                            <div class="layui-btn layui-btn-xs layui-btn-normal"
+                                 @click="handleShowFile('${item.newValue}')">查看(${item.newAttachNum})
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                <%}else{%>
+                <li class="line clearfix">
+                    <div class="col-sm-3 control-label">${item.lable}：</div>
+                    <div class="col-sm-4 is-add" style="min-width: 260px">
+                        <input type="text" value="${item.oldValue}" class="form-control" readonly>
+                    </div>
+                    <div class="col-sm-1 is-add">&nbsp;
+                        <div class="change-${item.change}">&nbsp;---->&nbsp;</div>
+                    </div>
+                    <div class="col-sm-4" style="min-width: 260px">
+                        <input type="text" value="${item.newValue}" class="form-control" readonly>
+                    </div>
+                </li>
+                <%}%>
+                <%}%>
+                <%}%>
+            </ul>
+        </div>
+    </div>
+    <div class="reviewOpinion">
+        审核意见：<textarea class="form-control" id="reviewOpinion" ${data.isview} style="resize: none;">${data.data.reviewOpinion!}</textarea>
+    </div>
+</section>
+<script type="text/javascript">
+    var vm = new Vue({
+        el: '#container',
+        data: {
+            fromData: {},
+            initLoad: false,
+        },
+        methods: {
+            handleShowFile: function (strs) {
+                core.showAttachList(strs);
+            }
+        },
+        created: function () {
+            this.initLoad = true;
+        },
+        updated: function () {
+        },
+        mounted: function () {
+            layui.use('table', function () {
+                var table = layui.table;
+                table.init('parse-table-demo', { //转化静态表格
+                    height: 'full-150'
+                });
+            });
+        }
+    });
+</script>
+<%}%>

@@ -1,0 +1,24 @@
+{
+  "sProcessing": "处理中...",
+  "sLengthMenu": "当前页显示 _MENU_ 项结果",
+  "sZeroRecords": "没有匹配结果",
+  "sInfo": "<div style='display:none'>显示 _END_ 项结果，</div>共 _TOTAL_ 项   跳至<input style='height:28px;line-height:28px;width:40px;border: 1px #cdcdcd solid;margin:0px 5px;' class='text-center' type='text'>页 ",
+  "sInfoEmpty": "显示第 0 至 0 项结果，共 0 项",
+  "sInfoFiltered": "(由 _MAX_ 项结果过滤)",
+  "sInfoPostFix": "",
+  "sSearch": "搜索:",
+  "sUrl": "",
+  "sEmptyTable": "表中数据为空",
+  "sLoadingRecords": "载入中...",
+  "sInfoThousands": ",",
+  "oPaginate": {
+    "sFirst": "首页",
+    "sPrevious": "上页",
+    "sNext": "下页",
+    "sLast": "末页"
+  },
+  "oAria": {
+    "sSortAscending": ": 以升序排列此列",
+    "sSortDescending": ": 以降序排列此列"
+  }
+}

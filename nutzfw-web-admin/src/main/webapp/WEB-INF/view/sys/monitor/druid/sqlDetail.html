@@ -1,0 +1,78 @@
+<%
+layout("/layouts/blank.html"){
+%>
+<input type="hidden" value="${sqlId!}" id="sqlId"/>
+<div class="span12" style="padding: 10px;">
+    <h3>格式化SQL语句</h3>
+    <h5 id="fullSql">
+        <pre id="formattedSql"></pre>
+    </h5>
+    <h2>完整SQL</h2>
+    <textarea style="width:99%;height:120px;;border:1px #A8C7CE solid;line-height:20px;font-size:12px;"
+              id="SQL"></textarea>
+    <br> <br>
+    <h3>最耗时查询:</h3>
+    <table class="table table-bordered" style="background-color: #fff">
+        <tbody>
+        <tr>
+            <td class="td_lable">最大时间消耗</td>
+            <td id="MaxTimespan"></td>
+        </tr>
+        <tr>
+            <td class="td_lable">最耗时查询发生时间</td>
+            <td id="MaxTimespanOccurTime"></td>
+        </tr>
+        <tr>
+            <td class="td_lable">最耗时查询参数</td>
+            <td id="LastSlowParameters">null</td>
+        </tr>
+        </tbody>
+    </table>
+    <h3>最近错误:</h3>
+    <table class="table table-bordered" style="background-color: #fff">
+        <tbody>
+        <tr>
+            <td class="td_lable">最近错误消息</td>
+            <td id="LastErrorMessage"></td>
+        </tr>
+        <tr>
+            <td class="td_lable">最近错误类</td>
+            <td id="LastErrorClass"></td>
+        </tr>
+        <tr>
+            <td class="td_lable">最近错误时间</td>
+            <td id="LastErrorTime"></td>
+        </tr>
+        <tr>
+            <td class="td_lable">最近错误堆栈</td>
+            <td id="LastErrorStackTrace"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<script type="text/javascript">
+    $(function () {
+        var index = layer.load(0, {
+            shade: false
+        });
+        $.post(base + '/druid/sql-' + $('#sqlId').val() + '.json', {}, function (data) {
+            layer.close(index);
+            if (data.ResultCode == 1) {
+                $('#formattedSql').text(data.Content.formattedSql);
+                $('#SQL').text(data.Content.SQL);
+                $('#LastErrorMessage').text(data.Content.LastErrorMessage);
+                $('#MaxTimespan').text(data.Content.MaxTimespan);
+                $('#MaxTimespanOccurTime').text(data.Content.MaxTimespanOccurTime);
+                $('#LastSlowParameters').text(data.Content.LastSlowParameters);
+                $('#LastErrorClass').text(data.Content.LastErrorClass);
+                $('#LastErrorTime').text(data.Content.LastErrorTime);
+                $('#LastErrorStackTrace').text(data.Content.LastErrorStackTrace);
+            } else if (data.msg) {
+                core.showMsg(data.msg, data.ok);
+            } else {
+                core.showMsg("调用druid api失败!")
+            }
+        }, 'json');
+    })
+</script>
+<%}%>

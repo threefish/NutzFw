@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="${title!}">
+    <title>用户异动历史</title>
+    <%include("/inc/header.html"){}%>
+    <style type="text/css">
+        *{
+            color: #4e4d4d;
+        }
+        .history {
+            width: 460px;
+            margin: 20px;
+            border-radius: 6px;
+            border: solid 1px #F2F2F2;
+            padding-bottom: 10px;
+            padding-left: 1%;
+        }
+
+        .h_total {
+            width: 100%;
+            height: 30px;
+            /* background: lightsteelblue; */
+            line-height: 32px;
+            font-size: 12px;
+        }
+
+        .h_total label {
+            margin-left: 10px;
+        }
+        .h_info{
+            background: #F2F2F2;
+            width: 94%;
+            margin-left: 3%;
+            font-size: 12px;
+        }
+        .h_info span{
+            margin-left: 1%;
+            width: 99%;
+            /* padding-top: 5px; */
+            display: block;
+            height: 30px;
+            line-height: 30px;
+        }
+        .h_info span label{
+            width: 50%;
+            font-weight: 400;
+        }
+        .showFile{
+            background: #1E9FFF;
+            border: none;
+            color: white;
+            height: 24px;
+            width: 70px;
+            border-radius: 3px;
+            line-height: 24px;
+        }
+        .h_reason{
+            width: 428px;
+            background: #FFFBE6;
+            margin-left: 10px;
+            border: solid 1px #FFE58F;
+            border-radius: 3px;
+            color: #FF391F;
+        }
+        .gth{
+            color: white;
+            background: #FF391F;
+            height: 18px;
+            margin: 4px;
+            display: block;
+            width: 19px;
+            border-radius: 9px;
+            text-align: center;
+            line-height: 18px;
+            float: left;
+        }
+        .h_review_opinion{
+            color: #FF391F;
+            line-height: 26px;
+            margin-left: 28px;
+            font-size: 12px;
+            display: block;
+            width: 395px;
+        }
+    </style>
+</head>
+<body>
+<%for(var item in data){%>
+<div class="history">
+    <%if(item.review!=0){%>
+    <div  class="h_total">
+        <label>审核时间：${item.reviewDate,dateFormat='yyyy-MM-dd HH:mm:ss'}</label>
+        <label>审核人：${item.reviewName}</label>
+        <%if(item.review==1){%>
+        <label style="color: #4bde9c">生效</label>
+        <%}else if(item.review==2){%>
+        <label style="color: red">拒绝</label>
+        <%}%>
+    </div>
+    <%}%>
+    <%if(item.review==2){%>
+    <div  class="h_reason">
+        <span class="gth">!</span>
+        <span class="h_review_opinion">拒绝原因：${item.reviewOpinion}</span>
+    </div>
+    <%}%>
+    <div class="h_total">
+        <label>创建时间：${item.addDate,dateFormat='yyyy-MM-dd HH:mm:ss'}</label>
+        <label>创建人：${item.createName}</label>
+        <%if(item.review==0){%>
+        <label style="color: #1890FF">待审核</label>
+        <%}%>
+    </div>
+
+    <div class="h_info">
+        <span>异动原因：${item.changeReason}</span>
+        <span><label>原部门：${item.changeData.oldDept}</label><label>现部门：${item.changeData.newDept}</label></span>
+        <span><label>原岗位：${item.changeData.oldJob}</label><label>现岗位：${item.changeData.newJob}</label></span>
+        <span><label>异动时间：${item.changeData.changeDate}</label>
+            <%if(item.changeData.attachIds!=''){%>
+            <button class="showFile" onclick="showFile('${item.changeData.attachIds}')">查看附件</button>
+            <%}%>
+        </span>
+        <span>备注：${item.remark}</span>
+        <%if(item.review==1){%>
+        <span>审核意见：${item.reviewOpinion}</span>
+        <%}%>
+    </div>
+    <!--${item}-->
+</div>
+<%}%>
+<script type="text/javascript">
+    function showFile(attachIds){
+        core.showAttachList(attachIds);
+    }
+</script>
+</body>
+</html>

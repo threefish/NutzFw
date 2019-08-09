@@ -1,0 +1,4 @@
+1、static/plugins/layui/lay/modules/table.js 755 行被修改 2018年7月5日 16:25:05 黄川添加  在row data 中添加当前字段的field 辅助表格中附件的控制
+2、static/plugins/layui/lay/modules/table.js 1855 行被修改 2018年7月31日 12:05:05 黄川修改  支持重载表头
+2、static/plugins/layui/lay/modules/table.js 1862 行被添加方法 2018年7月31日 12:05:05 黄川添加  取得表格分页信息
+2、static/plugins/layui/lay/modules/table.js 1869 行被添加方法 2018年7月31日 12:05:05 黄川添加  取得表格配置信息

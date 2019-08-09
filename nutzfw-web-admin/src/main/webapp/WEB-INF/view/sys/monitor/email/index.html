@@ -1,0 +1,209 @@
+<%
+var title="邮件管理";
+layout("/layouts/blank.html",{title:title}){
+%>
+<style type="text/css">
+</style>
+<section class="content-header">
+    <h1>
+        ${title}
+        <small>控制面板</small>
+    </h1>
+</section>
+<section class="content" id="container">
+    <div class="searchFrom" style="height: 40px">
+        <div class="input-group">
+            <input class="form-control" placeholder="主题模糊查询" type="text" v-model="searchData.subject">
+        </div>
+        <div class="input-group">
+            ${dict("sys_mail_type","END","v-model='fromData.bizType'","placeholder='业务类型'")}
+        </div>
+        <div class="input-group">
+            <input @click="handleSearchTable" class="layui-btn layui-btn-normal layui-btn-sm" type="button"
+                   value="查询">
+        </div>
+    </div>
+    <div style="background: #ffffff">
+        <div id="emailListTable" lay-filter='emailListTable'></div>
+    </div>
+</section>
+<script type="text/html" id="operation">
+    {{# var data=['layui-btn-disabled','layui-btn-disabled','layui-btn-disabled','layui-btn-disabled','layui-btn-disabled'] }}
+    {{# if(d.status == -1 && d.resend == 1){
+    data[1]="";
+    data[2]="";
+    } }}
+    <div>
+        <a class="layui-btn layui-btn-xs layui-btn-danger" lay-event="viewEmail">查看邮件</a>
+        <a class="{{data[1]}} layui-btn layui-btn-xs " lay-event="resend">重新发送</a>
+        <a class="{{data[2]}} layui-btn layui-btn-xs layui-btn-warm" lay-event="viewErrorMsg">查看错误日志</a>
+        <a class="layui-btn layui-btn-xs layui-btn-warm" lay-event="del">删除</a>
+    </div>
+</script>
+<script id="topToolbar" type="text/html">
+    <div class="layui-btn layui-btn-sm" lay-event="add">发送邮件</div>
+    <div class="layui-btn layui-btn-sm" lay-event="del">批量删除</div>
+</script>
+<script type="text/javascript">
+    var emailListTable, table;
+    var vm = new Vue({
+        data: {
+            searchData: {
+                subject: "",
+                bizType: "",
+            }
+        },
+        methods: {
+            handleSearchTable: function () {
+                emailListTable.reload({
+                    where: vm.searchData,
+                    page: {curr: 1}
+                });
+            },
+            handleDel: function (ids) {
+                var json = core.postJSON('/sysEmail/del', {ids: ids});
+                core.msg(json)
+                if (json.ok) {
+                    vm.handleSearchTable()
+                }
+            },
+            layuiTable: function () {
+                layui.use(['table', 'element', 'laytpl'], function () {
+                    table = layui.table;
+                    emailListTable = table.render({
+                        id: 'emailListTable',
+                        elem: '#emailListTable',
+                        page: true,
+                        method: 'post',
+                        url: base + '/sysEmail/emailList',
+                        height: 'full-135',
+                        limit: 50,
+                        even: true,
+                        toolbar: '#topToolbar',
+                        defaultToolbar: ['filter'],
+                        request: {
+                            pageName: 'pageNum',
+                            limitName: 'pageSize',
+                        },
+                        where: vm.searchData,
+                        cols: [[
+                            {title: '#', align: 'center', type: 'checkbox', width: 50},
+                            {title: '序号', align: 'center', type: 'numbers', width: 50},
+                            {field: 'subject', align: 'center', title: '主题', width: 280},
+                            {field: 'username', align: 'center', title: '发件人', width: 150},
+                            {
+                                field: 'opat', align: 'center', title: '发件时间', width: 260, templet: function (row) {
+                                    return row.tasktime == null ? row.opat : row.tasktime;
+                                }
+                            },
+                            {
+                                field: 'taskTime', align: 'center', title: '定时发送', width: 260, templet: function (row) {
+                                    return row.tasktime == null ? "即时发送" : row.tasktime;
+                                }
+                            },
+                            {
+                                field: 'status', align: 'center', title: '发送状态', width: 150, templet: function (row) {
+                                    return row.status == 0 ? "待发送" : (row.status == 1 ? "<span style='color: green'>已发送</span>" : "<span style='color: red'>发送失败</span>");
+                                }
+                            },
+                            {title: '操作', align: 'center',fixed: 'right', toolbar: '#operation'},
+                        ]],
+                    });
+                    table.on("toolbar(emailListTable)", function (obj) {
+                        var data = obj.data, layEvent = obj.event;
+                        if (layEvent == "add") {
+                            writeEmail();
+                        } else if (layEvent == "del") {
+                            var dataArray = table.checkStatus('emailListTable').data;
+                            if (dataArray.length > 0) {
+                                core.confirm("确定删除选择项？", function () {
+                                    var ids = new Array();
+                                    dataArray.forEach(value => {
+                                        ids.push(value.uuid);
+                                    })
+                                    vm.handleDel(ids.join(","));
+                                })
+                            } else {
+                                core.warn("请选择记录");
+                            }
+                        }
+                    });
+                    table.on("tool(emailListTable)", function (obj) {
+                        if (!$(this).hasClass("layui-btn-disabled")) {
+                            var data = obj.data, layEvent = obj.event;
+                            var id = data.uuid;
+                            var ac = layEvent;
+                            if (ac == "resend") {
+                                layer.confirm('确定重新发送？', {
+                                    btn: ['确定', '取消'] //按钮
+                                }, function () {
+                                    $.ajax({
+                                        url: base + '/sysEmail/resend',
+                                        type: "POST",
+                                        data: {id: id},
+                                        error: function (request) {
+                                            layer.msg("网络连接出错", {icon: 5, time: 1000});
+                                        },
+                                        dataType: "json",
+                                        success: function (data) {
+                                            if (data && data.ok) {
+                                                layer.msg(data.msg, {icon: 1});
+                                            } else {
+                                                layer.msg(data.msg, {icon: 7, time: 2000});
+                                            }
+                                            vm.handleSearchTable()
+                                        }
+                                    })
+                                });
+                            } else if (ac == "viewErrorMsg") {
+                                layer.open({
+                                    type: 1,
+                                    title: ['错误日志'],
+                                    shade: 0.3,
+                                    area: ['80%', '80%'],
+                                    content: "<pre style='padding: 5px;height: 100%;border: 0px;overflow: scroll'>" + data.errorMsg + "</pre>",
+                                });
+                            } else if (ac == "viewEmail") {
+                                window.parent.layer.open({
+                                    type: 2,
+                                    title: ['查看邮件'],
+                                    shade: 0.3,
+                                    area: ['60%', '90%'],
+                                    content: "${base!}/sysEmail/writeEmail?type=2&id=" + id,
+                                });
+                            } else if (ac == "del") {
+                                core.confirm("确定删除【" + data.subject + "】？", function () {
+                                    vm.handleDel(data.uuid)
+                                });
+                            }
+                        }
+                    });
+                });
+            }
+        },
+        created: function () {
+            this.layuiTable();
+        },
+        updated: function () {
+            this.layuiTable();
+        },
+        mounted: function () {
+            this.layuiTable();
+        }
+    });
+
+
+    function writeEmail() {
+        window.parent.layer.open({
+            type: 2,
+            title: ['编写邮件'],
+            shade: 0.3,
+            area: ['60%', '90%'],
+            content: "${base!}/sysEmail/writeEmail?type=1&id=null",
+            end: function () {
+                emailListTable.reload();
+            }
+        });
+    }
+</script>
+<%}%>

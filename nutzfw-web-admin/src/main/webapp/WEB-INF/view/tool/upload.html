@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="${title!}">
+    <title>文件上传</title>
+    <%include("/inc/header.html"){}%>
+    <script type="text/javascript" src="${base}/static/plugins/webuploader/js/webuploader.js?_=${productVersion}"></script>
+    <link rel="stylesheet" href="${base}/static/plugins/webuploader/css/webuploader.css?_=${productVersion}">
+    <link rel="stylesheet" href="${base}/static/plugins/webuploader/css/style.css?_=${productVersion}">
+    <link rel="stylesheet" href="${base}/static/plugins/webuploader/css/attachment.css?_=${productVersion}">
+    <style type="text/css">
+        #upload .filelist {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            overflow-y: auto;
+            position: relative;
+            height: 270px;
+            border: 2px dashed #e4e4e4;
+            margin: 5px;
+        }
+
+        #upload .filelist li p.imgWrap.notimage {
+            margin-top: 0;
+            width: 102px;
+            height: 102px;
+            border: 1px #eeeeee solid;
+        }
+
+        .btns {
+            margin: 5px;
+        }
+
+        .btn-start {
+            background-color: #8BE23B;
+            color: #fff;
+            border: none;
+            width: 88px;
+            height: 34px;
+            font-size: 16px;
+        }
+
+        .file_extensions {
+            display: block;
+            position: absolute;
+            left: 50%;
+            top: 20%;
+            width: 500px;
+            text-align: center;
+            font-size: 16px;
+            color: #A7A2A2;
+            word-wrap: break-word;
+            margin-left: -250px;
+            line-height: 25px;
+        }
+
+        .max-info {
+            font-size: 14px;
+            color: #3C763D;
+            padding-left: 15px;
+            display: inline-block !important;
+            width: 430px;
+            vertical-align: middle;
+        }
+
+        .btn-start {
+            background: #58862D;
+        }
+
+        .btn-start:hover {
+            color: #fff;
+            background: #00A65A;
+        }
+
+        .info-title {
+            color: #A94442;
+        }
+
+        .ok {
+            background-color: #00a65a;
+            border-color: #008d4c;
+            color: #fff;
+        }
+
+        .ok:hover {
+            color: #fff;
+            background-color: orangered;
+            border-color: orangered;
+        }
+
+        .change {
+            background-color: #959C99;
+            border-color: #959C99;
+            color: #fff;
+        }
+
+        .change:hover {
+            color: #fff;
+            background-color: orangered;
+            border-color: orangered;
+        }
+    </style>
+    <script type="text/javascript">
+        var module = "${module!}", url = "${url!}";
+    </script>
+</head>
+<body>
+<div id="upload" class="panel focus">
+    <div class="btns">
+        <div id="picker">${i18n("chooseFile")}</div>
+        <button id="ctlBtn" class="btn btn-start">${i18n("upload")}</button>
+        <button class="btn ok btn-start">${i18n("confirm")}</button>
+        <button class="btn change btn-start">${i18n("cancel")}</button>
+        <div class="max-info"><span class="info-title">单个文件最大允许${maxFileSizeMsg}.</span><br>(如无法添加至列表请检查文件格式和大小是否符合规范！)
+        </div>
+    </div>
+    <ul id="fileList" class="filelist">
+        <div class="file_extensions">支持以下格式${FILE_EXTENSIONS}</div>
+    </ul>
+</div>
+<script type="text/javascript">
+    var attachList = new Array();
+    var index = parent.layer.getFrameIndex(window.name);
+    jQuery(function () {
+        var $ = jQuery,
+                $list = $('#fileList'),
+                $btn = $('#ctlBtn'),
+                state = 'pending',
+                // 优化retina, 在retina下这个值是2
+                ratio = window.devicePixelRatio || 1,
+                // 缩略图大小
+                thumbnailWidth = 100 * ratio,
+                thumbnailHeight = 100 * ratio,
+                // Web Uploader实例
+                uploader;
+        // 初始化Web Uploader
+        uploader = WebUploader.create({
+            // 自动上传。
+            resize: false,
+            fileSingleSizeLimit: "${maxFileSize!}",
+            // swf文件路径
+            swf: base + '/static/plugins/webuploader/js/Uploader.swf',
+            // 文件接收服务端。
+            server: base + url + '?module=${module!}',
+            // 选择文件的按钮。可选。
+            // 内部根据当前运行是创建，可能是input元素，也可能是flash.
+            pick: '#picker',
+            accept: {
+                title: 'file',
+                extensions: '${FILE_EXTENSIONS}',
+                mimeTypes: '*/*'
+            }
+        });
+        $btn.on('click', function () {
+            if (state === 'uploading') {
+                uploader.stop();
+            } else {
+                uploader.upload();
+            }
+        });
+        uploader.on('all', function (type) {
+            if (type === 'startUpload') {
+                state = 'uploading';
+            } else if (type === 'stopUpload') {
+                state = 'paused';
+            } else if (type === 'uploadFinished') {
+                state = 'done';
+            }
+            if (state === 'uploading') {
+                $btn.text('暂停上传');
+            } else {
+                $btn.text('开始上传');
+            }
+        });
+        // 当有文件添加进来的时候
+        uploader.on('fileQueued', function (file) {
+            var $li = $(
+                            '<li id="' + file.id + '" class="file-item thumbnail">' +
+                            '<p class="imgWrap notimage"><i class="file-preview"></i>' +
+                            '<img></p><p class="progress"><span></span></p>' +
+                            '<div class="file-panel" style="height: 0px;"><span class="cancel">删除</span></div>' +
+                            '<div class="info">' + file.name + '</div>' +
+                            '</li>'
+                    ),
+                    $img = $li.find('img'),
+                    $i = $li.find('i');
+            //改变鼠标经过样式
+            $li.hover(function () {
+                $li.find('.file-panel').css("height", "30px");
+            }, function () {
+                $li.find('.file-panel').css("height", "0px");
+            });
+            //移除文件
+            $li.on('click', '.cancel', function () {
+                uploader.removeFile(file);
+            })
+            if ('|png|jpg|jpeg|bmp|gif|'.indexOf('|' + file.ext.toLowerCase() + '|') > -1) {
+                $i.hide();
+                // 创建缩略图
+                uploader.makeThumb(file, function (error, src) {
+                    if (error) {
+                        $img.replaceWith('<span>不能预览</span>');
+                        return;
+                    }
+                    $img.attr('src', src);
+                }, thumbnailWidth, thumbnailHeight);
+            } else {
+                $i.addClass("file-type-" + file.ext.toLowerCase());
+            }
+            $list.append($li);
+        });
+        //移除文件时
+        uploader.on('fileDequeued', function (file) {
+            // 负责view的销毁
+            var $li = $('#' + file.id);
+            $li.off().find('.file-panel').off().end().remove();
+        });
+
+        // 文件上传过程中创建进度条实时显示。
+        uploader.on('uploadProgress', function (file, percentage) {
+            var $li = $('#' + file.id),
+                    $percent = $li.find('.progress span');
+            // 避免重复创建
+            if (!$percent.length) {
+                $percent = $('<p class="progress"><span></span></p>')
+                        .appendTo($li)
+                        .find('span');
+            }
+            $percent.css("display", "block");
+            $percent.show();
+            $percent.css('width', percentage * 100 + '%');
+        });
+        // 文件上传成功，给item添加成功class, 用样式标记上传成功。
+        uploader.on('uploadSuccess', function (file, response) {
+            var obj = new Object();
+            obj.name = file.name;
+            obj.ext = file.ext;
+            if (response.ok) {
+                obj.id = response.data;
+                attachList.push(obj);
+                $('#' + file.id).addClass('upload-state-done');
+            } else {
+                var $li = $('#' + file.id), $error = $li.find('div.error');
+                // 避免重复创建
+                if (!$error.length) {
+                    $error = $('<div class="error"></div>').appendTo($li);
+                }
+                $error.text(response.msg);
+            }
+        });
+        // 文件上传失败，现实上传出错。
+        uploader.on('uploadError', function (file, response) {
+            var $li = $('#' + file.id),
+                    $error = $li.find('div.error');
+            // 避免重复创建
+            if (!$error.length) {
+                $error = $('<div class="error"></div>').appendTo($li);
+            }
+            $error.text('上传失败');
+        });
+        // 完成上传完了，成功或者失败，先删除进度条。
+        uploader.on('uploadComplete', function (file) {
+            $('#' + file.id).find('.progress').remove();
+        });
+
+        $(".btn.ok").click(function () {
+            var stats = uploader.getStats();
+            if (stats.successNum == 0) {
+                var msgindex = parent.layer.confirm('您还没上传文件,确定关闭吗？', {
+                    btn: ['确定', '取消']
+                }, function () {
+                    parent.layer.close(msgindex);
+                    parent.layer.close(index);
+                }, function () {
+                    layer.close(msgindex);
+                });
+            } else if (stats.progressNum > 0) {
+                var msgindex = parent.layer.confirm('文件尚未全部上传,确定关闭吗？', {
+                    btn: ['确定', '取消']
+                }, function () {
+                    window.parent.HUCuploadFile.ok(attachList);
+                    parent.layer.close(msgindex);
+                    parent.layer.close(index);
+                }, function () {
+                    layer.close(msgindex);
+                });
+            } else {
+                window.parent.HUCuploadFile.ok(attachList);
+            }
+        });
+        $(".btn.change").click(function () {
+            parent.layer.close(index);
+        });
+    });
+</script>
+</body>
+</html>

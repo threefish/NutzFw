@@ -1,0 +1,550 @@
+<%
+var title="部门机构设置";
+layout("/layouts/blank.html",{title:title}){
+%>
+<style type="text/css">
+    .xs-btngroup {
+        text-align: center;
+        margin: 2px;
+    }
+
+    .autoHeight:after {
+        display: block;
+        clear: both;
+        content: " ";
+    }
+
+    #importBox:first-child {
+        text-align: center;
+        padding: 20px;
+        line-height: 25px;
+    }
+
+    .downLoadTemplate {
+        border: none;
+        background: #00b7ee;
+        font-size: 15px;
+        margin-top: -3px;
+    }
+
+    .simple-list li {
+        background: #eae5e5;
+        float: left;
+        padding: 5px;
+        margin-right: 5px;
+        margin-bottom: 5px;
+    }
+
+    .simple-list li:hover {
+        background: #46cf91;
+        color: #ffffff;
+        cursor: pointer;
+    }
+
+    .simple-list li > a {
+        visibility: hidden;
+    }
+
+    .simple-list li:hover > a {
+        visibility: inherit;
+    }
+</style>
+<section class="content" style="padding-left:0" id="container">
+    <div class="col-sm-3" style="padding: 0;">
+        <div id='ztree_searchbox' style='position: relative;display: block;height: 35px'>
+            <div class='ztree_searchbox'
+                 style='padding: 2px;background:#fff;display: block;height: 35px;overflow: hidden;width: 100%'>
+                <input type=text class=form-control placeholder='模糊查询快速定位' v-model="searchKey"
+                       style='display: inline-block;width: 65%;height: 33px;'>
+                <input @click="fn_searchDeptNode" type='button' value='快速定位'
+                       id='ztree_search_btn_1'
+                       style='display: inline-block;height: 33px;border-radius: 4px;width: 30%;margin-top: -4px;'
+                       class='btn btn-info btn-sm'>
+            </div>
+        </div>
+        <div id="deptTree" class="ztree" style="height: calc(100% - 136px);max-height:800px;overflow-y: auto"></div>
+    </div>
+    <div class="col-sm-9" v-if="initLoad">
+        <div style="margin: 5px">
+            <%if(so.hasPermission("sysOrganize.department.importData")){%>
+            <button class="btn btn-info btn-sm " @click="handleImport"><i class="fa fa-plus"></i>导入</button>
+            <%}%>
+            <button class="btn btn-info btn-sm " @click="handleAdd"><i class="fa fa-plus"></i>添加</button>
+            <button class="btn btn-info btn-sm " :disabled="!selected" @click="handleUpdate">修改</button>
+            <!--<button class="btn btn-warning btn-sm " :disabled="!selected" @click="handleDel">删除</button>-->
+            <button class="btn btn-danger btn-sm " v-if="importError" @click="download">下载错误文件</button>
+            <div class="btn btn-success pull-right" :disabled="saving" @click="handleSaveUpdate" v-if="saveOrUpdate">
+                提交保存
+            </div>
+        </div>
+        <div class="from-box">
+            <form action="update" method="post" id="from">
+                <div style="display: none">
+                    <input type="text" class="form-control input-sm" v-model="fromData.id">
+                    <input type="text" class="form-control input-sm" v-model="fromData.pid">
+                    <input type="text" class="form-control input-sm" v-model="fromData.leader">
+                    <input type="text" class="form-control input-sm" v-model="fromData.assistant">
+                    <input type="text" class="form-control input-sm" v-model="fromData.parentLeader1">
+                    <input type="text" class="form-control input-sm" v-model="fromData.parentLeader2">
+                </div>
+                <div class="form-grou" v-if="!isRoot">
+                    <label>上级部门</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control input-sm" v-model="fromData.parentName" readonly>
+                        <div class="input-group-addon" @click="handleCheckParent">
+                            <i class="fa fa-edit"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-grou">
+                    <label>部门名称</label>
+                    <input type="text" class="form-control input-sm" v-model="fromData.name" placeholder="部门名称">
+                </div>
+                <div class="form-grou">
+                    <label>部门编码</label>
+                    <input type="text" class="form-control input-sm" v-model="fromData.code" placeholder="部门编码">
+                </div>
+                <div class="form-grou">
+                    <label>编制数量</label>
+                    <input type="number" class="form-control input-sm" v-model="fromData.plaitNum" placeholder="编制数量">
+                </div>
+                <div>
+                    <div class="form-grou clearfix">
+                        <label>部门主管(选填):</label>
+                        <ul class="simple-list clearfix">
+                            <li @click="removeHead(user,'HEAD')" v-for="user in departmentLeader.head">
+                                <i class="fa fa-user"></i>
+                                <span>{{user.realName}}&nbsp;&nbsp;({{user.userName}})</span>
+                                <a>
+                                    <i class="fa fa-remove" v-if="saveOrUpdate"></i>
+                                </a>
+                            </li>
+                        </ul>
+                        <div class="no-results" v-if="departmentLeader.head.length==0">
+                            没有选择...
+                        </div>
+                        <div class="xs-btngroup">
+                            <div @click="handleAddUserManager('HEAD')" class="btn btn-info btn-xs" v-if="saveOrUpdate">
+                                添加
+                            </div>
+                            <div @click="handleCleanUserManager('HEAD')" class="btn btn-info btn-xs"
+                                 v-if="saveOrUpdate">清空
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-grou clearfix">
+                        <label>部门分管领导(选填)：</label>
+                        <ul class="simple-list clearfix">
+                            <li @click="removeHead(user,'LEADER')" v-for="user in departmentLeader.leader">
+                                <i class="fa fa-user"></i>
+                                <span>{{user.realName}}&nbsp;&nbsp;({{user.userName}})</span>
+                                <a>
+                                    <i class="fa fa-remove" v-if="saveOrUpdate"></i>
+                                </a>
+                            </li>
+                        </ul>
+                        <div class="no-results" v-if="departmentLeader.leader.length==0">
+                            没有选择...
+                        </div>
+                        <div class="xs-btngroup">
+                            <div @click="handleAddUserManager('LEADER')" class="btn btn-info btn-xs"
+                                 v-if="saveOrUpdate">添加
+                            </div>
+                            <div @click="handleCleanUserManager('LEADER')" class="btn btn-info btn-xs"
+                                 v-if="saveOrUpdate">清空
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-grou">
+                    <label>电话：</label>
+                    <input type="text" class="form-control input-sm" v-model="fromData.telphone">
+                </div>
+                <div class="form-grou">
+                    <label>传真：</label>
+                    <input type="text" class="form-control input-sm" v-model="fromData.fax">
+                </div>
+                <div class="form-grou">
+                    <label>地址：</label>
+                    <input type="text" class="form-control input-sm" v-model="fromData.address">
+                </div>
+                <div class="form-grou">
+                    <label>部门职能</label>
+                    <textarea class="form-control" rows="2" placeholder="部门职能" v-model="fromData.functions"></textarea>
+                </div>
+            </form>
+        </div>
+        <div id="importBox" style="display: none">
+            <div>
+                <div class="btn btn-info downLoadTemplate" @click="handleDownTemplate">模版下载</div>
+                <div class="btn btn-info downLoadTemplate" @click="handleUpload">导入数据</div>
+                <div style="font-size: 12px;margin-top: 10px;color: #f10f0f;">
+                    <p>1、请先下载模版，在模版中编辑数据后再导入数据</p>
+                    <p>2、导入的数据将全部导入选中的部门下</p>
+                    <p>3、每次导入不能超过5000条数据，多余记录将会被忽略</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<script type="text/javascript">
+    var parentId;
+    var deptTree, selectId, selectdata, vm = new Vue({
+        el: '#container',
+        data: {
+            importError: false,
+            fromData: {
+                id: "",
+                pid: "0",
+                name: "",
+                plaitNum: "",
+                parentName: "${sys.unitName}",
+                leader: "",
+                leaderDesc: "",
+                assistant: "",
+                assistantDesc: "",
+                parentLeader1: "",
+                parentLeader1Desc: "",
+                parentLeader2: "",
+                parentLeader2Desc: "",
+                telphone: "",
+                fax: "",
+                address: "",
+                functions: "",
+                shortNo: "",
+            },
+            initLoad: false,//是否初始化完成
+            selected: false,//是否选中了节点
+            selectedId: null,
+            saveOrUpdate: false,//提交保存按钮控制
+            saving: false,//保存中
+            isRoot: false,//是否是根节点
+            attachId: "",
+            searchKey: "",
+            departmentLeader: {
+                head: [],
+                leader: [],
+            }
+        },
+        methods: {
+            fn_searchDeptNode: function () {
+                core.showZtreeSearch(deptTree, vm.searchKey, "name");
+            },
+            download: function () {
+                window.open("${base}/sysOrganize/department/downErrFile?attachId=" + vm.attachId, "_blank");
+            },
+            handleUpload: function () {
+                core.singleUpload({
+                    fileExtensions: "xlsx",
+                    module: "dataimport",
+                    fileType: "file",
+                    ok: function (index, response) {
+                        var attachId = response.data;
+                        layer.closeAll();
+                        if (attachId != undefined) {
+                            vm.attachId = attachId;
+                            var json = core.postJSON("/sysOrganize/department/checkImportData", {
+                                attachId: attachId,
+                                deptId: vm.selectedId,
+                            });
+                            core.msg(json);
+                            if (!json.ok) {
+                                vm.importError = true;
+                            } else {
+                                vm.importError = false;
+                                reloadDeptTree();
+                            }
+                        }
+                    }
+                });
+            },
+            handleImport: function () {
+                //打开导入弹窗
+                if (vm.selectedId != null) {
+                    vm.importStatus = true;
+                    layer.open({
+                        type: 1,
+                        title: "数据导入",
+                        area: ['500px', '220px'],
+                        content: $("#importBox")
+                    });
+                } else {
+                    core.error("请先选择导入的部门!")
+                }
+            },
+            handleDownTemplate: function () {
+                window.open("${base}/sysOrganize/department/downTemplate", "_blank");
+            },
+            handleAdd: function () {
+                this.departmentLeader.head = [];
+                this.departmentLeader.leader = [];
+                this.saveOrUpdate = true;
+                this.fromData = {
+                    id: "",
+                    pid: "0",
+                    name: "",
+                    plaitNum: "",
+                    parentName: "",
+                    leader: "",
+                    leaderDesc: "",
+                    assistant: "",
+                    assistantDesc: "",
+                    parentLeader1: "",
+                    parentLeader1Desc: "",
+                    parentLeader2: "",
+                    parentLeader2Desc: "",
+                    telphone: "",
+                    fax: "",
+                    address: "",
+                    functions: "",
+                    shortNo: ""
+                }
+                if (this.selected) {
+                    this.fromData.pid = selectdata.id;
+                    this.fromData.parentName = selectdata.name;
+                } else {
+                    this.fromData.parentName = "${sys.unitName}";
+                }
+            },
+            handleUpdate: function () {
+                if (selectdata.id == "0") {
+                    core.error("根节点不能修改")
+                } else {
+                    this.saveOrUpdate = true;
+                }
+            },
+            handleDel: function () {
+            },
+            handleSaveUpdate: function () {
+                //提交保存
+                this.saving = true;
+                var fromData = core.convertDataJSON(this.fromData)
+                fromData.head = this.departmentLeader.head;
+                fromData.leader = this.departmentLeader.leader;
+                var jsonre = core.postJSON("/sysOrganize/department/save", fromData);
+                core.msg(jsonre);
+                if (jsonre.ok) {
+                    //提交完成
+                    this.saveOrUpdate = false;
+                    selectId = jsonre.data.id;
+                    reloadDeptTree();
+                }
+                this.saving = false;
+            },
+            handleCheckParent: function () {
+                core.showMenusSimpleTree({
+                    title: "修改上级部门",
+                    url: "/sysOrganize/department/tree",
+                    isCheckbox: false,
+                    data: {id: "id", pid: "pid", name: "name"},
+                    onOk: function (data) {
+                        vm.fromData.parentName = data.name;
+                        vm.fromData.pid = data.id;
+                        return true;
+                    }
+                });
+            },
+            removeHead: function (user, type) {
+                if (saveOrUpdate) {
+                    var leaders = [];
+                    if (type == "HEAD") {
+                        leaders = this.departmentLeader.head
+                    } else {
+                        leaders = this.departmentLeader.leader
+                    }
+                    var arr = [];
+                    for (var i in leaders) {
+                        var temp = leaders[i];
+                        if (temp.userName != user.userName) {
+                            arr.push(temp);
+                        }
+                    }
+                    if (type == "HEAD") {
+                        this.departmentLeader.head = arr;
+                    } else {
+                        this.departmentLeader.leader = arr;
+                    }
+                }
+            },
+            handlePushHead: function (list, data) {
+                for (var i in list) {
+                    var temp = list[i];
+                    if (temp.userName == data.userName) {
+                        return;
+                    }
+                }
+                list.push(data);
+            },
+            handleChoseHeadFun: function (arrdata) {
+                for (var i in arrdata) {
+                    var temp = arrdata[i];
+                    this.handlePushHead(this.departmentLeader.head, {
+                        leaderType: 'HEAD',
+                        userName: temp.userName,
+                        realName: temp.realName,
+                    })
+                }
+                return true;
+            },
+            handleChoseLeaderFun: function (arrdata) {
+                for (var i in arrdata) {
+                    var temp = arrdata[i];
+                    this.handlePushHead(this.departmentLeader.leader, {
+                        leaderType: 'LEADER',
+                        userName: temp.userName,
+                        realName: temp.realName,
+                    })
+                }
+                return true;
+            },
+            handleLoadHead: function () {
+                core.postSyncJSON("/sysOrganize/department/loadHeadList", {
+                    leaderType: "HEAD",
+                    deptId: vm.selectedId
+                }, function (data) {
+                    vm.departmentLeader.head = data;
+                });
+                core.postSyncJSON("/sysOrganize/department/loadHeadList", {
+                    leaderType: "LEADER",
+                    deptId: vm.selectedId
+                }, function (data) {
+                    vm.departmentLeader.leader = data;
+                });
+            },
+            handleAddUserManager: function (type) {
+                var selectValues = [];
+                if (type == "HEAD") {
+                    this.departmentLeader.head.forEach(value => selectValues.push(value.userName))
+                } else {
+                    this.departmentLeader.leader.forEach(value => selectValues.push(value.userName))
+                }
+                var opt = {
+                    option: {
+                        url: "/selectUser/users",
+                        method: "post",
+                        param: {},
+                        key: "query",
+                        checkbox: true,
+                        selectPrimaryKey: "userName",
+                        selectPrimaryValues: selectValues.join(","),
+                        cols: [
+                            {field: 'realName', title: '姓名'},
+                            {field: 'userName', title: '用户名'},
+                            {field: 'deptName', title: '部门'},
+                            {field: 'sex', title: '性别'},
+                        ],
+                    },
+                    title: "选择" + (type == "HEAD" ? "部门主管领导" : "部门分管领导"),
+                    width: "600px",
+                    height: "600px",
+                    onOk: function (selectData) {
+                        if (type == "HEAD") {
+                            vm.handleChoseHeadFun(selectData);
+                        } else {
+                            vm.handleChoseLeaderFun(selectData);
+                        }
+                        return true;
+                    },
+                }
+                core.showChoseTableData(opt);
+            },
+            handleCleanUserManager: function (type) {
+                switch (type) {
+                    case 'HEAD':
+                        vm.departmentLeader.head = [];
+                        break;
+                    case 'LEADER':
+                        vm.departmentLeader.leader = [];
+                        break;
+                }
+            }
+        },
+        created: function () {
+            this.initLoad = true;
+        },
+        updated: function () {
+        },
+        mounted: function () {
+            reloadDeptTree();
+        }
+    });
+
+    function reloadDeptTree() {
+        deptTree = new showZtree({
+            el: "#deptTree",
+            url: "/sysOrganize/department/tree",
+            data: {id: "id", pid: "pid", name: "name"},
+            autoParam: ["id"],
+            otherParam: {},
+            selectId: selectId,
+            edit: {
+                drag: {
+                    autoExpandTrigger: true,
+                    inner: false,
+                },
+                enable: true,
+                showRemoveBtn: false,
+                showRenameBtn: false
+            },
+            onSuccess: function () {
+                vm.handleLoadHead();
+            },
+            beforeDrag: function (treeId, treeNodes) {
+                for (var i = 0, l = treeNodes.length; i < l; i++) {
+                    parentId = treeNodes[i].pid;
+                    if (treeNodes[i].drag === false) {
+                        return false;
+                    }
+                }
+                return true;
+            },
+            beforeDrop: function (treeId, treeNodes, targetNode, moveType, isCopy) {
+                if (treeNodes[0].level == 0) {
+                    return false;
+                }
+                if (targetNode.level == 0) {
+                    return false;
+                }
+                return targetNode.pid == parentId;
+            },
+            onDrop: function (event, treeId, treeNodes, targetNode, moveType, isCopy) {
+                var nodes = treeNodes[0].getParentNode().children;
+                var arr = {};
+                for (var i in nodes) {
+                    arr[nodes[i].id] = i;
+                }
+                $.ajax({
+                    url: base + "/sysOrganize/department/sort",
+                    type: "POST",
+                    async: true,
+                    error: function () {
+                        layer.msg("网络连接出错", {icon: 5, time: 1000});
+                    },
+                    data: arr,
+                    dataType: "json",
+                    success: function (data) {
+                        core.msg(data);
+                    }
+                });
+            },
+            onSelect: function (node) {
+                vm.fromData = node;
+                vm.selected = true;
+                vm.selectedId = node.id;
+                vm.saveOrUpdate = false;
+                vm.departmentLeader.head;
+                vm.departmentLeader.leader;
+                selectdata = node;
+                if (node.id == "0") {
+                    vm.isRoot = true;
+                } else {
+                    vm.isRoot = false;
+                }
+                vm.handleLoadHead();
+                return true;
+            }
+        });
+    }
+
+</script>
+<%}%>

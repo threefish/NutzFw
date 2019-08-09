@@ -1,0 +1,99 @@
+<%
+var title="实时日志";
+layout("/layouts/blank.html",{title:title}){
+%>
+<style type="text/css">
+    .dataTbleBox {
+        background: #ffffff;
+        margin: 15px 0px;
+        padding: 15px;
+    }
+</style>
+<section class="content-header">
+    <h1>
+        ${title}
+        <small>控制面板</small>
+    </h1>
+</section>
+<section class="content" id="container">
+    <div style="background: #ffffff">
+        <div id="listTable" lay-filter='listTable'></div>
+    </div>
+</section>
+<script type="text/html" id="toolBarFixed">
+    <a class="layui-btn layui-btn-xs layui-btn-danger" lay-event="start">启动\查看</a>
+    <a class="layui-btn layui-btn-xs layui-btn-danger" lay-event="stop">停止</a>
+</script>
+<script type="text/javascript">
+    var listTable, vm = new Vue({
+        el: '#container',
+        data: {},
+        methods: {
+            handleStop: function (data) {
+                core.confirm("确定停止【" + data.name + "】？", function () {
+                    var json = core.postJSON('/sysTailLogs/stop', {name: data.name});
+                    core.msg(json)
+                    if (json.ok) {
+                        vm.handleSearchTable();
+                    }
+                });
+            },
+            handleView: function (data) {
+                layer.open({
+                    type: 2,
+                    title: data.name + "监控",
+                    area: ['80%', '80%'],
+                    content: base + "/sysTailLogs/view?name=" + data.name,
+                });
+                setTimeout(function () {
+                    vm.handleSearchTable();
+                }, 5000);
+            },
+            handleSearchTable: function () {
+                listTable.reload();
+            },
+            layuiInit: function () {
+                layui.use(['table', 'element', 'laytpl',], function () {
+                    var table = layui.table;
+                    listTable = table.render({
+                        id: 'listTable',
+                        elem: '#listTable',
+                        page: false,
+                        method: 'post',
+                        url: base + '/sysTailLogs/list',
+                        height: 'full-120',
+                        limit: 50,
+                        cols: [[
+                            {title: '序号', type: 'numbers', width: 50},
+                            {field: 'name', title: '监控项',},
+                            {field: 'command', title: '执行命令',},
+                            {
+                                field: 'status', title: '状态', templet: function (d) {
+                                    return d.status ? "<span style='color: red'>运行中</span>" : "<span>未启动</span>";
+                                }
+                            },
+                            {title: '操作', align: 'center', width: 180, fixed: 'right', toolbar: '#toolBarFixed'},
+                        ]],
+                    });
+                    table.on("tool(listTable)", function (obj) {
+                        var data = obj.data, ac = obj.event;
+                        if (ac == "start") {
+                            vm.handleView(data);
+                        }
+                        if (ac == "stop") {
+                            vm.handleStop(data);
+                        }
+                    });
+                });
+            }
+        },
+        created: function () {
+            this.layuiInit();
+        },
+        updated: function () {
+        },
+        mounted: function () {
+        }
+    });
+</script>
+<%}%>

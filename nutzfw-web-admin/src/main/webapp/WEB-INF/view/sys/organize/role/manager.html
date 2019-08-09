@@ -1,0 +1,695 @@
+<%
+var title="角色管理";
+layout("/layouts/blank.html",{title:title}){
+%>
+<style type="text/css">
+    .required {
+        color: red;
+    }
+
+    .top_bar {
+        border: solid 1px #e4e2e2;
+        border-radius: 5px;
+        height: 50px;
+        padding-top: 10px;
+        padding-left: 20px;
+        font-size: 14px;
+    }
+
+    .top_bar .layui-btn {
+        height: 30px;
+        line-height: 30px;
+        padding: 0 10px;
+        font-size: 12px;
+    }
+
+
+    .searchBox {
+        float: left;
+        margin-top: -2px;
+    }
+
+    .form-control {
+        height: 30px;
+    }
+
+    .ztree {
+        margin: 0;
+        padding: 5px;
+        color: #333;
+        position: relative;
+        height: 485px;
+        overflow-y: auto;
+    }
+
+    .table-select {
+        height: 20px;
+        border: 1px #d6d5d5 solid;
+        line-height: 20px;
+        width: 100%;
+    }
+</style>
+<section class="content-header">
+    <h1>
+        ${title}
+    </h1>
+</section>
+<section class="content" id="container" style="padding-bottom: 0px!important;">
+    <div class="top_bar">
+        <%if(so.hasPermission("sysRole.query")){%>
+        <table class="searchBox">
+            <tr>
+                <td class="form-lable" width="80px" style="text-align: center;">
+                    角色编号
+                </td>
+                <td class="form-lable">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="角色编号" v-model="serachRole.roleCode">
+                    </div>
+                </td>
+                <td class="form-lable" width="80px" style="text-align: center;">
+                    角色名称
+                </td>
+                <td class="form-lable">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="角色名称" v-model="serachRole.roleName">
+                    </div>
+                </td>
+                <td>
+                    <div style="margin-left: 20px" @click="fn_searchRoles"
+                         class="layui-btn layui-btn-sx layui-btn-normal">查询
+                    </div>
+                </td>
+            </tr>
+        </table>
+        <%}%>
+    </div>
+    <div id="dataBox" style="display: none;text-align: center;padding: 15px">
+        <div class="add_role_div" v-for="item in roles">
+            <input type="hidden" v-model="item.id">
+            <div class="form-group col-sm-6">
+                <label>角色名称</label>
+                <input class="form-control" type="text" placeholder="角色名称" v-model="item.roleName">
+            </div>
+            <div class="form-group col-sm-6">
+                <label>角色编号(英文)工作流用户组标识</label>
+                <input class="form-control" type="text" placeholder="角色编号(英文)工作流用户组标识" v-model="item.roleCode">
+            </div>
+        </div>
+        <div class="layui-btn layui-btn-sx layui-btn-normal" v-if="!isUpdate" @click="fn_addRoleLine"
+             style="margin-top: 20px;">继续增加角色
+        </div>
+    </div>
+    <div style="background: #ffffff">
+        <div id="roleListTable" lay-filter='roleListTable'></div>
+    </div>
+    <div class="layui-tab layui-tab-brief" id="job_detail_tab" lay-filter="layui-tab" style="display: none;">
+        <ul class="layui-tab-title">
+            <li class="layui-this" lay-id="1">部门权限</li>
+            <li>功能权限</li>
+            <li>数据表权限</li>
+        </ul>
+        <div class="layui-tab-content">
+            <div class="layui-tab-item layui-show">
+                <div class='ztree_searchbox'
+                     style='padding: 2px;background:#fff;display: block;height: 35px;overflow: hidden;width: 100%'>
+                    <input type=text class=form-control placeholder='模糊查询快速定位' v-model="searchKey1"
+                           style='display: inline-block;width: 50%;height: 33px;margin-left: 75px'>
+                    <input @click="fn_searchDeptNode" type='button' value='快速定位'
+                           id='ztree_search_btn_2'
+                           style='display: inline-block;height: 33px;border-radius: 0px;width: 20%;margin-top: -4px;'
+                           class='btn btn-primary btn-sm'>
+                </div>
+                <div id="deptTree" class="ztree" style="margin-left:75px;"></div>
+            </div>
+            <div class="layui-tab-item">
+                <div class='ztree_searchbox'
+                     style='padding: 2px;background:#fff;display: block;height: 35px;overflow: hidden;width: 100%'>
+                    <input type=text class=form-control placeholder='模糊查询快速定位' v-model="searchKey2"
+                           style='display: inline-block;width: 50%;height: 33px;margin-left: 75px'>
+                    <input @click="fn_searchMenuNode" type='button' value='快速定位'
+                           id='ztree_search_btn_1'
+                           style='display: inline-block;height: 33px;border-radius: 0px;width: 20%;margin-top: -4px;'
+                           class='btn btn-primary btn-sm'>
+                </div>
+                <div id="menuTree" class="ztree" style="margin-left:75px;"></div>
+            </div>
+            <div class="layui-tab-item" id="fieldTableBox">
+                <div v-if="status!=2"><span>为当前选中的角色批量设置表权限（注意：不是单独移除或添加表权限）</span></div>
+                <div class="input-group">
+                    <input type="text" readonly v-model="roleTableField.selectTableName"
+                           placeholder="请选择表进行授权"
+                           @click="selectTable" class="form-control">
+                    <span class="input-group-addon" @click="selectTable"><i
+                            class="fa fa-arrow-circle-o-down"></i></span>
+                </div>
+                <div id="fieldTable" lay-filter='fieldTable'></div>
+            </div>
+        </div>
+    </div>
+</section>
+<script type="text/html" id="topToolbar">
+    <%if(so.hasPermission("sysRole.saveList")){%>
+    <div class="layui-btn layui-btn-sm layui-btn-normal" lay-event="add" k="fn_saveOrUpdate(1)">新增</div>
+    <div class="layui-btn layui-btn-sm layui-btn-normal" lay-event="edit" k="fn_saveOrUpdate(2)">修改</div>
+    <%}%>
+    <%if(so.hasPermission("sysRole.delRoleList")){%>
+    <div class="layui-btn layui-btn-sm layui-btn-normal" lay-event="del" @click="fn_delRole">删除</div>
+    <%}%>
+    <%if(so.hasPermission("sysOrganize.job.allocation")){%>
+    <div class="layui-btn layui-btn-sm layui-btn-normal" lay-event="batchAddRole" k="fn_detailRoles(1)">批量添加权限</div>
+    <div class="layui-btn layui-btn-sm layui-btn-normal" lay-event="batchRemoveRole" k="fn_detailRoles(3)">批量移除权限</div>
+    <%}%>
+</script>
+<script type="text/html" id="toolBarFixed">
+    <%if(so.hasPermission("sysRole.queryAllRoles")){%>
+    <div class="layui-btn layui-btn-sm layui-btn-normal" lay-event="edit">编辑权限</div>
+    <%}%>
+</script>
+<script type="text/html" id="selectBox">
+    <select lay-ignore class="table-select" onChange="vm.changeAuth(this)" data-index="{{d.LAY_TABLE_INDEX}}">
+        {{# if(vm.contains(d.auths,'hide')){ }}
+        <option {{ d.auth=='hide'?'selected':'' }} value="hide">不可见</option>
+        {{# } }}
+        {{# if(vm.contains(d.auths,'r')){ }}
+        <option {{ d.auth=='r'?'selected':'' }} value="r">只读</option>
+        {{# } }}
+        {{# if(vm.contains(d.auths,'rw')){ }}
+        <option {{ d.auth=='rw'?'selected':'' }} value="rw">可读写</option>
+        {{# } }}
+    </select>
+</script>
+<script type="text/html" id="fieldTableTopToolbar">
+    <div class="layui-btn layui-btn-xs layui-btn-normal" lay-event="hide">批量不可见</div>
+    <div class="layui-btn layui-btn-xs layui-btn-normal" lay-event="r">批量只读</div>
+    <div class="layui-btn layui-btn-xs layui-btn-normal" lay-event="rw">批量可读写</div>
+    <div class="layui-btn layui-btn-xs layui-btn-danger" lay-event="save">保存当前数据表权限(即时生效)</div>
+</script>
+<script type="text/javascript">
+    var table, tableScrollTop, vm = new Vue({
+        el: "#container",
+        data: {
+            serachRole: {
+                roleName: "",
+                roleCode: ""
+            },
+            grid_table: {},
+            roles: [],
+            selectedIds: [],
+            menuTree: {},
+            deptTree: {},
+            fieldTable: {},
+            isUpdate: false,
+            isCommit: false,
+            searchKey1: "",
+            searchKey2: "",
+            status: 0,
+            roleTableField: {
+                selectTableName: "",
+                selectTableId: 0,
+                roleId: 0,
+            }
+        },
+        methods: {
+            contains: function (array, obj) {
+                var i = array.length;
+                while (i--) {
+                    if (array[i] === obj) {
+                        return true;
+                    }
+                }
+                return false;
+            },
+            scrollTop: function (el) {
+                el.scrollTop = tableScrollTop;
+            },
+            changeAuth: function (t) {
+                var el = $(t);
+                var index = el.attr('data-index');
+                var dataArr = vm.getAuthData();
+                var rowData = dataArr[index];
+                if (this.contains(rowData.auths, el.val())) {
+                    rowData.auth = el.val();
+                }
+                var newDataArr = new Array();
+                for (var i in dataArr) {
+                    if (i == index) {
+                        newDataArr.push(rowData);
+                    } else {
+                        newDataArr.push(dataArr[i]);
+                    }
+                }
+                vm.reloadAuthData(newDataArr);
+            },
+            reloadAuthData: function (dataArr) {
+                tableScrollTop = $("#fieldTableBox .layui-table-main")[0].scrollTop;
+                if (dataArr == undefined) {
+                    vm.fieldTable.reload({
+                        data: table.cache['fieldTable'], done: function () {
+                            vm.scrollTop($("#fieldTableBox .layui-table-main")[0]);
+                        }
+                    });
+                } else {
+                    vm.fieldTable.reload({
+                        data: dataArr, done: function () {
+                            vm.scrollTop($("#fieldTableBox .layui-table-main")[0]);
+                        }
+                    });
+                }
+            },
+            getAuthData: function () {
+                var cacheDataArr = table.cache['fieldTable'];
+                var dataArr = new Array();
+                for (var i in cacheDataArr) {
+                    var row = cacheDataArr[i];
+                    if ((!(row instanceof Array)) && (row instanceof Object)) {
+                        dataArr.push(row);
+                    }
+                }
+                return dataArr;
+            },
+            saveTableRole: function (roleIds) {
+                var roleData = this.getAuthData();
+                var json = core.postJSON("/sysRole/saveRoleFiledList", {
+                    roleData: JSON.stringify(roleData),
+                    tableId: vm.roleTableField.selectTableId,
+                    roleIds: roleIds
+                });
+                core.msg(json);
+            },
+            dataEqual: function (fieldTableCheckData, item) {
+                for (var x in  fieldTableCheckData) {
+                    var checkData = fieldTableCheckData[x];
+                    if (checkData.fieldId == item.fieldId) {
+                        return checkData;
+                    }
+                }
+                return null;
+            },
+            batchData: function (ac) {
+                var fieldTableCheckData = table.checkStatus('fieldTable').data;
+                if (fieldTableCheckData.length > 0) {
+                    var newData = [];
+                    var authData = this.getAuthData();
+                    for (var i in authData) {
+                        var item = authData[i];
+                        var data = this.dataEqual(fieldTableCheckData, item);
+                        if (data == null) {
+                            newData.push(item)
+                        } else {
+                            var contains = this.contains(data.auths, ac);
+                            if (contains) {
+                                data.auth = ac;
+                            } else if (ac == "rw" && !contains) {
+                                data.auth = "r";
+                            }
+                            newData.push(data)
+                        }
+                    }
+                    this.reloadAuthData(newData);
+                } else {
+                    core.error("请选择字段")
+                }
+            },
+            selectTableChoseFun: function (data) {
+                vm.roleTableField.selectTableName = data.name;
+                vm.roleTableField.selectTableId = data.id;
+                vm.loadRoleTableFieldData(vm.selectedIds[0]);
+                return true;
+            },
+            loadRoleTableFieldData: function (roleId) {
+                roleId = roleId || "";
+                var jsonre = core.postJSON("/sysDataTable/allFileds", {
+                    tableId: vm.roleTableField.selectTableId,
+                    roleId: roleId
+                });
+                vm.fieldTable.reload({data: jsonre.data})
+            },
+            selectTable: function () {
+                var opt = {
+                    option: {
+                        url: "/sysDataTable/relationTable",
+                        method: "post",
+                        param: {},
+                        key: "key",
+                        cols: [
+                            {title: '序号', type: 'numbers', width: 50},
+                            {field: 'name', title: '表名'},
+                        ],
+                        checkbox: false,
+                    },
+                    title: "选择数据表",
+                    width: "500px",
+                    height: "500px",
+                    onOk: function (data) {
+                        console.log(data)
+                        if (data.length == 0) {
+                            core.warn("请选择数据表")
+                            return false;
+                        }
+                        vm.roleTableField.selectTableName = data[0].name;
+                        vm.roleTableField.selectTableId = data[0].id;
+                        vm.loadRoleTableFieldData(vm.selectedIds[0]);
+                        return true;
+                    },
+                }
+                core.showChoseTableData(opt);
+            },
+            fn_loadGrid: function () {
+                layui.use(['table'], function () {
+                    table = layui.table;
+                    vm.grid_table = table.render({
+                        id: 'roleListTable',
+                        elem: '#roleListTable',
+                        page: true,
+                        method: 'post',
+                        url: base + '/sysRole/query',
+                        height: 'full-130',
+                        limit: 50,
+                        even: true,
+                        request: {
+                            pageName: 'pageNum',
+                            limitName: 'pageSize',
+                        },
+                        where: vm.serachRole,
+                        toolbar: '#topToolbar',
+                        defaultToolbar: ['filter'],
+                        cols: [[
+                            {type: 'checkbox'},
+                            {title: '序号', type: 'numbers', align: 'center', width: 50},
+                            {field: 'roleCode', title: '角色编号', align: 'center', width: 250},
+                            {field: 'roleName', title: '角色名称', align: 'center',},
+                            {title: '操作', align: 'center', fixed: 'right', width: 100, toolbar: '#toolBarFixed'},
+                        ]],
+                    });
+                    table.on("toolbar(roleListTable)", function (obj) {
+                        var layEvent = obj.event;
+                        if (!$(this).hasClass("layui-btn-disabled")) {
+                            switch (layEvent) {
+                                case "add":
+                                    vm.fn_saveOrUpdate(1);
+                                    break;
+                                case "edit":
+                                    vm.fn_saveOrUpdate(2);
+                                    break;
+                                case "del":
+                                    vm.fn_delRole();
+                                    break;
+                                case "batchAddRole":
+                                    vm.fn_detailRoles(1);
+                                    break;
+                                case "batchRemoveRole":
+                                    vm.fn_detailRoles(3);
+                                    break;
+                            }
+                        }
+                    });
+                    table.on("tool(roleListTable)", function (obj) {
+                        if (!$(this).hasClass("layui-btn-disabled")) {
+                            if (obj.event == "edit") {
+                                var data = obj.data, layEvent = obj.event;
+                                vm.selectedIds = []
+                                vm.selectedIds.push(data.id);
+                                vm.fn_detailRoles(2)
+                            }
+                        }
+                    });
+                    vm.fieldTable = table.render({
+                        id: 'fieldTable',
+                        elem: '#fieldTable',
+                        page: false,
+                        limit: 999,
+                        height: 470,
+                        size: 'sm',
+                        data: [],
+                        defaultToolbar: [],
+                        toolbar: '#fieldTableTopToolbar',
+                        cols: [[
+                            {type: 'checkbox'},
+                            {title: '序号', type: 'numbers', align: 'center', width: 50},
+                            {field: 'name', title: '字段名', align: 'center'},
+                            {field: 'auth', title: '权限', align: 'center', width: 100, templet: "#selectBox"}
+                        ]],
+                    });
+                    table.on("toolbar(fieldTable)", function (obj) {
+                        var layEvent = obj.event;
+                        if (layEvent == "save") {
+                            if (vm.status == 2) {
+                                vm.saveTableRole(vm.selectedIds[0]);
+                            } else {
+                                vm.saveTableRole(vm.selectedIds.join(","));
+                            }
+                        } else {
+                            vm.batchData(layEvent);
+                        }
+                    });
+                });
+            },
+            fn_searchRoles: function () {
+                vm.grid_table.reload({page: {curr: 1}})
+            },
+            fn_detailRoles: function (status) {
+                this.status = status;
+                var checkStatus = layui.table.checkStatus("roleListTable");
+                if (checkStatus.data.length == 0 && status != 2) {
+                    core.error("请先选择角色!")
+                    return;
+                } else {
+                    if (status == 1 || status == 3) {
+                        vm.selectedIds = [];
+                        for (var i = 0; i < checkStatus.data.length; i++) {
+                            vm.selectedIds.push(checkStatus.data[i].id);
+                        }
+                    }
+                    layer.open({
+                        scrollbar: true,
+                        type: 1,
+                        title: status == 1 ? "批量添加权限" : status == 3 ? "批量移除权限" : "单个角色权限编辑",
+                        area: ['700px', '700px'],
+                        content: $("#job_detail_tab"),
+                        btn: [status == 1 ? "添加" : status == 3 ? "移除" : "保存", '返回'],
+                        btn1: function (index) {
+                            if (vm.isCommit) {
+                                core.error("正在处理数据中,请稍后....")
+                                return;
+                            }
+                            vm.isCommit = true;
+                            //获取部门和岗位id
+                            var treeManager = vm.deptTree.getZtree();
+                            var checkedNodes = treeManager.getCheckedNodes();
+                            var trees = [];
+                            for (var i in checkedNodes) {
+                                var tree = {
+                                    id: checkedNodes[i].id,
+                                    pid: checkedNodes[i].pid,
+                                    name: checkedNodes[i].name,
+                                    type: checkedNodes[i].type,
+                                }
+                                trees[i] = tree;
+                            }
+                            //获取菜单id
+                            checkedNodes = vm.menuTree.getZtree().getCheckedNodes();
+                            var menuIds = [];
+                            for (var i in checkedNodes) {
+                                menuIds[i] = checkedNodes[i].id;
+                            }
+                            //提交
+                            $.post(base + "/sysRole/updateAllRoles", {
+                                roleIds: vm.selectedIds.join(","),
+                                trees: JSON.stringify(trees),
+                                menuIds: menuIds.join(","),
+                                status: status,
+                            }, function (data) {
+                                core.msg(data);
+                                vm.isCommit = false;
+                                vm.saveTableRole(vm.selectedIds.join(","));
+                                if (data.ok) {
+                                    layer.close(index);
+                                    vm.fn_loadGrid()
+                                }
+                            }, "json");
+                        },
+                        success: function () {
+                            vm.deptTree = new showZtree({
+                                el: "#deptTree",
+                                url: "/sysOrganize/department/treeAboutJob",
+                                data: {id: "id", pid: "pid", name: "name"},
+                                autoParam: ["id"],
+                                otherParam: {},
+                                isSearch: true,
+                                isCheckbox: true,
+                                rightClickMenu: [
+                                    {title: "全选", click: "selectAll"},
+                                    {title: "全不选", click: "unSelectAll"},
+                                    {title: "反选", click: "inverseSelection"}
+                                ],
+                                chkboxType: {"Y": "", "N": ""},
+                                onSuccess: function (data) {
+                                    var node = data.getNodes()[0];
+                                    node.nocheck = true;
+                                    node.chkDisabled = true;
+                                    data.updateNode(node);
+                                    if (status == 2) {
+                                        $.post(base + "/sysRole/queryAllRoles", {
+                                            roleId: vm.selectedIds[0]
+                                        }, function (result) {
+                                            if (result.ok) {
+                                                var ids = result.data;
+                                                for (var i in ids) {
+                                                    if (ids[i].type == "job") {
+                                                        var nodes = data.getNodesByParam("id", ids[i].id);
+                                                        for (var j in nodes) {
+                                                            if (nodes[j].pid == ids[i].pid) {
+                                                                node = nodes[j];
+                                                                break;
+                                                            }
+                                                        }
+                                                    } else if (ids[i].type == "dept") {
+                                                        node = data.getNodeByParam("id", ids[i].id);
+                                                    }
+                                                    data.checkNode(node, true, true);
+                                                }
+                                            }
+                                        }, "json");
+                                    }
+                                    vm.fn_loadMenuTree(status);
+                                    if (status == 2) {
+                                        vm.loadRoleTableFieldData(vm.selectedIds[0]);
+                                    } else {
+                                        vm.loadRoleTableFieldData();
+                                    }
+                                }
+                            });
+                        }
+                    });
+                    layui.use('element', function () {
+                        var $ = layui.jquery
+                            , element = layui.element; //Tab的切换功能，切换事件监听等，需要依赖element模块
+                        element.tabChange("layui-tab", "1")
+                    });
+                }
+            },
+            fn_saveOrUpdate: function (status) {
+                vm.roles = [];
+                if (status == 1) {
+                    vm.isUpdate = false;
+                    vm.fn_addRoleLine()
+                } else {
+                    vm.isUpdate = true;
+                    var checkStatus = layui.table.checkStatus("roleListTable");
+                    if (checkStatus.data.length == 0) {
+                        core.error("请先选择要修改的角色!")
+                        return;
+                    }
+                    for (var i = 0; i < checkStatus.data.length; i++) {
+                        vm.roles.push({
+                            roleCode: checkStatus.data[i].roleCode,
+                            roleName: checkStatus.data[i].roleName,
+                            id: checkStatus.data[i].id
+                        });
+                    }
+                }
+                layer.open({
+                    scrollbar: false,
+                    type: 1,
+                    title: status == 1 ? "新增角色" : "修改角色",
+                    area: ['600px', '500px'],
+                    content: $("#dataBox"),
+                    btn: ['确定', '返回'],
+                    btn1: function (index) {
+                        if (vm.isCommit) {
+                            core.error("正在处理数据中,请稍后....")
+                            return;
+                        }
+                        vm.isCommit = true;
+                        var fromData = core.convertDataJSON(vm.roles);
+                        var jsonre = core.postJSON("/sysRole/saveList", fromData);
+                        core.msg(jsonre);
+                        vm.isCommit = false;
+                        if (jsonre.ok) {
+                            vm.grid_table.reload();
+                            layer.close(index);
+                        }
+                    },
+                    btn2: function (index) {
+                        vm.roles = [];
+                        vm.fn_addRoleLine()
+                    }
+                });
+            },
+            fn_addRoleLine: function () {
+                Vue.set(vm.roles, vm.roles.length, {
+                    roleName: "",
+                    roleCode: "",
+                    pid: 0,
+                    shortNo: vm.roles.length,
+                    id: ""
+                });
+            },
+            fn_delRole: function () {
+                var checkStatus = layui.table.checkStatus("roleListTable");
+                if (checkStatus.data.length == 0) {
+                    core.error("请先选择要删除的角色!")
+                    return;
+                }
+                core.confirm("删除后无法恢复!<br>确定删除角色?", function () {
+                    vm.selectedIds = [];
+                    for (var i = 0; i < checkStatus.data.length; i++) {
+                        vm.selectedIds.push(checkStatus.data[i].id);
+                    }
+                    var jsonre = core.postJSON("/sysRole/delRoleList", {
+                        roleIds: vm.selectedIds.join(",")
+                    });
+                    core.msg(jsonre);
+                    if (jsonre.ok) {
+                        vm.grid_table.reload();
+                    }
+                })
+            },
+            fn_searchDeptNode: function () {
+                core.showZtreeSearch(vm.deptTree, vm.searchKey1, "name");
+            },
+            fn_searchMenuNode: function () {
+                core.showZtreeSearch(vm.menuTree, vm.searchKey2, "menuName");
+            },
+            fn_loadMenuTree: function (status) {
+                vm.menuTree = new showZtree({
+                    el: "#menuTree",
+                    url: "/sysRole/menus/tree",
+                    data: {id: "id", pid: "pid", name: "menuName"},
+                    autoParam: ["id"],
+                    isCheckbox: true,
+                    chkboxType: {"Y": "p", "N": ""},
+                    otherParam: {},
+                    onSelect: function (node) {
+                        return true;
+                    },
+                    rightClickMenu: [
+                        {title: "全选", click: "selectAll"},
+                        {title: "全不选", click: "unSelectAll"},
+                        {title: "反选", click: "inverseSelection"}
+                    ],
+                    onSuccess: function (tree) {
+                        if (status == 2) {
+                            $.post(base + "/sysRole/roleMenus", {
+                                id: vm.selectedIds[0]
+                            }, function (data) {
+                                if (data.ok) {
+                                    var menus = data.data;
+                                    for (var i in menus) {
+                                        var node = tree.getNodeByParam("id", menus[i].menuId);
+                                        tree.checkNode(node, true, false);
+                                    }
+                                }
+                            }, "json");
+                        }
+                    }
+                });
+            }
+        },
+        mounted: function () {
+            this.fn_loadGrid();
+        }
+    })
+</script>
+<%}%>

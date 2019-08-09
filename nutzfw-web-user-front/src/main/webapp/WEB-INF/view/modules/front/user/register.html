@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <!--资源请按需加载-->
+    <%include("/modules/front/inc/header.html",{title:"用户注册"}){}%>
+    <%if(so.isAuthenticated()){%>
+    <script>
+        window.location.href = base + "/front/index"
+    </script>
+    <%}%>
+</head>
+<body style="text-align: center">
+<%if(so.isNotAuthenticated()){%>
+<div id="container" v-if="initLoad">
+    <input placeholder="真实姓名" v-model="fromData.realName">
+    <input placeholder="用户名" v-model="fromData.userName">
+    <input placeholder="密码" v-model="fromData.userPass">
+    <input placeholder="确认密码" v-model="fromData.repeatPass">
+    ${dict("sys_user_sex","END","v-model='fromData.gender'","placeholder='性别'")}
+    <input placeholder="手机号" v-model="fromData.phone">
+    <input placeholder="邮箱" v-model="fromData.mail">
+
+
+    <input placeholder="图片验证码" v-model="imgCode">
+    <img :src="imgVerificationCode" @click="handleNext" height="40px" width="180px">
+    <input @click="handleSendVerificationCode" type="button" value="获取验证码">
+
+
+    <input placeholder="验证码" v-model="fromData.verificationCode">
+    <input @click="handleSubmit" type="button" value="确认注册">
+</div>
+<%}%>
+</body>
+<script type="text/javascript">
+    var vm = new Vue({
+        el: '#container',
+        data: {
+            fromData: {
+                userName: "",
+                realName: "",
+                userPass: "",
+                repeatPass: "",
+                gender: "",
+                phone: "",
+                mail: "",
+            },
+            fromDataSubmit: false,
+            initLoad: false,
+            imgCode: "",
+            imgVerificationCode: "",
+            imgVerificationCodeUrl: "${base!}/front/user/imgVerificationCode",
+        },
+        methods: {
+            handleSubmit: function () {
+                $.post(base + "/front/user/register", this.fromData, function (res) {
+                    if (res.ok) {
+                        layer.msg("注册成功！");
+                        setTimeout(function () {
+                            window.location.href = base + "/front/login"
+                        }, 2000);
+                    } else {
+                        layer.msg(res.msg);
+                    }
+                });
+            },
+            handleSendVerificationCode: function () {
+                $.post(base + "/front/user/sendVerificationCode", {
+                    mail: this.fromData.mail,
+                    imgCode: this.imgCode
+                }, function (res) {
+                    layer.msg(res.msg);
+                });
+            },
+            handleNext: function () {
+                this.imgVerificationCode = this.imgVerificationCodeUrl + "?w=180&h=40&_=" + new Date();
+            },
+        },
+        created: function () {
+            this.initLoad = true;
+            this.handleNext();
+        },
+        updated: function () {
+        },
+        mounted: function () {
+        }
+    });
+</script>
+</html>

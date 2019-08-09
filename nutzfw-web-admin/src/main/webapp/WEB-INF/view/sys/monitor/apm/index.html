@@ -1,0 +1,553 @@
+<%
+var title="系统菜单管理";
+layout("/layouts/blank.html",{title:"主机状态监控"}){
+%>
+<style>
+    .textCenter {
+        text-align: center;
+    }
+
+    .percentInput {
+        width: 20px;
+        background: #DD4B39;
+        border: none;
+        text-align: center;
+        height: 15px;
+    }
+
+    .percentInput:hover {
+        border: 1px #ffffff solid;
+        height: 13px;
+    }
+
+    .progress-bar-span {
+        font-size: 12px;
+        display: inline-block;
+        width: 30px;
+    }
+
+    .small-box-footer {
+        cursor: pointer;
+    }
+</style>
+<section class="content-header">
+    <h1>
+        主机状态监控
+        <small>控制面板</small>
+    </h1>
+    <ol class="breadcrumb">
+        <li><a href="${base!}"><i class="fa fa-dashboard"></i> 首页</a></li>
+        <li class="active">主机状态监控</li>
+    </ol>
+</section>
+<section class="content" id="container">
+    <div class="row">
+        <div class="col-lg-3 col-xs-6">
+            <!-- small box -->
+            <div class="small-box bg-aqua">
+                <div class="inner">
+                    <h3>${data.dataTableTotal}</h3>
+                    <p>数据表单</p>
+                </div>
+                <div class="icon">
+                    <i class="ion ion-ios-cloud"></i>
+                </div>
+                <a @click="showDataTable" class="small-box-footer" href="#">查看详情<i class="fa fa-arrow-circle-right"></i></a>
+            </div>
+        </div>
+        <!-- ./col -->
+        <div class="col-lg-3 col-xs-6">
+            <!-- small box -->
+            <div class="small-box bg-green">
+                <div class="inner">
+                    <h3>${data.deptTotal}</h3>
+                    <p>部门机构数</p>
+                </div>
+                <div class="icon">
+                    <i class="ion ion-ios-people"></i>
+                </div>
+                <a @click="showDept" class="small-box-footer" href="#">查看详情<i class="fa fa-arrow-circle-right"></i></a>
+            </div>
+        </div>
+        <!-- ./col -->
+        <div class="col-lg-3 col-xs-6">
+            <!-- small box -->
+            <div class="small-box bg-yellow">
+                <div class="inner">
+                    <h3>${data.userTotal}</h3>
+                    <p>系统用户数</p>
+                </div>
+                <div class="icon">
+                    <i class="ion ion-person-add"></i>
+                </div>
+                <a @click="showUser" class="small-box-footer" href="#">查看详情 <i class="fa fa-arrow-circle-right"></i></a>
+            </div>
+        </div>
+        <!-- ./col -->
+        <div class="col-lg-3 col-xs-6">
+            <!-- small box -->
+            <div class="small-box bg-red">
+                <div class="inner">
+                    <h3>${data.roleTotal}</h3>
+                    <p>角色数</p>
+                </div>
+                <div class="icon">
+                    <i class="ion ion-locked"></i>
+                </div>
+                <a @click="showRole" class="small-box-footer" href="#">查看详情<i class="fa fa-arrow-circle-right"></i></a>
+            </div>
+        </div>
+        <!-- ./col -->
+    </div>
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="box box-solid col-lg-6">
+                <div class="box-header">
+                    <i class="fa fa-th"></i>
+                    <h3 class="box-title">用户设备访问情况</h3>
+                    <div class="box-tools pull-right">
+                        <button type="button" class="btn bg-teal btn-sm" data-widget="collapse"><i
+                                class="fa fa-minus"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="box-body border-radius-none">
+                    <div id="userDeviceContainer" style="height: 100%;height: 300px"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="box box-solid col-lg-6">
+                <div class="box-header">
+                    <i class="fa fa-th"></i>
+                    <h3 class="box-title">用户使用浏览器情况</h3>
+                    <div class="box-tools pull-right">
+                        <button type="button" class="btn bg-teal btn-sm" data-widget="collapse"><i
+                                class="fa fa-minus"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="box-body border-radius-none">
+                    <div id="userBrowserContainer" style="height: 100%;height: 300px"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="box box-solid">
+        <div class="box-header">
+            <i class="fa fa-th"></i>
+            <h3 class="box-title">主机实时性能曲线&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${cpuInfo}</h3>
+            <div class="box-tools pull-right">
+                <span>${data.dateTime, dateFormat="yyyy年MM月dd日 HH时mm分ss秒"}</span>
+                <button class="btn bg-teal btn-sm" data-widget="collapse" type="button"><i
+                        class="fa fa-minus"></i>
+                </button>
+            </div>
+        </div>
+        <div class="box-body border-radius-none">
+            <div class="chart" id="line-chart">
+                <div id="line" style="width: 100%;height:400px;"></div>
+            </div>
+        </div>
+    </div>
+    <div class="box box-solid">
+        <div class="box-header">
+            <i class="fa fa-th"></i>
+            <h3 class="box-title">告警设置</h3>
+            <div class="box-tools pull-right">
+                <button type="button" class="btn bg-teal btn-sm" data-widget="collapse"><i
+                        class="fa fa-minus"></i>
+                </button>
+            </div>
+        </div>
+        <div class="box-body border-radius-none">
+            <table class="table table-hover">
+                <tr>
+                    <th class="textCenter" style="width: 70px;">项目</th>
+                    <th class="textCenter" style="min-width: 300px;">当前负载</th>
+                    <th class="textCenter">告警值</th>
+                    <th class="textCenter">告警方式</th>
+                    <th class="textCenter">通知人员</th>
+                </tr>
+                <tr :code="item.alarmType" v-for="(item,i) in alarmOption">
+                    <td class="textCenter">{{item.alarmType}}</td>
+                    <td class="textCenter">
+                        <div class="progress progress-xs progress-striped active"
+                             style="width:90%;display:inline-block;">
+                            <div :style="'width:'+ item.now +'%;'" class="progress-bar progress-bar-primary"></div>
+                        </div>
+                        <span class="progress-bar-span">{{item.now}}%</span>
+                    </td>
+                    <td class="textCenter">
+                        <span class="badge bg-red">
+                        <input class="percentInput" type="text" v-model="item.percent">%</span>
+                    </td>
+                    <td class="textCenter">
+                        <span>邮件</span><input :checked="item.email" class='minimal' type='checkbox'
+                                              v-model="alarmOption[i].email">
+                        &nbsp;
+                        <span>短信</span><input :checked="item.sms" class='minimal' type='checkbox'
+                                              v-model="alarmOption[i].sms">
+                        &nbsp;
+                    </td>
+                    <td class="textCenter">{{item.listenersDesc}}</td>
+                </tr>
+            </table>
+        </div>
+        <div class="box-footer clearfix">
+            <div @click="updatealarm" class="btn btn-sm btn-info btn-flat pull-left updatealarm">保存修改</div>
+        </div>
+    </div>
+    <div class="box box-solid">
+        <div class="box-header">
+            <i class="fa fa-th"></i>
+            <h3 class="box-title">磁盘信息</h3>
+            <div class="box-tools pull-right">
+                <button type="button" class="btn bg-teal btn-sm" data-widget="collapse"><i
+                        class="fa fa-minus"></i>
+                </button>
+            </div>
+        </div>
+        <div class="box-body border-radius-none">
+            <table class="table table-hover">
+                <tr>
+                    <th class="textCenter" style="width: 300px;">项目</th>
+                    <th class="textCenter" style="width: 200px;">挂载点</th>
+                    <th class="textCenter" style="min-width: 300px">占用比</th>
+                    <th class="textCenter">空闲空间</th>
+                    <th class="textCenter">总容量</th>
+                    <th class="textCenter">文件系统</th>
+                    <th class="textCenter">描述</th>
+                </tr>
+                <% for(item in files) { %>
+                <tr>
+                    <td class="textCenter">${item.name}</td>
+                    <td class="textCenter">${item.mount}</td>
+                    <td class="textCenter">
+                        <div class="progress progress-xs progress-striped active"
+                             style="width:90%;display:inline-block;">
+                            <div class="progress-bar progress-bar-primary" style="width:${item.percent}%;"></div>
+                        </div>
+                        <span class="progress-bar-span">${item.percent}%</span>
+                    </td>
+                    <td class="textCenter">${item.usable}</td>
+                    <td class="textCenter">${item.total}</td>
+                    <td class="textCenter">${item.fsType}</td>
+                    <td class="textCenter">${item.description}</td>
+                </tr>
+                <% } %>
+            </table>
+        </div>
+    </div>
+    <div class="box box-solid">
+        <div class="box-header">
+            <i class="fa fa-th"></i>
+            <h3 class="box-title">运行环境</h3>
+            <div class="box-tools pull-right">
+                <button type="button" class="btn bg-teal btn-sm" data-widget="collapse"><i
+                        class="fa fa-minus"></i>
+                </button>
+            </div>
+        </div>
+        <div class="box-body border-radius-none">
+            <table class="table table-bordered">
+                <tbody>
+                <tr>
+                    <th style="width: 10px">#</th>
+                    <th>系统变量</th>
+                    <th style="width: 70%">值</th>
+                </tr>
+                <% for(d in sysdata){%>
+                <tr>
+                    <td>${dLP.index}</td>
+                    <td>${d.key}</td>
+                    <td>
+                        <div>
+                            ${d.value}
+                        </div>
+                    </td>
+                </tr>
+                <%}%>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+<script src="${base}/static/plugins/web-socket-js/src/swfobject.js?_=${productVersion}"></script>
+<script src="${base}/static/plugins/web-socket-js/web_socket.js?_=${productVersion}"></script>
+<script type="text/javascript">
+    var line, vm = new Vue({
+        el: '#container',
+        data: {
+            alarmOption: []
+        },
+        methods: {
+            createWs: function () {
+                var WS_URL = window.location.host + base + "/apm/dashboard";
+                if (location.protocol == 'http:') {
+                    ws = new WebSocket("ws://" + WS_URL);
+                } else {
+                    ws = new WebSocket("wss://" + WS_URL);
+                }
+                ws.onmessage = function (event) {
+                    vm.onMessage(event);
+                };
+                ws.onclose = function (event) {
+                    ws.send(JSON.stringify({action: "left", room: "APMDASHBOARD"}));
+                };
+                ws.onopen=function(){
+                    ws.send(JSON.stringify({action: "join", room: "APMDASHBOARD"}));
+                }
+            },
+            onMessage: function (event) {
+                var data = JSON.parse(event.data);
+                this.updateAlarmOptions(data.alarmData);
+                this.updateStatusLine(data.lineData);
+            },
+            showUser: function () {
+                parent.addTabs({
+                    id: '用户管理',
+                    title: '用户管理',
+                    close: true,
+                    url: '/sysAccount/index',
+                    urlType: "relative"
+                })
+
+            },
+            showDataTable: function () {
+                parent.addTabs({
+                    id: '在线表单管理',
+                    title: '在线表单管理',
+                    close: true,
+                    url: '/sysDataTable/index',
+                    urlType: "relative"
+                })
+
+            },
+            showRole: function () {
+                parent.addTabs({
+                    id: '角色管理',
+                    title: '角色管理',
+                    close: true,
+                    url: '/sysRole/manager',
+                    urlType: "relative"
+                })
+
+            },
+            showDept: function () {
+                parent.addTabs({
+                    id: '部门机构设置',
+                    title: '部门机构设置',
+                    close: true,
+                    url: '/sysOrganize/department/index',
+                    urlType: "relative"
+                })
+
+            },
+            updatealarm: function () {
+                this.alarmOption.forEach(item => {
+                    $.ajax({
+                        type: "post",
+                        url: "${base!}/monitor/apm/updateAlarmOption",
+                        dataType: "json",
+                        data: {alarmType: item.alarmType, percent: item.percent, email: item.email, sms: item.sms},
+                        success: function (data) {
+                            if (data.ok) {
+                                layer.tips(data.data, "[code='" + item.alarmType + "']", {
+                                    tips: [3, '#3595CC'],
+                                    tipsMore: true,
+                                    time: 2000
+                                });
+                            }
+                        }, error: function (status) {
+                            layer.msg("网络连接出错", {icon: 5, time: 1000});
+                            console.log(status);
+                        }
+                    });
+                });
+            },
+            showUserBrowserPie: function () {
+                $.post('${base!}/monitor/apm/showUserBrowserPie', {}, function (result) {
+                    var dom = document.getElementById("userBrowserContainer");
+                    var myChart = echarts.init(dom);
+                    var option = {
+                        tooltip: {
+                            trigger: 'item',
+                            formatter: "{a} <br/>{b} : {c} ({d}%)"
+                        },
+                        legend: {
+                            orient: 'vertical',
+                            left: 'right',
+                            data: result.data.names
+                        },
+                        series: [
+                            {
+                                name: '访问来源',
+                                type: 'pie',
+                                radius: '80%',
+                                center: ['30%', '50%'],
+                                data: result.data.list,
+                                itemStyle: {
+                                    emphasis: {
+                                        shadowBlur: 10,
+                                        shadowOffsetX: 0,
+                                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                                    }
+                                }
+                            }
+                        ]
+                    };
+                    if (option && typeof option === "object") {
+                        myChart.setOption(option, true);
+                    }
+                }, 'json');
+            },
+            showUserDeviceBar: function () {
+                $.post('${base!}/monitor/apm/showUserDeviceBar', {}, function (result) {
+                    var dom = document.getElementById("userDeviceContainer");
+                    var myChart = echarts.init(dom);
+                    var option = {
+                        color: ['#3398DB'],
+                        tooltip: {
+                            trigger: 'axis',
+                            axisPointer: {            // 坐标轴指示器，坐标轴触发有效
+                                type: 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+                            }
+                        },
+                        grid: {
+                            top: '3%',
+                            left: '3%',
+                            right: '3%',
+                            bottom: '3%',
+                            containLabel: true,
+                        },
+                        xAxis: [
+                            {
+                                type: 'category',
+                                data: result.data.names,
+                                axisTick: {
+                                    alignWithLabel: true
+                                },
+                                axisLabel: {
+                                    interval: 0,//横轴信息全部显示
+                                    rotate: -30,
+                                }
+                            }
+                        ],
+                        yAxis: [
+                            {
+                                type: 'value'
+                            }
+                        ],
+                        series: [
+                            {
+                                name: '访问量',
+                                type: 'bar',
+                                barWidth: '30%',
+                                data: result.data.datas,
+                            }
+                        ]
+                    };
+                    if (option && typeof option === "object") {
+                        myChart.setOption(option, true);
+                    }
+                }, 'json');
+            },
+            updateStatusLine: function (data) {
+                var option = {
+                    title: {
+                        text: ''
+                    },
+                    tooltip: {
+                        trigger: 'axis',
+                        axisPointer: {
+                            animation: false
+                        }
+                    },
+                    legend: {
+                        data: ['CPU', 'JVM', 'RAM', 'SWAP']
+                    },
+                    toolbox: {
+                        show: true,
+                        feature: {
+                            restore: {},
+                            saveAsImage: {}
+                        }
+                    },
+                    dataZoom: {
+                        show: false,
+                        start: 0,
+                        end: 100
+                    },
+                    xAxis: [{
+                        type: 'category',
+                        boundaryGap: true,
+                        data: data.timePoints
+                    }],
+                    yAxis: [{
+                        type: 'value',
+                        scale: true,
+                        name: '百分比',
+                        max: 100,
+                        min: 0,
+                        boundaryGap: [0.2, 0.2]
+                    }],
+                    series: [{
+                        name: 'CPU',
+                        type: 'line', data: data.cpuUsages
+                    }, {
+                        name: 'JVM',
+                        type: 'line', data: data.jvmUsages
+                    }, {
+                        name: 'RAM',
+                        type: 'line', data: data.ramUsages
+                    }, {
+                        name: 'SWAP',
+                        type: 'line', yAxisIndex: 0,
+                        data: data.swapUsages
+                    }]
+                };
+                line.setOption(option);
+            },
+            showDashboard: function () {
+                $.post('${base!}/monitor/apm/lineDashboard', {}, function (result) {
+                    vm.updateStatusLine(result.data);
+                }, 'json');
+            },
+            showAlarmOptions: function () {
+                core.postSyncJSON("/monitor/apm/alarmOptions", {}, function (json) {
+                    var temp = [];
+                    for (var i in json.data) {
+                        json.data[i].now = 0;
+                        temp.push(json.data[i]);
+                    }
+                    vm.alarmOption = temp;
+                    $.post('${base!}/monitor/apm/tableDashboard', {}, function (result) {
+                        if (result.ok) {
+                            vm.updateAlarmOptions(result.data);
+                        }
+                    }, 'json');
+                });
+            },
+            updateAlarmOptions: function (data) {
+                vm.alarmOption.forEach(item => {
+                    item.now = data[item.alarmType];
+                })
+            }
+        },
+        mounted: function () {
+            $(function () {
+                line = echarts.init($("#line").get(0));
+                $(window).resize(function () {
+                    line.resize();
+                });
+                vm.showDashboard();
+                vm.showAlarmOptions();
+                vm.showUserDeviceBar();
+                vm.showUserBrowserPie();
+                vm.createWs();
+            });
+        }
+    });
+</script>
+<%}%>

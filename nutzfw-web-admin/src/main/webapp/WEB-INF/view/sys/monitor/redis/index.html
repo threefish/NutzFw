@@ -1,0 +1,173 @@
+<%
+var title="缓存管理";
+layout("/layouts/blank.html",{title:title}){
+%>
+<style type="text/css">
+    .dataTbleBox {
+        background: #ffffff;
+        margin: 15px 0px;
+        padding: 15px;
+    }
+</style>
+<section class="content-header">
+    <h1>
+        ${title}
+        <small>控制面板</small>
+    </h1>
+</section>
+<section class="content" id="container">
+    <div class="searchFrom" style="height: 40px">
+        <div class="input-group">
+            <input type="text" v-model="searchData.key" class="form-control" placeholder="KEY 模糊查询">
+        </div>
+        <div class="input-group">
+            <input type="button" class="layui-btn layui-btn-normal layui-btn-sm" @click="handleSearchTable"
+                   value="查询">
+        </div>
+    </div>
+    <div style="background: #ffffff">
+        <div id="listTable" lay-filter='listTable'></div>
+    </div>
+
+</section>
+<div id="formBox" style="display: none">
+    <pre id="editor" style="height: 400px;"></pre>
+</div>
+<script type="text/html" id="toolBarFixed">
+    <a class="layui-btn layui-btn-xs layui-btn-danger" lay-event="view">查看</a>
+    <a class="layui-btn layui-btn-xs layui-btn-danger" lay-event="edit">修改</a>
+    <a class="layui-btn layui-btn-xs layui-btn-danger" lay-event="del">删除</a>
+</script>
+<script src="${base}/static/plugins/jsoneditor/jsoneditor.js?_=${productVersion}" type="text/javascript"
+        charset="utf-8"></script>
+<link rel="stylesheet" type="text/css" href="${base!}/static/plugins/jsoneditor/jsoneditor.css?_=${productVersion}">
+<script type="text/javascript">
+    var listTable, editor, vm = new Vue({
+        el: '#container',
+        data: {
+            searchData: {
+                key: ''
+            },
+            fromData: {
+                key: '',
+                value: '',
+                ttl: -1,
+            }
+        },
+        methods: {
+            handleView: function (data) {
+                this.fromData = data;
+                try {
+                    editor.setMode("view")
+                    editor.set(JSON.parse(data.value));
+                    layer.open({
+                        type: 1,
+                        title: "详情",
+                        area: ['500px', '500px'],
+                        content: $("#formBox")
+                    })
+                } catch (e) {
+                    core.warn("二进制数据不支持查看！");
+                }
+            },
+            handleEdit: function (data) {
+                this.fromData = data;
+                try {
+                    editor.setMode("tree")
+                    editor.set(JSON.parse(data.value));
+                    layer.open({
+                        type: 1,
+                        title: "编辑",
+                        area: ['500px', '500px'],
+                        content: $("#formBox"),
+                        btn: ["确定修改", "取消"],
+                        yes: function (index) {
+                            var json = core.postJSON('/sysRedis/edit', vm.fromData);
+                            core.msg(json)
+                            if (json.ok) {
+                                vm.handleSearchTable();
+                                layer.close(index);
+                            }
+                        }
+                    });
+                } catch (e) {
+                    core.warn("二进制数据不支持编辑！");
+                }
+            },
+            handleDel: function (data) {
+                core.confirm("确定删除【" + data.key + "】？", function () {
+                    var json = core.postJSON('/sysRedis/del', data);
+                    core.msg(json)
+                    if (json.ok) {
+                        vm.handleSearchTable();
+                        layer.close(index);
+                    }
+                });
+            },
+            handleSearchTable: function () {
+                listTable.reload({
+                    where: vm.searchData,
+                    page: {curr: 1}
+                });
+            },
+            layuiInit: function () {
+                layui.use(['table', 'element', 'laytpl',], function () {
+                    var table = layui.table;
+                    listTable = table.render({
+                        id: 'listTable',
+                        elem: '#listTable',
+                        page: true,
+                        method: 'post',
+                        url: base + '/sysRedis/list',
+                        height: 'full-120',
+                        limit: 50,
+                        toolbar: '#topToolbar',
+                        defaultToolbar: ['filter'],
+                        cols: [[
+                            {title: '序号', type: 'numbers', width: 50},
+                            {field: 'key', title: '键', width: 250},
+                            {field: 'value', title: '缓存值'},
+                            {field: 'ttl', title: '过期时间(秒)', width: 120, align: 'center'},
+                            {title: '操作', align: 'center', width: 180, fixed: 'right', toolbar: '#toolBarFixed'},
+                        ]],
+                    });
+                    table.on("tool(listTable)", function (obj) {
+                        var data = obj.data, ac = obj.event;
+                        if (ac == "view") {
+                            vm.handleView(data);
+                        }
+                        if (ac == "del") {
+                            vm.handleDel(data);
+                        }
+                        if (ac == "edit") {
+                            vm.handleEdit(data);
+                        }
+                    });
+                });
+            }
+        },
+        created: function () {
+            this.layuiInit();
+            var container, options;
+            container = document.getElementById('editor');
+            options = {
+                mode: 'tree',
+                name: "value",
+                enableSort: false,
+                enableTransform: false,
+                onError: function (err) {
+                    alert(err.toString());
+                },
+                onChangeText: function (json) {
+                    vm.fromData.value = json;
+                }
+            };
+            editor = new JSONEditor(container, options, {});
+        },
+        updated: function () {
+        },
+        mounted: function () {
+        }
+    });
+</script>
+<%}%>

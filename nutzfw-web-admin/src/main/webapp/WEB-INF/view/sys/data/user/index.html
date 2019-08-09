@@ -1,0 +1,243 @@
+<%
+var title="用户数据审核";
+layout("/layouts/blank.html",{title:title}){
+%>
+<style type="text/css">
+    .required {
+        color: red;
+    }
+    .layui-layer-input{
+        resize: none;
+    }
+</style>
+<section class="content" id="container" v-if="initLoad">
+    <div class="layui-tab  layui-tab-brief" lay-filter="layui-tab">
+        <ul class="layui-tab-title">
+            <li class="layui-this">待审核</li>
+            <li>已审核</li>
+        </ul>
+        <div class="layui-tab-content">
+            <div class="layui-tab-item layui-show">
+                <div id="listTable" lay-filter='listTable'></div>
+            </div>
+            <div class="layui-tab-item">
+                <div id="listTableHistory" lay-filter='listTableHistory'></div>
+            </div>
+        </div>
+    </div>
+    <!--审核-->
+    <div id="agreeReview" style="padding:10px;display: none">
+        <iframe :src="sourceUrl" frameborder="no" border="0" width="100%" height="400px" marginwidth="0"
+                marginheight="0"
+                scrolling-x="no" scrolling-y="auto" allowtransparency-y="yes"></iframe>
+        <div class="form-grou">
+            <label>审核意见<span class="required">*</span></label>
+            <textarea class="form-control" v-model="reviewOpinion" style="resize: none"></textarea>
+        </div>
+    </div>
+</section>
+<script type="text/html" id="toolBarFixed">
+    <div class="layui-btn layui-btn-sm layui-btn-normal" lay-event="review">审核</div>
+</script>
+<script type="text/html" id="historyToolBarFixed">
+    <div class="layui-btn layui-btn-sm layui-btn-normal" lay-event="showHistory">查看变更信息</div>
+</script>
+<script type="text/javascript">
+    var listTable, table, listTableHistory;
+    var win = window.parent.parent || window.parent || window;
+    var vm = new Vue({
+        el: '#container',
+        data: {
+            fromData: {},
+            initLoad: false,
+            sourceUrl: "",
+            reviewOpinion: "",
+        },
+        methods: {
+            tableReload: function () {
+                listTable.reload();
+                listTableHistory.reload();
+            },
+            handleShowHistory: function (data) {
+                var title = data.realname + "-[" + (data.status == 0 ? "新增" : "修改") + "]-" + data.tablename;
+                win.layer.open({
+                    type: 1,
+                    title: title,
+                    area: ['80%', '80%'],
+                    content: '<iframe src="${base!}/sysUserDataReview/review?isview=true&id=' + data.uuid + '" frameborder="no" border="0" width="100%" height="95%" marginwidth="0" marginheight="0"  scrolling-x="no" scrolling-y="auto" allowtransparency-y="yes"></iframe>',
+                    btn: ["确定", "取消"]
+                });
+            },
+            getCheckData: function () {
+                return table.checkStatus('listTable').data;
+            },
+            handleBatchConsent: function () {
+                var data=this.getCheckData();
+                if(data.length==0){
+                    core.error("请选择记录")
+                    return false;
+                }
+                var ids=new Array();
+                for(var i in data){
+                    ids.push(data[i].uuid)
+                }
+                layer.prompt({title: '批量通过审核!请输入意见！', formType: 2}, function(text, index){
+                    var json = core.postJSON("/sysUserDataReview/review/agreeReview", {
+                        ids: ids.join(","),
+                        reviewOpinion: text
+                    });
+                    if (json.ok) {
+                        vm.tableReload();
+                        win.layer.closeAll();
+                    }
+                    win.core.msg(json);
+                    layer.close(index);
+                });
+            },
+            handleReview: function (data) {
+                var title = data.realname + "-[" + (data.status == 0 ? "新增" : "修改") + "]-" + data.tablename;
+                var frameElementId = self.frameElement.getAttribute('id');
+                var sourceUrl = "${base!}/sysUserDataReview/review?id=" + data.uuid;
+                win.layer.open({
+                    type: 1,
+                    title: title,
+                    area: ['1100px', '90%'],
+                    content: '<iframe id="reviewFrame" src="' + sourceUrl + '" frameborder="no" border="0" width="100%" height="95%" marginwidth="0" marginheight="0"  scrolling-x="no" scrolling-y="auto" allowtransparency-y="yes"></iframe>',
+                    btn: ["确定通过", "取消"],
+                    yes: function () {
+                        win.core.confirm("你确定通过对 " + data.realname + " 审核？", function () {
+                            var reviewOpinion = win.frames['reviewFrame'].contentDocument.getElementById("reviewOpinion").value;
+                            var json = core.postJSON("/sysUserDataReview/review/agreeReview", {
+                                ids: data.uuid,
+                                reviewOpinion: reviewOpinion
+                            });
+                            if (json.ok) {
+                                win.frames[frameElementId].contentWindow.vm.tableReload();
+                                win.layer.closeAll();
+                            }
+                            win.core.msg(json);
+                        });
+                    }
+                });
+            }
+        },
+        created: function () {
+            this.initLoad = true;
+        },
+        updated: function () {
+        },
+        mounted: function () {
+            layui.use(['table', 'laytpl', 'element'], function () {
+                table = layui.table;
+                var element = layui.element;
+                element.on('tab(layui-tab)', function () {
+                    vm.tableReload();
+                });
+                listTable = table.render({
+                    id: 'listTable',
+                    elem: '#listTable',
+                    page: true,
+                    method: 'post',
+                    url: base + '/sysUserDataReview/listPage',
+                    height: 'full-130',
+                    limit: 50,
+                    toolbar: '#topToolbar',
+                    defaultToolbar: ['filter'],
+                    request: {
+                        pageName: 'pageNum',
+                        limitName: 'pageSize',
+                    },
+                    where: {
+                        review: 0
+                    },
+                    cols: [[
+                        {type: 'checkbox'},
+                        {title: '序号', type: 'numbers', width: 50},
+                        {field: 'username', title: '用户名'},
+                        {field: 'realname', title: '姓名'},
+                        {field: 'deptname', title: '部门'},
+                        {field: 'tablename', title: '表名称'},
+                        {
+                            field: 'status', title: '类型', width: 80, templet: function (d) {
+                                switch (d.status) {
+                                    case 0:
+                                        return "新增";
+                                        break;
+                                    case 1:
+                                        return "修改";
+                                        break;
+                                    case 2:
+                                        return "删除";
+                                        break;
+                                    default :
+                                        return "";
+                                }
+                            }
+                        },
+                        {field: 'adduser', title: '操作人员'},
+                        {field: 'adddate', title: '提交时间'},
+                        {title: '操作', align: 'center', width: 100, fixed: 'right', toolbar: '#toolBarFixed'},
+                    ]],
+                });
+                listTableHistory = table.render({
+                    id: 'listTableHistory',
+                    elem: '#listTableHistory',
+                    page: true,
+                    method: 'post',
+                    url: base + '/sysUserDataReview/listPage',
+                    height: 'full-130',
+                    limit: 50,
+                    even: true,
+                    request: {
+                        pageName: 'pageNum',
+                        limitName: 'pageSize',
+                    }, where: {
+                        review: 1
+                    },
+                    cols: [[
+                        {type: 'checkbox'},
+                        {title: '序号', type: 'numbers', width: 50},
+                        {field: 'username', title: '用户名'},
+                        {field: 'realname', title: '姓名'},
+                        {field: 'deptname', title: '部门'},
+                        {field: 'tablename', title: '表名称'},
+                        {
+                            field: 'status', title: '类型', templet: function (d) {
+                                return d.status == 0 ? "新增" : "修改";
+                            }
+                        },
+                        {field: 'adduser', title: '操作人员'},
+                        {field: 'adddate', title: '提交时间'},
+                        {title: '操作', align: 'center', width: 150, fixed: 'right', toolbar: '#historyToolBarFixed'},
+                    ]],
+                });
+                table.on("tool(listTable)", function (obj) {
+                    var data = obj.data, layEvent = obj.event;
+                    if (layEvent == "review") {
+                        vm.handleReview(data);
+                    }
+                });
+                table.on("tool(listTableHistory)", function (obj) {
+                    var data = obj.data, layEvent = obj.event;
+                    if (layEvent == "showHistory") {
+                        vm.handleShowHistory(data);
+                    }
+                });
+                table.on("toolbar(listTable)", function (obj) {
+                    var layEvent = obj.event;
+                    if (!$(this).hasClass("layui-btn-disabled")) {
+                        switch (layEvent) {
+                            case "handleBatchConsent":
+                                vm.handleBatchConsent();
+                                break;
+                        }
+                    }
+                });
+            });
+        }
+    });
+</script>
+<script type="text/html" id="topToolbar">
+    <div class="btn toptoolbar layui-btn-primary layui-btn-sm" lay-event="handleBatchConsent">批量同意</div>
+</script>
+<%}%>

@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>${sys.productLongName}-登录</title>
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <script>
+        if (top.location != location) {
+            top.location.href = "${base}";
+        }
+        var MobileUA = (function () {
+            var ua = navigator.userAgent.toLowerCase();
+            var mua = {
+                IOS: /ipod|iphone|ipad/.test(ua), //iOS
+                IPHONE: /iphone/.test(ua), //iPhone
+                IPAD: /ipad/.test(ua), //iPad
+                ANDROID: /android/.test(ua), //Android Device
+                WINDOWS: /windows/.test(ua), //Windows Device
+                TOUCH_DEVICE: ('ontouchstart' in window) || /touch/.test(ua), //Touch Device
+                MOBILE: /mobile/.test(ua), //Mobile Device (iPad)
+                ANDROID_TABLET: false, //Android Tablet
+                WINDOWS_TABLET: false, //Windows Tablet
+                TABLET: false, //Tablet (iPad, Android, Windows)
+                SMART_PHONE: false //Smart Phone (iPhone, Android)
+            };
+            mua.ANDROID_TABLET = mua.ANDROID && !mua.MOBILE;
+            mua.WINDOWS_TABLET = mua.WINDOWS && /tablet/.test(ua);
+            mua.TABLET = mua.IPAD || mua.ANDROID_TABLET || mua.WINDOWS_TABLET;
+            mua.SMART_PHONE = mua.MOBILE && !mua.TABLET;
+            return mua;
+        }());
+        if (MobileUA.SMART_PHONE) {
+            // 移动端链接地址
+            document.location.href = '${base}/app.html';
+        }
+    </script>
+    <%if(so.isAuthenticated()){%>
+    <script type="text/javascript">
+        window.location.href = "${base!}/main/platform"
+    </script>
+    <%}%>
+    <%if(so.isNotAuthenticated()){%>
+    <link rel="stylesheet" href="${base}/static/plugins/bootstrap/css/bootstrap.min.css?_=${productVersion}">
+    <link rel="stylesheet"
+          href="${base}/static/plugins/font-awesome/4.5.0/css/font-awesome.min.css?_=${productVersion}">
+    <link rel="stylesheet" href="${base}/static/plugins/adminlte/css/AdminLTE.min.css?_=${productVersion}">
+    <link rel="stylesheet" href="${base}/static/plugins/adminlte/css/skins/skin-blue.min.css?_=${productVersion}">
+    <script src="${base}/static/plugins/jquery/jquery-3.4.1.min.js?_=${productVersion}"></script>
+    <script src="${base}/static/plugins/layer/layer.js?_=${productVersion}"></script>
+    <script src="${base}/static/plugins/security/security.js?_=${productVersion}"></script>
+    <script src="${base}/static/plugins/canvasbg/canvasbg.js?_=${productVersion}"></script>
+    <%if(cfg.isDev=='true'){%>
+    <script type="text/javascript" src="${base!}/static/plugins/vue/2.5.17/vue.js?_=${productVersion}"></script>
+    <link rel="stylesheet" href="${base!}/static/plugins/magic-check/magic-check.css?_=${productVersion}">
+    <%}else{%>
+    <script type="text/javascript" src="${base!}/static/plugins/vue/2.5.17/vue.min.js?_=${productVersion}"></script>
+    <link rel="stylesheet" href="${base!}/static/plugins/magic-check/magic-check.min.css?_=${productVersion}">
+    <%}%>
+    <link rel="stylesheet" href="${base!}/static/css/theme/${sys.theme}/login.css?_=${productVersion}">
+</head>
+<body class="hold-transition login-page">
+<div class="login-box login-bg" id="loginPage" style="display: none">
+    <div class="login-box-body">
+        <div class="QRcode" @click="handleScanQrCodeLogin" v-show="isQR&&qrCodeLogin"></div>
+        <div class="PC" @click="handleScanPCLogin" v-show="!isQR"></div>
+        <div class="msgDiv">
+            <div class="login-logo">
+                <img :src="productLogoSrc" :alt="productLongName" :title="productLongName" class="productLogoImg">
+            </div>
+            <div class="productName">{{productLongName}}</div>
+            <div class="productEnLongName">{{productEnLongName}}</div>
+        </div>
+        <form action="${base}/management/login" method="post" class="login_form">
+            <div v-show="isForm" class="form-box">
+                <div class="form-group has-feedback">
+                    <input type="text" autocomplete="off" v-model.trim="fromData.username" @keyup="fromData.password=''"
+                           class="form-control"
+                           placeholder="帐号">
+                    <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
+                </div>
+                <div class="form-group has-feedback">
+                    <input type="password" autocomplete="off" v-model.trim="fromData.password" class="form-control"
+                           placeholder="密码">
+                    <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+                </div>
+                <div class="form-group has-feedback" v-if="showCaptcha">
+                    <img :src="captchaImgSrc" @click="handleChangeCaptcha" class="captchaImg">
+                    <input type="text" autocomplete="off" v-model.trim="fromData.captcha" class="form-control captcha"
+                           placeholder="验证码">
+                </div>
+                <div class="form-group">
+                    <input type="checkbox" class="magic-checkbox" v-model="fromData.rememberMe" id="rememberMe">
+                    <label for="rememberMe">记住我</label>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <button type="button" :disabled="fromDataSubmit" @click="handleSubmit"
+                                class="btn loginBtn btn-block btn-flat">
+                            <span v-if="!fromDataSubmit">登录</span>
+                            <span v-if="fromDataSubmit">登录中...</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="code-box" v-show="!isForm">
+                <img :src="QrCodeLoginImgSrc" class="QRcode-img">
+                <div class="QRcode-modal" v-if="scanQrCodeLoginIntervalTime==0">
+                    <button type="button" @click="handleScanQrCodeLogin" v-if="scanQrCodeLoginIntervalTime==0"
+                            class="btn loginBtn btn-block btn-flat QRbtn">刷新二维码
+                    </button>
+                </div>
+                <div class="QRcode-modal" v-show="isModal">
+                    <button type="button" class="btn loginBtn btn-block btn-flat QRbtn" v-show="isSuccess">扫描成功！
+                    </button>
+                </div>
+                <div class="download-app">
+                    <div class="download-qrcode">
+                        <img src="${base!}/qrcode/app"/>
+                        <p><a href="#">扫描下载APP</a></p>
+                    </div>
+                    {{scanQrCodeLoginIntervalMsg}}&nbsp;{{scanQrCodeLoginIntervalTime}} 秒
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div id="canvas-wrapper" style="height: 927px;">
+        <canvas id="login-canvas" width="1038" height="927"></canvas>
+    </div>
+</div>
+<script>
+    var base = "${base!}";
+    var scanQrCodeLoginInterval = undefined;
+    var vm = new Vue({
+        el: '#loginPage',
+        data: {
+            fromData: {
+                username: "",
+                password: "",
+                captcha: "",
+                rememberMe: "",
+            },
+            fromDataSubmit: false,
+            showCaptcha: false,
+            captchaImgSrc: "",
+            QrCodeLoginImgSrc: "",
+            scanQrCodeLoginIntervalTime: 0,
+            scanQrCodeLoginIntervalMsg: "请使用扫码登录",
+            productLogoSrc: "${base!}/File/productLogo",//LOGO
+            version: "${sys.version}",//系统版本
+            productLongName: "${sys.productLongName}",//系统名称
+            productSortName: "${sys.productSortName}",//系统简称
+            productEnLongName: "${sys.productEnLongName}",//系统英文长名称
+            qrCodeLogin: "${sys.qrCodeLogin}" == "true",//是否开启扫码登录
+            isForm: true,
+            isQR: true,
+            isSuccess: false,
+            isModal: false
+        },
+        methods: {
+            handleChangeCaptcha: function () {
+                this.captchaImgSrc = "${base!}/captcha/next?w=144&h=50&_=" + new Date().toTimeString();
+            },
+            handleScanQrCodeLogin: function () {
+                if (scanQrCodeLoginInterval == undefined) {
+                    this.QrCodeLoginImgSrc = "${base!}/qrcode/QrCodeLoginImg?size=150&_=" + new Date().toTimeString();
+                    vm.scanQrCodeLoginIntervalTime = 90;
+                    scanQrCodeLoginInterval = setInterval(function () {
+                        vm.handleScanQrCodeLoginInterval();
+                    }, 1000);
+                }
+                this.isForm = false;
+                this.isQR = false;
+            },
+            handleScanPCLogin: function () {
+                this.isForm = true;
+                this.isQR = true;
+            },
+            handleScanQrCodeLoginInterval: function () {
+                var _that = this;
+                if (vm.scanQrCodeLoginIntervalTime == 0) {
+                    vm.scanQrCodeLoginIntervalMsg = "二维码已过期";
+                    window.clearInterval(scanQrCodeLoginInterval);
+                    scanQrCodeLoginInterval = undefined;
+                } else {
+                    vm.scanQrCodeLoginIntervalTime = vm.scanQrCodeLoginIntervalTime - 1;
+                }
+                $.post("${base}/management/qrLogin", {}, function (data) {
+                    if (data.ok) {
+                        layer.msg('登录成功', {icon: 1});
+                        setTimeout(function () {
+                            window.location.href = base + "/main/platform";
+                        }, 1000);
+                    } else {
+                        vm.scanQrCodeLoginIntervalMsg = data.msg;
+                        if (vm.scanQrCodeLoginIntervalMsg === '扫描成功') {
+                            _that.isModal = true;
+                            _that.isSuccess = true;
+                        }
+                    }
+                }, "JSON");
+            },
+            handleSubmit: function () {
+                var that = this;
+                var username = this.fromData.username;
+                var password = this.fromData.password;
+                if (username.trim() == "" || password.trim() == "") {
+                    layer.msg("帐号密码不能为空！", {icon: 7, time: 2000});
+                    return false;
+                }
+                this.fromDataSubmit = true;
+                $.ajax({
+                    url: "${base}/management/checkshowCaptcha",
+                    type: "POST",
+                    data: {
+                        username: username
+                    },
+                    error: function () {
+                        layer.msg("网络连接出错", {icon: 5, time: 1000});
+                    },
+                    dataType: "json",
+                    async: false,
+                    success: function (data) {
+                        if (data.ok && that.fromData.captcha == "") {
+                            that.handleChangeCaptcha();
+                            that.showCaptcha = true;
+                            that.fromDataSubmit = false;
+                        } else {
+                            if (password.length != 256) {
+                                $.ajax({
+                                    url: "${base}/management/getRsa",
+                                    type: "POST",
+                                    async: false,
+                                    dataType: "json",
+                                    success: function (data) {
+                                        var publicKey = RSAUtils.getKeyPair(data.data.exponent, '', data.data.modulus);
+                                        password = RSAUtils.encryptedString(publicKey, password);
+                                    }
+                                });
+                            }
+                            $.ajax({
+                                url: "${base}/management/login",
+                                type: "POST",
+                                data: {
+                                    username: username,
+                                    password: password,
+                                    captcha: that.fromData.captcha
+                                },
+                                error: function () {
+                                    layer.msg("网络连接出错", {icon: 5, time: 1000});
+                                },
+                                dataType: "json",
+                                success: function (data) {
+                                    if (data && data.ok) {
+                                        layer.msg('登录成功', {icon: 1});
+                                        if (vm.fromData.rememberMe) {
+                                            var loginUser = {
+                                                username: vm.fromData.username,
+                                                password: password,
+                                                rememberMe: vm.fromData.rememberMe
+                                            };
+                                            localStorage.setItem("login.user", JSON.stringify(loginUser));
+                                        }
+                                        setTimeout(function () {
+                                            window.location.href = base + "/main/platform";
+                                        }, 1000);
+                                    } else {
+                                        layer.msg(data.msg, {icon: 7, time: 2000});
+                                        that.fromDataSubmit = false;
+                                        that.fromData.captcha = "";
+                                        that.fromData.password = "";
+                                    }
+                                }, error: function () {
+                                    that.fromDataSubmit = false;
+                                    that.fromData.captcha = "";
+                                }
+                            });
+                        }
+                    }, error: function () {
+                        that.fromDataSubmit = false;
+                        that.fromData.captcha = "";
+                    }
+                });
+            }
+        }, created: function () {
+            var that = this;
+            document.onkeydown = function (e) {
+                var key = window.event.keyCode;
+                if (key == 13) {
+                    that.handleSubmit();
+                }
+            }
+            var loginUser = localStorage.getItem("login.user");
+            if (loginUser) {
+                loginUser = JSON.parse(loginUser);
+                this.fromData.username = loginUser.username;
+                this.fromData.password = loginUser.password;
+                this.fromData.rememberMe = loginUser.rememberMe;
+            }
+        },
+        mounted: function () {
+            try {
+                CanvasBG.init({
+                    Loc: {
+                        x: window.innerWidth / 2,
+                        y: window.innerHeight / 3.3
+                    },
+                });
+            } catch (e) {
+            }
+            $("#loginPage").show();
+        }
+    });
+</script>
+</body>
+<%}%>
+</html>

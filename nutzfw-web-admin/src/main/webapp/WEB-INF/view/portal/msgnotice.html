@@ -1,0 +1,192 @@
+<%
+var title="消息提醒管理";
+layout("/layouts/blank.html",{title:title}){
+%>
+<style type="text/css">
+    .required {
+        color: red;
+    }
+    .save {
+        display: none;
+    }
+    .date-type-count{
+        width: 30%;
+        float: left;
+    }
+    .date-type-select{
+        width: 30%;
+        float: left;
+        margin-left: 20px;
+
+    }
+</style>
+<section class="content-header">
+    <h1>
+        ${title}
+        <!--<small>控制面板</small>-->
+    </h1>
+</section>
+<section class="content" id="container">
+    <div class="col-sm-7" style="min-width: 150px;">
+        <div class="top_bar">
+            <%if(so.hasPermission("msgnotice.save")){%>
+            <div class="layui-btn layui-btn-sm layui-btn-normal" @click="fn_editQuick(1)">新增消息</div>
+            <div class="layui-btn layui-btn-sm layui-btn-normal" @click="fn_editQuick(2)">修改</div>
+            <%}%>
+            <%if(so.hasPermission("msgnotice.del")){%>
+            <div class="layui-btn layui-btn-sm layui-btn-normal" @click="fn_del(1)">删除</div>
+            <%}%>
+        </div>
+        <div>
+            <%if(so.hasPermission("msgnotice.query")){%>
+            <div id="msgnoticeTable" lay-filter='msgnoticeTable'></div>
+            <%}%>
+        </div>
+    </div>
+    <div class="col-sm-5" style="min-width: 150px;">
+        <div class="top_bar">
+            <%if(so.hasPermission("msgnotice.save")){%>
+            <div class="layui-btn layui-btn-sm layui-btn-normal save" @click="save">保存</div>
+            <%}%>
+        </div>
+        <div id="editBox" style="display: none;padding: 15px">
+            <input type="hidden" v-model="msgnoticeData.id">
+            <div class="form-group">
+                <label>消息名称<span class="required">*</span></label>
+                <input type="text" v-model="msgnoticeData.name" class="form-control input-sm" placeholder="消息名称">
+            </div>
+            <div class="form-group">
+                <label>通知时间(提前)<span class="required">*</span></label>
+                <div style="height: 30px">
+                    <input type="number" v-model="msgnoticeData.dateNum" class="form-control input-sm date-type-count">
+                    <select v-model="msgnoticeData.dateType" class="form-control input-sm date-type-select" >
+                        <option value="0">--不限--</option>
+                        <option value="1">年</option>
+                        <option value="2">月</option>
+                        <option value="3">日</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>查询语句<span class="required">*</span></label>
+                <textarea style="height: 200px;resize: none;" v-model="msgnoticeData.sqlStr"
+                          class="form-control layui-code" placeholder="查询语句"></textarea>
+            </div>
+            <div class="form-group">
+                <label>表头<span class="required">*</span></label>
+                <textarea style="height: 200px;resize: none;" v-model="msgnoticeData.tableHead"
+                          class="form-control layui-code" placeholder="表头"></textarea>
+            </div>
+            <div class="form-group">
+                <label>排序(从大到小)<span class="required">*</span></label>
+                <input type="number" v-model="msgnoticeData.sort" class="form-control input-sm" placeholder="排序">
+            </div>
+        </div>
+    </div>
+</section>
+<script type="text/javascript" src="${base!}/static/plugins/jquery/jquery.base64.js?_=${productVersion}"></script>
+<script type="text/javascript">
+    var vm = new Vue({
+        el: "#container",
+        data: {
+            msgnoticeData: {
+            },
+            msgnoticeGrid: "",
+        },
+        methods: {
+            fn_editQuick:function (type) {
+                if(type==1){
+                    /*新增消息*/
+                    $('.save').css('display', 'inline-block');
+                    vm.msgnoticeData={
+                        dateType:0,
+                        dateNum:0,
+                        sort:0,
+                    };
+                }else{
+                    /*修改*/
+                    var checkStatus = layui.table.checkStatus("msgnoticeTable");
+                    if (checkStatus.data.length == 0) {
+                        core.error("请先选择要修改的消息!")
+                        return;
+                    } else if (checkStatus.data.length > 1) {
+                        core.error("每次只能修改一个消息!")
+                        return;
+                    } else {
+                        $('.save').css('display', 'inline-block');
+                        vm.msgnoticeData = checkStatus.data[0];
+                    }
+                }
+                $("#editBox").show();
+            },
+            fn_loadStatisticsList: function () {
+                layui.use(['table'], function () {
+                    var table = layui.table;
+                    vm.msgnoticeGrid = table.render({
+                        id: 'msgnoticeTable',
+                        elem: '#msgnoticeTable',
+                        page: true,
+                        method: 'post',
+                        url: base + '/msgnotice/query',
+//                        height: 'full-130',
+                        limit: 50,
+                        even: true,
+                        request: {
+                            pageName: 'pageNum',
+                            limitName: 'pageSize',
+                        },
+                        cols: [[
+                            {type: 'checkbox'},
+                            {title: '序号', type: 'numbers', align: 'center'},
+                            {field: 'name', title: '消息名称', align: 'center'},
+                            {field: 'sort', title: '排序', align: 'center'},
+                            {field: 'opAt', title: '时间', align: 'center'},
+                        ]],
+                    });
+                });
+            },
+            fn_del: function () {
+                var checkStatus = layui.table.checkStatus("msgnoticeTable");
+                if (checkStatus.data.length == 0) {
+                    core.error("请先选择要删除的消息!")
+                    return;
+                } else {
+                    core.confirm("删除后无法恢复!<br>确定删除消息?", function () {
+                        var ids = [];
+                        for (var i = 0; i < checkStatus.data.length; i++) {
+                            ids[i] = checkStatus.data[i].id;
+                        }
+                        var jsonre = core.postJSON("/msgnotice/del", {ids: ids.join(",")});
+                        core.msg(jsonre);
+                        if (jsonre.ok) {
+                            vm.msgnoticeGrid.reload();
+                        }
+                    })
+
+                }
+            },
+            save: function () {
+                var data = Object.assign({}, vm.msgnoticeData);
+                data.dateNum =parseInt(data.dateNum);
+                if(!data.name)
+                    core.error('消息名称不能为空');
+//                else if(data.dateNum<0)
+//                    core.error('提前量不能小于0');
+                else if(!data.sqlStr)
+                    core.error('查询语句不能为空');
+                else if(!data.tableHead)
+                    core.error('表头不能为空');
+                else {
+                    data.sqlStr = $.base64.encode(data.sqlStr);
+                    var jsonre = core.postJSON("/msgnotice/save", data);
+                    core.msg(jsonre);
+                    vm.msgnoticeGrid.reload();
+                };
+            },
+        },
+        mounted: function () {
+            this.fn_loadStatisticsList();
+        }
+    })
+</script>
+<%}%>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE Sqls PUBLIC "nutz-sqltpl" "https://threefish.gitee.io/nutz-sqltpl/nutz-sqltpl.dtd">
+<Sqls class="com.nutzfw.modules.sys.biz.impl.UserAccountBizImpl">
+    <!--用户管理列表-->
+    <sql id="listPage" wrap="true">
+        SELECT sys_user_account.userName,sys_user_account.locked,sys_user_account.phone,sys_user_account.realName,
+        sys_user_account.mail,sys_user_account.create_By_Date,sys_user_account.create_by_name,sys_user_account.id,
+        (SELECT GROUP_CONCAT(role_name) FROM sys_role LEFT JOIN sys_user_account_role ON
+        sys_user_account_role.role_id=sys_role.id WHERE sys_user_account_role.user_id = sys_user_account.id) AS role,
+        (SELECT GROUP_CONCAT(`name`) FROM sys_job LEFT JOIN sys_user_account_job ON sys_user_account_job.job_id =
+        sys_job.id WHERE sys_user_account_job.user_id = sys_user_account.id ) AS jobName FROM sys_user_account
+        WHERE delFlag=0
+        <exp>if(Strings.isNotBlank(deptId)){</exp>
+        and deptId in (@deptId)
+        <exp>} if(Strings.isNotBlank(name)){</exp>
+        and (userName like binary @name or realName like binary @name)
+        <exp>} if (status != -1) {</exp>
+        and locked = @status
+        <exp>} if (review != -1) {</exp>
+        and review = @review
+        <exp>} if (userids.~size>0){</exp>
+        and id not in (@userids)
+        <exp>}</exp>
+    </sql>
+    <sql id="listUserNameByRoleCodes" wrap="true">
+       select user_id from sys_user_account_role $condition group by  user_id
+    </sql>
+</Sqls>

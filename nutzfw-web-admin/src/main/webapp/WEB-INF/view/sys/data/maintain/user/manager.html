@@ -1,0 +1,104 @@
+<%
+var title="人员信息维护-人员列表";
+layout("/layouts/blank.html",{title:title}){
+%>
+<style type="text/css">
+    .required {
+        color: red;
+    }
+</style>
+<section class="content-header">
+    <h1>
+        ${title}
+        <small>控制面板</small>
+    </h1>
+</section>
+<section class="content" id="container" v-if="initLoad">
+    <div style="background: #ffffff">
+        <div id="listTable" lay-filter='listTable'></div>
+    </div>
+</section>
+<script type="text/html" id="toolBarFixed">
+    <div class="layui-btn layui-btn-sm layui-btn-normal" lay-event="edit">进入维护</div>
+</script>
+<script type="text/javascript">
+    var listTable;
+    var vm = new Vue({
+        el: '#container',
+        data: {
+            fromData: {},
+            fromDataSubmit: false,
+            fromDataEdit: true,
+            initLoad: false,
+        },
+        methods: {
+            handleEdit: function (data) {
+                parent.addTabs({
+                    id: data.id,
+                    title: '维护--' + data.realName,
+                    close: true,
+                    url: '/sysUserMaintain/userManager/' + data.id,
+                    urlType: "relative"
+                })
+            }
+        },
+        created: function () {
+            this.initLoad = true;
+        },
+        updated: function () {
+        },
+        mounted: function () {
+            layui.use(['table', 'laytpl'], function () {
+                var table = layui.table;
+                listTable = table.render({
+                    id: 'listTable',
+                    elem: '#listTable',
+                    page: true,
+                    method: 'post',
+                    url: base + '/sysUserMaintain/listPage',
+                    height: 'full-130',
+                    limit: 50,
+                    even: true,
+                    request: {
+                        pageName: 'pageNum',
+                        limitName: 'pageSize',
+                    },
+                    cols: [[
+                        {title: '序号', type: 'numbers', width: 50},
+                        {field: 'userName', title: '用户名'},
+                        {field: 'realName', title: '姓名'},
+                        {field: 'phone', title: '手机'},
+                        {field: 'mail', title: '邮件'},
+                        {
+                            field: 'locked', title: '状态', templet: function (row) {
+                                return row.locked ? "<span style='color: orangered'>已禁用</span>" : "启用中";
+                            }
+                        },
+                        {
+                            field: 'review', title: '审核状态', templet: function (row) {
+                                switch (Number(row.review)) {
+                                    case 0:
+                                        return "<span style='color: orangered'>待审核</span>";
+                                        break;
+                                    case 1:
+                                        return "<span style='color: #5a6261'>已审核</span>";
+                                        break;
+                                }
+                            }
+                        },
+                        {field: 'createByDate', title: '创建时间'},
+                        {field: 'createByName', title: '创建人'},
+                        {title: '操作', align: 'center', width: 200, fixed: 'right', toolbar: '#toolBarFixed'},
+                    ]],
+                });
+                table.on("tool(listTable)", function (obj) {
+                    var data = obj.data, layEvent = obj.event;
+                    if (layEvent == "edit") {
+                        vm.handleEdit(data);
+                    }
+                });
+            });
+        }
+    });
+</script>
+<%}%>

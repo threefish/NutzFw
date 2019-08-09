@@ -1,0 +1,67 @@
+<%
+layout("/layouts/blank.html",{title:"新闻详情"}){
+%>
+<style>
+    #container:after {
+        clear: both;
+        content: "";
+        display: block;
+    }
+
+    #container > .row {
+        margin: 0;
+    }
+
+    .new-head {
+        border-bottom: 1px solid #E6E6EC;
+        padding: 10px 0;
+    }
+
+    .new-head > .new-title {
+        text-align: center;
+    }
+
+    .new-head > .new-alt {
+        width: 100%;
+        line-height: 30px;
+        text-align: center;
+    }
+
+    .new-head > .new-alt > span {
+        display: inline-block;
+    }
+
+    .new-head > .new-alt > span.new-from {
+        margin-left: 10px;
+    }
+
+    #detailContent {
+        padding: 10px 20px;
+        min-height: 200px;
+        margin-bottom: 10px;
+    }
+</style>
+<section id="container">
+    <div class="row">
+        <div class="new-head">
+            <h3 class="new-title">${data.news.title}</h3>
+            <div class="new-alt">
+                <span class="new-time">${data.news.publishTime}</span>
+                <span class="new-from">
+                    <label>来源：</label>${data.news.newsFrom}
+                    &nbsp;&nbsp;&nbsp;&nbsp;
+                    <label>发布人：</label>${data.news.opByDesc}
+                    &nbsp;&nbsp;&nbsp;&nbsp;
+                    <label>发布时间：</label>${data.news.opAt,dateFormat='yyyy年MM月dd日 HH:mm:ss'}
+                </span>
+            </div>
+        </div>
+        <div id="detailContent">
+            ${data.news.content}
+        </div>
+        <p>
+            <span class="pull-right">【来源：${data.news.newsFrom}】</span>
+        </p>
+    </div>
+</section>
+<%}%>

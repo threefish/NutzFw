@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="${title!}">
+    <title>${title!}</title>
+    <%include("/inc/header.html"){}%>
+    <style>
+        a {
+            color: #337ab7;
+            text-decoration: none;
+        }
+
+        .searchFrom {
+            top: 8px;
+        }
+
+        .searchFrom * {
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            box-sizing: border-box;
+        }
+
+        .searchFrom > .input-group {
+            padding: 2px;
+            width: 25%;
+            float: left;
+        }
+
+        .searchFrom > .input-group > .line-text {
+            width: 43.333% !important;
+            width: -moz-calc(100% / 2 - 20px) !important;
+            width: -webkit-calc(100% / 2 - 20px) !important;
+            width: calc(100% / 2 - 20px) !important;
+            text-align: center;
+        }
+
+        .searchFrom > .input-group > .line-text.splice {
+            border-right: 0;
+            border-left: 0;
+            width: 35px !important;
+        }
+
+        .searchFrom > .input-group > .layui-btn {
+            height: 32px;
+            line-height: 32px;
+        }
+
+    </style>
+</head>
+<body>
+<div class="wrapper">
+    ${layoutContent}
+</div>
+</body>
+</html>

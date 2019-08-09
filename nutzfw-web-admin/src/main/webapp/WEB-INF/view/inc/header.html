@@ -1,0 +1,121 @@
+<!--常用的插件-->
+<!--
+    内核控制标签meta
+    如您是网站的开发者，可以通过在页面<head>标签中添加代码，来指定网站的默认模式
+    若页面需默认用极速模式，增加标签：<meta name="renderer" content="webkit">
+    若页面需默认用IE兼容模式，增加标签：<meta name="renderer" content="ie-comp">
+    若页面需默认用IE标准模式，增加标签：<meta name="renderer" content="ie-stand">
+    content的取值分别为webkit,ie-comp,ie-stand，区分大小写，分别代表用极速模式，IE兼容模式（低版本IE模式），IE标准模式（高版本IE模式）
+-->
+<meta charset="utf-8">
+<meta name="renderer" content="webkit">
+<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+<link rel="stylesheet" href="${base!}/static/plugins/video/video-js.min.css?_=${productVersion}">
+<!--框架所需的插件-->
+<!-- Bootstrap 3.3.6 -->
+<link rel="stylesheet" href="${base!}/static/plugins/bootstrap/css/bootstrap.min.css?_=${productVersion}">
+<link rel="stylesheet" href="${base!}/static/plugins/adminlte/css/font-awesome.min.css?_=${productVersion}">
+<link rel="stylesheet" href="${base!}/static/plugins/adminlte/css/ionicons.min.css?_=${productVersion}">
+<link rel="stylesheet" href="${base!}/static/plugins/adminlte/css/AdminLTE.min.css?_=${productVersion}">
+<link rel="stylesheet" href="${base!}/static/plugins/adminlte/css/skins/all-skins.min.css?_=${productVersion}">
+<link rel="stylesheet" href="${base!}/static/plugins/ztree/css/metroStyle/metroStyle.css?_=${productVersion}">
+<link rel="stylesheet" href="${base!}/static/plugins/iCheck/all.css?_=${productVersion}">
+<link rel="stylesheet" href="${base}/static/plugins/layui/css/layui.css?_=${productVersion}" media="all">
+<link rel="stylesheet" href="${base!}/static/plugins/datatables/dataTables.bootstrap.css?_=${productVersion}">
+<link rel="stylesheet" href="${base!}/static/plugins/jquery-treetable/css/jquery.treetable.css?_=${productVersion}">
+<link href="${base!}/static/css/theme/${sys.theme}/platform.style.css?_=${productVersion}" rel="stylesheet">
+<link rel="stylesheet" href="${base!}/static/plugins/imageview/viewer1.0.css?_=${productVersion}">
+<%if(cfg.isDev=='true'){%>
+<link rel="stylesheet" href="${base!}/static/plugins/magic-check/magic-check.css?_=${productVersion}">
+<%}else{%>
+<link rel="stylesheet" href="${base!}/static/plugins/magic-check/magic-check.min.css?_=${productVersion}">
+<%}%>
+<%if(cfg.isDev=='true'){%>
+<script src="${base!}/static/plugins/jquery/jquery-3.4.1.js?_=${productVersion}" type="text/javascript"></script>
+<script src="${base!}/static/plugins/vue/2.5.17/vue.js?_=${productVersion}" type="text/javascript"></script>
+<%}else{%>
+<script src="${base!}/static/plugins/jquery/jquery-3.4.1.min.js?_=${productVersion}" type="text/javascript"></script>
+<script src="${base!}/static/plugins/vue/2.5.17/vue.min.js?_=${productVersion}" type="text/javascript"></script>
+<%}%>
+<script src="${base!}/static/plugins/slimScroll/jquery.slimscroll.js?_=${productVersion}"
+        type="text/javascript"></script>
+<script type="text/javascript" src="${base!}/static/plugins/jquery/jquer.resize.js?_=${productVersion}"></script>
+<script type="text/javascript" src="${base!}/static/plugins/ztree/js/jquery.ztree.all.js?_=${productVersion}"></script>
+<script src="${base!}/static/plugins/datatables/jquery.dataTables.min.js?_=${productVersion}"
+        type="text/javascript"></script>
+<script type="text/javascript" src="${base!}/static/plugins/jquery/jquery.cookie.js?_=${productVersion}"></script>
+<script src="${base!}/static/plugins/jquery-treetable/jquery.treetable.js?_=${productVersion}"
+        type="text/javascript"></script>
+
+<script src="${base!}/static/plugins/bootstrap/js/bootstrap.min.js?_=${productVersion}"></script>
+<script src="${base!}/static/plugins/adminlte/js/app.js?_=${productVersion}"></script>
+<script src="${base!}/static/plugins/adminlte/js/app_iframe.js?_=${productVersion}"></script>
+
+<script type="text/javascript" src="${base!}/static/plugins/layui/layui.js?_=${productVersion}"></script>
+<script type="text/javascript" src="${base!}/static/plugins/layer/layer.js?_=${productVersion}"></script>
+
+<script type="text/javascript" src="${base!}/static/plugins/ztree/ztree.helper.js?_=${productVersion}"></script>
+<script type="text/javascript" src="${base!}/static/plugins/echarts/echarts.min.js?_=${productVersion}"></script>
+<script type="text/javascript" src="${base!}/static/plugins/iCheck/icheck.min.js?_=${productVersion}"></script>
+<script src="${base!}/static/plugins/datatables/dataTables.bootstrap.min.js?_=${productVersion}"
+        type="text/javascript"></script>
+<script type="text/javascript" src="${base!}/static/plugins/SMValidator/SMValidator.js?_=${productVersion}"></script>
+<script type="text/javascript" src="${base!}/static/js/HUCuploadFile.js?_=${productVersion}"></script>
+<script type="text/javascript" src="${base!}/static/js/common.js?_=${productVersion}"></script>
+<script type="text/javascript" src="${base!}/static/plugins/imageview/viewer1.0.js?_=${productVersion}"></script>
+<script>
+    var base = "${base!}";
+
+    function setiCheckAll() {
+        $('body input[type="checkbox"].minimal, input[type="radio"].minimal').iCheck({
+            checkboxClass: 'icheckbox_minimal-blue',
+            radioClass: 'iradio_minimal-blue'
+        });
+        $('body input[type="checkbox"].minimal-red, input[type="radio"].minimal-red').iCheck({
+            checkboxClass: 'icheckbox_minimal-red',
+            radioClass: 'iradio_minimal-red'
+        });
+        $('body input[type="checkbox"].flat-red, input[type="radio"].flat-red').iCheck({
+            checkboxClass: 'icheckbox_flat-green',
+            radioClass: 'iradio_flat-green'
+        });
+    }
+
+    $(function () {
+        SMValidator.setLang({
+            number: '请输入数字',
+            names: '请输入正确的名字格式',
+            email: '请输入正确的邮箱格式',
+            range_equal: '值必须等于{0}',
+            range_scope: '值必须大于{0}且小于{1}',
+            range_greater: '值必须大于{0}',
+            range_less: '值必须小于{0}',
+            renge_no_number: '值必须是数字',
+            error_param: '参数错误',
+            length_equal: '长度必须为{0}',
+            length_scope: '长度必须大于{0}且小于{1}',
+            length_greater: '长度必须大于{0}',
+            length_less: '长度必须小于{0}',
+            password: '两次输入密码不一致'
+        });
+        App.setbasePath(base);
+        App.setGlobalImgPath("/static/plugins/adminlte/img/");
+    });
+    //计算附件个数
+    String.prototype.fileCount = function () {
+        var arr = this.split(',');
+        var count = 0;
+        for (var i in arr) {
+            var str = arr[i];
+            if (str != undefined && arr != "" && arr != null && arr != "null" && arr.length != 0) {
+                count++;
+            }
+        }
+        return count;
+    }
+</script>
+<style type="text/css">
+    html {
+        overflow: hidden;
+    }
+</style>

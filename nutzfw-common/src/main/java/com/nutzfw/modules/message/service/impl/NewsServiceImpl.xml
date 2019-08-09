@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE Sqls PUBLIC "nutz-sqltpl" "https://threefish.gitee.io/nutz-sqltpl/nutz-sqltpl.dtd">
+<Sqls class="com.nutzfw.modules.message.service.impl.NewsServiceImpl">
+    <sql id="queryIndexNewsList" wrap="true">
+        SELECT
+            *
+        FROM
+            (
+                SELECT
+                    n.*
+                FROM
+                    news_body AS n
+                LEFT JOIN news_receive_role AS r ON r.newsId = n.uuid
+                LEFT JOIN news_receive_dept AS d ON d.newsId = n.uuid
+                $condition and n.locked=0 and (NOW()>n.publishTime or n.publishTime is NULL)
+                ORDER BY
+                    n.toped
+            ) AS news
+        GROUP BY
+            news.uuid
+    </sql>
+</Sqls>

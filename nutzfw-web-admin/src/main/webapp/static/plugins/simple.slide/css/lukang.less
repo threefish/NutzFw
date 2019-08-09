@@ -1,0 +1,577 @@
+﻿/*LuKang.less > Versions 2.0*/
+/***网页默认设置***/
+
+/*字体颜色*/
+@default-color: #666;
+/*什么字体*/
+@default-fontFamily: "Segoe UI", "Lucida Grande", Helvetica, Arial, "Microsoft YaHei", FreeSans, Arimo, "Droid Sans", "wenquanyi micro hei", "Hiragino Sans GB", "Hiragino Sans GB W3", FontAwesome, sans-serif;
+/*字体大小*/
+@default-fontSize: 14px;
+/*边框颜色*/
+@default-border-color: #ddd;
+
+/*渐变样式，在手机端不能使用，只针对于背景颜色和字体颜色*/
+.transition(@time:0.3s,@delay:0s) {
+  -webkit-transition-property: all;
+  -moz-transition-property: all;
+  -o-transition-property: all;
+  transition-property: all;
+  -webkit-transition-duration: @time;
+  -moz-transition-duration: @time;
+  -o-transition-duration: @time;
+  transition-duration: @time;
+  -webkit-transition-delay: @delay;
+  -moz-transition-delay: @delay;
+  -o-transition-delay: @delay;
+  transition-delay: @delay;
+}
+
+/*动画*/
+.animation(@parameter) {
+  animation: @parameter;
+  -moz-animation: @parameter;
+  -webkit-animation: @parameter;
+  -o-animation: @parameter;
+}
+
+/*旋转样式*/
+.transform-rotate(@num:180deg) {
+  -webkit-transform: rotate(@num);
+  -ms-transform: rotate(@num);
+  -o-transform: rotate(@num);
+  transform: rotate(@num);
+
+}
+
+/*3D旋转样式-IE10以下不支持*/
+.transform3d(@num) {
+  -webkit-transform: @num;
+  -ms-transform: @num;
+  -o-transform: @num;
+  transform: @num;
+}
+
+/*快速形成一个3d磁场*/
+.box3d(@px:100px) {
+  -webkit-perspective: @px;
+  -ms-perspective: @px;
+  -o-perspective: @px;
+  perspective: @px;
+  -webkit-transform-style: preserve-3d;
+  -ms-transform-style: preserve-3d;
+  -o-transform-style: preserve-3d;
+  transform-style: preserve-3d;
+}
+
+/*快速设置宽高度*/
+.width-height(@width:auto,@height:auto) {
+  width: @width;
+  height: @height;
+}
+
+/*快速设置一个正方形*/
+.wh-square(@num) {
+  width: @num;
+  height: @num;
+}
+
+/*快速设置浮动*/
+.fixed {
+  position: fixed;
+}
+
+.absolute {
+  position: absolute;
+}
+
+.relative {
+  position: relative;
+}
+
+/*快速设置鼠标点击小手样式*/
+.cursor(@val:pointer) {
+  cursor: @val;
+}
+
+/*快速设置圆角 IE9以下不支持此样式*/
+.border-radius (@radius :5px) {
+  border-radius: @radius;
+  -o-border-radius: @radius;
+  -moz-border-radius: @radius;
+  -webkit-border-radius: @radius;
+}
+
+/*快速设置一个按钮*/
+.set-button(@width,@height,@size,@color,@b-color:transparent,@radius:0px,@align :center) {
+  .width-height(@width, @height);
+  background-color: @b-color;
+  font-size: @size;
+  text-align: @align;
+  line-height: @height;
+  color: @color;
+  .dib;
+  .border-radius(@radius);
+}
+
+/*快速设置一个进度条*/
+.set-progress-bar(@w:120px,@h:12px,@c1:#cccccc,@c2:#ec5e5c,@rad:@h / 2px) {
+  .dib;
+  .width-height(@w, @h);
+  background-color: @c1;
+  .border-radius(@rad);
+  span {
+    height: @h;
+    .fl;
+    background-color: @c2;
+    .border-radius(@rad);
+  }
+}
+
+/*快速设置一个banner切换 配合 jquery.SuperSlide.2.1.1.js 插件*/
+.set-banner(
+  @h:400px,                                           //图片高度
+  @w:100%,                                            //图片宽度
+  @img-w:54px,                                        //上下页按钮宽度
+  @img-h:90px,                                        //上下页按钮高度
+  @img-url:"../img/index-banner-jkh.png"              //上下页按钮图片地址
+) {
+  .relative;
+  height: @h !important;
+  .bd {
+    width: @w !important;
+    height: @h !important;
+    div {
+      width: @w !important;
+      height: @h !important;
+      a {
+        .dib;
+        width: @w !important;
+        height: @h !important;
+      }
+    }
+  }
+  &:hover {
+    .an {
+      .opacity(0.2);
+    }
+  }
+  .an {
+    &:hover {
+      .opacity(0.5);
+    }
+    .absolute;
+    z-index: 500;
+    .dib;
+    .opacity(0);
+    .transition(0.5s);
+    background-image: url(@img-url);
+    background-position: 0 0;
+    .width-height(@img-w, @img-h);
+    left: 0px;
+    top: 50%;
+    margin-top: -(@img-h/2);
+    &.next {
+      background-position: -@img-w 0;
+      left: auto;
+      right: 0px;
+    }
+  }
+}
+
+/*快速设置一个导航菜单,包括导航下拉菜单。*/
+.set-nav(
+  @h:90px,                                //导航菜单宽度
+  @padding:20px,                          //导航菜单内边距
+  @color:@default-color,                  //非点击字体颜色
+  @fontSize:@default-fontSize,            //字体大小
+  @hover-color:@default-border-color,     //当前字体颜色
+  @em-w:11px,                             //图标宽度
+  @em-h:6px,                              //图标高度
+  @em-url:"../img/em.png"                 //图标图片地址
+) {
+  .fl;
+  .relative;
+  a {
+    color: @color;
+    font-size: @fontSize;
+    .dib;
+    .lineHeight(@h);
+    .padding-left-right(@padding);
+    &.on {
+      color: @hover-color;
+    }
+    em {
+      .fr;
+      .dib;
+      .width-height(@em-w, @em-h);
+      margin-top: (@h - @em-h)/2px;
+      background-image: url(@em-url);
+      margin-left: 3px;
+      .transition(0.5s);
+    }
+  }
+  .pulldown {
+    display: none;
+    background-color: #fff;
+    margin-top: -(@h*25.7732/100);
+    .absolute;
+    z-index: 99999999;
+    width: 90%;
+    border: 1px solid @default-border-color;
+    a {
+      font-size: 13px;
+      width: 100%;
+      .lineHeight(30px);
+      padding: 0;
+      &:hover {
+        color: @hover-color;
+      }
+    }
+  }
+  &:hover {
+    .pulldown {
+      display: block;
+    }
+    a {
+      em {
+        .transform-rotate(180deg);
+      }
+    }
+  }
+}
+
+/*快速设置字体颜色和字体大小*/
+.color-fontSize(@color:@default-color,@fontSize:@default-fontSize) {
+  color: @color;
+  font-size: @fontSize;
+}
+
+/*快速设置背景阴影*/
+.box-shadow (@x: 0px, @y: 0px, @blur: 5px, @color: #ccc) {
+  box-shadow: @arguments;
+  -moz-box-shadow: @arguments;
+  -webkit-box-shadow: @arguments;
+}
+
+/*快速设置字体阴影*/
+.text-shadow (@x: 0px, @y: 0px, @blur: 5px, @color: #ccc) {
+  text-shadow: @arguments;
+  -webkit-text-shadow: @arguments;
+}
+
+/*快速设置内边距*/
+.padding-left-right(@a:0px) {
+  padding-left: @a;
+  padding-right: @a;
+}
+
+.padding-left-right-unlike(@a:0px,@l:0px) {
+  padding-left: @a;
+  padding-right: @l;
+}
+
+.padding-top-bottom(@a:0px) {
+  padding-top: @a;
+  padding-bottom: @a;
+}
+
+.padding-top-bottom-unlike(@a:0px,@l:0px) {
+  padding-top: @a;
+  padding-bottom: @l;
+}
+
+.padding-left-top(@a:0px) {
+  padding-left: @a;
+  padding-top: @a;
+}
+
+.padding-left-top-unlike(@a:0px,@l:0px) {
+  padding-left: @a;
+  padding-top: @l;
+}
+
+.padding-left-bottom(@a:0px) {
+  padding-left: @a;
+  padding-bottom: @a;
+}
+
+.padding-left-bottom-unlike(@a:0px,@l:0px) {
+  padding-left: @a;
+  padding-bottom: @l;
+}
+
+.padding-right-top(@a:0px) {
+  padding-right: @a;
+  padding-top: @a;
+}
+
+.padding-right-top-unlike(@a:0px,@l:0px) {
+  padding-right: @a;
+  padding-top: @l;
+}
+
+.padding-right-bottom(@a:0px) {
+  padding-right: @a;
+  padding-bottom: @a;
+}
+
+.padding-right-bottom-unlike(@a:0px,@l:0px) {
+  padding-right: @a;
+  padding-bottom: @l;
+}
+
+/*快速设置外边距*/
+.margin-left-right(@a:0px) {
+  margin-left: @a;
+  margin-right: @a;
+}
+
+.margin-left-right-unlike(@a:0px,@l:0px) {
+  margin-left: @a;
+  margin-right: @l;
+}
+
+.margin-top-bottom(@a:0px) {
+  margin-top: @a;
+  margin-bottom: @a;
+}
+
+.margin-top-bottom-unlike(@a:0px,@l:0px) {
+  margin-top: @a;
+  margin-bottom: @l;
+}
+
+.margin-left-top(@a:0px) {
+  margin-left: @a;
+  margin-top: @a;
+}
+
+.margin-left-top-unlike(@a:0px,@l:0px) {
+  margin-left: @a;
+  margin-top: @l;
+}
+
+.margin-left-bottom(@a:0px) {
+  margin-left: @a;
+  margin-bottom: @a;
+}
+
+.margin-left-bottom-unlike(@a:0px,@l:0px) {
+  margin-left: @a;
+  margin-bottom: @l;
+}
+
+.margin-right-top(@a:0px) {
+  margin-right: @a;
+  margin-top: @a;
+}
+
+.margin-right-top-unlike(@a:0px,@l:0px) {
+  margin-right: @a;
+  margin-top: @l;
+}
+
+.margin-right-bottom(@a:0px) {
+  margin-right: @a;
+  margin-bottom: @a;
+}
+
+.margin-right-bottom-unlike(@a:0px,@l:0px) {
+  margin-right: @a;
+  margin-bottom: @l;
+}
+
+/*快速设置对齐*/
+.text-align-center {
+  text-align: center;
+}
+
+.text-align-left {
+  text-align: left;
+}
+
+.text-align-right {
+  text-align: right;
+}
+
+/*删除边框*/
+.borderDel {
+  border: 0px;
+}
+
+/*快速设置高度并居中*/
+.lineHeight(@H:30px) {
+  height: @H;
+  line-height: @H;
+}
+
+/*
+content-box，border和padding不计算入width之内  --默认
+padding-box，padding计算入width内
+border-box，border和padding计算入width之内，其实就是怪异模式了~
+*/
+.box-sizing(@p:border-box) {
+  -webkit-box-sizing: @p;
+  -moz-box-sizing: @p;
+  box-sizing: @p;
+}
+
+/*透明 ps:请输入0-1 比如：0.5*/
+.opacity(@p:0) {
+  @filler: @p * 100;
+  filter: alpha(opacity=@filler);
+  -moz-opacity: @p;
+  opacity: @p;
+}
+
+/*边框的线样式快速设置*/
+.solid(@color:@default-border-color,@px:1px) {
+  border: @px solid @color;
+}
+
+.dashed(@color:@default-border-color,@px:1px) {
+  border: @px dashed @color;
+}
+
+.dotted(@color:@default-border-color,@px:1px) {
+  border: @px dotted @color;
+}
+
+/*设置居上的px,用于上下居中*/
+.margin-top-up-down(@h,@this_h) {
+  margin-top: (@h - @this_h)/2px;
+}
+
+/*----------------------------------------------------------*/
+/*修改自带标签的一些特性*/
+* {
+  margin: 0;
+  padding: 0;
+  font-family: @default-fontFamily;
+  .box-sizing;
+}
+
+input:focus, select:focus, textarea:focus, button:focus {
+  outline: none;
+}
+
+a {
+  text-decoration: none;
+}
+
+p {
+  .text-align-left;
+}
+
+li {
+  list-style-type: none;
+}
+/*修改自带标签的一些特性*/
+
+
+/*自己写的常用样式*/
+.dib {
+  display: inline-block;
+  background-repeat: no-repeat;
+}
+
+.fl {
+  float: left !important;
+}
+
+.fr {
+  float: right !important;
+}
+.lk {
+  width: 100%;
+  //overflow: hidden;
+  text-align: center;
+  /*note: "..此处里面的样式有问题,请联系鲁康。"*/
+}
+
+.lk .main {
+  width: 1180px;
+  margin: 0 auto;
+  /*note:"..此处调整整体宽度.."*/
+}
+/*自己写的常用样式*/
+
+/*--------------------------------快速写的渐入-----------------------------*/
+
+.tran {
+  .transition(0.5s);
+}
+
+.tranUp {
+  .transform3d(translateY(-100px));
+  .opacity(0);
+}
+
+.tranDown {
+  .transform3d(translateY(100px));
+  .opacity(0);
+}
+
+.tranLeft {
+  .transform3d(translateX(100px));
+  .opacity(0);
+}
+
+.tranRight {
+  .transform3d(translateX(-100px));
+  .opacity(0);
+}
+
+@time: 0.2;
+
+.tranDelay0 {
+  transition-delay: 0s !important;
+}
+
+.tranDelay5 {
+  transition-delay: @time*1s;
+}
+
+.tranDelay10 {
+  transition-delay: @time*2s;
+}
+
+.tranDelay15 {
+  transition-delay: @time*3s;
+}
+
+.tranDelay20 {
+  transition-delay: @time*4s;
+}
+
+.tranDelay25 {
+  transition-delay: @time*5s;
+}
+
+.tranDelay30 {
+  transition-delay: @time*6s;
+}
+
+.tranDelay35 {
+  transition-delay: @time*7s;
+}
+
+.tranDelay40 {
+  transition-delay: @time*8s;
+}
+
+.tranDelay45 {
+  transition-delay: @time*9s;
+}
+
+.tranDelay50 {
+  transition-delay: @time*10s;
+}
+
+.tranDelay55 {
+  transition-delay: @time*11s;
+}
+
+.tranDelay60 {
+  transition-delay: @time*12s;
+}

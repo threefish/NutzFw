@@ -1,0 +1,142 @@
+<%
+var title="数据导入历史";
+layout("/layouts/blank.html",{title:title}){
+%>
+<style type="text/css">
+    .required {
+        color: red;
+    }
+</style>
+<section class="content-header">
+    <h1>
+        ${title}
+        <small>控制面板</small>
+    </h1>
+</section>
+
+<section class="content" id="container" v-if="initLoad">
+    <div style="background: #ffffff">
+        <div id="listTable" lay-filter='listTable'></div>
+    </div>
+</section>
+<script type="text/html" id="toolBarFixed">
+    {{# if(d.staus==2){ }}
+    <div class="layui-btn layui-btn-sm" lay-event="down">下载附件</div>
+    {{# } }}
+    {{# if(d.staus==5){ }}
+    <div class="layui-btn layui-btn-sm layui-btn-normal" lay-event="view-error">查看错误</div>
+    {{# } }}
+</script>
+<script type="text/javascript" src="${base!}/static/js/sys/enums.js?_=${productVersion}"></script>
+
+<script type="text/javascript">
+    var listTable;
+    var vm = new Vue({
+        el: '#container',
+        data: {
+            fromData: {},
+            fromDataSubmit: false,
+            fromDataEdit: true,
+            initLoad: false,
+            synchronizeType: 0,
+        },
+        methods: {},
+        created: function () {
+            this.initLoad = true;
+        },
+        updated: function () {
+
+        },
+        mounted: function () {
+            layui.use(['table'], function () {
+                var table = layui.table;
+                listTable = table.render({
+                    id: 'listTable',
+                    elem: '#listTable',
+                    page: true,
+                    method: 'post',
+                    url: base + '/sysDataMaintain/listHistoryPage',
+                    height: 'full-130',
+                    limit: 50,
+                    even: true,
+                    request: {
+                        pageName: 'pageNum',
+                        limitName: 'pageSize',
+                    },
+                    cols: [[
+                        {title: '序号', type: 'numbers', width: 50},
+                        {field: 'tableName', title: '表名'},
+                        {
+                            field: 'tableType', title: '表类型', templet: function (row) {
+                                return TableType[row.tableType];
+                            }
+                        },
+                        {
+                            field: 'importType', title: '导入模式', templet: function (row) {
+                                switch (row.importType) {
+                                    case 1:
+                                        return "导入全部记录";
+                                        break;
+                                    case 2:
+                                        return "记录存在则更新，不存在则导入";
+                                        break;
+                                    case 3:
+                                        return "记录存在则更新，不存在则忽略";
+                                        break;
+                                    case 4:
+                                        return "记录存在则忽略，不存在则导入";
+                                        break;
+                                }
+                                return "";
+                            }
+                        },
+                        {
+                            field: 'staus', title: '当前状态',width: 100, templet: function (row) {
+                                switch (row.staus) {
+                                    case 0:
+                                        return "待检查";
+                                        break;
+                                    case 1:
+                                        return "检查中";
+                                        break;
+                                    case 2:
+                                        return "<span style='color: #ec0c03'>检查失败</span>";
+                                        break;
+                                    case 3:
+                                        return "导入中";
+                                        break;
+                                    case 4:
+                                        return "<span style='color: #0a99ec'>导入成功</span>";
+                                        break;
+                                    case 5:
+                                        return "<span style='color: #ec0c03'>导入失败</span>";
+                                        break;
+                                }
+                                return "";
+                            }
+                        },
+                        {field: 'consuming', title: '耗时'},
+                        {field: 'opAt', title: '操作时间'},
+                        {field: 'errorMsg', title: '错误信息'},
+                        {title: '操作', width: 100, align: 'center', fixed: 'right', toolbar: '#toolBarFixed'},
+                    ]],
+                });
+                table.on("tool(listTable)", function (obj) {
+                    var data = obj.data, layEvent = obj.event;
+                    if (layEvent == "down") {
+                        window.open("${base}/File/attachAct/" + data.attachId, "_blank");
+                    } else if (layEvent == "view-error") {
+                        layer.open({
+                            type: 1,
+                            title: ['错误日志'],
+                            shade: 0.3,
+                            area: ['80%', '80%'],
+                            content: "<pre style='padding: 5px;height: 100%;border: 0px;overflow: scroll'>" + data.errorMsgInfo + "</pre>",
+                        });
+                    }
+                });
+            });
+        }
+    });
+</script>
+<%}%>

@@ -1,0 +1,100 @@
+<%
+var title="创建模版";
+layout("/layouts/blank.html",{title:title}){
+%>
+<style type="text/css">
+    .field-item {
+        padding: 8px;
+        text-indent: 5px;
+        display: inline-block;
+        width: 24%;
+        overflow: hidden;
+        white-space: nowrap;
+    }
+
+    .field-item label {
+        cursor: pointer;
+    }
+
+    .btns {
+        text-align: center;
+        margin-top: 10px;
+    }
+
+    .field-box {
+        height: 228px;
+        padding: 8px;
+        overflow-y: auto;
+        box-shadow: 0 0 5px rgba(0, 0, 0, .1);
+    }
+</style>
+<section id="container" v-if="initLoad">
+    <div class="field-box">
+        <form method="post" id="subform" target="_blank" action="${base}/sysDataMaintain/downTemplate">
+            <input type='hidden' name='tableId' value='${data.tableId}'>
+            <input type='hidden' name='fields' id='fields'>
+            <%for(var item in data.fields){%>
+            <div class="field-item">
+                <input type='checkbox' name='field' class='flat-red' id="${item.id}" value='${item.id}'>
+                <label for="${item.id}">${item.name}</label>
+            </div>
+            <%}%>
+        </form>
+    </div>
+    <div class="btns">
+        <div class="layui-btn layui-btn-sm layui-btn-normal" @click="checkAll">全选</div>
+        <div class="layui-btn layui-btn-sm layui-btn-normal" @click="changeCheckAll">取消全选</div>
+        <div class="layui-btn layui-btn-sm layui-btn-normal" @click="inverseSelection">反选</div>
+        <div class="layui-btn layui-btn-sm layui-btn-warm" @click="downTemplate">下载</div>
+    </div>
+</section>
+<script type="text/javascript">
+    var win = window.parent.parent || window.parent || window;
+    var vm = new Vue({
+        el: '#container',
+        data: {},
+        methods: {
+            checkAll: function () {
+                $("input[name='field']").each(function () {
+                    $(this).iCheck('check');
+                });
+            },
+            changeCheckAll: function () {
+                $("input[name='field']").each(function () {
+                    $(this).iCheck('uncheck');
+                });
+            },
+            inverseSelection: function () {
+                $("input[name='field']").each(function () {
+                    if ($(this).prop("checked")) {
+                        $(this).iCheck('uncheck');
+                    } else {
+                        $(this).iCheck('check');
+                    }
+                });
+            },
+            downTemplate: function () {
+                var ids = new Array();
+                $("input[name='field']:checked").each(function () {
+                    ids.push($(this).val());
+                });
+                if (ids.length == 0) {
+                    core.error("请选择字段！");
+                } else {
+                    $("#fields").val(ids.join(","));
+                    $("#subform").submit();
+                }
+            }
+        },
+        created: function () {
+            this.initLoad = true;
+        },
+        updated: function () {
+        },
+        mounted: function () {
+            setiCheckAll();
+            this.checkAll();
+        }
+    });
+</script>
+<%}%>

@@ -1,0 +1,388 @@
+<%
+var title="设置条件";
+layout("/layouts/blank.html",{title:title}){
+%>
+<style>
+    body {
+        padding: 5px;
+    }
+
+    .input-group {
+        padding: 2px;
+    }
+
+    .d-s-textarea {
+        resize: none;
+        height: 150px !important;
+    }
+
+    .form-control {
+        cursor: pointer;
+    }
+</style>
+<section class="content" id="container" v-if="initLoad">
+    <table style="width: 100%">
+        <tr>
+            <td colspan="2">
+                <div class="input-group" style="width: 100%;">
+                    <div class="input-group-addon">字段名称</div>
+                    <input type="text" class="form-control" value="${data.field.name}" disabled>
+                </div>
+            </td>
+            <td colspan="2">
+                <div class="input-group" style="width: 100%;">
+                    <div class="input-group-addon">字段类型</div>
+                    <select class="form-control" v-model="fromData.fieldType" disabled>
+                        <option value="0">字符串</option>
+                        <option value="1">数值型</option>
+                        <option value="2">日期</option>
+                        <option value="3">大文本</option>
+                        <option value="4">单附件</option>
+                        <option value="5">多附件(20个)</option>
+                    </select>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="4">条件设置</td>
+        </tr>
+        <tr>
+            <td>
+                <div class="input-group" style="width: 100%;">
+                    <div class="form-control">
+                        <input id="lparentheses" v-model="fromData.lparentheses" type="checkbox" class="magic-checkbox">
+                        <label for="lparentheses">左括号&nbsp;</label>
+                    </div>
+                </div>
+            </td>
+            <td>
+                <div class="input-group">
+                    <div class="input-group-addon">&nbsp;组合符&nbsp;</div>
+                    <select class="form-control" v-model="fromData.combination">
+                        <option value=""></option>
+                        <option value=" AND ">AND</option>
+                        <option value=" OR ">OR</option>
+                        <option value=" AND (">AND (</option>
+                        <option value=" OR (">OR (</option>
+                    </select>
+                </div>
+            </td>
+            <td>
+                <div class="input-group">
+                    <div class="input-group-addon">&nbsp;操作符&nbsp;</div>
+                    <select class="form-control" v-model="fromData.operator" :disabled="fromData.isDate">
+                        <option value="=">=</option>
+                        <option value="!=">!=</option>
+                        <option v-if="!fromData.isDict && (fromData.fieldType != 0 && fromData.fieldType != 3)"
+                                value="<"><
+                        </option>
+                        <option v-if="!fromData.isDict && (fromData.fieldType != 0 && fromData.fieldType != 3)"
+                                value=">">>
+                        </option>
+                        <option v-if="!fromData.isDict && (fromData.fieldType != 0 && fromData.fieldType != 3)"
+                                value=">=">>=
+                        </option>
+                        <option v-if="!fromData.isDict && (fromData.fieldType != 0 && fromData.fieldType != 3)"
+                                value="<="><=
+                        </option>
+                        <option v-if="!fromData.isDict" value="LIKE">LIKE</option>
+                        <option v-if="!fromData.isDict" value="NOT LIKE">NOT LIKE</option>
+                        <option v-if="!fromData.isDict" value="IN">IN</option>
+                        <option v-if="!fromData.isDict" value="NOT IN">NOT IN</option>
+                        <option v-if="!fromData.isDict" value="IS NULL">IS NULL</option>
+                        <option v-if="!fromData.isDict" value="NOT IS NULL">NOT IS NULL</option>
+                    </select>
+                </div>
+            </td>
+            <td>
+                <div class="input-group" style="width: 100%;">
+                    <div class="form-control">
+                        <input type="checkbox" v-model="fromData.rparentheses" class="magic-checkbox" id="rparentheses">
+                        <label for="rparentheses">右括号&nbsp;</label>
+                    </div>
+                </div>
+            </td>
+        </tr>
+        <tr v-if="fromData.isDate">
+            <td colspan="4">
+                <div class="input-group" style="    width: 100%;">
+                    <div class="input-group-addon">&nbsp;开始日期&nbsp;</div>
+                    <input type="text" id="startDate" class="form-control" v-model="fromData.startDate"
+                           :d-format="fromData.dateFormat"
+                           :d-type="fromData.dateType" d-name="startDate"
+                           readonly>
+                    <div class="input-group-addon" style="border-left: 0px;"><i class="fa fa-edit"></i></div>
+                    <div class="input-group-addon" style="border-left: 1px;border-right: 1px;">&nbsp;截至日期&nbsp;</div>
+                    <input type="text" id="endDate" class="form-control" v-model="fromData.endDate"
+                           :d-format="fromData.dateFormat"
+                           :d-type="fromData.dateType" d-name="endDate" readonly>
+                    <div class="input-group-addon">
+                        <i class="fa fa-edit"></i>
+                    </div>
+                </div>
+            </td>
+        </tr>
+        <tr v-if="!fromData.isDate&&(fromData.operator!='IS NULL'&&fromData.operator!='NOT IS NULL')">
+            <td colspan="4">
+                <div class="input-group" style="width: 100%;">
+                    <div class="input-group-addon">&nbsp;条件值&nbsp;</div>
+                    <input type="text" class="form-control" v-model="fromData.val" :readonly="fromData.isDict"
+                           @click="showDict">
+                    <div class="input-group-addon" v-if="fromData.isDict" @click="showDict" style="border-left: 0px;"><i
+                            class="fa fa-edit"></i></div>
+                </div>
+            </td>
+        </tr>
+    </table>
+    <div style="text-align: center;width: 100%;padding: 5px;">
+        <div class="btn btn-default" @click="addCnd">添加</div>
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        <div class="btn btn-default" @click="cleanCnd">清空</div>
+    </div>
+    <div>
+        <textarea v-model="fromData.lastCnd" id="lastCnd" class="d-s-textarea form-control"></textarea>
+    </div>
+</section>
+<script type="text/javascript">
+    var vm = new Vue({
+        el: '#container',
+        data: {
+            fromData: {
+                fieldName: "${data.field.name}",
+                fieldType: "${data.field.fieldType}",
+                lastCnd: "",
+                lparentheses: false,
+                rparentheses: false,
+                isDict: ${data.field.dictSysCode!=''},
+                sysCode: "${data.field.dictSysCode}",
+                isDate: ${data.field.fieldType==2},
+                dateFormat: "${data.field.controlType==5?'yyyy-MM-dd':'yyyy-MM-dd HH:mm:ss'}",
+                dateType: "${data.field.controlType==5?'date':'datetime'}",
+                controlType: "${data.field.controlType}",
+                operator: "=",
+                combination: "",
+                val: "",
+                vals: [],
+                startDate: "",
+                endDate: "",
+            },
+            fromDataSubmit: false,
+            fromDataEdit: true,
+            initLoad: false,
+        },
+        methods: {
+            /**
+             * 得到括号
+             * @param templteStr
+             * @returns {*}
+             */
+            getParentheses: function (templteStr) {
+                if (this.fromData.lparentheses) {
+                    templteStr = templteStr.replace(/\{lparentheses\}/g, "(");
+                } else {
+                    templteStr = templteStr.replace(/\{lparentheses\}/g, "");
+                }
+                if (this.fromData.rparentheses) {
+                    templteStr = templteStr.replace(/\{rparentheses\}/g, ")");
+                } else {
+                    templteStr = templteStr.replace(/\{rparentheses\}/g, "");
+                }
+                return templteStr;
+            },
+            /**
+             * 计算字典条件
+             * @param templteStr
+             * @param fieldName
+             * @param fieldType
+             * @returns {*}
+             */
+            getDictCnd: function (templteStr, fieldName, fieldType) {
+                //纯字典
+                templteStr = templteStr.replace(/\{combination\}/g, this.fromData.combination);
+                templteStr = templteStr.replace(/\{fieldName\}/g, "");
+                templteStr = templteStr.replace(/\{operator\}/g, "");
+                if (fieldType == 0 || fieldType == 3) {
+                    //字符串
+                    var dateArr = new Array();
+                    if (this.fromData.val.length > 0) {
+                        var vals = this.fromData.val.split(",");
+                        for (var i in vals) {
+                            var item = vals[i];
+                            dateArr.push("(" + fieldName + this.fromData.operator + "'" + item + "')");
+                        }
+                    }
+                    if (dateArr.length != 0) {
+                        templteStr = templteStr.replace(/\{cndval\}/g, "(" + dateArr.join(" OR ") + ")");
+                    } else {
+                        templteStr = templteStr.replace(/\{cndval\}/g, "(" + fieldName + " IS NULL OR " + fieldName + "=''" + ")");
+                    }
+                } else {
+                    //数值型
+                    var dateArr = new Array();
+                    for (var i in this.fromData.vals) {
+                        var item = this.fromData.vals[i];
+                        dateArr.push("(" + fieldName + this.fromData.operator + item + ")");
+                    }
+                    if (dateArr.length != 0) {
+                        templteStr = templteStr.replace(/\{cndval\}/g, "(" + dateArr.join(" OR ") + ")");
+                    } else {
+                        templteStr = templteStr.replace(/\{cndval\}/g, "(" + fieldName + " IS NULL OR " + fieldName + "=0" + ")");
+                    }
+                }
+                return templteStr;
+            },
+            /**
+             * 计算日期时间条件
+             * @param templteStr
+             * @param fieldName
+             * @param fieldType
+             * @returns {*}
+             */
+            getDateCnd: function (templteStr, fieldName, fieldType) {
+                var dateArr = new Array();
+                if (this.fromData.startDate != "") {
+                    dateArr.push(fieldName + ">=" + this.getStartDate(this.fromData.startDate));
+                    if (this.fromData.endDate != "") {
+                        dateArr.push("AND");
+                    }
+                }
+                if (this.fromData.endDate != "") {
+                    dateArr.push(fieldName + "<=" + this.getEndDate(this.fromData.endDate))
+                }
+                if (dateArr.length != 0) {
+                    templteStr = templteStr.replace(/\{cndval\}/g, "(" + dateArr.join(" ") + ")");
+                } else {
+                    templteStr = templteStr.replace(/\{cndval\}/g, "(" + fieldName + " IS NULL )");
+                }
+                //时间
+                templteStr = templteStr.replace(/\{operator\}/g, "");
+                templteStr = templteStr.replace(/\{fieldName\}/g, "");
+                templteStr = templteStr.replace(/\{combination\}/g, this.fromData.combination);
+                return templteStr;
+            }, /**
+             * 计算普通字符串和数字条件
+             * @param templteStr
+             * @param fieldName
+             * @param fieldType
+             * @returns {*}
+             */
+            getCommonCnd: function (templteStr, fieldName, fieldType) {
+                templteStr = templteStr.replace(/\{combination\}/g, this.fromData.combination);//连接符
+                templteStr = templteStr.replace(/\{fieldName\}/g, fieldName);
+                templteStr = templteStr.replace(/\{operator\}/g, this.fromData.operator);//操作符
+                if (this.fromData.operator == "IS NULL" || this.fromData.operator == "NOT IS NULL") {
+                    templteStr = templteStr.replace(/\{cndval\}/g, "");
+                } else {
+                    if (fieldType != 1) {
+                        //字符串
+                        if (this.fromData.operator == "LIKE" || this.fromData.operator == "NOT LIKE") {
+                            templteStr = templteStr.replace(/\{cndval\}/g, "'%" + this.fromData.val + "%'");
+                        } else {
+                            templteStr = templteStr.replace(/\{cndval\}/g, "'" + this.fromData.val + "'");
+                        }
+                    } else {
+                        //数值型
+                        if (this.fromData.val == "") {
+                            templteStr = templteStr.replace(/\{cndval\}/g, this.fromData.val);
+                        } else {
+                            templteStr = templteStr.replace(/\{cndval\}/g, this.fromData.val);
+                        }
+                    }
+                }
+                return templteStr;
+            },
+            /**
+             * 添加条件
+             */
+            addCnd: function () {
+                var templteStr = "{lparentheses} {combination} {fieldName} {operator} {cndval} {rparentheses}";
+                templteStr = this.getParentheses(templteStr);
+                var fieldName = "{" + this.fromData.fieldName + "}";
+                var fieldType = Number(this.fromData.fieldType);
+                if ((fieldType == 0 || fieldType == 1 || fieldType == 3) && !this.fromData.isDict) {
+                    //普通字符串和数值
+                    templteStr = this.getCommonCnd(templteStr, fieldName, fieldType);
+                } else if ((fieldType == 0 || fieldType == 1 || fieldType == 3) && this.fromData.isDict) {
+                    //字典
+                    templteStr = this.getDictCnd(templteStr, fieldName, fieldType);
+                } else if (fieldType == 2) {
+                    //日期时间
+                    templteStr = this.getDateCnd(templteStr, fieldName, fieldType);
+                }
+                this.fromData.lastCnd += templteStr;
+                this.fromData.val = "";
+                this.fromData.vals = [];
+                this.fromData.startDate = "";
+                this.fromData.endDate = "";
+            },
+            showDict: function () {
+                if (this.fromData.isDict) {
+                    core.showMenusSimpleTree({
+                        title: "请选择",
+                        url: "/sysDict/tree",
+                        data: {id: "id", pid: "pid", name: "lable"},
+                        otherParam: {sysCode: vm.fromData.sysCode},
+                        chkboxType: {"Y": "s", "N": "ps"},
+                        isCheckbox: true,
+                        onOk: function (data) {
+                            var ids = new Array();
+                            var names = new Array();
+                            for (var i in data) {
+                                var item = data[i];
+                                if (!item.grouping) {
+                                    names.push(item.lable)
+                                    ids.push(item.id)
+                                }
+                            }
+                            vm.fromData.val = names.join(",");
+                            vm.fromData.vals = ids;
+                            return true;
+                        }
+                    });
+                }
+            },
+            getStartDate: function (dateStr) {
+                if (this.fromData.dateType == "date") {
+                    dateStr = dateStr + " 00:00:00";
+                }
+                return "'" + dateStr + "'";
+            },
+            getEndDate: function (dateStr) {
+                if (this.fromData.dateType == "date") {
+                    dateStr = dateStr + " 23:59:59";
+                }
+                return "'" + dateStr + "'";
+            },
+            cleanCnd: function () {
+                this.fromData.lastCnd = "";
+            }
+        },
+        created: function () {
+            this.initLoad = true;
+        },
+        updated: function () {
+        },
+        mounted: function () {
+            this.fromData.lastCnd = window.parent.vm.lastCndText
+            /*时间选择*/
+            layui.use('laydate', function () {
+                var laydate = layui.laydate;
+                $("[d-format]").each(function () {
+                    var fieldname = $(this).attr("d-name");
+                    var format = $(this).attr("d-format");
+                    var type = $(this).attr("d-type");
+                    var el = $(this)[0];
+                    laydate.render({
+                        elem: el,
+                        type: type,
+                        format: format,
+                        done: function (value) {
+                            vm.fromData[fieldname] = value;
+                        }
+                    });
+                });
+            });
+        }
+    });
+</script>
+<%}%>

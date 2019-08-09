@@ -1,0 +1,475 @@
+﻿<%
+var title="新闻编辑";
+layout("/layouts/blank.html",{title:title}){
+%>
+<style type="text/css">
+    .title-lable {
+        height: 35px;
+    }
+
+    .required {
+        color: red;
+        position: absolute;
+        top: 3px;
+        font-size: 18px;
+        left: 0px;
+    }
+
+    .edui-editor-bottomContainer {
+        display: none;
+    }
+
+    .edui-default .edui-editor-toolbarboxinner {
+        background: #fff;
+    }
+
+
+    .input-group-addon-right-icon {
+        height: 34px;
+        width: 40px;
+    }
+
+    .box-tips {
+        text-align: left;
+        background: #fff;
+        font-size: 12px;
+        padding: 10px 5px;
+        line-height: 20px;
+        color: #77b0e2;
+    }
+
+    .btns {
+        margin: 5px 0px;
+    }
+
+    .simple-list a {
+        padding: 5px;
+    }
+
+    .attach-name {
+        width: 200px;
+        overflow: hidden;
+    }
+
+    .attach-add, .attach-del {
+        cursor: pointer;
+        font-size: 12px;
+    }
+</style>
+<section class="content" id="container" v-if="initLoad">
+    <div role="form">
+        <!-- text input -->
+        <div class="form-group col-xs-6">
+            <label>
+                <span class="required">*</span>
+                新闻类别</label>
+            ${dict("sys_news_category",false,"END",'v-model=fromData.categoryId','class="form-control"',':disabled="!fromDataEdit"','placeholder="请输入..."')}
+        </div>
+
+        <div class="form-group col-xs-6">
+            <label>
+                新闻标题
+            </label>
+            <input :disabled="!fromDataEdit" class="form-control" maxlength="50" placeholder="请输入..." type="text"
+                   v-model="fromData.title">
+        </div>
+        <!-- 附件类型 -->
+        <div class="form-group col-xs-12">
+            <ul class="simple-list clearfix">
+                <li class='attachlist-data' v-for="item in attachList">
+                    <img :src='getFileIcon(item.ext)'>
+                    <a class="attach-name">{{item.sortName}}</a>
+                    <a @click="addToContent(item)" class='attach-add'>添加到正文</a>
+                    <a @click="removeAttach(item)" class='attach-del'>删除</a>
+                </li>
+            </ul>
+            <label class="control-label">
+                新闻附件id集合
+            </label>
+            <div @click="handleAddAttachs"
+                 class="layui-btn layui-btn-xs layui-btn-normal" v-if="fromDataEdit">添加
+            </div>
+            <div @click="handleViewAttach('attachidlist')" class="layui-btn layui-btn-xs layui-btn-normal">
+                查看({{(fromData.attachidlist+"").fileCount() }})
+            </div>
+        </div>
+        <!-- 富文本框 百度UE -->
+        <div class="form-group clearfix" style="width: 100%">
+            <label class="col-sm-12 control-label">
+                <span class="required">*</span>
+                新闻内容
+            </label>
+        </div>
+        <div class="form-group clearfix" style="width: 100%">
+            <div class="col-sm-12" style="min-height: 500px">
+                <textarea d-name="content" id="content" ueditor="true"
+                          v-model="fromData.content"></textarea>
+                <div class="box-tips">填写提示：请输入...</div>
+            </div>
+        </div>
+
+        <div class="form-group col-xs-6">
+            <label>
+                新闻来源
+            </label>
+            <input :disabled="!fromDataEdit" class="form-control" maxlength="50" placeholder="请输入..." type="text"
+                   v-model="fromData.newsFrom">
+        </div>
+
+        <div class="form-group col-xs-6">
+            <label>
+                置顶
+            </label>
+            <select :disabled="!fromDataEdit" class="form-control" v-model="fromData.toped">
+                <option value="false">否</option>
+                <option value="true">是</option>
+            </select>
+        </div>
+
+        <div class="form-group col-xs-6">
+            <label>
+                冻结
+            </label>
+            <select :disabled="!fromDataEdit" class="form-control" v-model="fromData.locked">
+                <option value="false">否</option>
+                <option value="true">是</option>
+            </select>
+        </div>
+        <div class="form-group col-xs-6">
+            <label>
+                <span class="required">*</span>
+                级别</label>
+            ${dict("sys_news_level",false,"END",'v-model=fromData.level','class="form-control"',':disabled="!fromDataEdit"','placeholder="请输入..."')}
+        </div>
+        <div class="form-group col-xs-6">
+            <label>
+                定时发布</label>
+            <div class="input-group">
+                <input :disabled="!fromDataEdit" class="form-control" d-format="yyyy-MM-dd"
+                       d-name="publishTime" d-type="date" placeholder="请输入..." readonly
+                       type="text"
+                       v-model="fromData.publishTime">
+                <span class="input-group-addon"><i class="fa fa-clock-o"></i></span>
+            </div>
+        </div>
+
+        <div class="form-group col-xs-6">
+            <label>
+                新闻是否被推荐
+            </label>
+            <select :disabled="!fromDataEdit" class="form-control" v-model="fromData.isrecomm">
+                <option value="false">否</option>
+                <option value="true">是</option>
+            </select>
+        </div>
+        <!-- 附件类型 -->
+        <div class="form-group col-xs-12">
+            <label class="control-label">
+                推荐图
+            </label>
+            <div @click="handleAddAttach('recommimg',false,true,'xlsx,xls,png,jpg,doc,docx','news')"
+                 class="layui-btn layui-btn-xs layui-btn-normal" v-if="fromDataEdit">添加
+            </div>
+            <div @click="handleViewAttach('recommimg')" class="layui-btn layui-btn-xs layui-btn-normal">
+                查看({{(fromData.recommimg+"").fileCount() }})
+            </div>
+        </div>
+        <div class="form-group col-xs-6">
+            <label>
+                接收部门
+            </label>
+            <textarea class="form-control" disabled maxlength="2000" placeholder="请选择接收部门"
+                      style="resize: none">{{toDeptNames}}</textarea>
+            <div class="btns" v-if="fromDataEdit">
+                <div @click="handleChonseSendToDept()" class="layui-btn layui-btn-xs layui-btn-normal">选择</div>
+            </div>
+        </div>
+        <div class="form-group col-xs-6">
+            <label>
+                接收角色
+            </label>
+            <textarea class="form-control" disabled maxlength="2000" placeholder="请选择接收角色"
+                      style="resize: none">{{toRoleNames}}</textarea>
+            <div class="btns" v-if="fromDataEdit">
+                <div @click="handleChonseSendToRole()" class="layui-btn layui-btn-xs layui-btn-normal">选择</div>
+            </div>
+        </div>
+    </div>
+</section>
+<script charset="utf-8" src="${base}/static/plugins/ueditor/ueditor.config.js?_=${productVersion}"
+        type="text/javascript"></script>
+<script charset="utf-8" src="${base}/static/plugins/ueditor/ueditor.all.js?_=${productVersion}"
+        type="text/javascript"></script>
+<script charset="utf-8" src="${base}/static/plugins/ueditor/lang/zh-cn/zh-cn.js?_=${productVersion}"
+        type="text/javascript"></script>
+<script type="text/javascript">
+    var ue = new Object();
+    var readOnly = "${data.fromDataEdit}" == "true";
+    var vm = new Vue({
+        el: '#container',
+        data: {
+            fromData: {
+                uuid: '${data.uuid!}',
+                categoryId: '',
+                title: '',
+                content: '',
+                userid: '',
+                newsFrom: '',
+                toped: '',
+                locked: '',
+                level: '',
+                publishTime: '',
+                isrecomm: '',
+                recommimg: '',
+                attachidlist: '',
+                toDepts: [],
+                toRoles: [],
+            },
+            fromDataSubmit: false,
+            fromDataEdit: readOnly,
+            initLoad: false,
+            attachList: [],
+        },
+        computed: {
+            toDeptNames: function () {
+                let toDeptNames = [];
+                this.fromData.toDepts.forEach(value => toDeptNames.push(value.deptName));
+                return toDeptNames.join(",");
+            },
+            toRoleNames: function () {
+                let toRoleNames = [];
+                this.fromData.toRoles.forEach(value => toRoleNames.push(value.roleName));
+                return toRoleNames.join(",");
+            }
+        },
+        methods: {
+            init: function () {
+                this.initLoad = true;
+                if (this.fromData.uuid != '') {
+                    $.post(base + "/News/details", {uuid: this.fromData.uuid}, function (json) {
+                        if (json.ok) {
+                            vm.fromData = json.data;
+                            vm.loadAttachList();
+                        }
+                    });
+                }
+            },
+            addToContent: function (attach) {
+                if ("jpg,png,jpeg,gif,ico,bmp,gif".indexOf(attach.ext) > -1) {
+                    ue['content'].setContent("<img src='${base}/File/attachAct?id=" + attach.id + "'  title='" + attach.name + "' alt='" + attach.name + "'>", true);
+                } else if ("mp4,webm".indexOf(attach.ext) > -1) {
+                    ue['content'].setContent("<video src='${base}/File/attachAct?id=" + attach.id + "' class='edui-upload-video  vjs-default-skin   video-js' controls='' preload='none' width='380' height='auto'  data-setup='{}'></video>", true);
+                } else {
+                    ue['content'].setContent("<a href='${base}/File/attachAct?id=" + attach.id + "' style='font-size:12px; color:#0066cc;' title='" + attach.name + "'>" + attach.name + ('(') + attach.size + ")</a>", true);
+                }
+            },
+            removeAttach: function (attach) {
+                var tempIds = [];
+                var tempArr = [];
+                this.attachList.forEach(file => {
+                    if (attach.id != file.id) {
+                        tempIds.push(file.id);
+                        tempArr.push(file);
+                    }
+                });
+                vm.fromData["attachidlist"] = tempIds.join(",");
+                this.attachList = tempArr;
+            },
+            getFileIcon: function (ext) {
+                var maps = {
+                    "rar": "icon_rar.gif",
+                    "zip": "icon_rar.gif",
+                    "tar": "icon_rar.gif",
+                    "gz": "icon_rar.gif",
+                    "bz2": "icon_rar.gif",
+                    "doc": "icon_doc.gif",
+                    "docx": "icon_doc.gif",
+                    "pdf": "icon_pdf.gif",
+                    "mp3": "icon_mp3.gif",
+                    "xls": "icon_xls.gif",
+                    "chm": "icon_chm.gif",
+                    "ppt": "icon_ppt.gif",
+                    "pptx": "icon_ppt.gif",
+                    "avi": "icon_mv.gif",
+                    "wmv": "icon_mv.gif",
+                    "flv": "icon_mv.gif",
+                    "swf": "icon_mv.gif",
+                    "rm": "icon_mv.gif",
+                    "3gp": "icon_mv.gif",
+                    "mp4": "icon_mv.gif",
+                    "swf": "icon_mv.gif",
+                    "mkv": "icon_mv.gif",
+                    "rm": "icon_mv.gif",
+                    "rmvb": "icon_mv.gif",
+                    "mpeg": "icon_mv.gif",
+                    "ogg": "icon_mv.gif",
+                    "ogv": "icon_mv.gif",
+                    "wmv": "icon_mv.gif",
+                    "webm": "icon_mv.gif",
+                    "exe": "icon_exe.gif",
+                    "psd": "icon_psd.gif",
+                    "txt": "icon_txt.gif",
+                    "jpg": "icon_jpg.gif",
+                    "png": "icon_jpg.gif",
+                    "jpeg": "icon_jpg.gif",
+                    "gif": "icon_jpg.gif",
+                    "ico": "icon_jpg.gif",
+                    "bmp": "icon_jpg.gif"
+                };
+                return "${base}/static/plugins/webuploader/fileTypeImages/" + (maps[ext] ? maps[ext] : maps['txt']);
+            },
+            handleAddAttach: function (fieldName, isMultiAttach, isImage, attachSuffix, module) {
+                core.handleAddAttach(fieldName, isMultiAttach, isImage, attachSuffix, module);
+            },
+            loadAttachList: function () {
+                core.postSyncJSON("/File/fileList", {ids: this.fromData["attachidlist"]}, function (data) {
+                    if (data.ok) {
+                        vm.attachList = data.data;
+                    }
+                })
+            },
+            handleAddAttachs: function () {
+                var fieldName = "attachidlist";
+                core.multiUpload({
+                        fileType: "file",// 上传 文件还是 图片 (file ---- 文件  img ---- 图片)
+                        fileExtensions: 'xlsx,xls,png,jpg,doc,docx', //文件过滤类型
+                        module: 'news',
+                        title: "文件上传",
+                        uploadedIds: vm.fromData[fieldName],
+                        ok: function (index, response) {
+                            var ids = new Array();
+                            for (var i in response) {
+                                ids.push(response[i].data);
+                            }
+                            vm.fromData[fieldName] = ids.join(",");
+                            vm.loadAttachList();
+                            layer.close(index)
+                        }
+                    }
+                )
+            },
+            handleViewAttach: function (fieldName) {
+                core.showAttachList(this.fromData[fieldName]);
+            },
+            handleChonseSendToDept: function () {
+                var selectedIds = [];
+                vm.fromData.toDepts.forEach(value => selectedIds.push(value.deptId));
+                core.showMenusSimpleTree({
+                    title: "接收部门",
+                    url: "/sysOrganize/department/tree",
+                    isCheckbox: true,
+                    data: {id: "id", pid: "pid", name: "name"},
+                    selectId: "id",
+                    selectedIds: selectedIds.join(","),
+                    rightClickMenu: [
+                        {title: "全选", click: "selectAll"},
+                        {title: "全不选", click: "unSelectAll"},
+                        {title: "反选", click: "inverseSelection"}
+                    ],
+                    onOk: function (data) {
+                        vm.fromData.toDepts = [];
+                        for (var i in data) {
+                            vm.fromData.toDepts.push({
+                                deptId: data[i].id,
+                                deptName: data[i].name,
+                            });
+                        }
+                        return true;
+                    },
+                    onSuccess: function (tree) {
+                        /*第一个父级节点不可选*/
+                        var node1 = tree.getNodes()[0];
+                        node1.nocheck = true;
+                        node1.chkDisabled = true;
+                        tree.updateNode(node1);
+                    }
+                })
+            },
+            handleChonseSendToRole: function () {
+                var selectedIds = [];
+                vm.fromData.toRoles.forEach(value => selectedIds.push(value.roleId));
+                var opt = {
+                    option: {
+                        url: "/sysRole/likeQuery",
+                        method: "post",
+                        param: {},
+                        key: "key",
+                        checkbox: true,
+                        selectPrimaryKey: "id",
+                        selectPrimaryValues: selectedIds.join(","),
+                        cols: [
+                            {field: 'roleName', title: '角色名称'},
+                            {field: 'roleCode', title: '角色编码'},
+                        ],
+                    },
+                    title: "请选择接收角色",
+                    width: "600px",
+                    height: "600px",
+                    onOk: function (selectData) {
+                        vm.fromData.toRoles = [];
+                        for (var i in selectData) {
+                            vm.fromData.toRoles.push({
+                                roleId: selectData[i].id,
+                                roleName: selectData[i].roleName,
+                            });
+                        }
+                        return true;
+                    },
+                }
+                core.showChoseTableData(opt);
+            }
+        },
+        created: function () {
+            this.init();
+        },
+        updated: function () {
+        },
+        mounted: function () {
+            layui.use(['laydate'], function () {
+                laydate = layui.laydate;
+                $("[d-format]").each(function () {
+                    var fieldname = $(this).attr("d-name");
+                    var format = $(this).attr("d-format");
+                    var type = $(this).attr("d-type");
+                    var elstr = $(this).attr("el");
+                    var el = $(this)[0];
+                    if (elstr != undefined) {
+                        el = $(elstr)[0];
+                    }
+                    laydate.render({
+                        elem: el,
+                        type: type,
+                        format: format,
+                        done: function (value) {
+                            vm.fromData[fieldname] = value;
+                        }
+                    });
+                });
+            });
+            $("[ueditor]").each(function () {
+                var fieldname = $(this).attr("d-name");
+                ue[fieldname] = new UE.ui.Editor({
+                    toolbars: [['undo', 'redo', 'bold', 'indent', 'italic', 'underline', 'strikethrough', 'blockquote', 'pasteplain', 'selectall', 'horizontal', 'removeformat', 'unlink', 'cleardoc', 'fontfamily', 'fontsize', 'paragraph', 'edittable', 'edittd', 'link', 'justifyleft', 'justifyright', 'justifycenter', 'justifyjustify', 'forecolor', 'backcolor', 'insertorderedlist', 'insertunorderedlist', 'fullscreen', 'directionalityltr', 'directionalityrtl', 'pagebreak', 'imagecenter', 'lineheight', 'inserttable', 'preview']],
+                    allHtmlEnabled: false,
+                    autoHeightEnabled: false,
+                    autoFloatEnabled: false,
+                    elementPathEnabled: false,
+                    initialFrameHeight: 500,
+                    enableAutoSave: false,
+                    initialFrameWidth: '100%',
+                    readonly: !readOnly
+                });
+                ue[fieldname].render(fieldname);
+                ue[fieldname].addListener('contentChange', function () {
+                    vm.fromData[fieldname] = ue[fieldname].getContent();
+                });
+                ue[fieldname].addListener('ready', function () {
+                    if (vm.fromData[fieldname] != null) {
+                        ue[fieldname].setContent(vm.fromData[fieldname]);
+                    }
+                });
+            });
+        }
+    });
+</script>
+<%}%>

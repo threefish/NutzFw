@@ -1,0 +1,395 @@
+<%
+var title="审核新增人员";
+layout("/layouts/blank.html",{title:title}){
+%>
+<style type="text/css">
+    .required {
+        color: red;
+    }
+
+    .searchBox {
+        float: left;
+        margin-right: 20px;
+    }
+
+    .searchBox select, .searchBox input {
+        height: 32px;
+    }
+
+    .layui-btn {
+        height: 32px;
+        line-height: 32px;
+    }
+
+    #container {
+        padding-top: 0px;
+    }
+
+    .layui-table-page {
+        position: fixed;
+    }
+</style>
+<section class="content" id="container" v-if="initLoad">
+    <div class="layui-tab  layui-tab-brief" lay-filter="layui-tab">
+        <ul class="layui-tab-title">
+            <li class="layui-this">待审核</li>
+            <li>已审核</li>
+        </ul>
+        <div class="layui-tab-content">
+            <div class="layui-tab-item layui-show">
+                <div style="background: #ffffff">
+                    <%if(so.hasPermission("sysOrganize.userReview")){%>
+                    <table class="searchBox">
+                        <tr>
+                            <td class="form-lable" width="150px" style="text-align: center;">
+                                用户名/姓名
+                            </td>
+                            <td class="form-lable">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" placeholder="用户名/姓名"
+                                           v-model="searchData.key">
+                                </div>
+                            </td>
+                            <td>
+                                <div style="margin-left: 20px" @click="fn_search(0)"
+                                     class="layui-btn layui-btn-sx layui-btn-normal">查询
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                    <%}%>
+                    <div class="layui-btn layui-btn-sm layui-btn-normal" @click="handleBatchAgreeReview"
+                         lay-event="batch-agree-review">批量审核
+                    </div>
+                    <div id="listTable" lay-filter='listTable'></div>
+                </div>
+            </div>
+            <div class="layui-tab-item">
+                <div style="background: #ffffff">
+                    <%if(so.hasPermission("sysOrganize.userReview")){%>
+                    <table class="searchBox">
+                        <tr>
+                            <td class="form-lable" width="150px" style="text-align: center;">
+                                用户名/姓名
+                            </td>
+                            <td class="form-lable">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" placeholder="用户名/姓名"
+                                           v-model="searchData.key">
+                                </div>
+                            </td>
+                            <td>
+                                <div style="margin-left: 20px" @click="fn_search(1)"
+                                     class="layui-btn layui-btn-sx layui-btn-normal">查询
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                    <%}%>
+                    <div class="layui-btn layui-btn-sm layui-btn-normal" @click="handleBatchUndoReview"
+                         lay-event="batch-undo-review">批量撤销
+                    </div>
+                    <div id="listTableHistory" lay-filter='listTableHistory'></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--审核-->
+    <div id="agreeReview" style="padding:10px;display: none">
+        <iframe :src="sourceUrl" v-if="!batchAgreeReview"
+                frameborder="no" border="0" width="100%" height="400px" marginwidth="0" marginheight="0"
+                scrolling-x="no" scrolling-y="auto" allowtransparency-y="yes"></iframe>
+        <div class="form-grou">
+            <label>审核意见<span class="required">*</span></label>
+            <textarea class="form-control" v-model="reviewOpinion" style="resize: none"></textarea>
+        </div>
+    </div>
+</section>
+<script type="text/html" id="toolBarFixed">
+    <div class="layui-btn layui-btn-sm layui-btn-normal" lay-event="agree-review">审核</div>
+</script>
+<script type="text/html" id="toolBarFixedHistory">
+    <div class="layui-btn layui-btn-sm layui-btn-normal" lay-event="undo-review">撤销</div>
+</script>
+<script type="text/javascript">
+    var table, listTable, listTableHistory;
+    var vm = new Vue({
+        el: '#container',
+        data: {
+            fromData: {},
+            fromDataSubmit: false,
+            fromDataEdit: true,
+            initLoad: false,
+            reviewOpinion: "",
+            sourceUrl: "",
+            batchAgreeReview: false,
+            firstChangeTab: false,
+            searchData: {
+                key: ""
+            }
+        },
+        methods: {
+            handleAgreeReview: function (data) {
+                var json = core.postJSON("/sysDynamicFrom/getSourceId", {
+                    tableId: 1,
+                    userid: data.id
+                });
+                if (json.ok) {
+                    vm.sourceUrl = "${base!}/sysDynamicFrom/edit?look=true&tableId=1&sourceId=" + json.data;
+                    vm.batchAgreeReview = false;
+                    layer.open({
+                        type: 1,
+                        title: "人员审核",
+                        area: ['1000px', '600px'],
+                        content: $("#agreeReview"),
+                        btn: ["确定通过", "取消"],
+                        yes: function () {
+                            core.confirm("你确定通过对 " + data.realname + " 审核？", function () {
+                                var json = core.postJSON("/userReview/review/agreeReview", {
+                                    ids: data.id,
+                                    reviewOpinion: vm.reviewOpinion
+                                });
+                                if (json.ok) {
+                                    vm.tableReload();
+                                    layer.closeAll();
+                                }
+                                core.msg(json);
+                            });
+                        }
+                    });
+                } else {
+                    core.error(json.msg);
+                }
+            },
+            handleUndoReview: function (data) {
+                core.confirm("你确定撤销对 " + data.realName + " 的审核？", function () {
+                    var json = core.postJSON("/userReview/review/undoReview", {ids: data.userid});
+                    if (json.ok) {
+                        vm.tableReload();
+                        layer.closeAll();
+                    }
+                    core.msg(json);
+                });
+            },
+            handleBatchUndoReview: function () {
+                var listData = this.getCheckData();
+                if (listData.length > 0) {
+                    var arr = new Array();
+                    for (var i in listData) {
+                        arr.push(listData[i].userid);
+                    }
+                    core.confirm("你确定对选中人员进行批量撤销审核？", function () {
+                        var json = core.postJSON("/userReview/review/undoReview", {
+                            ids: arr.join(",")
+                        });
+                        if (json.ok) {
+                            vm.tableReload();
+                            layer.closeAll();
+                        }
+                        core.msg(json);
+                    });
+                } else {
+                    core.error("请先选择一条记录！");
+                }
+            },
+            handleBatchAgreeReview: function () {
+                vm.batchAgreeReview = true;
+                var listData = this.getCheckData();
+                if (listData.length > 0) {
+                    var arr = new Array();
+                    for (var i in listData) {
+                        arr.push(listData[i].id);
+                    }
+                    layer.open({
+                        type: 1,
+                        title: "人员审核",
+                        area: ['800px', '300px'],
+                        content: $("#agreeReview"),
+                        btn: ["确定通过", "取消"],
+                        yes: function () {
+                            core.confirm("你确定对选中人员进行批量审核通过？", function () {
+                                var json = core.postJSON("/userReview/review/agreeReview", {
+                                    ids: arr.join(","),
+                                    reviewOpinion: vm.reviewOpinion
+                                });
+                                if (json.ok) {
+                                    vm.tableReload();
+                                    layer.closeAll();
+                                }
+                                core.msg(json);
+                            });
+                        }
+                    });
+                } else {
+                    core.error("请先选择一条记录！");
+                }
+            },
+            handleBatchUndoReview: function () {
+                var listData = this.getCheckHistoryData();
+                if (listData.length > 0) {
+                    var arr = new Array();
+                    for (var i in listData) {
+                        arr.push(listData[i].userid);
+                    }
+                    core.confirm("你确定撤销对选中人员的审核？", function () {
+                        var json = core.postJSON("/userReview/review/undoReview", {ids: arr.join(",")});
+                        if (json.ok) {
+                            vm.tableReload();
+                            layer.closeAll();
+                        }
+                        core.msg(json);
+                    });
+                } else {
+                    core.error("请先选择一条记录！");
+                }
+            },
+            getCheckData: function () {
+                return table.checkStatus('listTable').data;
+            },
+            getCheckHistoryData: function () {
+                return table.checkStatus('listTableHistory').data;
+            },
+            tableReload: function () {
+                listTable.reload();
+                if (listTableHistory) {
+                    listTableHistory.reload();
+                }
+            },
+            fn_search: function (type) {
+                if (type == 0) {
+                    listTable.reload({
+                        where: {
+                            review: 0,
+                            key: vm.searchData.key
+                        }, page: {curr: 1}
+                    })
+                } else if (type == 1) {
+                    listTableHistory.reload({
+                            where: {
+                                review: 1,
+                                key: vm.searchData.key
+                            },
+                            page: {curr: 1}
+                        }
+                    )
+                }
+            }
+        },
+        created: function () {
+            this.initLoad = true;
+        },
+        updated: function () {
+        },
+        mounted: function () {
+            layui.use(['table', 'laytpl', 'element'], function () {
+                table = layui.table;
+                element = layui.element;
+                element.on('tab(layui-tab)', function (data) {
+                    //第一次切换tab加载已审核用户
+                    if (vm.firstChangeTab) {
+                        return;
+                    }
+                    vm.firstChangeTab = true;
+                    listTableHistory = table.render({
+                        id: 'listTableHistory',
+                        elem: '#listTableHistory',
+                        page: true,
+                        method: 'post',
+                        url: base + '/userReview/review/listPage',
+                        height: 'full-150',
+                        limit: 50,
+                        even: true,
+                        request: {
+                            pageName: 'pageNum',
+                            limitName: 'pageSize',
+                        },
+                        where: {
+                            review: 1,
+                        },
+                        cols: [[
+                            {type: 'checkbox', width: 50},
+                            {
+                                field: 'username', title: '用户名', templet: function (row) {
+                                    return row.username.replace(vm.searchData.name, "<l style='color:red'>" + vm.searchData.name + "</l>");
+                                }
+                            },
+                            {
+                                field: 'realname', title: '姓名', templet: function (row) {
+                                    return row.realname.replace(vm.searchData.name, "<l style='color:red'>" + vm.searchData.name + "</l>");
+                                }
+                            },
+                            {field: 'role', title: '角色'},
+                            {field: 'jobname', title: '岗位'},
+                            {field: 'phone', title: '手机',width: 120,},
+                            {field: 'mail', title: '邮件'},
+                            {field: 'reviewOpinion', title: '审核意见'},
+                            {
+                                field: 'locked', title: '状态',width: 80, templet: function (row) {
+                                    return row.locked ? "<span style='color: orangered'>已禁用</span>" : "启用中";
+                                }
+                            },
+                            {field: 'create_by_date', title: '创建时间'},
+                            {field: 'create_by_name', title: '创建人'},
+                            {title: '操作', align: 'center', width: 100, fixed: 'right', toolbar: '#toolBarFixedHistory'},
+                        ]],
+                    });
+                    table.on("tool(listTableHistory)", function (obj) {
+                        var data = obj.data, layEvent = obj.event;
+                        if (layEvent == "undo-review") {
+                            vm.handleUndoReview(data);
+                        }
+                    });
+                })
+                listTable = table.render({
+                    id: 'listTable',
+                    elem: '#listTable',
+                    page: true,
+                    method: 'post',
+                    url: base + '/userReview/review/listPage',
+                    height: 'full-150',
+                    limit: 50,
+                    even: true,
+                    request: {
+                        pageName: 'pageNum',
+                        limitName: 'pageSize',
+                    },
+                    where: {
+                        review: 0,
+                    },
+                    cols: [[
+                        {type: 'checkbox', width: 50},
+                        {
+                            field: 'username', title: '用户名', templet: function (row) {
+                                return row.username.replace(vm.searchData.name, "<l style='color:red'>" + vm.searchData.name + "</l>");
+                            }
+                        },
+                        {
+                            field: 'realname', title: '姓名', templet: function (row) {
+                                return row.realname.replace(vm.searchData.name, "<l style='color:red'>" + vm.searchData.name + "</l>");
+                            }
+                        },
+                        {field: 'role', title: '角色'},
+                        {field: 'jobname', title: '岗位'},
+                        {field: 'phone', title: '手机',width: 120,},
+                        {field: 'mail', title: '邮件'},
+                        {
+                            field: 'locked', title: '状态',width: 80, templet: function (row) {
+                                return row.locked ? "<span style='color: orangered'>已禁用</span>" : "启用中";
+                            }
+                        },
+                        {field: 'create_by_date', title: '创建时间'},
+                        {field: 'create_by_name', title: '创建人'},
+                        {title: '操作', align: 'center', width: 100, fixed: 'right', toolbar: '#toolBarFixed'},
+                    ]],
+                });
+                table.on("tool(listTable)", function (obj) {
+                    var data = obj.data, layEvent = obj.event;
+                    if (layEvent == "agree-review") {
+                        vm.handleAgreeReview(data);
+                    }
+                });
+            });
+        }
+    })
+</script>
+<%}%>

@@ -1,0 +1,160 @@
+<%
+var title="密码修改";
+layout("/layouts/blank.html",{title:title}){
+%>
+<style type="text/css">
+    .from-box {
+        width: 70%;
+        margin: 0 auto;
+    }
+
+    .form-group {
+        height: 35px;
+    }
+
+    .required {
+        color: red;
+    }
+</style>
+<section class="content-header">
+    <h1>
+        ${title}
+        <small>控制面板</small>
+    </h1>
+</section>
+<section class="content" id="container" v-if="initLoad">
+    <div class="from-box">
+        <form role="form" method="post" name="form1" id="form1">
+            <div class="box box-info">
+                <div class="box-header with-border">
+                    <h3 class="box-title">帐号信息</h3>
+                </div>
+                <form class="form-horizontal">
+                    <div class="box-body">
+                        <div class="form-group" style="height: 150px">
+                            <div class="col-sm-12" style="text-align: center;">
+                                <img :src="fromData.avatarDesc" style="width: 150px;height: 150px">
+                                <div class="btn btn-info btn-xs" @click="handleChangeAvatar">修改</div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label"><b class="required">*</b>姓名：</label>
+                            <div class="col-sm-10">
+                                <input type="text" v-model="fromData.realName" class="form-control">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label"><b class="required">*</b>手机号：</label>
+                            <div class="col-sm-10">
+                                <input type="text" v-model="fromData.phone" class="form-control">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label"><b class="required">*</b>邮件：</label>
+                            <div class="col-sm-10">
+                                <input type="text" v-model="fromData.mail" class="form-control">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">旧密码：</label>
+                            <div class="col-sm-10">
+                                <input type="password" v-model="fromData.oldPass" class="form-control"
+                                       placeholder="为空不修改">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">新密码：</label>
+                            <div class="col-sm-10">
+                                <input type="password" v-model="fromData.newPass" class="form-control"
+                                       placeholder="为空不修改">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">重复新密码：</label>
+                            <div class="col-sm-10">
+                                <input type="password" class="form-control" v-model="fromData.repeatNewPass"
+                                       placeholder="为空不修改">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="box-footer">
+                        <button type="button" @click="handleSubmit" :disabled="fromDataSubmit"
+                                class="btn btn-info pull-right">修改
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </form>
+    </div>
+</section>
+<script type="text/javascript">
+    var vm = new Vue({
+        el: '#container',
+        data: {
+            fromData: {
+                realName: "${userinfo.realName}",
+                phone: "${userinfo.phone}",
+                mail: "${userinfo.mail}",
+                oldPass: "",
+                newPass: "",
+                repeatNewPass: "",
+                avatar: "${session.me.avatar!}",//头像
+                avatarDesc: "${base!}/File/avatar?id=${session.me.avatar!}",//头像
+            },
+            fromDataSubmit: false,
+            initLoad: false,
+        },
+        methods: {
+            handleChangeAvatar: function () {
+                var config = {
+                    title: "上传头像",
+                    module: "avatar",
+                    ratio: 1.0,
+                    x: 90, y: 90,
+                    w: "600px", h: "600px",
+                    fun: function (layerIndex, data) {
+                        vm.fromData.avatar = data.id;
+                        vm.fromData.avatarDesc = "${base!}/File/avatar/?_=" + new Date().getTime();
+                        var jsonre = core.postJSON("/manage/user/changeAvatar", {avatar: data.data});
+                        core.msg(jsonre);
+                        setTimeout(function () {
+                            window.parent.location.reload()
+                        }, 1000);
+                        parent.layer.close(layerIndex);
+                    }
+                };
+                parent.HUCuploadFile.cutImg(config);
+            },
+            handleSubmit: function () {
+                this.fromDataSubmit = true;
+                var fromData = new Object();
+                fromData.oldPass = this.fromData.oldPass;
+                fromData.newPass = this.fromData.newPass;
+                fromData.repeatNewPass = this.fromData.repeatNewPass;
+                fromData.avatar = this.fromData.avatar;
+                fromData.phone = this.fromData.phone;
+                fromData.mail = this.fromData.mail;
+                fromData.realName = this.fromData.realName;
+                var jsonre = core.postJSON("/manage/user/update", fromData);
+                console.log(jsonre.data)
+                if (jsonre.data) {
+                    core.msg("密码修改成功！请重新登录！");
+                    setTimeout(function () {
+                        window.location.href = "${base!}/"
+                    }, 1500)
+                } else {
+                    core.msg(jsonre);
+                }
+                this.fromDataSubmit = false;
+            }
+        },
+        created: function () {
+            this.initLoad = true;
+        },
+        updated: function () {
+        },
+        mounted: function () {
+        }
+    });
+</script>
+<%}%>

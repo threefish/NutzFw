@@ -1,0 +1,427 @@
+<%
+var title="数据查询维护";
+layout("/layouts/blank.html",{title:title}){
+%>
+
+<style type="text/css">
+    .required {
+        color: red;
+    }
+
+    #importBox:first-child {
+        text-align: center;
+        padding: 20px;
+        line-height: 25px;
+    }
+
+    .downLoadTemplate {
+        border: none;
+        background: #00b7ee;
+        font-size: 15px;
+        margin-top: -3px;
+    }
+
+    .control-label {
+        line-height: 35px;
+    }
+
+    .form-group {
+        margin: 5px;
+    }
+</style>
+<section class="content" id="container" v-if="initLoad">
+    <div class="col-sm-2" style="min-width: 150px;">
+        <div class="ztree" id="dbTree"></div>
+    </div>
+    <div class="col-sm-10">
+        <div id="listTable" lay-filter='listTable'></div>
+    </div>
+    <div id="importBox" style="display: none">
+        <div>
+            <div class="btn btn-info downLoadTemplate" @click="handleDownTemplate">模版下载</div>
+            <select v-model="importType" class="form-control" style="width: 50%;display: inline-block;">
+                <option value='0'>请选择导入模式</option>
+                <option v-if="tableType=='Schedule'" value='1'>导入全部记录</option>
+                <option value='2'>记录存在则更新，不存在则导入</option>
+                <option value='3'>记录存在则更新，不存在则忽略</option>
+                <option value='4'>记录存在则忽略，不存在则导入</option>
+            </select>
+            <div class="btn btn-info downLoadTemplate" @click="handleUpload">导入数据</div>
+            <div style="font-size: 12px;margin-top: 10px;color: #f10f0f;">
+                <p>1、请先下载模版，在模版中编辑数据后再导入数据</p>
+                <p>2、数据请对应用户的用户名</p>
+                <p>3、每次导入不能超过5000条数据，多余记录将会被忽略</p>
+            </div>
+        </div>
+    </div>
+    <div id="imprtAttachBox" style="display: none">
+        <div style="padding: 8px;text-align: center">
+            <select v-model="imprtAttachFiledId" id="imprtAttachFiledId" class="form-control"
+                    style="width: 50%;display: inline-block;">
+            </select>
+            <div class="btn btn-info downLoadTemplate" @click="handleUploadAttach">上传附件</div>
+            <div style="font-size: 12px;margin-top: 10px;color: #f10f0f;">
+                <p>1、文件名对应用户名</p>
+                <p>2、单个文件导入失败不会影响其他文件导入</p>
+                <p>3、例如:导入zhangsan用户导入附件，请命名文件为zhansan.xxx xxx为文件具体格式</p>
+            </div>
+        </div>
+    </div>
+</section>
+<script type="text/html" id="AttachTypeTpl">
+    <div style="text-align: center">
+        {{#
+        var data=d[d.LAY_FIELD]!=null?d[d.LAY_FIELD]:0;
+        var num=data!=0?(data.split(",").length):0;
+        }}
+        {{#if(num>0){ }}
+        <div class="layui-btn layui-btn-xs layui-btn-normal" lay-event="showAttach" data-field="{{d.LAY_FIELD}}">查看附件({{num}})</div>
+        {{# }else{ }}
+        无附件
+        {{# } }}
+    </div>
+</script>
+<script type="text/html" id="AttachTypeImgTpl">
+    <div style="text-align: center">
+        {{#
+        var data=d[d.LAY_FIELD]!=null?d[d.LAY_FIELD]:0;
+        var num=data!=0?(data.split(",").length):0;
+        }}
+        {{#if(num>0){ }}
+        <div class="layui-btn layui-btn-xs layui-btn-normal" lay-event="showAttach" data-field="{{d.LAY_FIELD}}">查看图片({{num}})</div>
+        {{# }else{ }}
+        无图片
+        {{# } }}
+    </div>
+</script>
+<script type="text/html" id="topToolbar">
+    <div class="btn toptoolbar layui-btn-disabled layui-btn-primary layui-btn-sm" lay-event="handleEdit">编辑</div>
+    <div class="btn toptoolbar layui-btn-disabled layui-btn-primary layui-btn-sm" lay-event="handleDel">删除</div>
+    <div class="btn toptoolbar layui-btn-disabled layui-btn-primary layui-btn-sm" lay-event="handleFilter">筛选</div>
+    <div class="btn toptoolbar layui-btn-disabled layui-btn-primary layui-btn-sm" lay-event="handleImport">导入数据</div>
+    <div class="btn toptoolbar layui-btn-disabled layui-btn-primary layui-btn-sm" lay-event="handleImportAttach">导入附件
+    </div>
+</script>
+<script type="text/javascript">
+    var listTable, table, dbTree, imprtAttachBoxIndex;
+    var win = window.parent.parent || window.parent || window;
+    var vm = new Vue({
+        el: '#container',
+        data: {
+            fromData: {},
+            selectNode: undefined,
+            fromDataSubmit: false,
+            initLoad: false,
+            importType: 0,
+            tableType: 0,
+            userNameOrRealName: '',
+            deptIds: '',
+            deptDesc: '',
+            imprtAttachFiledId: '',
+            filterBoxFields: []//缓存筛选条件
+        },
+        methods:
+            {
+                handleShowDepts: function () {
+                    core.showMenusSimpleTree({
+                        title: "选择部门",
+                        url: "/sysOrganize/department/tree",
+                        isCheckbox: true,
+                        chkboxType: {"Y": "s", "N": "ps"},
+                        data: {id: "id", pid: "pid", name: "name"},
+                        onOk: function (data) {
+                            var ids = new Array();
+                            var names = new Array();
+                            for (var i in data) {
+                                ids.push(data[i].id);
+                                names.push(data[i].name);
+                            }
+                            vm.deptIds = ids.join(",");
+                            vm.deptDesc = names.join(",");
+                            return true;
+                        }
+                    });
+                }, handleFilter: function () {
+                    var data = dbTree.getSelected();
+                    layer.open({
+                        type: 2,
+                        title: "条件筛选",
+                        area: ['600px', '600px'],
+                        content: base + "/sysDataMaintain/filterBox?tableId=" + data.tableId,
+                        btn: ['查询', '清空条件', '取消'],
+                        btn1: function (index) {
+                            var iframeVm = window.frames['layui-layer-iframe' + index].window.vm;
+                            vm.setCacheVars(iframeVm);
+                            vm.handleTableReload();
+                            layer.close(index);
+                        }, btn2: function (index) {
+                            vm.cleanCacheVars();
+                            parent.window.frames['layui-layer-iframe' + index].window.location.reload();
+                            return false;
+                        }
+                    });
+                },
+                //设置缓存
+                setCacheVars: function (iframeVm) {
+                    vm.userNameOrRealName = iframeVm.userNameOrRealName;
+                    vm.deptIds = iframeVm.deptIds;
+                    vm.deptDesc = iframeVm.deptDesc;
+                    vm.filterBoxFields = iframeVm.fields;
+                },
+                //清空缓存
+                cleanCacheVars: function () {
+                    vm.userNameOrRealName = "";
+                    vm.deptIds = "";
+                    vm.deptDesc = "";
+                    vm.filterBoxFields = [];
+                },
+                handleDownTemplate: function () {
+                    var data = dbTree.getSelected();
+                    core.openUrl("/sysDataMaintain/createDownTemplate/" + data.tableId, "选择字段进行数据导入", "500px", "320px");
+                },
+                handleUpload: function () {
+                    var data = dbTree.getSelected();
+                    if (vm.importType == 0) {
+                        core.error("请选择导入模式！")
+                    } else {
+                        core.singleUpload({
+                            fileExtensions: "xlsx",
+                            module: "dataimport",
+                            fileType: "file",
+                            ok: function (index, response) {
+                                var attachId = response.id;
+                                layer.closeAll();
+                                if (attachId != undefined) {
+                                    var json = core.postJSON("/sysDataMaintain/checkImportData", {
+                                        tableId: data.tableId,
+                                        importType: vm.importType,
+                                        attachId: attachId
+                                    });
+                                    core.msg(json);
+                                }
+                            }
+                        });
+                    }
+                },
+                handleImport: function () {
+                    vm.importStatus = true;
+                    layer.open({
+                        type: 1,
+                        title: "数据导入",
+                        area: ['500px', '220px'],
+                        content: $("#importBox")
+                    });
+                },
+                handleImportAttach: function () {
+                    var data = dbTree.getSelected();
+                    $.post(base + "/sysDataMaintain/getAttachFields", {tableId: data.tableId}, function (json) {
+                        var array = json.data;
+                        if (array.length == 0) {
+                            core.error("[" + data.text + "] 表无附件字段！")
+                        } else {
+                            $("#imprtAttachFiledId").html("<option>--请选择--</option>");
+                            var htmls = new Array();
+                            for (var i in array) {
+                                var item = array[i];
+                                htmls.push("<option value='" + item.id + "' suffix='" + item.suffix + "' isimg='" + item.isImg + "'>" + item.text + "</option>");
+                            }
+                            $("#imprtAttachFiledId").append(htmls.join(""));
+                            imprtAttachBoxIndex = layer.open({
+                                type: 1,
+                                title: "导入附件",
+                                area: ['500px', '180px'],
+                                content: $("#imprtAttachBox")
+                            });
+                        }
+                    }, "JSON");
+                },
+                handleUploadAttach: function () {
+                    var suffix = $("#imprtAttachFiledId option:selected").attr("suffix");
+                    var isImg = $("#imprtAttachFiledId option:selected").attr("isimg") == "true";
+                    var config = {
+                        module: "temp",
+                        fileType: isImg ? 'img' : 'file',
+                        fileExtensions: suffix,
+                        maxSize: 1000,
+                        title: "附件导入",
+                        formData: {filedId: vm.imprtAttachFiledId, tableId: vm.selectNode.id},
+                        ok: function (index, response) {
+                            var ids = [];
+                            for (var i = 0; i < response.length; i++) {
+                                ids[i] = response[i].data;
+                            }
+                            $.post(base + "/sysDataMaintain/importAttach", {
+                                tableId: vm.selectNode.id,
+                                filedId: vm.imprtAttachFiledId,
+                                attachIds: ids.join(",")
+                            }, function (json) {
+                                if (json.ok) {
+                                    core.msg(json.data);
+                                } else {
+                                    layer.msg(json.msg, {icon: 7, time: 10000});
+                                }
+                                layer.close(index);
+                                layer.close(imprtAttachBoxIndex);
+                            }, 'JSON');
+                        }
+                    }
+                    core.multiUpload(config);
+                },
+                handleTableReload: function () {
+                    listTable.reload({
+                        where: {
+                            tableid: vm.selectNode.id,
+                            userNameOrRealName: vm.userNameOrRealName,
+                            deptIds: vm.deptIds,
+                            fields: vm.filterBoxFields
+                        }
+                    });
+                    //去除刷新表格后表头按钮变灰的bug
+                    $(".toptoolbar").removeClass("layui-btn-disabled");
+                },
+                handleDel: function () {
+                    var data = dbTree.getSelected();
+                    var listData = this.getCheckData();
+                    if (listData.length > 0) {
+                        var arr = new Array();
+                        for (var i in listData) {
+                            arr.push(listData[i].id);
+                        }
+                        core.confirm("确定删除选中的记录吗？一旦删除将无法恢复！", function () {
+                            var json = core.postJSON("/sysDynamicFrom/del", {
+                                tableId: data.tableId,
+                                sourceIds: arr.join(",")
+                            });
+                            core.msg(json);
+                            if (json.ok) {
+                                vm.handleTableReload();
+                            }
+                        });
+                    } else {
+                        core.error("请先选择一条记录！");
+                    }
+                },
+                handleEdit: function () {
+                    var data = dbTree.getSelected();
+                    var listData = this.getCheckData();
+                    if (listData.length == 1) {
+                        win.core.openUrlOk("/sysDynamicFrom/edit?tableId=" + data.tableId + "&sourceId=" + listData[0].id, "编辑记录", '80%', '80%', function (body, index) {
+                            var iframeVm = win.window.frames['layui-layer-iframe' + index].window.vm;
+                            var json = iframeVm.handleSave();
+                            if (json.ok) {
+                                win.layer.close(index);
+                                win.core.msg(json);
+                                vm.handleTableReload();
+                            } else {
+                                win.core.msg(json);
+                            }
+                        });
+                    } else if (listData.length == 0) {
+                        core.error("请先选择一条记录！");
+                    } else if (listData.length > 1) {
+                        core.error("请勿选择多条记录！");
+                    }
+                }, handleAdd: function () {
+                    var data = dbTree.getSelected();
+                    win.core.openUrlOk("/sysDynamicFrom/edit?tableId=" + data.tableId + "&sourceId=", "新增记录", '80%', '80%', function (body, index) {
+                        var iframeVm = win.window.frames['layui-layer-iframe' + index].window.vm;
+                        var json = iframeVm.handleSave();
+                        if (json.ok) {
+                            win.layer.close(index);
+                            win.core.msg(json);
+                            vm.handleTableReload();
+                        } else {
+                            win.core.msg(json);
+                        }
+                    });
+                },
+                getCheckData: function () {
+                    return table.checkStatus('listTable').data;
+                }
+            },
+        created: function () {
+            this.initLoad = true;
+        },
+        updated: function () {
+        },
+        mounted: function () {
+            dbTree = new showZtree({
+                el: "#dbTree",
+                url: "/sysDataTable/authTable",
+                data: {id: "id", name: "text"},
+                otherParam: {},
+                onSelect: function (node) {
+                    if (node.type == 0) {
+                        //选择的是表
+                        vm.selectNode = node;
+                        vm.tableType = node.tableType;
+                        vm.filterBoxFields = [];
+                        var json = core.postJSON("/sysDataMaintain/getCols", {tableid: node.id});
+                        listTable.reload({
+                            cols: [json.data],
+                            method: 'post',
+                            url: base + '/sysDataMaintain/listPage',
+                            where: {tableid: node.id, userNameOrRealName: vm.userNameOrRealName, deptIds: vm.deptIds}
+                        });
+                        $(".toptoolbar").removeClass("layui-btn-disabled");
+                    } else {
+                        $(".toptoolbar").addClass("layui-btn-disabled");
+                        return false;
+                    }
+                }
+            });
+            layui.use(['table'], function () {
+                table = layui.table;
+                listTable = table.render({
+                    id: 'listTable',
+                    elem: '#listTable',
+                    page: true,
+                    method: 'post',
+                    height: 'full-40',
+                    limit: 50,
+                    even: true,
+                    size: 'sm',
+                    toolbar: '#topToolbar',
+                    defaultToolbar: ['filter'],
+                    request: {
+                        pageName: 'pageNum',
+                        limitName: 'pageSize',
+                    },
+                    cols: [[
+                        {title: '查询结果', type: 'numbers', width: 150},
+                    ]],
+                });
+                table.on("tool(listTable)", function (obj) {
+                    var data = obj.data, layEvent = obj.event;
+                    if (layEvent == "showAttach") {
+                        var dataField = $(obj.tr).find("div[lay-event=showAttach]").attr("data-field");
+                        core.showAttachList(data[dataField]);
+                    }
+                });
+                table.on("toolbar(listTable)", function (obj) {
+                    var data = obj.data, layEvent = obj.event;
+                    if (!$(this).hasClass("layui-btn-disabled")) {
+                        switch (layEvent) {
+                            case "handleEdit":
+                                vm.handleEdit();
+                                break;
+                            case "handleDel":
+                                vm.handleDel();
+                                break;
+                            case "handleFilter":
+                                vm.handleFilter();
+                                break;
+                            case "handleImport":
+                                vm.handleImport();
+                                break;
+                            case "handleImportAttach":
+                                vm.handleImportAttach();
+                                break;
+                        }
+                    }
+                });
+            });
+        }
+    });
+</script>
+<%}%>

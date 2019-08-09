@@ -1,0 +1,250 @@
+<%
+layout("/layouts/blank.html",{title:"查看编辑"}){
+%>
+<style>
+    .btnNorm{
+        width: 100px !important;
+        font-size: 12px !important;
+        padding: 5px 20px !important;
+        line-height: 18px !important;
+    }
+    .autoHeight:after,.form-col:after{
+        display: block;
+        content: '';
+        clear: both;
+    }
+</style>
+<link rel="stylesheet" href="${base}/static/css/personnel/personnel.css">
+<section class="content" id="userEdit">
+    <div class="layui-tab tab-con">
+        <!--  tab选项卡的渲染  -->
+        <ul class="layui-tab-title personnel-alter" id="personnel-alter">
+            <li v-for="item,index in tab" v-bind:class="[ index == 0 ? 'layui-this' : ' ']">{{item}}</li>
+        </ul>
+        <!--左边的个人资料的展示 和 可编辑的form 操作-->
+        <div class="tab-left" id="info_edit">
+            <img class="info-head" src="${base}/static/img/u431.png" alt="">
+            <div class="info-form" >
+                <form action="" method="post" id="form_info_edit">
+                    <div class="form-col autoHeight" :class="{requiredShow:requiredAlt}">
+                        <label>姓名<span>*</span></label>
+                        <div class="form-group">
+                            <input type="text" v-model="infoData.realName" :readonly="info.infoReadOnly" data-rule="required" :class="[info.infoInput ? 'form-input':' ']" ><!-- v-bind:class="{form-input:infoInput}"-->
+                        </div>
+                    </div>
+                    <div class="form-col autoHeight" :class="{requiredShow:requiredAlt}">
+                        <label>编号<span>*</span></label>
+                        <div class="form-group">
+                            <input type="text" v-model="infoData.staffNumber" :readonly="info.infoReadOnly" data-rule="required" :class="[info.infoInput ? 'form-input':' ']" value="0001"><!--v-bind:class="{form-input:infoInput=false}"-->
+                        </div>
+                    </div>
+                    <div class="form-col autoHeight" :class="{requiredShow:requiredAlt}">
+                        <label>部门<span>*</span></label>
+                        <div class="form-group">
+                            <input @click="fn_selectDept('部门')"  readonly data-rule="required" type="text" class="form-control hide" name="deptId"
+                                   placeholder="部门"  style="cursor:  pointer;"
+                                   v-model="infoData.deptId">
+                            <input @click="fn_selectDept('部门')"  readonly data-rule="required" class="form-control" type="text"
+                                   placeholder="部门"  style="cursor:  pointer;"
+                                   v-model="infoData.groupName" :disabled="info.infoReadOnly" :class="[info.infoInput ? 'form-input':' ']" >
+                        </div>
+                    </div>
+                    <div class="form-col autoHeight" :class="{requiredShow:requiredAlt}"  v-if="infoGroupSelect.Category.length">
+                        <label>岗位</label>
+                        <div class="form-group">
+                            <select  name="category"  class="form-select"  v-model="infoData.category" id="category" :disabled="info.infoReadOnly"   :class="[info.infoInput ? 'form-input':' ']">
+                                <option v-for="item in infoGroupSelect.Category" :value="item.id" v-text="item.name"></option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-col autoHeight" :class="{requiredShow:requiredAlt}">
+                        <label>人员类型<span>*</span></label>
+                        <div class="form-group" :class="[info.infoInput ? 'form-groups':' ']">
+                            ${dict("sys_user_category",false,"form-control,form-select","END",'data-rule="required"','v-model="infoData.staffType"',':disabled="info.infoReadOnly"')}
+                        </div>
+                    </div>
+                    <div class="form-col autoHeight" :class="{requiredShow:requiredAlt}">
+                        <label>入职形式<span>*</span></label>
+                        <div class="form-group" :class="[info.infoInput ? 'form-groups':' ']">
+                            ${dict("sys_user_inductionType",false,"form-control,form-select","END",'data-rule="required"','v-model="infoData.inductionType"',':disabled="info.infoReadOnly"')}
+                        </div>
+                    </div>
+                    <div class="form-col autoHeight"  :class="{requiredShow:requiredAlt}">
+                        <label>入职时间<span>*</span></label>
+                        <div class="form-group">
+                            <input  readonly data-rule="required" class="form-control layui-input" type="text"
+                                   placeholder="入职时间"  style="cursor: pointer;"
+                                   v-model="infoData.employmentDate" :disabled="info.infoReadOnly" id="employmentDate" :class="[info.infoInput ? 'form-input':' ']" >
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="info-btn autoHeight">
+                <button class="btn btn-default btnNorm"   @click="fun_editInfo">{{info.infoEditBtn}}</button>
+                <button class="btn btn-info btnNorm" style="float: right" @click="fun_infoUpData">保存</button>
+            </div>
+        </div>
+        <!--  右边选项卡点击得出的相应内容  -->
+        <div class="layui-tab-content">
+            <div class="layui-tab-item"  v-for="item,index in tab" v-bind:class="[index == 0 ? 'layui-show' : ' ' ]" >
+                <div class="layui-tab-item-con">
+                    内容{{index+1}}
+                    <app-header></app-header>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</section>
+<script>
+    var uid = GetQueryString('uid');    //  得到页面的url传来参数
+    Vue.component('app-header', {
+        template: '<div>A custom component!</div>'
+    })
+    var userEdit= new Vue({
+        el: "#userEdit",
+        data: {
+            tab:['基本信息','转正信息','体检情况','劳动用品','考勤明细','离职情况','见习人员信息','丧葬抚恤金信息','就业会签订信息','新技术业务表','附件信息表','薪资信息','转正信息','体检情况','劳动用品','考勤明细','离职情况','见习人员信息','丧葬抚恤金信息','就业会签订信息','新技术业务表','附件信息表','薪资信息'],
+            info:{
+                infoInput:false,
+                infoReadOnly:true,
+                flag:0,
+                infoEditBtn:"修改"
+            },
+            requiredAlt:false,
+            infoData:{
+                uid: "",
+                groupName:'',
+                deptId:'',
+                age:'',
+                category:'',
+                categoryName:'',
+                staffNumber:'',
+                realName:'',
+                staffType:'0',
+                inductionType:'0',
+                employmentDate:''
+            },
+            infoGroupSelect: {
+                Category:''
+            }
+        },
+        mounted: function () {
+            this.fun_getInfo();
+            this.fun_category(this.infoData.deptId);
+            this.layDateLoad("#employmentDate");
+            this.layDateLoad("#employmentDates");
+        },
+        methods:{
+            //  获取部门下的对应岗位
+            fun_category:function(deptId) {
+                var jsonPast=core.postJSON("/sysOrganize/job/queryByDepartment",{deptId:deptId});
+                if(jsonPast.data){
+                    this.infoGroupSelect.Category=jsonPast.data;
+                }
+            },
+            // loader layDate 插件
+            layDateLoad: function (obj) {
+                layui.use('laydate', function(){
+                    var laydate = layui.laydate;
+                    laydate.render({
+                        elem: obj
+                    });
+                });
+            },
+            //  获取个人资料数据绑定data
+            fun_getInfo: function(){
+                var thas = this;
+                var jsonPast=core.postJSON("/sysAccount/getinfoByid",{uid:uid});
+                if(jsonPast.ok){
+                    data=jsonPast.data;
+                    thas.infoData.uid = data.uid;
+                    thas.infoData.groupName = data.dname;
+                    thas.infoData.deptId = data.deptid;
+                    thas.infoData.category = data.category;
+                    thas.infoData.staffNumber = data.staffnumber;
+                    thas.infoData.realName = data.realName;
+                    thas.infoData.staffType = data.stafftype;
+                    thas.infoData.inductionType = data.inductiontype;
+                    var date = '';
+                    if(!data.employmentdate){
+                        date=data.employmentdate
+                    }else{
+                        date=convertDay(data.employmentdate);
+                    }
+                    thas.infoData.employmentDate = date;
+                }
+
+            },
+            //  修改按钮点击 个人资料可编辑
+            fun_editInfo:function () {
+                var thas=this;
+                thas.fun_reloadInfo();
+            },
+            //  部门点击树
+            fn_selectDept: function (string) {
+                var thas = this;
+                // 部门请求方法
+                core.showMenusSimpleTree({
+                    title: "选择"+string,
+                    url: "/sysOrganize/department/tree",
+                    isCheckbox: false,
+                    data: {id: "id", pid: "pid", name: "name"},
+                    onOk: function (data) {
+                        thas.infoData.deptId=data.id;
+                        thas.infoData.groupName=data.name;
+                        thas.fun_category(thas.infoData.deptId);
+                        return true;
+                    }
+                });
+            },
+            //  左边个人资料的修改保存按钮
+            fun_infoUpData:function () {
+                var thas = this;
+                if(!thas.info.infoReadOnly){
+                    if (core.validate('#form_info_edit')) {
+                        thas.infoData.employmentDate=$("#employmentDate").val();
+                        var formData = core.convertDataJSON(thas.infoData);
+                        var jsonre = core.postJSON("/sysAccount/edit", formData);
+                        if (jsonre.ok) {
+                            //提交完成
+                            thas.fun_reloadInfo();
+                            core.msg(jsonre.msg);
+                        }else{
+                            core.error(jsonre.msg)
+                        }
+                    }
+                }else{
+                    return false;
+                }
+            },
+            //  重置一些控制参数
+            fun_reloadInfo:function () {
+                var thas = this;
+                thas.info.flag++;
+                thas.info.infoReadOnly = !thas.info.infoReadOnly;
+                thas.info.infoInput = !thas.info.infoInput;
+                thas.requiredAlt = !thas.requiredAlt;
+                if(thas.info.flag %2 != 0){
+                    thas.info.infoEditBtn = "取消修改";
+                }else{
+                    thas.info.infoEditBtn = "修改";
+                }
+            }
+        }
+    });
+    layui.use('element', function(){
+        var element = layui.element;
+    });
+    //  获取url上面的参数方法
+    function GetQueryString(name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+        var r = location.search.substr(1).match(reg);
+        if (r != null) return unescape(decodeURI(r[2])); return null;
+    }
+    //  效验日期转换日期
+    function convertDay(date) { // YYYY-MM-DD hh:mm:ss转换为YYYY-MM-DD
+        return date.replace(/ \d+(:\d+){2}/,'');
+    }
+</script>
+<%}%>

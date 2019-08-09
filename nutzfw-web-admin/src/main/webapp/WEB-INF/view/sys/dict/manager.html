@@ -1,0 +1,409 @@
+<%
+var title="数据字典";
+layout("/layouts/blank.html",{title:title}){
+%>
+<style type="text/css">
+    .required {
+        color: red;
+    }
+
+    .tips {
+        font-size: 12px;
+        color: #666666
+    }
+</style>
+<section class="content-header">
+    <h1>
+        ${title}
+        <small>控制面板</small>
+    </h1>
+</section>
+<section class="content" id="container" v-if="initLoad" style="height: 95%;overflow: hidden">
+    <div class="col-md-4 col-sm-4" style="height: 100%;overflow: hidden">
+        <div style="height: 35px;">
+            <%if(so.hasPermission("sysDict.saveOrUpdate")){%>
+            <div class="layui-btn layui-btn-sm layui-btn-normal" v-if="canAdd" @click="handleAdd">新增</div>
+            <div class="layui-btn layui-btn-sm layui-btn-normal layui-btn-disabled" v-if="!canAdd">新增</div>
+            <div class="layui-btn layui-btn-sm layui-btn-normal" v-if="selectNode!=undefined && canEdit"
+                 @click="handleEdit">
+                编辑
+            </div>
+            <%}%>
+            <%if(so.hasPermission("sysDict.del")){%>
+            <div class="layui-btn layui-btn-sm layui-btn-normal" v-if="selectNode!=undefined && canEdit"
+                 @click="handleDel">
+                删除
+            </div>
+            <%}%>
+        </div>
+        <div id='ztree_searchbox' style='position: relative;display: block;height: 35px'>
+            <div class='ztree_searchbox'
+                 style='padding: 2px;background:#fff;display: block;height: 35px;overflow: hidden;width: 100%'>
+                <input type=text class=form-control placeholder='模糊查询快速定位' v-model="searchKey"
+                       style='display: inline-block;width: 55%;height: 33px;'>
+                <input @click="fn_searchDeptNode" type='button' value='快速定位'
+                       id='ztree_search_btn_1'
+                       style='display: inline-block;height: 33px;border-radius: 4px;width: 30%;margin-top: -4px;'
+                       class='btn btn-info btn-sm'>
+            </div>
+        </div>
+        <div style="height: 90%;overflow: auto;">
+            <div id="dictTree" class="ztree"></div>
+        </div>
+    </div>
+    <div class="col-md-8 col-sm-8" style="margin-top: 35px ">
+        <div class="from-box">
+            <form class="form-horizontal" id="form1">
+                <div class="box-body box box-warning">
+                    <div class="form-grou" v-if="fromData.pid!=0">
+                        <label>上级：</label>
+                        <input type="text" v-model="fromData.pLable" class="form-control input-sm" readonly>
+                    </div>
+                    <div class="form-grou">
+                        <label>字典名称：<span class="required">*</span></label>
+                        <input type="text" v-model="fromData.lable" class="form-control input-sm"
+                               :disabled="!fromDataEdit" placeholder="字典名称-中文">
+                    </div>
+                    <div class="form-grou" style="margin: 10px 0px 10px 0px">
+                        <label>字典分组（虚拟节点）：<span class="required">*</span></label>
+                        <div style="display: inline-block;padding-right: 20px">
+                            <input type="radio" class="magic-radio" id="grouping0" :disabled="!fromDataEdit"
+                                   v-model="fromData.grouping"
+                                   value="true">
+                            <label for="grouping0">是</label>
+                        </div>
+                        <div style="display: inline-block">
+                            <input type="radio" class="magic-radio" id="grouping1" :disabled="!fromDataEdit"
+                                   v-model="fromData.grouping"
+                                   value="false">
+                            <label for="grouping1">否</label>
+                        </div>
+                    </div>
+                    <div class="form-grou" v-if="fromData.grouping=='true'">
+                        <label>系统唯一编码：<span class="required">*</span></label>
+                        <input type="text" v-model="fromData.sysCode" :disabled="!fromDataEdit"
+                               class="form-control input-sm"
+                               placeholder="字典唯一CODE 英文、下划线、数字">
+                    </div>
+                    <div class="form-grou" v-if="fromData.grouping=='false'">
+                        <label>字典键值：<span class="required">*</span></label>
+                        <input type="text" v-model="fromData.val" class="form-control input-sm"
+                               :disabled="!fromDataEdit" placeholder="">
+                    </div>
+                    <div class="form-grou">
+                        <label>字典排序：<span class="required">*</span></label>
+                        <input type="text" v-model="fromData.shortNo" class="form-control input-sm"
+                               :disabled="!fromDataEdit" placeholder="字典名称-中文">
+                    </div>
+                    <div class="form-grou" style="margin: 10px 0px 10px 0px" v-if="fromData.grouping=='true'">
+                        <label>展示方式：</label>
+                        <div style="display: inline-block;padding-right: 20px">
+                            <input type="radio" class="magic-radio" id="showType0" :disabled="!fromDataEdit"
+                                   v-model="fromData.showType"
+                                   value="0">
+                            <label for="showType0">下拉框</label>
+                        </div>
+                        <div style="display: inline-block">
+                            <input type="radio" class="magic-radio" id="showType3" :disabled="!fromDataEdit"
+                                   v-model="fromData.showType"
+                                   value="3">
+                            <label for="showType3">树形字典</label>
+                        </div>
+                        <div style="display: inline-block">
+                            <input type="radio" class="magic-radio" id="showType1" :disabled="!fromDataEdit"
+                                   v-model="fromData.showType"
+                                   value="1">
+                            <label for="showType1">单选框</label>
+                        </div>
+                        <div style="display: inline-block">
+                            <input type="radio" class="magic-radio" id="showType2" :disabled="!fromDataEdit"
+                                   v-model="fromData.showType"
+                                   value="2">
+                            <label for="showType2">复选框</label>
+                        </div>
+                        <div class="tips">
+                            <span>推荐：单选使用下拉、复选使用树形</span><br>
+                            不推荐：大于字典项3个及以上不建议使用（单选、复选）- 不建议使用（容易影响网页布局）
+                        </div>
+                    </div>
+                    <div class="form-grou">
+                        <label>字典描述：</label>
+                        <textarea v-model="fromData.mark" class="form-control input-sm" :disabled="!fromDataEdit"
+                                  placeholder="描述" style="resize: vertical"></textarea>
+                    </div>
+                    <div v-if="fromData.grouping=='false'">
+                        <div class="form-grou">
+                            <label>附加值1：</label>
+                            <input type="text" class="form-control input-sm"
+                                   :disabled="!fromDataEdit" v-model="fromData.extra1">
+                        </div>
+                        <div class="form-grou" v-if="fromData.grouping=='false'">
+                            <label>附加值2：</label>
+                            <input type="text" class="form-control input-sm"
+                                   :disabled="!fromDataEdit" v-model="fromData.extra2">
+                        </div>
+                        <div class="form-grou" v-if="fromData.grouping=='false'" style="padding: 10px 0px;">
+                            <div v-if="!showExtra" class="layui-btn layui-btn-sm layui-btn-normal"
+                                 @click="handleShowExtra">展开更多附加值
+                            </div>
+                            <div v-if="showExtra" class="layui-btn layui-btn-sm layui-btn-normal"
+                                 @click="handleShowExtra">收起
+                            </div>
+                        </div>
+                    </div>
+                    <div v-if="showExtra" style="height: 170px;overflow-y: auto;">
+                        <div class="form-grou" v-if="fromData.grouping=='false'">
+                            <label>附加值3：</label>
+                            <input type="text" class="form-control input-sm"
+                                   :disabled="!fromDataEdit" v-model="fromData.extra3">
+                        </div>
+                        <div class="form-grou" v-if="fromData.grouping=='false'">
+                            <label>附加值4：</label>
+                            <input type="text" class="form-control input-sm"
+                                   :disabled="!fromDataEdit" v-model="fromData.extra4">
+                        </div>
+                        <div class="form-grou" v-if="fromData.grouping=='false'">
+                            <label>附加值5：</label>
+                            <input type="text" class="form-control input-sm"
+                                   :disabled="!fromDataEdit" v-model="fromData.extra5">
+                        </div>
+                        <div class="form-grou" v-if="fromData.grouping=='false'">
+                            <label>附加值6：</label>
+                            <input type="text" class="form-control input-sm"
+                                   :disabled="!fromDataEdit" v-model="fromData.extra6">
+                        </div>
+                        <div class="form-grou" v-if="fromData.grouping=='false'">
+                            <label>附加值7：</label>
+                            <input type="text" class="form-control input-sm"
+                                   :disabled="!fromDataEdit" v-model="fromData.extra7">
+                        </div>
+                        <div class="form-grou" v-if="fromData.grouping=='false'">
+                            <label>附加值8：</label>
+                            <input type="text" class="form-control input-sm"
+                                   :disabled="!fromDataEdit" v-model="fromData.extra8">
+                        </div>
+                        <div class="form-grou" v-if="fromData.grouping=='false'">
+                            <label>附加值9：</label>
+                            <input type="text" class="form-control input-sm"
+                                   :disabled="!fromDataEdit" v-model="fromData.extra9">
+                        </div>
+                        <div class="form-grou" v-if="fromData.grouping=='false'">
+                            <label>附加值10：</label>
+                            <input type="text" class="form-control input-sm"
+                                   :disabled="!fromDataEdit" v-model="fromData.extra10">
+                        </div>
+                    </div>
+                    <div class="form-group" style="text-align: center;padding: 10px 0px; ">
+                        <%if(so.hasPermission("sysDict.saveOrUpdate")){%>
+                        <div class="layui-btn layui-btn-sm layui-btn-normal" v-if="fromDataEdit"
+                             @click="handleAddOredit">提交保存
+                        </div>
+                        <%}%>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+<script type="text/javascript">
+    var dictTree, parentId, vm = new Vue({
+        el: '#container',
+        data: {
+            fromData: {
+                id: "",
+                pLable: "",
+                pid: "",
+                sysCode: "",
+                lable: "",
+                val: "",
+                shortNo: "0",
+                defaultVal: 'false',
+                mark: "",
+                showType: "0",
+                internal: 'false',
+                grouping: 'true',
+                extra1: '',
+                extra2: '',
+                extra3: '',
+                extra4: '',
+                extra5: '',
+                extra6: '',
+                extra7: '',
+                extra8: '',
+                extra9: '',
+                extra10: '',
+            },
+            fromDataSubmit: false,
+            fromDataEdit: false,
+            initLoad: false,
+            dictTree: false,
+            canAdd: true,
+            canEdit: true,
+            selectNode: undefined,
+            showExtra: false,
+            searchKey: ""
+        },
+        methods: {
+            fn_searchDeptNode: function () {
+                core.showZtreeSearch(dictTree, vm.searchKey, "lable");
+            },
+            handleAdd: function () {
+                this.fromDataEdit = true;
+                if (vm.selectNode != undefined) {
+                    this.fromData.pid = vm.selectNode.id;
+                    this.fromData.pLable = vm.selectNode.lable;
+                    this.fromData.id = 0;
+                    this.fromData.sysCode = "";
+                    this.fromData.lable = "";
+                    this.fromData.val = "";
+                    this.fromData.shortNo = 0;
+                    this.fromData.defaultVal = 'false';
+                    this.fromData.mark = "";
+                    this.fromData.showType = 0;
+                    this.fromData.internal = 'false';
+                    this.fromData.extra1 = '';
+                    this.fromData.extra2 = '';
+                    this.fromData.extra3 = '';
+                    this.fromData.extra4 = '';
+                    this.fromData.extra5 = '';
+                    this.fromData.extra6 = '';
+                    this.fromData.extra7 = '';
+                    this.fromData.extra8 = '';
+                    this.fromData.extra9 = '';
+                    this.fromData.extra10 = '';
+                    var node = vm.selectNode.getParentNode() || vm.selectNode;
+                    this.fromData.grouping = !node.grouping + '';
+                }
+            },
+            handleEdit: function () {
+                this.fromDataEdit = true;
+            },
+            handleShowExtra: function () {
+                if (this.showExtra) {
+                    this.showExtra = false;
+                } else {
+                    this.showExtra = true;
+                }
+            },
+            handleAddOredit: function () {
+                if (this.fromDataSubmit == false) {
+                    this.fromDataSubmit = true;
+                    var fromData = core.convertDataJSON(this.fromData);
+                    var jsonre = core.postJSON("/sysDict/saveOrUpdate", fromData);
+                    core.msg(jsonre);
+                    this.fromDataSubmit = false;
+                    if (jsonre.ok) {
+                        this.reloadTree(jsonre.data);
+                    }
+                }
+            },
+            handleDel: function () {
+                this.fromDataSubmit = true;
+                var jsonre = core.postJSON("/sysDict/del", {id: this.fromData.id});
+                this.fromDataSubmit = false;
+                core.msg(jsonre);
+                if (jsonre.ok) {
+                    vm.selectNode = vm.selectNode.getParentNode();
+                    this.reloadTree(jsonre.data);
+                }
+            },
+            reloadTree: function (selectId) {
+                dictTree.reload(selectId);
+            },
+            loadTree: function (selectId) {
+                dictTree = new showZtree({
+                    el: "#dictTree",
+                    url: "/sysDict/all",
+                    data: {id: "id", pid: "pid", name: "lable"},
+                    selectId: selectId,
+                    edit: {
+                        drag: {
+                            autoExpandTrigger: true,
+                            inner: false,
+                        },
+                        enable: true,
+                        showRemoveBtn: false,
+                        showRenameBtn: false
+                    },
+                    beforeDrag: function (treeId, treeNodes) {
+                        for (var i = 0, l = treeNodes.length; i < l; i++) {
+                            parentId = treeNodes[i].pid;
+                            if (treeNodes[i].drag === false) {
+                                return false;
+                            }
+                        }
+                        return true;
+                    },
+                    beforeDrop: function (treeId, treeNodes, targetNode) {
+                        return targetNode.pid == parentId;
+                    },
+                    onDrop: function (event, treeId, treeNodes) {
+                        var parentNode = treeNodes[0].getParentNode();
+                        var nodes = {};
+                        if (parentNode != null) {
+                            nodes = parentNode.children;
+                        } else {
+                            nodes = dictTree.getNodesByParam("pid", 0);
+                        }
+                        var arr = {};
+                        for (var i in nodes) {
+                            arr[nodes[i].id] = i;
+                        }
+                        $.ajax({
+                            url: base + "/sysDict/sort",
+                            type: "POST",
+                            async: true,
+                            error: function () {
+                                layer.msg("网络连接出错", {icon: 5, time: 1000});
+                            },
+                            data: arr,
+                            dataType: "json",
+                            success: function (data) {
+                                core.msg(data);
+                            }
+                        });
+                    },
+                    onSelect: function (node) {
+                        vm.selectNode = node;
+                        if (node != undefined) {
+                            vm.fromDataEdit = false;
+                            vm.fromData.id = node.id;
+                            vm.fromData.pid = node.pid;
+                            if (node.getParentNode()) {
+                                vm.fromData.pLable = node.getParentNode().lable;
+                            }
+                            vm.fromData.sysCode = node.sysCode;
+                            vm.fromData.lable = node.lable;
+                            vm.fromData.val = node.val;
+                            vm.fromData.shortNo = node.shortNo;
+                            vm.fromData.defaultVal = node.defaultVal + '';
+                            vm.fromData.mark = node.mark;
+                            vm.fromData.showType = node.showType;
+                            vm.fromData.internal = node.internal + '';
+                            vm.fromData.grouping = node.grouping + '';
+                            vm.fromData.extra1 = node.extra1;
+                            vm.fromData.extra2 = node.extra2;
+                            vm.fromData.extra3 = node.extra3;
+                            vm.fromData.extra4 = node.extra4;
+                            vm.fromData.extra5 = node.extra5;
+                            vm.fromData.extra6 = node.extra6;
+                            vm.fromData.extra7 = node.extra7;
+                            vm.fromData.extra8 = node.extra8;
+                            vm.fromData.extra9 = node.extra9;
+                            vm.fromData.extra10 = node.extra10;
+                            vm.canAdd = node.grouping;
+                            vm.canEdit = node.edit;
+                        }
+                    }
+                });
+            }
+        },
+        created: function () {
+            this.initLoad = true;
+        },
+        mounted: function () {
+            this.loadTree();
+        }
+    });
+</script>
+<%}%>

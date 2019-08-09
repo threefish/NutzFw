@@ -1,0 +1,148 @@
+<%
+var title="选择";
+layout("/layouts/blank.html",{title:title}){
+%>
+<style type="text/css">
+</style>
+<section class="content" id="container" v-if="initLoad" style="padding:5px 5px 0px  5px;">
+    <div style="height: 40px" v-if="config.openSearch">
+        <input :placeholder="config.placeholder" @keyup="handleSearchTable" type="text" v-model="config.keyword"
+               class="form-control">
+    </div>
+    <div style="background: #ffffff">
+        <div id="listTable" lay-filter='listTable'></div>
+    </div>
+</section>
+<script type="text/html" id="toolBarFixed">
+    <div class="layui-btn layui-btn-xs layui-btn-normal" lay-event="chose">选择</div>
+</script>
+<script type="text/javascript">
+    var listTable, table, form;
+    var vm = new Vue({
+        el: '#container',
+        data: {
+            config: {
+                keyword: '',
+                placeholder: '查询条件',
+                checkbox: false,
+                key: '',
+                url: "",
+                method: "post",
+                param: {},
+                key: "key",
+                cols: [],
+                selectPrimaryKey: "",
+                selectPrimaryValues: "",
+                openSearch: true,
+            },
+            fromData: {},
+            initLoad: false,
+            searchData: function () {
+                var param = this.config.param;
+                if (this.config.key != '' && this.config.key != null && this.config.key != undefined) {
+                    param[this.config.key] = this.config.keyword;
+                }
+                return param;
+            }
+        },
+        methods: {
+            handleSearchTable: function () {
+                listTable.reload({
+                    where: vm.searchData(),
+                    page: {curr: 1}
+                });
+            },
+            getChoseData: function () {
+                return table.checkStatus('listTable').data
+            },
+            handleCheckSelectPrimaryValues: function (val) {
+                //验证是否是已经选择的数据
+                var arr = this.config.selectPrimaryValues.split(",")
+                for (var i in arr) {
+                    var temp = arr[i];
+                    if (val == temp) {
+                        return true;
+                    }
+                }
+                return false;
+            },
+            handleInit: function () {
+                var cols = [];
+                cols.push({type: this.config.checkbox ? 'checkbox' : 'radio', fixed: 'left'});
+                var tempCols = this.config.cols;
+                if (tempCols.length == 0) {
+                    cols.push({title: '序号', type: 'numbers', width: 50});
+                    cols.push({field: 'text', title: '名称'});
+                }
+                for (var i in tempCols) {
+                    cols.push(tempCols[i]);
+                }
+                layui.use(['table', 'form'], function () {
+                    table = layui.table;
+                    form = layui.form;
+                    listTable = table.render({
+                        id: 'listTable',
+                        elem: '#listTable',
+                        method: vm.config.method,
+                        url: base + vm.config.url,
+                        height: vm.config.openSearch ? 'full-70' : 'full-30',
+                        page: true,
+                        request: {
+                            pageName: 'pageNum',
+                            limitName: 'pageSize',
+                        },
+                        even: false,
+                        size: 'sm',
+                        where: vm.searchData(),
+                        cols: [cols],
+                        parseData: function (res) {
+                            var data = [];
+                            for (var i in res.data) {
+                                var temp = res.data[i];
+                                if (vm.handleCheckSelectPrimaryValues(temp[vm.config.selectPrimaryKey])) {
+                                    temp.LAY_CHECKED = true;
+                                }
+                                data.push(temp);
+                            }
+                            res.data = data;
+                            return res;
+                        },
+                        done: function (data) {
+                        }
+                    });
+                    table.on('row(listTable)', function (obj) {
+                        var index = obj.tr.data('index')
+                        obj.tr.addClass('layui-table-click').siblings().removeClass('layui-table-click');
+                        if (vm.config.checkbox) {
+                            var layTableCheckbox = obj.tr.find('input[name="layTableCheckbox"]');
+                            var thatChecked = layTableCheckbox.prop("checked");
+                            layTableCheckbox.prop("checked", (!thatChecked))
+                            layui.each(table.cache['listTable'], function (i, item) {
+                                if (index === i) {
+                                    item.LAY_CHECKED = !thatChecked;
+                                }
+                            });
+                            form.render('checkbox');
+                        } else {
+                            obj.tr.find('input[lay-type="layTableRadio"]').prop("checked", true);
+                            layui.each(table.cache['listTable'], function (i, item) {
+                                if (index === i) {
+                                    item.LAY_CHECKED = true;
+                                } else {
+                                    delete item.LAY_CHECKED;
+                                }
+                            });
+                            form.render('radio');
+                        }
+                    });
+                });
+            }
+        },
+        created: function () {
+            this.initLoad = true;
+        },
+        mounted: function () {
+        }
+    });
+</script>
+<%}%>

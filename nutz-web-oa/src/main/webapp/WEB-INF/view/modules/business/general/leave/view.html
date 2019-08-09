@@ -1,0 +1,124 @@
+<!--自定义样式----开始-->
+<style>
+</style>
+<!--自定义样式---结束-->
+<div class="form-horizontal" id="form">
+    <!-- 自定义表单区域---开始 -->
+    <div class="form">
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="form-group">
+                    <label class="control-label col-sm-2">
+                        请假类型： </label>
+                    <div class="col-sm-10">
+                        ${dict("holiday_types",false,"form-control","END",'v-model=formData.leaveType','disabled')}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="form-group">
+                    <label class="control-label col-sm-2">
+                        开始时间：</label>
+                    <div class="col-sm-10">
+                        <input class="form-control required" d-format="yyyy-MM-dd HH:mm"
+                               d-name="formData.startTime"
+                               d-type="datetime" disabled readonly type="text"
+                               v-model="formData.startTime">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="form-group">
+                    <label class="control-label col-sm-2">
+                        结束时间：</label>
+                    <div class="col-sm-10">
+                        <input class="form-control required" d-format="yyyy-MM-dd HH:mm"
+                               d-name="formData.endTime"
+                               d-type="datetime" disabled readonly type="text"
+                               v-model="formData.endTime">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="form-group">
+                    <label class="control-label col-sm-2">
+                        请假原因：
+                    </label>
+                    <div class="col-sm-10">
+                        <textarea class="form-control required" disabled v-model="formData.reason"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="form-group">
+                    <label class="control-label col-sm-2">
+                        部门领导意见：
+                    </label>
+                    <div class="col-sm-10">
+                        <textarea class="form-control required" disabled v-model="formData.deptLeadText"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="form-group">
+                    <label class="control-label col-sm-2">
+                        人事部门意见：
+                    </label>
+                    <div class="col-sm-10">
+                        <textarea class="form-control required" disabled v-model="formData.hrText"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="form-group">
+                    <label class="control-label col-sm-2">
+                        总经理意见：
+                    </label>
+                    <div class="col-sm-10">
+                        <textarea class="form-control required" disabled v-model="formData.generalMmanagerText"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 自定义表单区域--- 结束 -->
+</div>
+<script>
+    var form = new Vue({
+        el: '#form',
+        data: {
+            formData: {
+                id: '${data.flow.businessId}',
+                leaveType:'',
+                startTime:'',
+                endTime:'',
+                reason:''
+            },
+        },
+        methods: {
+            /**
+             * 页面加载完成之后执行初始化
+             * **/
+            handleInitAfter: function () {
+                console.log("handleInitAfter")
+            },
+        },
+        created: function () {
+        },
+        mounted: function () {
+
+        }
+    });
+</script>

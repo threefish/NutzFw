@@ -1,0 +1,297 @@
+<%
+var title="写邮件";
+layout("/layouts/blank.html",{title:title}){
+%>
+<style type="text/css">
+    .dataTbleBox {
+        background: #ffffff;
+        margin: 15px 0px;
+        padding: 15px;
+    }
+    tr {
+        height: 40px;
+    }
+
+
+
+    td {
+        padding: 4px 8px;
+    }
+
+    thead {
+        background: #ECE8E8;
+    }
+
+    .col-sm-7 {
+        margin: 0px;
+        padding: 0px;
+    }
+
+    .user-form-lable {
+        width: 80px;
+        padding: 5px;
+        margin: 0;
+    }
+
+    .form-news-add-btn {
+        width: 120px;
+    }
+
+    .form-lable {
+        width: 80px;
+        text-align: right;
+        line-height: 34px;
+    }
+
+    .attachlist {
+        height: 175px;
+        overflow-y: scroll;
+        display: none;
+    }
+
+    .attachlist-data {
+        list-style: none;
+        height: 35px;
+        line-height: 35px;
+        border-bottom: 1px #AFA1A1 dashed;
+        font-size: 13px;
+    }
+
+    .attachlist img {
+        width: 18px;
+        height: 18px;
+        margin: 0px 5px;
+    }
+
+    .attach-add {
+        margin-left: 15px;
+        margin-right: 5px;
+        cursor: pointer;
+    }
+
+    .attach-del {
+        margin: 5px;
+        cursor: pointer;
+    }
+
+    #editor {
+        width: 100%;
+    }
+    #edui1_iframeholder{
+        height: 370px!important;
+    }
+
+    .box.box-primary{
+        border-top: none;
+        box-shadow: none;
+    }
+</style>
+<script type="text/javascript">
+    $(function () {
+        $('.top-bar a.new').addClass("active");
+    });
+</script>
+<link rel="stylesheet" href="${base}/static/plugins/webuploader/css/webuploader.css">
+<script type="text/javascript" charset="utf-8">
+    var attachmodule = "message";
+</script>
+<script type="text/javascript" charset="utf-8" src="${base}/static/plugins/ueditor/ueditor.config.js"></script>
+<script type="text/javascript" charset="utf-8" src="${base}/static/plugins/ueditor/ueditor.all.js"></script>
+<script type="text/javascript" charset="utf-8" src="${base}/static/plugins/ueditor/lang/zh-cn/zh-cn.js"></script>
+<section class="content content2" style="overflow: auto;width: 100%;height: 100%;padding-bottom: 54px">
+    <div class="row" style="display: block;width: 100%;margin: 0 auto">
+        <div class="box box-primary">
+            <form role="form" id="emailaddfrom" method="post" class="form">
+                <div class="box-body">
+                    <div class="form-group">
+                        <table style="width: 100%">
+                            <tr>
+                                <td class="form-lable">收信人:</td>
+                                <td >
+                                    <div class="input-group" style="width: 100%;">
+                                        <input type="text" class="form-control" name="mail.to" placeholder="多个邮箱逗号隔开"  id="toSend">
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="form-lable"><i class="fa fa-chevron-circle-right" onclick="showHide(this)" id="i"></i> 抄送:</td>
+                                <td >
+                                    <div class="input-group" style="width: 100%;">
+                                        <input type="text" class="form-control" name="mail.cc" placeholder="多个邮箱逗号隔开" id="cc">
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr style="display: none" id="ms">
+                                <td class="form-lable">密送:</td>
+                                <td >
+                                    <div class="input-group" style="width: 100%;">
+                                        <input type="text" class="form-control" name="mail.bcc"  placeholder="多个邮箱逗号隔开" id="bcc">
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="form-lable">主题:</td>
+                                <td >
+                                    <div class="input-group" style="width: 100%;">
+                                        <input type="text" class="form-control" name="mail.subject" id="subject">
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="form-lable">定时发送:</td>
+                                <td >
+                                    <div class="input-group" style="width: 100%;">
+                                        <input type="text" style="width: 50%" class="form-control" name="mail.taskTime"  id="taskTime" readonly>
+                                        &nbsp;&nbsp;<span style="color: red;line-height: 30px" id="warm">*不定时发送不用填写</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="form-lable" style="vertical-align: top">通知内容:</td>
+                                <td colspan="3">
+                                    <script id="editor" name="mail.htmlMsg"  type="text-alignt/plain"></script>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div style="text-align: center;position: absolute;bottom: 20px;width: 100%;left: 0;background: #fff;z-index: 1000" id="btnDiv">
+            <input type="button" value="确定" onclick="submitPostFrom()"
+                   class="btn form-news-add-btn btn-primary  margin blue1"/>
+            <input type="button" value="预览" class="btn form-news-add-btn btn-success margin blue1"
+                   onclick="preview()"/>
+            <input type="reset" onclick="ue.setContent('')" value="重置"
+                   class="btn form-news-add-btn  btn-danger margin redBtn1"/>
+
+        </div>
+    </div>
+</section>
+<script type="text/javascript">
+    var ue;
+    var type = '${type}';
+    $(function ($) {
+        ue = UE.getEditor('editor', {
+        toolbars: [${UE_ALL_TOOL}],
+        autoHeightEnabled: true,
+        autoFloatEnabled: true,
+        initialFrameWidth: "100%",
+        elementPathEnabled:false
+        });
+    });
+
+    if (type == 2){
+        var id = '${id}';
+        $.ajax({
+            url: base + '/sysEmail/viewEmail',
+            type: "POST",
+            data: {id: id},
+            error: function (request) {
+                layer.msg("网络连接出错", {icon: 5, time: 1000});
+            },
+            dataType: "json",
+            success: function (data) {
+                if (data && data.ok) {
+//                    console.log(data.data.htmlMsg);
+                    $("#toSend").val(data.data.to);
+                    $("#cc").val(data.data.cc);
+                    $("#bcc").val(data.data.bcc);
+                    $("#subject").val(data.data.subject);
+                    $("#taskTime").val(data.data.taskTime);
+                    $("#warm").hide();
+                    $("#btnDiv").hide();
+                    $("#ms").show();
+                    $("#toSend").removeAttr("placeholder");
+                    $("#cc").removeAttr("placeholder");
+                    $("#bcc").removeAttr("placeholder");
+                    $("#toSend").attr("readonly","readonly");
+                    $("#cc").attr("readonly","readonly");
+                    $("#bcc").attr("readonly","readonly");
+                    $("#subject").attr("readonly","readonly");
+                    $("#taskTime").attr("disabled","disabled");
+                    $("#i").removeClass("fa-chevron-circle-right");
+                    $("#i").removeClass("fa-chevron-circle-down");
+                    ue.ready(function() {
+                        ue.setContent(data.data.htmlMsg);
+                        ue.setDisabled();
+                    });
+                } else {
+                    layer.msg(data.msg, {icon: 7, time: 2000});
+                }
+            }
+        })
+    }
+
+    var flag=0;
+    function showHide(obj){
+        flag++;
+        if (flag%2 != 0){
+            $(obj).addClass("fa-chevron-circle-down");
+            $(obj).removeClass("fa-chevron-circle-right");
+            $("#ms").show();
+        }else {
+            $(obj).addClass("fa-chevron-circle-right");
+            $(obj).removeClass("fa-chevron-circle-down");
+            $("#ms").hide();
+        }
+    }
+
+    /**
+     *预览
+     */
+    function preview() {
+        ue.execCommand('preview');
+    }
+
+    /*时间选择*/
+    layui.use('laydate', function(){
+        var laydate = layui.laydate;
+        //执行一个laydate实例
+        laydate.render({
+            elem: '#taskTime' //指定元素
+            ,type: 'datetime'
+            ,format:'yyyy-MM-dd HH:mm:ss'
+            ,position:'fixed'
+            ,btns: ['clear', 'confirm']
+        });
+    });
+
+    function submitPostFrom() {
+        layer.confirm('确定发送？', {
+            btn: ['确定', '取消'] //按钮
+        },function (index, layero) {
+            var toSend = $("#toSend").val();//收信人
+
+            if (toSend == null || toSend == ''){
+
+                parent.layer.msg("收信人不能为空", {icon: 5, time: 1000});
+                return false;
+            }
+//            console.log(ue.getContent);
+            if (ue.getPlainTxt() == '' || ue.getPlainTxt() == null){
+                parent.layer.msg("邮件内容不能为空", {icon: 5, time: 1000});
+                return false;
+            }
+            $.ajax({
+                url: base + '/sysEmail/sendEmail',
+                type: "POST",
+                data: $('#emailaddfrom').serialize(),
+                dataType: "json",
+                success: function (data) {
+                    if (data && data.ok) {
+                        layer.msg(data.msg, {icon: 1,time:1000});
+                        setTimeout(function () {
+                            parent.layer.closeAll();
+                        },1000)
+                    } else {
+                        layer.msg(data.msg, {icon: 7, time: 2000});
+                    }
+                },error: function (request) {
+                    layer.msg("网络连接出错", {icon: 5, time: 1000});
+                }
+            })
+        })
+    }
+</script>
+<%}%>

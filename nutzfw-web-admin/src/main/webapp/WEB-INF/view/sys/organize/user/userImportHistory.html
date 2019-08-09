@@ -1,0 +1,96 @@
+<%
+var title="用户导入历史";
+layout("/layouts/blank.html",{title:title}){
+%>
+<style type="text/css">
+
+</style>
+<section class="content-header">
+    <h1>
+        ${title}
+        <small>控制面板</small>
+    </h1>
+</section>
+<section class="content autoHeight" id="container">
+    <div class="col-sm-12">
+        <div id="historyTable" lay-filter='historyTable'></div>
+    </div>
+</section>
+<script type="text/html" id="toolBarFixed">
+    <div class="layui-btn layui-btn-sm layui-btn-normal" lay-event="download">下载查看</div>
+</script>
+<script type="text/javascript">
+    var historyTable;
+    var vm = new Vue({
+        el: '#container',
+        data: {},
+        methods: {},
+        created: function () {
+        },
+        updated: function () {
+        },
+        mounted: function () {
+            layui.use(['table', 'laytpl'], function () {
+                table = layui.table;
+                listTable = table.render({
+                    id: 'historyTable',
+                    elem: '#historyTable',
+                    page: true,
+                    method: 'post',
+                    url: base + '/sysUserImport/listPage',
+                    height: 'full-80',
+                    limit: 50,
+                    even: true,
+                    request: {
+                        pageName: 'pageNum',
+                        limitName: 'pageSize',
+                    },
+                    where: {},
+                    cols: [[
+                        {title: '序号', type: 'numbers', width: 50},
+                        {field: 'opAt', title: '导入时间'},
+                        {field: 'userDesc', title: '操作人'},
+                        {field: 'consuming', title: '耗时'},
+                        {
+                            field: 'status', title: '状态', templet: function (row) {
+                            var status = row.staus;
+                            switch (status) {
+                                case 0:
+                                    return "待检查";
+                                    break;
+                                case 1:
+                                    return "检查中";
+                                    break;
+                                case 2:
+                                    return '<div style="color:red">检查失败</div>';
+                                    break;
+                                case 3:
+                                    return "导入中";
+                                    break;
+                                case 4:
+                                    return '<div style="color:green">导入成功</div>';
+                                    break;
+                                case 5:
+                                    return '<div style="color:red">导入失败</div>';
+                                    break;
+                                default:
+                                    return "1"
+                            }
+                        }
+                        },
+                        {field: 'errMsg', title: '错误信息'},
+                        {title: '操作', align: 'center', width: 300, fixed: 'right', toolbar: '#toolBarFixed'},
+                    ]],
+                });
+                table.on("tool(historyTable)", function (obj) {
+                    var data = obj.data, layEvent = obj.event;
+                    if (layEvent == "download") {
+                        window.open("${base}/sysUserImport/downTemplate?attachId="+data.attachId, "_blank");
+                    }
+                });
+            });
+        }
+    });
+
+</script>
+<%}%>

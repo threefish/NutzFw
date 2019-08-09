@@ -1,0 +1,68 @@
+<%
+var title="用户登录日志";
+layout("/layouts/blank.html",{title:title}){
+%>
+<section class="content-header">
+    <h1>
+        ${title}
+        <small>控制面板</small>
+    </h1>
+</section>
+<section class="content">
+    <div style="background: #ffffff">
+        <div id="loginLogTable" lay-filter='loginLogTable'></div>
+    </div>
+</section>
+<script type="text/javascript">
+    new Vue({
+        data: {},
+        methods: {
+            layuiInit: function () {
+                layui.use('table', function () {
+                    var table = layui.table; //表格
+                    table.render({
+                        id: 'loginLogTable',
+                        elem: '#loginLogTable',
+                        page: true,
+                        method: 'post',
+                        url: base + "/sysLogs/loginLogListData",
+                        limit: 50,
+                        height: 720,
+                        request: {
+                            pageName: 'pageNum',
+                            limitName: 'pageSize',
+                        },
+                        where: {},
+                        cols: [[
+                            {title: '序号', type: 'numbers', align: 'center'},
+                            {field: 'username', title: '登录名', align: 'center'},
+                            {
+                                field: 'type', title: '登录类型', align: 'center', templet: function (data) {
+                                    if (data.type == 'web') {
+                                        return "电脑端"
+                                    } else if (data.type == 'app') {
+                                        return "移动端"
+                                    } else if (data.type == 'QrLogin') {
+                                        return "扫码登录"
+                                    }
+                                }
+                            },
+                            {field: 'ip', title: '登录ip', align: 'center'},
+                            {field: 'os', title: '操作系统', align: 'center'},
+                            {field: 'browser', title: '浏览器', align: 'center'},
+                            {field: 'opat', title: '登录时间', align: 'center'}
+                        ]]
+                    });
+                });
+            }
+        },
+        created: function () {
+            this.layuiInit();
+        },
+        updated: function () {
+        },
+        mounted: function () {
+        }
+    });
+</script>
+<%}%>

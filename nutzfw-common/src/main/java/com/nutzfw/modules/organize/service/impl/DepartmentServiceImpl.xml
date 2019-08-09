@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE Sqls PUBLIC "nutz-sqltpl" "https://threefish.gitee.io/nutz-sqltpl/nutz-sqltpl.dtd">
+<Sqls class="com.nutzfw.modules.organize.service.impl.DepartmentServiceImpl">
+    <sql id="treeAboutJob" wrap="true">
+       SELECT * FROM (SELECT id,pid,name,'dept' AS type FROM sys_department  ORDER BY short_no ASC) AS a
+       UNION (SELECT j.id AS id,dj.dept_id AS pid, j.name,'job' AS type FROM sys_job AS j,sys_department_job AS dj
+       WHERE j.id = dj.job_id  AND j.isStatistics =1)
+    </sql>
+    <sql id="treeAboutJob2" wrap="true">
+       SELECT * FROM (SELECT id,pid,name,'dept' AS type FROM sys_department  ORDER BY short_no ASC) AS a
+       UNION (SELECT j.id AS id,dj.dept_id AS pid, j.name,'job' AS type FROM sys_job AS j,sys_department_job AS dj
+       WHERE j.id = dj.job_id  )
+    </sql>
+    <sql id="listUserInfo" wrap="true">
+        SELECT u.userName,u.realName,u.gender,d.NAME AS deptName
+        FROM sys_user_account AS u
+        LEFT JOIN sys_department AS d ON d.id = u.deptId
+        <exp>if(Strings.isNotBlank(deptId)){</exp>
+        WHERE u.deptId = @deptId
+        <exp>}else{</exp>
+        $condition
+        <exp>}</exp>
+    </sql>
+    <sql id="queryListUserInfo" wrap="true">
+        SELECT u.userName,u.realName,u.gender,d.NAME AS deptName
+        FROM sys_user_account AS u
+        LEFT JOIN sys_department AS d ON d.id = u.deptId
+        WHERE u.userName like concat('%',@query,'%') or u.realName like concat('%',@query,'%') or d.NAME like concat('%',@query,'%')
+    </sql>
+    <!-- 根据部门ID查询全部子节点 -->
+    <sql id="queryAndChild" wrap="true">
+        SELECT *  FROM (SELECT t1.*,IF(FIND_IN_SET(pid, @@pids) > 0, @@pids := CONCAT(@@pids, ',', id), '0') AS ischild
+        FROM ( SELECT * FROM sys_department AS t  ORDER BY t.short_no ASC) t1, (SELECT @@pids :=  @deptId) t2 ) t3 WHERE ischild != '0'
+    </sql>
+</Sqls>

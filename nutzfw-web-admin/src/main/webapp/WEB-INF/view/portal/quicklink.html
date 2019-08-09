@@ -1,0 +1,338 @@
+<%
+var title="快捷功能管理";
+layout("/layouts/blank.html",{title:title}){
+%>
+<style type="text/css">
+    .required {
+        color: red;
+    }
+    .isfind{
+        display: none;
+    }
+</style>
+<section class="content-header">
+    <h1>
+        ${title}
+        <!--<small>控制面板</small>-->
+    </h1>
+</section>
+<section class="content" id="container">
+    <div class="col-sm-4" style="min-width: 98%;">
+        <div class="top_bar">
+            <%if(so.hasPermission("quicklink.saveOrUpdate")){%>
+            <div class="layui-btn layui-btn-sm layui-btn-normal" @click="saveOrUpdate">新增快捷功能</div>
+            <%}%>
+        </div>
+        <div>
+
+            <div id="quickLinkListTable" lay-filter='quickLinkListTable'></div>
+
+        </div>
+    </div>
+    <div id="editBox" style="display: none;padding: 15px">
+        <input type="hidden" v-model="quickLinkData.id">
+        <div class="form-group">
+            <label>功能名称<span class="required">*</span></label>
+            <input type="text" v-model="quickLinkData.name" class="form-control input-sm" placeholder="功能名称">
+        </div>
+        <div class="form-group">
+            <label>打开方式<span class="required">*</span></label>
+            <select  class="form-control input-sm"  v-model="quickLinkData.openType" placeholder="打开方式">
+                <option value="1" checked>弹窗</option>
+                <option value="2">新tab页面</option>
+                <option value="3">新浏览器页面</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>菜单图标<span class="required">*</span></label>
+            <div class="input-group" style="width: 100%;">
+                <input type="text" class="form-control input-sm"  id='dataMenuIcon'
+                       placeholder="菜单图标"  onclick="core.showIcon('dataMenuIcon')" readonly>
+                <div class="input-group-addon" onclick="core.showIcon('dataMenuIcon')" id="iconMenu">
+                    <i class="fa fa-edit"></i>
+                </div>
+            </div>
+            <!--<input type="text" v-model="quickLinkData.icon" class="form-control input-sm" placeholder="图标">-->
+        </div>
+        <div class="form-group">
+            <label>链接类型<span class="required">*</span></label></br>
+            <div>
+                <input type="radio" name="radio" value="1" v-model="quickLinkData.type" @click="changeRadio">&nbsp选择菜单 &nbsp&nbsp&nbsp
+                <input type="radio" name="radio" value="2" v-model="quickLinkData.type" @click="changeRadio">&nbsp快捷功能地址
+            </div>
+        </div>
+        <div class="form-group">
+            <label>链接地址<span class="required">*</span></label></br>
+            <input type="text" id="menu"  v-model="link1" readonly :class="{isfind:hideShow}" class="form-control input-sm" placeholder="选择菜单" @click="ckMenus">
+            <input type="text" id="address" v-model="link2" :class="{isfind:showHide}" class="form-control input-sm" placeholder="链接地址">
+        </div>
+        <div class="form-group">
+            <label>排序<span class="required">*</span></label>
+            <input type="number" v-model="quickLinkData.sort" class="form-control input-sm" placeholder="排序">
+        </div>
+        <div class="form-group">
+            <label>描述</label>
+            <input type="text" v-model="quickLinkData.description" class="form-control input-sm" placeholder="描述" min="1">
+        </div>
+    </div>
+</section>
+<script type="text/html" id="toolBarFixed">
+    <%if(so.hasPermission("quicklink.saveOrUpdate")){%>
+    <div class="layui-btn layui-btn-sm layui-btn-normal" lay-event="edit">修改</div>
+    <%}%>
+    <%if(so.hasPermission("quicklink.del")){%>
+    <div class="layui-btn layui-btn-sm layui-btn-normal" lay-event="del">删除</div>
+    <%}%>
+</script>
+<script type="text/javascript">
+    var selectId, protalTree;
+    var vm = new Vue({
+        el: "#container",
+        data: {
+            link1:"",
+            link2:"",
+            quickLinkData: {},
+            quickLinkListGrid: "",
+            showHide:true,
+            hideShow:true,
+        },
+        methods: {
+            quickLinkListTable: function () {
+                layui.use(['table'], function () {
+                    var table = layui.table;
+                    vm.quickLinkListGrid = table.render({
+                        id: 'quickLinkListTable',
+                        elem: '#quickLinkListTable',
+                        page: true,
+                        method: 'post',
+                        url: base + '/quicklink/query',
+                        limit: 50,
+                        even: true,
+                        request: {
+                            pageName: 'pageNum',
+                            limitName: 'pageSize',
+                        },
+                        cols: [[
+                            {title: '序号', type: 'numbers', align: 'center'},
+                            {field: 'name', title: '功能名称', align: 'center'},
+                            {field: 'openType', title: '打开方式', align: 'center',templet:function (row) {
+                                return row.openType==1?"弹窗":row.openType==2?"新tab页面":"新浏览器页面"
+                            }},
+                            {field: 'type', title: '链接类型', align: 'center',templet:function (row) {
+                                return row.type==1?"菜单":"链接地址"
+                            }},
+                            {field: 'link', title: '链接', align: 'center'},
+                            {field: 'description', title: '描述', align: 'center'},
+                            {title: '操作', align: 'center', toolbar: '#toolBarFixed'},
+                        ]],
+                    });
+                    table.on("tool(quickLinkListTable)", function (obj) {
+                        if (!$(this).hasClass("layui-btn-disabled")) {
+                            var data = obj.data, layEvent = obj.event;
+                            var id = data.id;
+                            var ac = layEvent;
+                            if (ac == "edit") {
+                                vm.quickLinkData = data;
+                                $("#dataMenuIcon").val(data.icon);
+                                vm.link1 = "";
+                                vm.link2 = "";
+                                if(data.type == 1){
+                                    vm.link1 = vm.quickLinkData.link;
+                                    vm.showHide = true;
+                                    vm.hideShow = false;
+                                }else if(data.type == 2){
+                                    vm.link2 = vm.quickLinkData.link;
+                                    vm.showHide = false;
+                                    vm.hideShow = true;
+                                }
+
+                                layer.open({
+                                    scrollbar: false,
+                                    type: 1,
+                                    title:"修改快捷功能",
+                                    area: ['500px', '610px'],
+                                    content: $("#editBox"),
+                                    btn: ['确定', '取消'],
+                                    yes: function (index) {
+                                        if(!vm.quickLinkData.name){
+                                            layer.msg("功能名称不能为空", {icon: 2, time: 1000});
+                                            return false;
+                                        }else if (!vm.quickLinkData.openType){
+                                            layer.msg("打开方式不能为空", {icon: 2, time: 1000});
+                                            return false;
+                                        }else if (!$("#dataMenuIcon").val()){
+                                            layer.msg("图标不能为空", {icon: 2, time: 1000});
+                                            return false;
+                                        }else if (!vm.quickLinkData.type){
+                                            layer.msg("链接类型不能为空", {icon: 2, time: 1000});
+                                            return false;
+                                        }else if (vm.quickLinkData.type){
+                                            if(vm.quickLinkData.type == 1){
+                                                if (!vm.link1){
+                                                    layer.msg("链接地址不能为空", {icon: 2, time: 1000});
+                                                    return false;
+                                                }
+                                            }else if(vm.quickLinkData.type == 2){
+                                                if (!vm.link2){
+                                                    layer.msg("链接地址不能为空", {icon: 2, time: 1000});
+                                                    return false;
+                                                }
+                                            }
+                                        }else if (!vm.quickLinkData.sort){
+                                            layer.msg("排序不能为空", {icon: 2, time: 1000});
+                                            return false;
+                                        }
+
+                                        if(vm.quickLinkData.type == 1){
+                                            vm.quickLinkData.link = vm.link1;
+                                        }else if(vm.quickLinkData.type == 2){
+                                            vm.quickLinkData.link = vm.link2;
+                                        }
+                                        vm.quickLinkData.icon = $("#dataMenuIcon").val();
+                                        layer.confirm('确定修改？', {
+                                            btn: ['确定', '取消'] //按钮
+                                        }, function () {
+                                            var fromData = core.convertDataJSON(vm.quickLinkData);
+                                            var jsonre = core.postJSON("/quicklink/saveOrUpdate", fromData);
+                                            core.msg(jsonre);
+                                            if (jsonre.ok) {
+                                                vm.quickLinkListGrid.reload();
+                                                layer.close(index);
+                                            }
+                                        })
+                                    }
+                                });
+                            }else if (ac == "del"){
+                                layer.confirm('确定删除？', {
+                                    btn: ['确定', '取消'] //按钮
+                                }, function () {
+                                    $.ajax({
+                                        url: base + '/quicklink/del',
+                                        type: "POST",
+                                        data: {id: id},
+                                        error: function (request) {
+                                            layer.msg("网络连接出错", {icon: 5, time: 1000});
+                                        },
+                                        dataType: "json",
+                                        success: function (data) {
+                                            if (data && data.ok) {
+                                                layer.msg(data.msg, {icon: 1,time: 1000});
+                                            } else {
+                                                layer.msg(data.msg, {icon: 7, time: 2000});
+                                            }
+                                            vm.quickLinkListGrid.reload();
+                                            //quartzJobGrid.reload('quickLinkListTable', {});
+                                        }
+                                    })
+                                });
+                            }
+                        }
+                    });
+                });
+            },
+            changeRadio:function () {
+                $('input[type=radio][name=radio]').change(function() {
+                    if(this.value == 1){
+                        vm.showHide = true;
+                        vm.hideShow = false;
+                    }else if(this.value == 2){
+                        vm.showHide = false;
+                        vm.hideShow = true;
+                    }
+                });
+            },
+            ckMenus: function() {
+                core.showMenusSimpleTree({
+                    title: "选择菜单",
+                    url:"/quicklink/menuTree",
+                    isCheckbox: false,
+                    target: ['menuPid', 'menuPidDesc'],
+                    data: {id: "id", pid: "pid", name: "menuName"},
+                    onSelect:function (node) {
+                        if (node.children){
+                            layer.msg("该菜单不能被选择",{icon:2});
+                            return false;
+                        }
+                    },
+                    onOk:function (node) {
+                        if (node){
+                            vm.link1 = node.menuTarget;
+                        }
+                        return true;
+                    }
+                });
+            },
+            saveOrUpdate: function() {
+                vm.quickLinkData = {};
+                $("#dataMenuIcon").val("");
+                vm.link1 = "";
+                vm.link2 = "";
+                vm.showHide = true;
+                vm.hideShow = true;
+                vm.quickLinkData.sort = 0;
+                layer.open({
+                    scrollbar: false,
+                    type: 1,
+                    title:"新增快捷功能",
+                    area: ['500px', '610px'],
+                    content: $("#editBox"),
+                    btn: ['确定', '取消'],
+                    yes: function (index) {
+                        if(!vm.quickLinkData.name){
+                            layer.msg("功能名称不能为空", {icon: 2, time: 1000});
+                            return false;
+                        }else if (!vm.quickLinkData.openType){
+                            layer.msg("打开方式不能为空", {icon: 2, time: 1000});
+                            return false;
+                        }else if (!$("#dataMenuIcon").val()){
+                            layer.msg("图标不能为空", {icon: 2, time: 1000});
+                            return false;
+                        }else if (!vm.quickLinkData.type){
+                            layer.msg("链接类型不能为空", {icon: 2, time: 1000});
+                            return false;
+                        }else if (vm.quickLinkData.type){
+                            if(vm.quickLinkData.type == 1){
+                                if (!vm.link1){
+                                    layer.msg("链接地址不能为空", {icon: 2, time: 1000});
+                                    return false;
+                                }
+                            }else if(vm.quickLinkData.type == 2){
+                                if (!vm.link2){
+                                    layer.msg("链接地址不能为空", {icon: 2, time: 1000});
+                                    return false;
+                                }
+                            }
+                        }else if (!vm.quickLinkData.sort){
+                            layer.msg("排序不能为空", {icon: 2, time: 1000});
+                            return false;
+                        }
+
+
+                        if(vm.quickLinkData.type == 1){
+                            vm.quickLinkData.link = vm.link1;
+                        }else if(vm.quickLinkData.type == 2){
+                            vm.quickLinkData.link = vm.link2;
+                        }
+                        vm.quickLinkData.icon = $("#dataMenuIcon").val();
+                        layer.confirm('确定保存？', {
+                            btn: ['确定', '取消'] //按钮
+                        }, function () {
+                            var fromData = core.convertDataJSON(vm.quickLinkData);
+                            var jsonre = core.postJSON("/quicklink/saveOrUpdate", fromData);
+                            core.msg(jsonre);
+                            if (jsonre.ok) {
+                                vm.quickLinkListGrid.reload();
+                                layer.close(index);
+                            }
+                        })
+                    }
+                });
+            }
+        },
+        mounted: function () {
+            this.quickLinkListTable();
+//            this.changeRadio();
+        }
+    })
+</script>
+<%}%>

@@ -1,0 +1,7 @@
+<div ${attrs} class="${class} dict-tree" style="background-color: #eeeeee;">{{ reverEnumDesc('${fieldName}','${dict.sysCode}') }}</div>
+<%if(!disabled){%>
+<span class="input-group-addon input-group-addon-right-icon" @click=handleShowEnumTree('${fieldName}','${dict.sysCode}',${isMultiple})>
+    <i class="fa fa-edit"></i>
+</span>
+<%}%>
+

@@ -1,0 +1,768 @@
+<%
+var title="人员异动";
+layout("/layouts/blank.html",{title:title}){
+%>
+<style type="text/css">
+    .required {
+        color: red;
+    }
+
+    .searchBox {
+        /*float: left;*/
+        margin-right: 20px;
+    }
+
+    .searchBox select, .searchBox input {
+        height: 32px;
+    }
+
+    .layui-btn {
+        height: 32px;
+        line-height: 32px;
+    }
+
+    #container {
+        padding-top: 0px;
+    }
+
+    .searchBox select {
+        height: 24px;
+        font-size: 14px;
+        padding: 0px;
+        text-align: center;
+    }
+
+    .fl {
+        float: left;
+    }
+
+    .fr {
+        float: right;
+    }
+
+    .layui-form {
+        float: left;
+    }
+    .form-group{
+        height: 32px;
+        /*border: solid red 1px;*/
+        line-height: 32px;
+    }
+    .form-group label,.form-group input,.form-group select{
+        float: left;
+        height: 32px;
+        font-size: 12px;
+    }
+    .form-group label{
+        margin-left: 5px;
+        min-width: 76px;
+    }
+    .select{
+        background: white!important;
+        cursor: pointer;
+    }
+</style>
+<section class="content" id="container">
+    <div class="layui-tab  layui-tab-brief" lay-filter="layui-tab">
+        <ul class="layui-tab-title">
+            <li class="layui-this">待审核异动记录</li>
+            <li>已审核异动记录</li>
+        </ul>
+        <div class="layui-tab-content">
+            <div class="layui-tab-item layui-show">
+                <div style="background: #ffffff">
+                    <%if(so.hasPermission("userchange.listPage")){%>
+                    <table class="searchBox fl">
+                        <tr>
+                            <td class="form-lable" width="70px" style="text-align: center;">
+                                异动原因
+                            </td>
+                            <td class="form-lable">
+                                <div class="input-group">
+                                    ${dict("sys_user_change_type",false,'form-control,input-md,select-div',"END",'v-model="searchData.changeType"','id="changeType"','name="userchange.changeType"')}
+                                </div>
+                            </td>
+                            <td class="form-lable" width="120px" style="text-align: center;">
+                                用户名/姓名
+                            </td>
+                            <td class="form-lable">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" placeholder="用户名/姓名"
+                                           v-model="searchData.key">
+                                </div>
+                            </td>
+                            <td>
+                                <div style="margin-left: 20px" @click="fn_search(0)"
+                                     class="layui-btn layui-btn-sx layui-btn-normal">查询
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                    <div class="fr layui-btn layui-btn-sm layui-btn-normal" @click="fn_showAddChangeWindow">发起人员异动</div>
+                    <%}%>
+                    <table class="fl" id="waitReviewListTable" lay-filter='waitReviewListTable'></table>
+                </div>
+            </div>
+            <div class="layui-tab-item">
+                <div style="background: #ffffff">
+
+                    <%if(so.hasPermission("userchange.listPage")){%>
+                    <table class="searchBox fl">
+                        <tr>
+                            <td class="form-lable" width="70px" style="text-align: center;">
+                                异动原因
+                            </td>
+                            <td class="form-lable">
+                                <div class="input-group">
+                                    ${dict("sys_user_change_type",false,'form-control,input-md,select-div',"END",'v-model="searchData.changeType"','id="changeType"','name="userchange.changeType"')}
+                                </div>
+                            </td>
+                            <td class="form-lable" width="120px" style="text-align: center;">
+                                用户名/姓名
+                            </td>
+                            <td class="form-lable">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" placeholder="用户名/姓名"
+                                           v-model="searchData.key">
+                                </div>
+                            </td>
+                            <td>
+                                <div style="margin-left: 20px" @click="fn_search(1)"
+                                     class="layui-btn layui-btn-sx layui-btn-normal">查询
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                    <div class="fr layui-btn layui-btn-sm layui-btn-normal" @click="fn_showAddChangeWindow">发起人员异动</div>
+                    <%}%>
+                    <div id="reviewedListTable" lay-filter='reviewedListTable'></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="dataBox" style="display: none;text-align: center;padding: 15px">
+        <div class="form-group">
+            <label>名字：</label>
+            <input style="width: 198px;" type="text" v-model="fromData.realName" class="form-control input-sm" readonly>
+            <label><span class="required">*</span>异动原因：</label>
+            ${dict("sys_user_change_type",false,'form-control,input-md,select-div',"END",'v-model="fromData.changeType"','id="changeType2"','name="fromData.changeType"','style="width: 198px;"')}
+        </div>
+        <div class="form-group">
+            <label>原部门：</label>
+            <input style="width: 198px;" readonly type="text" v-model="fromData.oldDept" class="form-control input-sm" placeholder="原部门">
+            <label>原岗位：</label>
+            <input style="width: 198px;" readonly type="text" v-model="fromData.oldJob" class="form-control input-sm" placeholder="原岗位">
+        </div>
+        <div class="form-group">
+            <label><span class="required">*</span>现部门：</label>
+            <input style="width: 198px;" type="text" readonly v-model="fromData.newDept" @click="fn_showDeptTree" class="form-control input-sm select" placeholder="请选择现部门">
+            <label><span class="required">*</span>现岗位：</label>
+            <select id="newJobName" v-model="fromData.newJobId" class="form-control input-md select-div form-control " style="width: 198px;">
+                <option value="" key-val="">--请选择--</option>
+                <option v-for="item in jobSelect" :value="item.id" v-text="item.name"></option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label><span class="required">*</span>异动时间：</label>
+            <input style="width: 198px;" type="text" readonly v-model="fromData.changeDate" id="changeDate" class="form-control input-sm select" placeholder="异动时间">
+
+            <div style="margin-left: 20px" @click="fn_addFile"
+                 class="fl layui-btn layui-btn-sx layui-btn-normal">添加附件
+            </div>
+            <div style="margin-left: 20px" @click="fn_showFile"
+                 class="fl layui-btn layui-btn-sx layui-btn-normal">查看附件({{attachIdsCount}})
+            </div>
+        </div>
+        <div class="form-group" style="height: 180px;">
+            <label>备注：</label>
+            <textarea style="width: 477px;height: 180px;resize:none" res type="text" v-model="fromData.remark"  class="form-control input-sm">
+            </textarea>
+        </div>
+    </div>
+    <div id="dataBox_review" style="display: none;text-align: center;padding: 15px">
+        <div class="form-group">
+            <label>名字：</label>
+            <input style="width: 198px;" type="text" v-model="fromData.realName" class="form-control input-sm" readonly>
+            <label>异动原因：</label>
+            <input style="width: 190px;" type="text" v-model="fromData.changeReason" class="form-control input-sm" readonly>
+        </div>
+        <div class="form-group">
+            <label>原部门：</label>
+            <input style="width: 198px;" readonly type="text" v-model="fromData.oldDept" class="form-control input-sm" placeholder="原部门">
+            <label>原岗位：</label>
+            <input style="width: 190px;" readonly type="text" v-model="fromData.oldJob" class="form-control input-sm" placeholder="原岗位">
+        </div>
+        <div class="form-group">
+            <label>现部门：</label>
+            <input style="width: 198px;" type="text" readonly v-model="fromData.newDept" class="form-control input-sm">
+            <label>现岗位：</label>
+            <input style="width: 190px;" type="text" readonly v-model="fromData.newJob" class="form-control input-sm">
+
+        </div>
+        <div class="form-group">
+            <label>异动时间：</label>
+            <input style="width: 198px;" type="text" readonly v-model="fromData.changeDate" class="form-control input-sm">
+
+            <div style="margin-left: 20px" @click="fn_showFile"
+                 class="fl layui-btn layui-btn-sx layui-btn-normal">查看附件({{attachIdsCount}})
+            </div>
+        </div>
+        <div class="form-group" style="height: 90px;">
+            <label>备注：</label>
+            <textarea readonly style="width: 470px;height: 90px;resize:none" res type="text" v-model="fromData.remark"  class="form-control input-sm">
+            </textarea>
+        </div>
+        <div class="form-group" style="height: 90px;">
+            <label><span class="required">*</span>审核意见：</label>
+            <textarea style="width: 470px;height: 90px;resize:none" res type="text" v-model="fromData.reviewOpinion"  class="form-control input-sm">
+            </textarea>
+        </div>
+    </div>
+    <div id="dataBox_users" style="display: none;text-align: center;padding: 15px">
+        <table class="searchBox fl">
+            <tr>
+                <td class="form-lable" width="150px" style="text-align: center;">
+                    用户名/姓名
+                </td>
+                <td class="form-lable">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="用户名/姓名"
+                               v-model="searchUserData.key">
+                    </div>
+                </td>
+                <td>
+                    <div style="margin-left: 20px" @click="fn_searchUser"
+                         class="layui-btn layui-btn-sx layui-btn-normal">查询
+                    </div>
+                </td>
+            </tr>
+        </table>
+        <table id="usersTable" lay-filter='usersTable'></table>
+    </div>
+</section>
+<script type="text/html" id="toolBarFixed">
+    <div class="layui-btn layui-btn-sm layui-btn-normal" lay-event="show-history">查看历史</div>
+    <%if(so.hasPermission("userchange.review")){%>
+    {{#  if(d.review ==0){ }}
+    <div class="layui-btn layui-btn-sm layui-btn-normal" lay-event="agree-review">审核</div>
+    {{#  } }}
+    <%}%>
+</script>
+<script type="text/html" id="toolBarAttach">
+    {{#  if(d.attachIds!=''){ }}
+    <div class="layui-btn layui-btn-sm layui-btn-normal" lay-event="show-attach">查看附件({{d.attachIds.split(',').length}})</div>
+    {{#  }else { }}
+    无附件
+    {{#  } }}
+</script>
+<script type="text/html" id="toolBarFixedHistory">
+    <div class="layui-btn layui-btn-sm layui-btn-normal" lay-event="even_change_user">发起异动</div>
+</script>
+<script type="text/javascript">
+    var table, element, waitReviewListTable, reviewedListTable,usersTable;
+
+    var vm = new Vue({
+        el: '#container',
+        data: {
+            fromData: {
+                userid:"",
+                realName:"",
+                changeType:"",
+                oldJob:"",
+                oldDept:"",
+                newJobId:"",
+                newJob:"",
+                newDeptId:"",
+                newDept:"",
+                remark:"",
+                changeDate:"",
+                attachIds:[]
+            },
+            searchData: {
+                key: "",
+                changeType:"",
+                review:0,
+            },
+            searchUserData:{
+                key:""
+            },
+            firstChangeTab: false,
+            firstOpenUserInfo:false,
+            jobSelect:[],
+            attachIdsCount:0,
+        },
+        methods: {
+            getCheckData: function () {
+                return table.checkStatus('waitReviewListTable').data;
+            },
+            getWaitReviewData: function () {
+                return table.checkStatus('reviewedListTable').data;
+            },
+            tableReload: function () {
+                var review = vm.searchData.review;
+                if(waitReviewListTable) {
+                    vm.searchData.review = 0;
+                    waitReviewListTable.reload({
+                        where: vm.searchData,
+                        page: {curr: 1}
+                    })
+                }
+                if(reviewedListTable) {
+                    vm.searchData.review = -1;
+                    reviewedListTable.reload({
+                            where: vm.searchData,
+                            page: {curr: 1}
+                        }
+                    )
+                }
+                vm.searchData.review = review;
+            },
+            fn_search: function (type) {
+                if (type == 0) {
+                    vm.searchData.review=0;
+                    waitReviewListTable.reload({
+                        where: vm.searchData,
+                        page: {curr: 1}
+                    })
+                } else if (type == 1) {
+                    vm.searchData.review=-1;
+                    reviewedListTable.reload({
+                            where: vm.searchData,
+                            page: {curr: 1}
+                        }
+                    )
+                }
+            },
+            fn_showAddChangeWindow(){
+                vm.userOpen =layer.open({
+                    scrollbar: false,
+                    type: 1,
+                    title: "选择异动人员",
+                    area: ['600px', '600px'],
+                    content: $("#dataBox_users"),
+                    btn: ['返回'],
+                    btn1: function (index) {
+                        layer.close(index)
+                    },
+                    success:function () {
+                        vm.searchUserData.key="";
+                        if(vm.firstOpenUserInfo){
+                            usersTable.reload({
+                                page: {curr: 1},
+                                where: {
+                                    key: "",
+                                },
+                            })
+                        }else {
+                            vm.firstOpenUserInfo = true;
+                            usersTable = table.render({
+                                id: 'usersTable',
+                                elem: '#usersTable',
+                                page: true,
+                                method: 'post',
+                                url: base + '/userchange/queryUsers',
+                                height: 430,
+                                width: 555,
+                                limit: 20,
+                                even: true,
+                                request: {
+                                    pageName: 'pageNum',
+                                    limitName: 'pageSize',
+                                },
+                                cols: [[
+                                    {title: '序号', type: 'numbers'},
+                                    {
+                                        field: 'userName', title: '用户名', templet: function (row) {
+                                        return row.userName.replace(vm.searchUserData.key, "<l style='color:red'>" + vm.searchUserData.key + "</l>");
+                                    }
+                                    },
+                                    {
+                                        field: 'realName', title: '姓名', templet: function (row) {
+                                        return row.realName.replace(vm.searchUserData.key, "<l style='color:red'>" + vm.searchUserData.key + "</l>");
+                                    }
+                                    },
+                                    {
+                                        field: 'locked', title: '状态', templet: function (row) {
+                                        return row.locked ? "<span style='color: orangered'>已禁用</span>" : "启用中";
+                                    }
+                                    },
+                                    {title: '操作', align: 'center', toolbar: '#toolBarFixedHistory'},
+                                ]]
+                            });
+                            table.on("tool(usersTable)", function (obj) {
+                                var data = obj.data, layEvent = obj.event;
+                                if (layEvent == "even_change_user") {
+                                    var jsonre = core.postJSON("/userchange/haveChange", {userid:data.id});
+                                    if (jsonre.ok) {
+                                        vm.fn_showUserChangeWindow(data);
+                                        layer.close(vm.userOpen);
+                                    }else{
+                                        core.msg(jsonre);
+                                    }
+                                }
+                            });
+                        }
+                    }
+                });
+            },
+            fn_showUserChangeWindow(data){
+                vm.fromData.userid = data.id;
+                vm.fromData.realName = data.realName;
+                var jsonre = core.postJSON("/userchange/userDeptJobInfo", {userid:data.id});
+                if (jsonre.ok) {
+                    if(jsonre.data) {
+                        vm.fromData.oldDept = jsonre.data.deptName;
+                        vm.fromData.oldJob = jsonre.data.jobName;
+                    }else{
+                        vm.fromData.oldDept = "无原部门";
+                        vm.fromData.oldJob = "无原岗位";
+                    }
+                }
+                vm.changeOpen =layer.open({
+                    scrollbar: false,
+                    closeBtn:0,
+                    type: 1,
+                    title: "发起人员异动-"+vm.fromData.realName,
+                    area: ['600px', '600px'],
+                    content: $("#dataBox"),
+                    btn: ['确认','返回'],
+                    btn1: function (index) {
+                        if(vm.fromData.changeType==""){
+                            core.error("异动原因不能为空!")
+                        }else if(vm.fromData.newDeptId==""){
+                            core.error("现部门不能为空!")
+                        }else if(vm.fromData.newJobId==""){
+                            core.error("现岗位不能为空!")
+                        }else if(vm.fromData.changeDate==""){
+                            core.error("异动时间不能为空!")
+                        }else{
+                            vm.fromData.newJob = $("#newJobName").find("option:selected").text();;
+                            vm.fn_saveUserChange(index);
+                        }
+                    },
+                    btn2:function () {
+                        vm.fn_clearFromData();
+                    }
+                });
+            },
+            fn_showDeptTree: function(){
+                core.showMenusSimpleTree({
+                    title: "选择新部门",
+                    url: "/sysOrganize/department/tree",
+                    data: {id: "id", pid: "pid", name: "name"},
+//                    isRadio: true,
+                    onOk: function (data) {
+                        if (!data) {
+                            core.error("请选择新的部门!")
+                            return false;
+                        } else {
+                            vm.fromData.newDept = data.name;
+                            vm.fromData.newDeptId = data.id;
+                            var jsonre = core.postJSON("/sysOrganize/job/queryByDepartment", {deptId:data.id});
+                            if (jsonre.ok) {
+                                if(jsonre.data.length>0){
+                                    vm.jobSelect = jsonre.data;
+                                }else {
+                                    core.error("该部门下没有岗位,不能选择!")
+                                    return false;
+                                }
+                            }else{
+                                return false;
+                            }
+                        }
+                        return true;
+                    },
+                    onSuccess: function (data) {
+                    }
+                });
+            },
+            fn_searchUser:function () {
+                usersTable.reload({
+                    where: {
+                        key: vm.searchUserData.key,
+                    },
+                    page: {curr: 1}
+                })
+            },
+            fn_addFile:function () {
+                var config={
+                    module:"userchange",
+                    fileType:'file',// 上传 文件还是 图片 (file ---- 文件  img ---- 图片)
+                    fileExtensions:"pic,tif,gif,jpg,jpeg,bmp,png,rar,zip,7z,gz,wav,mp3,mp4,ram,wma,mmf,amr,aac,flac,avi,mpg,mov,pdf,wps,doc,docx,docm,pptx,pptm,potx,potm,ppsx,ppsm,xlsb,xlsx,xlsm,xltx,xltm,xls,ppt,wpt,ett,txt", //文件过滤类型 如 exe,png,xls
+                    title:"附件上传",  //弹窗标题
+                    uploadedIds:vm.fromData.attachIds.join(","),
+                    ok:function(index,response){
+                        if(response.length>0){
+                            vm.fromData.attachIds=[];
+                            for(var i=0;i<response.length;i++){
+                                vm.fromData.attachIds[i]=response[i].data;
+                            }
+                        }
+                        vm.attachIdsCount=vm.fromData.attachIds.length;
+                        layer.close(index);
+                    }  //上传完成后点击确定执行的事件 index表示layer窗口的标识，response是服务器返回的数据
+                }
+                core.multiUpload(config);
+            },
+            fn_showFile:function () {
+                core.showAttachList(vm.fromData.attachIds.join(","));
+            },
+            fn_saveUserChange:function (index) {
+                vm.fromData.attachIds = vm.fromData.attachIds.join(",");
+                var jsonre = core.postJSON("/userchange/saveUserChange", {data:JSON.stringify(vm.fromData)});
+                core.msg(jsonre);
+                if (jsonre.ok) {
+                    vm.tableReload();
+                    vm.fn_clearFromData();
+                    layer.close(index)
+                }
+            },
+            fn_clearFromData:function(){
+                vm.fromData={
+                    userid:"",
+                    realName:"",
+                    changeType:"",
+                    oldJob:"",
+                    oldDept:"",
+                    newJobId:"",
+                    newJob:"",
+                    newDeptId:"",
+                    newDept:"",
+                    remark:"",
+                    changeDate:"",
+                    attachIds:[]
+                };
+                vm.jobSelect = [];
+                vm.attachIdsCount =0;
+            },
+            fn_review:function (data) {
+                vm.fromData = JSON.parse(data.oldDataViewJson);
+                vm.fromData.changeReason = data.changeReason;
+                vm.fromData.changeId = data.uuid;
+                vm.fromData.attachIds = vm.fromData.attachIds.split(",")
+                if(vm.fromData.attachIds!="") {
+                    vm.attachIdsCount = vm.fromData.attachIds.length;
+                }else{
+                    vm.attachIdsCount =0;
+                }
+                vm.reviewOpen =layer.open({
+                    scrollbar: false,
+                    closeBtn:0,
+                    type: 1,
+                    title: "审核人员异动-"+vm.fromData.realName,
+                    area: ['600px', '600px'],
+                    content: $("#dataBox_review"),
+                    btn: ['通过','拒绝','返回'],
+                    btn1: function (index) {
+                        vm.fn_saveReview(1,index);
+                    },
+                    btn2:function (index) {
+                        return vm.fn_saveReview(2,index);
+                    }
+                });
+            },
+            fn_saveReview:function (review,index) {
+                if(!vm.fromData.reviewOpinion||vm.fromData.reviewOpinion==""){
+                    core.error("请填写审核意见!")
+                    return false;
+                }
+                var params={
+                    reviewOpinion:vm.fromData.reviewOpinion,
+                    review:review,
+                    id:vm.fromData.changeId,
+                }
+                var jsonre = core.postJSON("/userchange/review", params);
+                core.msg(jsonre);
+                if (jsonre.ok) {
+                    layer.close(index);
+                    vm.fn_clearFromData();
+                    vm.tableReload();
+                }else {
+                    return false;
+                }
+
+            },
+            fn_showHistory:function (userid) {
+                layer.open({
+                    type: 2,
+                    shadeClose: false,
+                    title: "人员异动记录",
+                    shade: 0.3,
+                    area: ["500px", "600px"], // 宽高
+                    content: base + "/userchange/history?id=" + userid
+                });
+            }
+        },
+        created: function () {
+        },
+        updated: function () {
+        },
+        mounted: function () {
+            layui.use(['table', 'laytpl', 'element'], function () {
+                table = layui.table;
+                element = layui.element;
+                element.on('tab(layui-tab)', function (data) {
+                    //第一次切换tab加载已审核用户
+                    if (vm.firstChangeTab) {
+                        return;
+                    }
+                    vm.firstChangeTab = true;
+                    vm.searchData.review=-1;
+                    reviewedListTable = table.render({
+                        id: 'reviewedListTable',
+                        elem: '#reviewedListTable',
+                        page: true,
+                        method: 'post',
+                        url: base + '/userchange/listPage',
+                        height: 'full-150',
+                        limit: 50,
+                        even: true,
+                        request: {
+                            pageName: 'pageNum',
+                            limitName: 'pageSize',
+                        },
+                        where: vm.searchData,
+                        cols: [[
+                            {title: '序号', type: 'numbers', width: 50},
+                            {
+                                field: 'userName', title: '用户名', templet: function (row) {
+                                return row.userName.replace(vm.searchData.key, "<l style='color:red'>" + vm.searchData.key + "</l>");
+                            }
+                            },
+                            {
+                                field: 'realName', title: '姓名', templet: function (row) {
+                                return row.realName.replace(vm.searchData.key, "<l style='color:red'>" + vm.searchData.key + "</l>");
+                            }
+                            },
+                            {
+                                field: 'changeReason', title: '异动原因'                        },
+                            {field: 'oldDataViewJson', title: '异动内容',templet: function (row) {
+                                let d = JSON.parse(row.oldDataViewJson);
+                                return "部门变动:"+d.oldDept+"→"+d.newDept+"<br/>" +
+                                    "岗位变动:"+d.oldJob+"→"+d.newJob;
+                            }},
+                            {field: 'changeDate', title: '异动时间',templet: function (row) {
+                                if(row.changeDate!=null&&row.changeDate!=""&&row.changeDate.length>10){
+                                    return row.changeDate.substring(0,10);
+                                }else{
+                                    return row.changeDate;
+                                }
+                            }},
+                            {field: 'remark', title: '备注'},
+                            {
+                                field: 'review', title: '状态', templet: function (row) {
+                                //0待审核 1通过审核 2未通过审核
+                                if (row.review == 0) {
+                                    return "待审核";
+                                } else if (row.review == 1) {
+                                    return "<span style='color: green'>生效</span>";
+                                } else if(row.review == 2) {
+                                    return "<span style='color: orangered'>拒绝</span>";
+                                }
+                            }
+                            },
+                            {field: 'createName', title: '创建人'},
+                            {field: 'addDate', title: '创建时间'},
+                            {field: 'attachIds', title: '附件',toolbar: '#toolBarAttach'},
+                            {title: '操作', align: 'center', fixed: 'right', toolbar: '#toolBarFixed'},
+                        ]],
+                    });
+                    table.on("tool(reviewedListTable)", function (obj) {
+                        var data = obj.data, layEvent = obj.event;
+                        if(layEvent=="show-attach"){
+                            core.showAttachList(data.attachIds);
+                        }else if(layEvent=="show-history"){
+                            vm.fn_showHistory(JSON.parse(data.oldDataViewJson).userid);
+                        }
+                    });
+                })
+                waitReviewListTable = table.render({
+                    id: 'waitReviewListTable',
+                    elem: '#waitReviewListTable',
+                    page: true,
+                    method: 'post',
+                    url: base + '/userchange/listPage',
+                    height: 'full-150',
+                    limit: 50,
+                    even: true,
+                    request: {
+                        pageName: 'pageNum',
+                        limitName: 'pageSize',
+                    },
+                    where: vm.searchData,
+                    cols: [[
+//                        {type: 'checkbox', width: 50},
+                        {title: '序号', type: 'numbers', width: 50},
+                        {
+                            field: 'userName', title: '用户名', templet: function (row) {
+                            return row.userName.replace(vm.searchData.key, "<l style='color:red'>" + vm.searchData.key + "</l>");
+                        }
+                        },
+                        {
+                            field: 'realName', title: '姓名', templet: function (row) {
+                            return row.realName.replace(vm.searchData.key, "<l style='color:red'>" + vm.searchData.key + "</l>");
+                        }
+                        },
+                        {
+                            field: 'changeReason', title: '异动原因'                        },
+                        {field: 'oldDataViewJson', title: '异动内容',templet: function (row) {
+                            var d = JSON.parse(row.oldDataViewJson);
+                            return "部门变动:"+d.oldDept+"→"+d.newDept+"<br/>" +
+                                "岗位变动:"+d.oldJob+"→"+d.newJob;
+                        }},
+                        {field: 'changeDate', title: '异动时间',templet: function (row) {
+                            if(row.changeDate!=null&&row.changeDate!=""&&row.changeDate.length>10){
+                                return row.changeDate.substring(0,10);
+                            }else{
+                                return row.changeDate;
+                            }
+                        }},
+                        {field: 'remark', title: '备注'},
+                        {
+                            field: 'review', title: '状态', templet: function (row) {
+                            //0待审核 1通过审核 2未通过审核
+                            if (row.review == 0) {
+                                return "待审核";
+                            } else if (row.review == 1) {
+                                return "<span style='color: green'>生效</span>";
+                            } else if(row.review == 2) {
+                                return "<span style='color: orangered'>拒绝</span>";
+                            }
+                        }
+                        },
+                        {field: 'createName', title: '创建人'},
+                        {field: 'addDate', title: '创建时间'},
+                        {field: 'attachIds', title: '附件',toolbar: '#toolBarAttach'},
+                        {title: '操作', align: 'center', width: 180, fixed: 'right', toolbar: '#toolBarFixed'},
+                    ]],
+                });
+                table.on("tool(waitReviewListTable)", function (obj) {
+                    var data = obj.data, layEvent = obj.event;
+                    if (layEvent == "agree-review") {
+                        vm.fn_review(data);
+                    }else if(layEvent=="show-attach"){
+                        core.showAttachList(data.attachIds);
+                    }else if(layEvent=="show-history"){
+                        vm.fn_showHistory(JSON.parse(data.oldDataViewJson).userid);
+                    }
+                });
+            });
+            /*时间选择*/
+            layui.use('laydate', function(){
+                var laydate = layui.laydate;
+                //执行一个laydate实例
+                laydate.render({
+                    elem: '#changeDate' //指定元素
+                    ,type: 'date'
+                    ,format:'yyyy-MM-dd'
+                    ,position:'fixed'
+                    ,btns: ['clear', 'confirm']
+                    ,done:function(value,date){
+                        vm.fromData.changeDate=value;
+                    }
+                });
+            });
+        }
+    })
+</script>
+<%}%>

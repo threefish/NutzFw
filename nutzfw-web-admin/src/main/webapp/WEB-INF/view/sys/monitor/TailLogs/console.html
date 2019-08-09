@@ -1,0 +1,99 @@
+<%
+var title="实时日志";
+layout("/layouts/blank.html",{title:title}){
+%>
+<script src="${base}/static/plugins/web-socket-js/src/swfobject.js?_=${productVersion}"></script>
+<script src="${base}/static/plugins/web-socket-js/web_socket.js?_=${productVersion}"></script>
+<script src="${base}/static/plugins/prism/prism.js?_=${productVersion}"></script>
+<link href="${base}/static/plugins/prism/prism.css?_=${productVersion}" rel="stylesheet">
+<style type="text/css">
+    code {
+        display: block;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        width: 400px;
+    }
+
+    #logs {
+        overflow: auto;
+        height: 550px;
+        border: 1px solid #999;
+        padding: 5px;
+        border-radius: 0;
+    }
+
+    td {
+        padding: 5px;
+    }
+</style>
+<section id="app" v-if="initLoad">
+    <table>
+        <tr>
+            <td>编码：</td>
+            <td>
+                <select class="form-control" v-model="charSet" @change="reload">
+                    <option value="UTF-8">UTF-8</option>
+                    <option value="GBK">GBK</option>
+                </select>
+            </td>
+            <td>滚动条锁定至底部</td>
+            <td><input type="checkbox" v-model="lock"></td>
+        </tr>
+    </table>
+    <pre id="logs"></pre>
+</section>
+<script type="text/javascript">
+    var ws, vm = new Vue({
+        el: '#app',
+        data: {
+            level: "${data.name}",
+            initLoad: false,
+            lock: true,
+            charSet: "${data.charSet}",
+        },
+        methods: {
+            load: function () {
+                this.createWs();
+            },
+            reload: function () {
+                window.location.href = base + "/sysTailLogs/view?name=" + this.level + "&charSet=" + vm.charSet;
+            },
+            createWs: function () {
+                var WS_URL = window.location.host + base + "/tailLogs/" + this.level
+                if (location.protocol == 'http:') {
+                    ws = new WebSocket("ws://" + WS_URL);
+                } else {
+                    ws = new WebSocket("wss://" + WS_URL);
+                }
+                ws.onmessage = function (event) {
+                    vm.onMessage(event);
+                };
+                ws.onclose = function (event) {
+                    ws.send(JSON.stringify({action: "stop"}));
+                };
+                ws.onopen=function(){
+                    ws.send(JSON.stringify({action: "start", charSet: vm.charSet}));
+                }
+            },
+            onMessage: function (event) {
+                var data = JSON.parse(event.data);
+                vm.charSet = data.charSet;
+                $("#logs").append("<code class='language-java'>" + data.data + "</code>");
+                if (this.lock) {
+                    var ele = document.getElementById('logs');
+                    ele.scrollTop = ele.scrollHeight;
+                }
+            }
+        },
+        created: function () {
+            this.initLoad = true;
+            window.WEB_SOCKET_FORCE_FLASH = window.location.host + base + "/static/plugins/web-socket-js/WebSocketMain.swf";
+            this.load();
+        },
+        updated: function () {
+        },
+        mounted: function () {
+        }
+    });
+</script>
+<%}%>

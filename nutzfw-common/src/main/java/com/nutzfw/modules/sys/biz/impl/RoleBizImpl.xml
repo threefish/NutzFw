@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE Sqls PUBLIC "nutz-sqltpl" "https://threefish.gitee.io/nutz-sqltpl/nutz-sqltpl.dtd">
+<Sqls class="com.nutzfw.modules.sys.biz.impl.RoleBizImpl">
+    <!--根据部门ID取得授权管理的岗位并查询出这些人的ID-->
+    <sql id="queryManagerDeptJobUserNames" wrap="true">
+        SELECT (SELECT userName FROM sys_user_account WHERE id=aj.user_id) as username FROM sys_user_account_job aj
+        WHERE (SELECT deptId FROM sys_user_account ua WHERE aj.user_id = ua.id ) = @deptid AND FIND_IN_SET(job_id,(SELECT GROUP_CONCAT(job_id) FROM sys_role_job WHERE dept_id = @deptid))
+        GROUP BY user_id
+    </sql>
+</Sqls>

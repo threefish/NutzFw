@@ -1,0 +1,128 @@
+<%
+layout("/layouts/blank.html"){
+%>
+<input type="hidden" value="${uri!}" id="uri"/>
+<h3>URI详情:</h3>
+<table id="dataTable" class="table table-bordered" style="background-color: #fff;padding: 10px">
+    <tbody>
+    <tr>
+        <td class="td_lable lang">URI</td>
+        <td ></td>
+    </tr>
+    <tr>
+        <td class="td_lable lang">请求次数</td>
+        <td id="RequestCount"></td>
+
+    </tr>
+    <tr>
+        <td class="td_lable lang">请求时间</td>
+        <td id="RequestTimeMillis"></td>
+
+    </tr>
+    <tr>
+        <td class="td_lable lang">最后访问时间</td>
+        <td id="LastAccessTime"></td>
+
+    </tr>
+    <tr>
+        <td class="td_lable lang">执行中</td>
+        <td id="RunningCount"></td>
+
+    </tr>
+    <tr>
+        <td class="td_lable lang">最大并发</td>
+        <td id="ConcurrentMax"></td>
+
+    </tr>
+    <tr>
+        <td class="td_lable lang">Jdbc执行数</td>
+        <td id="JdbcExecuteCount"></td>
+
+    </tr>
+    <tr>
+        <td class="td_lable lang">Jdbc出错数</td>
+        <td id="JdbcExecuteErrorCount"></td>
+
+    </tr>
+    <tr>
+        <td class="td_lable lang">jdbc执行峰值</td>
+        <td id="JdbcExecutePeak"></td>
+
+    </tr>
+    <tr>
+        <td class="td_lable lang">Jdbc时间</td>
+        <td id="JdbcExecuteTimeMillis"></td>
+
+    </tr>
+    <tr>
+        <td class="td_lable lang">事务提交数</td>
+        <td id="JdbcCommitCount"></td>
+
+    </tr>
+    <tr>
+        <td class="td_lable lang">事务回滚数</td>
+        <td id="JdbcRollbackCount"></td>
+
+    </tr>
+    <tr>
+        <td class="td_lable lang">读取行数</td>
+        <td id="JdbcFetchRowCount"></td>
+
+    </tr>
+    <tr>
+        <td class="td_lable lang">jdbc查询取回行数峰值</td>
+        <td id="JdbcFetchRowPeak"></td>
+
+    </tr>
+    <tr>
+        <td class="td_lable lang">更新行数</td>
+        <td id="JdbcUpdateCount"></td>
+
+    </tr>
+    <tr>
+        <td class="td_lable lang">jdbc更新峰值</td>
+        <td id="JdbcUpdatePeak"></td>
+
+    </tr>
+    <tr>
+        <td class="td_lable lang">连接池获取连接次数</td>
+        <td id="JdbcPoolConnectionOpenCount"></td>
+
+    </tr>
+    <tr>
+        <td class="td_lable lang">连接池关闭连接次数</td>
+        <td id="JdbcPoolConnectionCloseCount"></td>
+
+    </tr>
+    <tr>
+        <td class="td_lable lang">ResultSet打开次数</td>
+        <td id="JdbcResultSetOpenCount"></td>
+
+    </tr>
+    <tr>
+        <td class="td_lable lang">ResultSet关闭次数</td>
+        <td id="JdbcResultSetCloseCount"></td>
+    </tr>
+    </tbody>
+</table>
+<script type="text/javascript">
+    $(function () {
+        var index = layer.load(0, {
+            shade: false
+        });
+        $.post(base + '/druid/weburi-' + $('#uri').val() + '.json', {}, function (data) {
+            layer.close(index);
+            console.log(data)
+            if (data.ResultCode == 1) {
+                for (key in data.Content) {
+                    $('#' + key).text(data.Content[key]);
+                }
+            } else if (data.msg) {
+                core.showMsg(data.msg, data.ok);
+            } else {
+                core.showMsg("调用druid api失败!")
+            }
+        }, 'json');
+    })
+</script>
+<%}%>

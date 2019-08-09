@@ -1,0 +1,76 @@
+<%include("/inc/header.html"){}%>
+<script type="text/javascript">
+    $(function () {
+        addTabs({
+            id: 'mainIndex',
+            title: '首页',
+            close: false,
+            url: '/main/index',
+            urlType: "relative"
+        });
+        App.fixIframeCotent();
+    });
+
+    /**
+     * 本地搜索菜单
+     */
+    function search_menu() {
+        //要搜索的值
+        var text = $('input[name=q]').val();
+        var $ul = $('.sidebar-menu');
+        $ul.find("a.nav-link").each(function () {
+            var $a = $(this).css("border", "");
+            //判断是否含有要搜索的字符串
+            if ($a.children("span.menu-text").text().indexOf(text) >= 0) {
+                //如果a标签的父级是隐藏的就展开
+                $ul = $a.parents("ul");
+                if ($ul.is(":hidden")) {
+                    $a.parents("ul").prev().click();
+                }
+                //点击该菜单
+                $a.click().css("border-bottom", "#cdcdcd 1px solid");
+                setTimeout(function () {
+                    $a.css("border-bottom", "none");
+                },5000);
+            }
+        });
+    }
+
+    $(function () {
+        var menus = ${session.sessionMenus!};
+        $('.sidebar-menu').sidebarMenu({data: menus});
+        $("#personalInfo").click(function () {
+            addTabs({
+                id: 'personalInfo',
+                title: '个人资料',
+                close: true,
+                url: '/manage/user/personalInfo',
+                urlType: 'relative'
+            });
+        });
+        $("#changePass").click(function () {
+            addTabs({
+                id: 'changePass',
+                title: '修改密码',
+                close: true,
+                url: '/manage/user/changePass',
+                urlType: 'relative'
+            });
+        });
+        // 动态创建菜单后，可以重新计算 SlimScroll
+        // $.AdminLTE.layout.fixSidebar();
+        /*if ($.AdminLTE.options.sidebarSlimScroll) {
+            if (typeof $.fn.slimScroll != 'undefined') {
+                //Destroy if it exists
+                var $sidebar = $(".sidebar");
+                $sidebar.slimScroll({destroy: true}).height("auto");
+                //Add slimscroll
+                $sidebar.slimscroll({
+                    height: ($(window).height() - $(".main-header").height()) + "px",
+                    color: "rgba(0,0,0,0.2)",
+                    size: "3px"
+                });
+            }
+        }*/
+    });
+</script>

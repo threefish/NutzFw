@@ -1,0 +1,684 @@
+<%
+layout("/layouts/blank.html",{title:"后台管理主页"}){
+%>
+<style>
+    .link:hover {
+        font-size: 16px;
+    }
+
+    .a-link {
+        cursor: pointer;
+    }
+
+    .box {
+        border: 1px solid #d2d6de !important;
+        height: calc(100% - 10px);
+    }
+
+    .box-body {
+        height: 360px;
+    }
+
+    .wrapper {
+        background: #eceef3;
+    }
+
+    .userinfo_line {
+        width: 100%;
+        height: 20px;
+        margin-top: 16px;
+    }
+
+    .userinfo_title {
+        width: 80px;
+        /* background: darkblue; */
+        float: left;
+        text-align: right;
+        padding-right: 6%;
+    }
+
+    .userinfo_value {
+        width: calc(100% - 80px);
+        /*background: rebeccapurple;*/
+        float: left;
+        padding-left: 3%;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    .msg_notice_div {
+        width: 97%;
+        height: 34px;
+        margin-left: 3%;
+    }
+
+    #notice_total {
+        overflow: auto;
+        height: 350px;
+        display: block;
+        font-size: 13px;
+    }
+
+    .msg_notice_div a:hover {
+        font-size: 14px;
+        color: red;
+    }
+
+    .box.box-solid {
+        border-top: 0;
+        float: left;
+        width: 46%;
+        margin-left: 2%;
+        height: 400px;
+        background: #fff;
+        margin-right: 2%;
+    }
+
+    .button_click {
+        width: 70px;
+        float: left;
+        height: 70px;
+        cursor: pointer;
+        margin: 15px;
+        color: white;
+        background: #3996FE;
+        border-radius: 12px;
+    }
+
+    .button_click:hover {
+        /*color: green;*/
+        font-size: 14px;
+    }
+
+    a {
+        color: #3996FE;
+    }
+
+    .button_click i {
+        height: 35px;
+        width: 40px;
+        /* background-size: 31px 50px; */
+        margin-left: 15px;
+        font-size: 35px;
+        margin-top: 10px;
+        text-align: center;
+    }
+
+    .button_click span {
+        width: 70px;
+        text-align: center;
+        display: block;
+        height: 30px;
+        line-height: 30px;
+        font-size: 12px;
+    }
+
+    #all_quick {
+        padding-left: 20px;
+        overflow: auto;
+    }
+
+    #all_fun .col-lg-4, #all_fun .col-lg-8 {
+        height: 400px;
+    }
+
+    .col-lg-12 {
+        height: 450px;
+    }
+
+    .news-list {
+        width: 100%;
+        margin-left: 1%;
+        height: 90%;
+        overflow: auto;
+        margin-top: 20px;
+        float: left;
+    }
+
+    #news-list > li {
+        height: 30px;
+    }
+
+    #news-list > li > a {
+        width: 100%;
+        display: inline-block;
+        font-size: 13px;
+        line-height: 26px;
+        margin: 2px 0;
+        letter-spacing: 1px;
+    }
+
+    #news-list > li > a:visited {
+        color: #666
+    }
+
+    #news-list > li > a > p {
+        float: left;
+        width: calc(100% - 190px);
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    #news-list > li > a > .news-user {
+        display: inline-block;
+        float: left;
+        min-width: 40px;
+        /*max-width: 80px;*/
+    }
+
+    #news-list > li > a > .news-time {
+        margin-left: 5px;
+        display: inline-block;
+        float: left;
+        width: 100px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    #all_fun > div {
+        padding: 0 5px;
+    }
+
+    .new-title > img {
+        display: none;
+        margin-top: -3px;
+        margin-right: 3px;
+    }
+
+    .new-title > .showTop {
+        display: inline-block;
+    }
+
+    .no_data {
+        text-align: center;
+        margin-top: 100px;
+        font-size: 16px;
+        color: #61a0a8;
+    }
+
+    #news-img {
+        float: left;
+    }
+
+    .news-list a:hover {
+        font-size: 14px !important;
+        color: red !important;
+    }
+
+    /*滚动条样式*/
+    .news-list::-webkit-scrollbar { /*滚动条整体样式*/
+        width: 4px; /*高宽分别对应横竖滚动条的尺寸*/
+        height: 4px;
+    }
+
+    .news-list::-webkit-scrollbar-thumb { /*滚动条里面小方块*/
+        border-radius: 5px;
+        -webkit-box-shadow: inset 0 0 5px #3996FE;
+        background: rgba(0, 0, 0, 0.2);
+    }
+
+    .news-list::-webkit-scrollbar-track { /*滚动条里面轨道*/
+        -webkit-box-shadow: inset 0 0 5px #3996FE;
+        border-radius: 5px;
+        background: rgba(0, 0, 0, 0.1);
+    }
+
+    .box-title {
+        font-size: 15px !important;
+        padding-top: 5px;
+    }
+
+    .box-header {
+        color: #444;
+        display: block;
+        padding: 0px;
+        padding-top: 10px;
+        position: relative;
+        height: 50px;
+        margin-left: 17px;
+    }
+
+    .drag-title {
+        cursor: move;
+    }
+
+    .news-img-title {
+        width: 100%;
+        height: 10%;
+        text-align: center;
+        display: block;
+        line-height: 32px;
+        position: absolute;
+        bottom: 0px;
+    }
+
+    .layui-carousel-ind {
+        top: -56px;
+    }
+</style>
+<section class="content" id="container">
+    <div class="row" id="all_fun"></div>
+    <div class="row" style="display: none" id="all_fun_hidden">
+        <!--左侧-->
+        <!--个人基本信息-->
+        <div sort-id="1" class="drag-box col-lg-4 col-md-6 col-sm-6">
+            <div class="box">
+                <div class="box-header drag-title">
+                    <!--<i class="fa fa-th"></i>-->
+                    <h3 class="box-title">基本信息</h3>
+                </div>
+                <div class="box-body border-radius-none" id="userinfo_total" style="display: none;">
+                    <div style="width: 50%;float: left">
+                        <img style="width: 60%;margin-left: 20%;"
+                             src="${base!}/File/avatar/"/>
+                    </div>
+                    <div style="width: 50%;float: left">
+                        <div class="userinfo_line">
+                            <div class="userinfo_title">姓名:</div>
+                            <a class="userinfo_value a-link" @click="showPersonalInfo">{{userInfo.realName}}</a>
+                        </div>
+                        <div class="userinfo_line">
+                            <div class="userinfo_title">性别:</div>
+                            <a class="userinfo_value a-link" @click="showPersonalInfo">{{userInfo.gender}}</a>
+                        </div>
+                        <div class="userinfo_line">
+                            <div class="userinfo_title">部门:</div>
+                            <div class="userinfo_value">{{userInfo.deptName}}</div>
+                        </div>
+                        <div class="userinfo_line">
+                            <div class="userinfo_title">电话:</div>
+                            <a class="userinfo_value a-link" @click="showPersonalInfo">{{userInfo.phone}}</a>
+                        </div>
+                        <div class="userinfo_line">
+                            <div class="userinfo_title">邮箱:</div>
+                            <a class="userinfo_value a-link" @click="showPersonalInfo">{{userInfo.mail}}</a>
+                        </div>
+                        <div class="userinfo_line">
+                            <div class="userinfo_title">登录账号:</div>
+                            <a class="userinfo_value a-link" @click="showPersonalInfo">{{userInfo.userName}}</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!--消息提醒-->
+        <div sort-id="2" class="drag-box col-lg-4 col-md-6 col-sm-6">
+            <div class="box">
+                <div class="box-header drag-title">
+                    <!--<i class="fa fa-th"></i>-->
+                    <h3 class="box-title">消息提醒</h3>
+                </div>
+                <div class="box-body border-radius-none" id="notice_total" style="display: none;">
+                    <div class="msg_notice_div" v-for="(item,i) in notices">
+                        <a href="#" @click="showMsgTab(item,i)">{{item.name}}</a>
+                    </div>
+                </div>
+                <div class="no_data" v-if="notices.length==0">
+                    暂时没有消息提醒!
+                </div>
+            </div>
+        </div>
+        <div sort-id="3" class="drag-box col-lg-4 col-md-6 col-sm-6">
+            <div class="box">
+                <div class="box-header drag-title">
+                    <!--<i class="fa fa-th"></i>-->
+                    <h3 class="box-title">快捷功能入口</h3>
+                </div>
+                <div class="box-body border-radius-none" id="all_quick">
+
+                </div>
+            </div>
+        </div>
+        <!--新闻推送-->
+        <div sort-id="4" class="drag-box col-lg-4 col-md-6 col-sm-6">
+            <div class="box">
+                <div class="box-header drag-title">
+                    <!--<i class="fa fa-th"></i>-->
+                    <h3 class="box-title">新闻推送</h3>
+                    <!---->
+                    <a class="pull-right" style="cursor: pointer;margin-right: 10px;" @click="fun_lookMore">查看更多 <i
+                            class="fa fa-angle-double-right"></i></a>
+                </div>
+                <div class="box-body border-radius-none">
+                    <div class="news-list" v-if="newsList.length>0">
+                        <!-- 新闻列表-->
+                        <ul id="news-list">
+                            <li v-for="item in newsList">
+                                <a :href="'#'+item.uuid" @click="fun_newsDetail(item.uuid)">
+                                    <p :title="item.title" class="new-title">
+                                        <img :class="{showTop:item.toped}"
+                                             src="${base}/static/img/top.png">{{item.title}}</p>
+                                    <span class="news-user">{{item.opByDesc}}</span>
+                                    <span class="news-time" :title="item.publishTime">{{item.publishTime}}</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="no_data" v-if="newsList.length==0">
+                        暂时没有新闻!
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div sort-id="5" class="drag-box col-lg-4 col-md-6 col-sm-6">
+            <div class="box">
+                <div class="box-header drag-title">
+                    <!--<i class="fa fa-th"></i>-->
+                    <h3 class="box-title">推荐新闻</h3>
+                    <!---->
+                </div>
+                <div class="box-body border-radius-none" style="display: block;height: 350px">
+                    <!-- 新闻轮播图-->
+                    <div class="layui-carousel" id="news-img" v-if="imgNewList.length>0">
+                        <div carousel-item>
+                            <div :newId="item.uuid" @click="fun_newsDetail(item.uuid)" v-for="item in imgNewList">
+                                <img width="100%"
+                                     style="max-height: 90%;"
+
+                                     :src="'${base}/File/attachAct?id='+item.recommimg" alt="item.title">
+                                <span class="news-img-title">{{item.title}}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="no_data" v-if="imgNewList.length==0">
+                        暂时没有推荐新闻!
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div sort-id="6" style="display: none" id="all_statistics" class="drag-box col-lg-12 col-md-12 col-sm-12">
+            <div class="box">
+                <div class="layui-tab layui-tab-brief" lay-filter="layuitab">
+                    <ul class="layui-tab-title drag-title" id="statistics_tabs_head">
+                    </ul>
+                    <div class="layui-tab-content" id="statistics_tabs_content">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<script type="text/javascript" src="${base}/static/js/Sortable.js"></script>
+<script type="text/javascript">
+    var sort = ""
+    var vm = new Vue({
+        el: "#container",
+        data: {
+            userInfo: {},
+            notices: [],
+            newsList: [],
+            imgNewList: [],
+        },
+        methods: {
+            showMsgTab: function (item, index) {
+                window.parent.addTabs({
+                    id: 'tabs_' + index,
+                    title: item.name,
+                    close: true,
+                    url: "${base}/index/msgDetail?mid=" + item.id,
+                    urlType: "",
+                });
+            },
+            showPersonalInfo: function () {
+                window.parent.addTabs({
+                    id: 'personalInfo',
+                    title: '个人资料',
+                    close: true,
+                    url: '/manage/user/personalInfo',
+                    urlType: 'relative'
+                });
+            },
+            fn_loadUserInfo: function () {
+                $.ajax({
+                    url: base + "/index/userinfo",
+                    type: "POST",
+                    async: true,
+                    error: function () {
+                        layer.msg("网络连接出错", {icon: 5, time: 1000});
+                    },
+                    dataType: "json",
+                    success: function (data) {
+                        if (data.ok) {
+                            vm.userInfo = data.data.userinfo;
+                            vm.userInfo.gender = data.data.sex;
+                            $("#userinfo_total").show();
+                            sort = vm.userInfo.indexSort;
+                            if (sort == null || sort == "") {
+                                $("#all_fun_hidden").find(".drag-box").appendTo("#all_fun");
+                            } else {
+                                var sorts = sort.split(",");
+                                $.each(sorts, function (i, v) {
+                                    $("div[sort-id=" + v + "]").appendTo("#all_fun");
+                                })
+                            }
+                        }
+                    }
+                });
+            },
+            fun_loadNews: function () {
+                var that = this;
+                core.postSyncJSON('/News/indexNewsList', {}, function (data) {
+                    that.newsList = data;
+                });
+                core.postSyncJSON('/News/indexImgNewsList', {}, function (data) {
+                    that.imgNewList = data;
+                });
+            },
+            fun_newsDetail: function (id) {
+                parent.layer.open({
+                    type: 2,
+                    title: '新闻详情',
+                    content: '${base}/news/lookNews/' + id,
+                    area: ['80%', '80%'],
+                });
+            },
+            fun_lookMore: function () {
+                parent.addTabs({
+                    title: '新闻信息',
+                    close: true,
+                    url: '/news/lookMore',
+                    urlType: "relative"
+                });
+            },
+            fn_loadMsgNotices: function () {
+                $.ajax({
+                    url: base + "/index/msgNotices",
+                    type: "POST",
+                    async: true,
+                    error: function () {
+                        layer.msg("网络连接出错", {icon: 5, time: 1000});
+                    },
+                    dataType: "json",
+                    success: function (data) {
+                        if (data.ok) {
+                            vm.notices = data.data;
+                            $("#notice_total").show();
+                        }
+                    }
+                });
+            },
+            fn_loadQuickLinks: function () {
+                $.ajax({
+                    url: base + "/index/quickLinks",
+                    type: "POST",
+                    async: true,
+                    error: function () {
+                        layer.msg("网络连接出错", {icon: 5, time: 1000});
+                    },
+                    dataType: "json",
+                    success: function (data) {
+                        if (data.ok) {
+                            var links = data.data;
+                            for (var i in links) {
+                                var html = '<div class="button_click" type="' + links[i].type + '" openType="' + links[i].openType + '" link="' + links[i].link + '"><i class="fa ' + links[i].icon +
+                                    '"></i><span>' + links[i].name + '</span></div>';
+                                $("#all_quick").append(html);
+                            }
+                            if (links.length == 0) {
+                                $("#all_quick").append("<div class='no_data'>暂时没有快捷功能!</div>");
+                            }
+                            $(".button_click").click(function () {
+                                var openType = $(this).attr("openType");
+                                var link = $(this).attr("link");
+                                var title = $(this).find("span").html();
+                                var type = $(this).attr("type");
+                                if (openType == "1") {
+                                    window.parent.layer.open({
+                                        type: 2,
+                                        shadeClose: false,
+                                        title: title,
+                                        shade: 0.3,
+                                        area: ['96%', '96%'], // 宽高
+                                        content: type == "1" ? base + link : link
+                                    });
+                                } else if (openType == "2") {
+                                    window.parent.addTabs({
+                                        id: 'tabs_' + title,
+                                        title: title,
+                                        close: true,
+                                        url: link,
+                                        urlType: type == "2" ? "" : "relative",
+                                    });
+                                } else if (openType == "3") {
+                                    window.parent.open(type == "1" ? base + link : link);
+                                }
+                            })
+                        }
+                    }
+                });
+            },
+            fn_loadStatisticsConfigures: function () {
+                $.ajax({
+                    url: base + "/index/statisticsConfigures",
+                    type: "POST",
+                    async: true,
+                    error: function () {
+                        layer.msg("网络连接出错", {icon: 5, time: 1000});
+                    },
+                    dataType: "json",
+                    success: function (data) {
+                        if (data.ok) {
+                            var configs = data.data;
+                            for (var i = 0; i < configs.length; i++) {
+                                $("#all_statistics").show()
+                                var config = configs[i];
+                                $("#statistics_tabs_head").append('<li ' + (i == 0 ? 'class="layui-this"' : '') + '>' + config.name + '</li>');
+                                //  两个判断（判断是否浏览器窗口大于等于1366）渲染不同的div
+                                var div = $('<div></div>').append(
+                                    '<div class="box">' +
+                                    '<div class="box-body border-radius-none" id="echarts_' + i + '">' +
+                                    '</div>' +
+                                    '</div>');
+                                $("#statistics_tabs_content").append(div);
+                                var allName = [];
+                                var allValue = [];
+                                for (var c in config.data) {
+                                    allName[c] = config.data[c].name;
+                                    allValue[c] = config.data[c].value;
+                                }
+                                if (config.type == "1") {
+                                    core.showEchartsPie({
+                                        el: "echarts_" + i,
+                                        text: config.name,
+                                        data: config.data,
+                                        names: allName,
+                                    });
+                                } else if (config.type == "2") {
+                                    core.showEchartsBar({
+                                        el: "echarts_" + i,
+                                        text: config.name,
+                                        xAxisData: allName,
+                                        data: allValue,
+                                    });
+                                } else if (config.type == "3") {
+                                    core.showEchartsLine({
+                                        el: "echarts_" + i,
+                                        text: config.name,
+                                        xAxisData: allName,
+                                        data: allValue,
+                                    });
+                                }
+                                div.addClass("layui-tab-item")
+                                if (i == 0) {
+                                    div.addClass("layui-show");
+                                }
+                            }
+                            layui.use('element', function () {
+                                var element = layui.element;
+                            });
+                        }
+                    }
+                });
+            },
+            fun_ready: function () {
+                if ($(window).width() >= 1136) {
+                    $("#all_fun > .col-lg-4").addClass('col-md-4').siblings().removeClass('col-md-6')
+                } else {
+                    $("#all_fun > .col-lg-4").addClass('col-md-6').siblings().removeClass('col-md-4')
+                }
+            }
+        },
+        mounted: function () {
+            this.fn_loadUserInfo();
+            this.fn_loadMsgNotices();
+            this.fn_loadQuickLinks();
+            this.fn_loadStatisticsConfigures();
+            this.fun_ready();
+            this.fun_loadNews();
+        },
+    });
+    //layui
+    layui.use('carousel', function () {
+        var carousel = layui.carousel;
+        //建造实例
+        carousel.render({
+            elem: '#news-img'
+            , width: '100%' //设置容器宽度
+            , arrow: 'hover' //始终显示箭头
+            , height: '96%'
+            // ,anim: 'fade' //切换动画方式
+        });
+    })
+    //  页面加载的时候判断row的排列
+
+    // 页面变动的时候处理row的排列
+    $(window).resize(function () {
+        if ($(window).width() >= 1136) {
+            $("#all_fun > .col-lg-4").addClass('col-md-4').siblings().removeClass('col-md-6')
+        } else {
+            $("#all_fun > .col-lg-4").addClass('col-md-6').siblings().removeClass('col-md-4')
+        }
+    });
+    Sortable.create(document.getElementById("all_fun"), {
+        animation: 150,
+        draggable: '.drag-box',
+        handle: '.drag-title',
+        onUpdate: function (event) {
+            var allbox = $("#all_fun").find(".drag-box");
+            var ids = [];
+            $.each(allbox, function (i, v) {
+                ids.push($(v).attr("sort-id"));
+            })
+            $.ajax({
+                url: base + "/index/savePageSort",
+                type: "POST",
+                async: true,
+                error: function () {
+                    layer.msg("网络连接出错", {icon: 5, time: 1000});
+                },
+                data: {sort: ids.join(",")},
+                dataType: "json",
+                success: function (data) {
+                    if (data.ok) {
+                        core.msg(data)
+                    }
+                }
+            });
+        }
+    });
+</script>
+<%}%>

@@ -1,0 +1,771 @@
+<%
+var title="人员管理";
+layout("/layouts/blank.html",{title:title}){
+%>
+<style type="text/css">
+    .required {
+        color: red;
+    }
+
+    .mouseType {
+        cursor: pointer;
+    }
+
+    .input_Div {
+        padding: 5px 10px;
+    }
+
+    .input_Div > span {
+        line-height: 36px;
+    }
+
+    .input_Div > input {
+        line-height: 26px;
+        border: 1px solid #E6E6EC;
+        border-radius: 5px;
+        padding: 2px 5px;
+        font-size: 14px;
+    }
+
+    .autoHeight:after {
+        display: block;
+        clear: both;
+        content: ' ';
+    }
+
+    #importBox:first-child {
+        text-align: center;
+        padding: 20px;
+        line-height: 25px;
+    }
+
+    .downLoadTemplate {
+        border: none;
+        background: #00b7ee;
+        font-size: 15px;
+        margin-top: -3px;
+    }
+
+    .content {
+        padding: 10px 0px 0px 0px;
+        margin: 0;
+    }
+</style>
+<section class="content autoHeight" id="container" v-if="initLoad" style="height: 100%">
+    <div class="col-sm-2" style="min-width: 150px;height: 100%;padding: 0px;">
+        <div style="margin-left: 5px">
+            <%if(so.hasPermission("sysAccount.add")){%>
+            <button class="btn btn-primary btn-sm" @click="handleAdd" :disabled="!selected">新增用户</button>
+            <%}%>
+            <%if(so.hasPermission("sysAccount.importData")){%>
+            <button class="btn btn-primary btn-sm" @click="handleImportData">导入</button>
+            <%}%>
+        </div>
+        <!--<div class="ztree" id="dbTree"></div>-->
+        <div id="deptTree" class="ztree" style="height:calc(100% - 40px) ;overflow-y: auto;margin-top: 8px"></div>
+    </div>
+    <div class="col-sm-10">
+        <table class="searchBox">
+            <tbody>
+            <tr>
+                <td class="form-lable" width="100px" style="text-align: center;">
+                    用户名
+                </td>
+                <td>
+                    <div class="input-group">
+                        <input type="text" class="form-control" v-model="searchData.name" placeholder="用户名/姓名支持模糊查询">
+                    </div>
+                </td>
+                <td class="form-lable" width="100px" style="padding-left: 10px;text-align: center;">
+                    状态
+                </td>
+                <td width="100px">
+                    <div class="input-group">
+                        <select class="form-control" v-model="searchData.status">
+                            <option value="-1">请选择</option>
+                            <option value="0">启用中</option>
+                            <option value="1">禁用中</option>
+                        </select>
+                    </div>
+                </td>
+                <td width="60px">
+                    <div class="input-group">
+                        <input type="checkbox" v-model="searchData.hasRole">未授权
+                    </div>
+                </td>
+                <td width="50px">
+                    <div class="input-group">
+                        <button type="button" class="layui-btn layui-btn-sm layui-btn-normal" @click="reloadTable">
+                            查询
+                        </button>
+                    </div>
+                </td>
+                <td width="50px">
+                    <div class="input-group">
+                        <button type="button" class="layui-btn layui-btn-sm layui-btn-normal" @click="openEditRole(1)">
+                            授权
+                        </button>
+                    </div>
+                </td>
+                <td width="75px">
+                    <div class="input-group">
+                        <button type="button" class="layui-btn layui-btn-sm layui-btn-normal" @click="openEditRole(2)">
+                            取消授权
+                        </button>
+                    </div>
+                </td>
+                <%if(so.hasPermission("sysAccount.repass")){%>
+                <td width="75px">
+                    <div class="input-group">
+                        <button type="button" class="layui-btn layui-btn-sm layui-btn-normal" @click="repassword">
+                            重置密码
+                        </button>
+                    </div>
+                </td>
+                <%}%>
+                <%if(so.hasPermission("sysAccount.lock")){%>
+                <td width="50px">
+                    <div class="input-group">
+                        <div class="layui-btn layui-btn-sm layui-btn-normal" @click="handleLock(2)">启用</div>
+                    </div>
+                </td>
+                <%}%>
+                <%if(so.hasPermission("sysAccount.lock")){%>
+                <td width="50px">
+                    <div class="input-group">
+                        <div class="layui-btn layui-btn-sm layui-btn-normal" @click="handleLock(1)">禁用</div>
+                    </div>
+                </td>
+                <%}%>
+            </tr>
+            </tbody>
+        </table>
+        <div id="listTable" lay-filter='listTable'></div>
+    </div>
+    <div id="dataBox" style="display: none;padding: 15px">
+        <div class="form-grou">
+            <label>真实姓名<span class="required">*</span></label>
+            <input type="text" v-model="fromData.realName" class="form-control input-sm" placeholder="真实姓名">
+        </div>
+        <div class="form-grou">
+            <label>用户名<span class="required">*</span></label>
+            <input type="text" v-model="fromData.userName" class="form-control input-sm" placeholder="用户名">
+        </div>
+        <div class="form-grou">
+            <label>密码<span class="required">*</span></label>
+            <input type="text" v-model="fromData.userPass" class="form-control input-sm" placeholder="为空则设置为默认密码">
+        </div>
+        <div class="form-grou">
+            <label>手机</label>
+            <input type="text" v-model="fromData.phone" class="form-control input-sm" placeholder="11位手机号码">
+        </div>
+        <div class="form-grou">
+            <label>电子邮箱</label>
+            <input type="text" v-model="fromData.mail" class="form-control input-sm" placeholder="电子邮箱">
+        </div>
+        <div class="form-grou">
+            <label>部门</label>
+            <input class="form-control input-sm" type="hidden"  v-model="fromData.deptId"
+                   placeholder="部门选择器进行选择" readonly>
+            <input class="form-control input-sm mouseType" type="text"  v-model="fromData.deptName"
+                   placeholder="部门选择器进行选择" readonly>
+        </div>
+        <div class="form-grou">
+            <label>岗位</label>
+            <input class="form-control input-sm" type="hidden"  v-model="fromData.jobsId"
+                   placeholder="岗位选择器进行选择" readonly>
+            <input @click="acceptJobFn" type="text"  v-model="fromData.jobsName"
+                   class="form-control input-sm mouseType" placeholder="岗位选择器进行选择" readonly>
+        </div>
+    </div>
+    <div id="roleBox" style="display: none;padding: 15px">
+        <div id="listRole" lay-filter='listRole'></div>
+    </div>
+    <div id="acceptJobDiv" class="hide">
+        <div class="input_Div">
+            <span>模糊查询：</span>
+            <input type="text" placeholder="请输入岗位名称或编码" id="queryJob" @keydown="queryJobKey($event)">
+            <button class="btn form-news-add-btn btn-primary blue1" @click="queryJobTable">查询</button>
+        </div>
+        <table id="acceptJT" style="clear: both" lay-filter="acceptJT" width="100%"></table>
+    </div>
+    <div id="importBox" style="display: none">
+        <div>
+            <div class="btn btn-info downLoadTemplate" @click="handleDownTemplate">模版下载</div>
+            <div class="btn btn-info downLoadTemplate" @click="handleUpload">导入数据</div>
+            <div style="font-size: 12px;margin-top: 10px;color: #f10f0f;">
+                <p>1、请先下载模版，在模版中编辑数据后再导入数据</p>
+                <p>2、数据请对应用户的用户名</p>
+                <p>3、每次导入不能超过5000条数据，多余记录将会被忽略</p>
+            </div>
+        </div>
+    </div>
+</section>
+<script type="text/html" id="toolBarFixed">
+    <%if(so.hasPermission("sysDynamicFrom.edit")){%>
+    <div class="layui-btn layui-btn-sm layui-btn-normal" lay-event="userMaintain">维护信息</div>
+    <%}%>
+</script>
+<link rel="stylesheet" href="${base}/static/plugins/ztree/css/metroStyle/metroStyle.css">
+<script type="text/javascript" src="${base}/static/plugins/ztree/js/jquery.ztree.all.js"></script>
+<script type="text/javascript">
+    var listTable;
+    var vm = new Vue({
+        el: '#container',
+        data: {
+            selected: false,
+            searchData: {
+                name: "",
+                status: -1,
+                deptId: "",
+                hasRole: false,
+            },
+            fromData: {
+                userName: "",
+                userPass: "",
+                realName: "",
+                deptId: "",
+                phone: "",
+                mail: "",
+                jobsName: "",
+                jobsId: ""
+            },
+            fromDataSubmit: false,
+            fromDataEdit: true,
+            initLoad: false,
+            selectedUserIds: [],
+            selectedRoleIds: []
+        },
+        methods: {
+            /*重置密码*/
+            repassword: function () {
+                var checkStatus = layui.table.checkStatus("listTable");
+                if (checkStatus.data.length == 0) {
+                    core.error("请先选择要重置密码的用户!")
+                    return;
+                } else {
+                    vm.selectedUserIds = [];
+                    for (var i = 0; i < checkStatus.data.length; i++) {
+                        vm.selectedUserIds.push(checkStatus.data[i].id);
+                        if (checkStatus.data[i].username == "admin") {
+                            core.error('admin是系统管理员账号，不能被重置密码')
+                            return;
+                        }
+                    }
+                    core.confirm("确定重置密码？", function () {
+                        var json = core.postJSON("/sysAccount/repass", {
+                            ids: vm.selectedUserIds.join(","),
+                        });
+                        core.msg(json);
+                        if (json.ok) {
+                            vm.reloadTable();
+                        }
+                    })
+                }
+
+            },
+            /*授权和取消授权type=1授权type=2取消授权*/
+            saveUserRole: function (type) {
+                var json = core.postJSON("/sysAccount/saveUserRole", {
+                    userIds: vm.selectedUserIds.join(","),
+                    roleIds: vm.selectedRoleIds.join(","),
+                    type: type,
+                });
+                core.msg(json);
+                if (json.ok) {
+                    vm.reloadTable();
+                }
+            },
+            /*打开授权和取消授权窗口,type=1授权type=2取消授权*/
+            openEditRole: function (type) {
+                var checkStatus = layui.table.checkStatus("listTable");
+                if (checkStatus.data.length == 0) {
+                    core.error("请先选择用户!")
+                    return;
+                } else {
+                    vm.selectedUserIds = [];
+                    for (var i = 0; i < checkStatus.data.length; i++) {
+                        vm.selectedUserIds.push(checkStatus.data[i].id);
+                    }
+                    this.loadRoleGrid()
+                    layer.open({
+                        scrollbar: false,
+                        type: 1,
+                        title: "选择角色-" + (type == 1 ? "授权" : "取消授权"),
+                        area: ['50%', '90%'],
+                        content: $("#roleBox"),
+                        btn: ['确定', '取消'],
+                        yes: function (index) {
+                            var checkStatus = layui.table.checkStatus("listRole");
+                            if (checkStatus.data.length == 0) {
+                                core.error("请先选择要" + (type == 1 ? "授权" : "取消授权") + "的角色!")
+                                return;
+                            } else {
+                                vm.selectedRoleIds = [];
+                                for (var i = 0; i < checkStatus.data.length; i++) {
+                                    vm.selectedRoleIds.push(checkStatus.data[i].id);
+                                }
+                                vm.saveUserRole(type)
+                                layer.close(index);
+                            }
+                        }
+                    });
+                }
+            },
+            /*加载角色列表*/
+            loadRoleGrid: function () {
+                layui.use(['table', 'laytpl'], function () {
+                    table = layui.table;
+                    table.render({
+                        id: 'listRole',
+                        elem: '#listRole',
+                        page: true,
+                        method: 'post',
+                        url: base + '/sysRole/query',
+                        even: true,
+                        request: {
+                            pageName: 'pageNum',
+                            limitName: 'pageSize',
+                        },
+                        cols: [[
+                            {type: 'checkbox'},
+                            {title: '序号', type: 'numbers', align: 'center'},
+                            {field: 'roleCode', title: '角色编号', align: 'center'},
+                            {field: 'roleName', title: '角色名称', align: 'center'},
+                        ]]
+                    });
+                });
+            },
+            /*上传*/
+            handleUpload: function () {
+                core.singleUpload({
+                    fileExtensions: "xlsx",
+                    module: "dataimport",
+                    fileType: "file",
+                    ok: function (index, response) {
+                        var attachId = response.data;
+                        layer.closeAll();
+                        if (attachId != undefined) {
+                            var json = core.postJSON("/sysAccount/checkImportData", {
+                                attachId: attachId
+                            });
+                            core.msg(json);
+                            if (json.ok) {
+                                vm.reloadTable();
+                            }
+                        }
+                    }
+                });
+            },
+            /*打开上传窗口*/
+            handleImportData: function () {
+                //打开导入弹窗
+                vm.importStatus = true;
+                layer.open({
+                    type: 1,
+                    title: "数据导入",
+                    area: ['500px', '220px'],
+                    content: $("#importBox")
+                });
+            },
+            /*下载模板*/
+            handleDownTemplate: function () {
+                window.open("${base}/sysAccount/downTemplate", "_blank");
+            },
+            /*打开添加人员窗口;添加人员*/
+            handleAdd: function () {
+                layer.open({
+                    scrollbar: false,
+                    type: 1,
+                    title: "新增人员",
+                    area: ['500px', '500px'],
+                    content: $("#dataBox"),
+                    btn: ['确定', '取消'],
+                    yes: function (index) {
+                        var fromData = core.convertDataJSON(vm.fromData);
+                        //  岗位ID处理提交接收
+                        fromData.jobsId = vm.fromData.jobsId
+                        var jsonre = core.postJSON("/sysAccount/add", fromData);
+                        core.msg(jsonre);
+                        if (jsonre.ok) {
+                            vm.fromDataSubmit = false;
+                            vm.fromDataEdit = true;
+                            vm.reloadTable();
+                            layer.close(index);
+                        } else {
+                            vm.fromDataSubmit = false;
+                        }
+                    }
+                });
+            },
+            /*执行方法后重载账号表格*/
+            doAction: function (url, data) {
+                var json = core.postJSON(url, data);
+                core.msg(json);
+                if (json.ok) {
+                    this.reloadTable()
+                }
+            },
+            /*重载表格*/
+            reloadTable: function () {
+                listTable.reload({
+                    where: vm.searchData,
+                    page: {
+                        curr: 1 //重新从第 1 页开始
+                    }
+                });
+            },
+            queryJobKey: function (ev) {
+                if (ev.keyCode == 13 || ev.keyCode == 108) {
+                    vm.queryJobTable();
+                }
+            },
+            /*重载接收岗位列表*/
+            queryJobTable: function () {
+                this.JobTable.reload({
+                    page: {
+                        curr: 1
+                    },
+                    where: {
+                        query: $("#queryJob").val(),
+                        deptId: vm.fromData.deptId
+                    }
+                });
+            },
+            fn_reloadDeptTree: function () {
+                this.deptTree = new showZtree({
+                    el: "#deptTree",
+                    url: "/sysOrganize/department/treeAboutCount",
+                    data: {id: "id", pid: "pid", name: "name"},
+                    autoParam: ["id"],
+                    isCheckbox: false,
+                    chkboxType: {"Y": "", "N": ""},
+                    otherParam: {},
+                    onSelect: function (node) {
+                        if (node.type == 'dept' && node.id != 0) {
+                            vm.selected = true;
+                        } else {
+                            vm.selected = false;
+                        }
+                        vm.selectedNode = node;
+                        vm.selectId = node.id;
+                        return true;
+                    },
+                    onCheck: function (node) {
+                        var thas = vm;
+                        //  岗位选择是显示当前岗位前的父元素部门
+                        if (node.getParentNode().click) {
+                            thas.fromData.deptName = node.getParentNode().name;
+                            thas.fromData.deptId = node.getParentNode().id;
+                            thas.fromData.jobsName += node.name.substring(node.name, node.name.length - 4) + ',';
+                            thas.fromData.jobsId += node.id + ',';
+                        }
+                    },
+                    onUnCheck: function (node) {
+                        var thas = vm;
+                        if (node.getParentNode().click) {
+                            var jobnName = node.name.substring(node.name, node.name.length - 4) + ',';
+                            thas.fromData.jobsId = thas.fromData.jobsId.replace(new RegExp(node.id + ','), "");
+                            thas.fromData.jobsName = thas.fromData.jobsName.replace(new RegExp(jobnName), "");
+                        }
+                    },
+                    onClick: function (node) {
+                        var thas = vm;
+                        //  刷新左边的table表
+                        var nodeDeptId = '', jobId = '';
+                        // 部门点击选择时得部门名字和 id
+//                        if(node.type == 'dept'){
+                        //  给部门复制一个字段用于岗位的点击
+                        node.click = true;
+                        thas.fromData.deptName = node.name;
+                        thas.fromData.deptId = node.id;
+                        thas.fromData.jobsName = '', thas.fromData.jobsId = '';
+                        //  部门ID
+                        var ids = [];
+                        //  获取树下的所有部门
+                        if (node.id != 0) {
+                            vm.selected = true;
+                        } else {
+                            vm.selected = false;
+                        }
+                        getChildren(node, ids);
+                        vm.searchData.deptId = ids.join(",");
+                        vm.reloadTable();
+                    },
+                    onSuccess: function (tree) {
+                        /*第一个父级节点不可选*/
+                        var node1 = tree.getNodes()[0];
+                        var ids = [];
+                        //  获取树下的所有部门
+                        getChildren(node1, ids);
+                        for (var i in ids) {
+                            //  渲染所有部门的check框隐藏
+                            ids[i].nocheck = true;
+                            ids[i].chkDisabled = true;
+                            tree.updateNode(ids[i]);
+                        }
+                        node1.nocheck = true;
+                        node1.chkDisabled = true;
+                        tree.updateNode(node1);
+                        /*回显选中*/
+                    }
+                });
+            },
+            /*接收岗位*/
+            acceptJobFn: function () {
+                var that = this;
+                layer.open({
+                    type: 1,
+                    title: ['接收岗位'],
+                    btn: ['确定', '取消'],
+                    shade: 0.3,
+                    area: ['90%', '90%'],
+                    content: $("#acceptJobDiv").removeClass('hide'),
+                    success: function () {
+                        layui.use('table', function () {
+                            that.acceptJobTable = layui.table;
+                            that.JobTable = that.acceptJobTable.render({
+                                elem: '#acceptJT'
+                                , url: '${base!}/sysAccount/jobSelectList'
+                                , where: {
+                                    query: $("#queryJob").val(),
+                                    deptId: vm.fromData.deptId
+                                },
+                                request: {
+                                    pageName: 'pageNum',
+                                    limitName: 'pageSize',
+                                }, cols: [[
+                                    {
+                                        field: 'id',
+                                        unresize: true,
+                                        width: "8%",
+                                        title: '<input type="checkbox" name="allChoosepost" lay-skin="primary" lay-filter="allChoosepost">',
+                                        templet: function (d) {
+                                            return '<input type="checkbox" value="' + d.id + '" text="' + d.name + '" name="acceptPostcheck" lay-skin="primary" lay-filter="acceptPostcheck">'
+                                        }
+                                    }
+                                    , {field: 'name', title: '岗位名称', unresize: true, width: "23%"}
+                                    , {field: 'code', title: '岗位编码', unresize: true, width: "23%"}
+                                    , {
+                                        field: 'nature',
+                                        title: '岗位性质',
+                                        unresize: true,
+                                        width: "23%",
+                                        templet: function (d) {
+                                            return ${naturesName}[d.nature];
+                                        }
+                                    }
+                                    , {
+                                        field: 'category',
+                                        title: '岗位类别',
+                                        unresize: true,
+                                        width: "23%",
+                                        templet: function (d) {
+                                            return ${categoryName}[d.category];
+                                        }
+                                    }
+                                ]]
+                                , page: true
+                                , done: function (res, curr, count) {
+                                    //表格加载完成后
+                                    layui.use(['layer', 'form'], function () {
+                                        var layer = layui.layer
+                                            , form = layui.form;
+                                        var child = $('input[name="acceptPostcheck"]');
+                                        //监听全选
+                                        form.on('checkbox(allChoosepost)', function (data) {
+
+                                            var child = $('input[name="acceptPostcheck"]');
+                                            child.each(function (index, item) {
+                                                item.checked = data.elem.checked;
+                                            });
+                                            form.render('checkbox');
+                                        });
+                                        //监听复选框
+                                        form.on('checkbox(acceptPostcheck)', function (data) {
+                                            if ($('input[name="acceptPostcheck"]:checked').length == child.length) {
+                                                $('input[name="allChoosepost"]').each(function (index, item) {
+                                                    item.checked = true;
+                                                });
+                                            } else {
+                                                $('input[name="allChoosepost"]').each(function (index, item) {
+                                                    item.checked = false;
+                                                });
+                                            }
+                                            form.render('checkbox');
+                                        });
+                                        var toUseridsArr = that.fromData.jobsId.split(',');
+                                        //回显 已选中的 id
+                                        toUseridsArr.forEach(function (itemid, index) {
+                                            child.each(function (index, item) {
+                                                if ($(item).val() == itemid) {
+                                                    item.checked = true;
+                                                }
+                                            });
+                                        });
+                                        //回显判断是否全选
+                                        if ($('input[name="acceptPostcheck"]:checked').length == child.length && child.length != 0) {
+                                            $('input[name="allChoosepost"]').each(function (index, item) {
+                                                item.checked = true;
+                                            });
+                                        }
+                                        form.render('checkbox');
+                                    });
+                                }
+                            });
+                        });
+                    },
+                    yes: function (index, layero) {
+                        that.fromData.jobsId = '';
+                        that.fromData.jobsName = '';
+                        var child = $('input[name="acceptPostcheck"]');
+                        child.each(function (index, item) {
+                            if (item.checked == true) {
+                                if (that.fromData.jobsId == '') {
+                                    that.fromData.jobsId = $(item).val();
+                                    that.fromData.jobsName = $(item).attr('text');
+                                } else {
+                                    that.fromData.jobsId += ',' + $(item).val();
+                                    that.fromData.jobsName += ',' + $(item).attr('text');
+                                }
+                            }
+                        });
+                        $("#acceptJobDiv").addClass('hide');
+//                        console.log(that.fromData.jobsId,that.fromData.toJobnames)
+                        layer.close(index);
+                    },
+                    btn2: function (index, layero) {
+                        $("#acceptJobDiv").addClass('hide');
+                        layer.close(index);
+                    },
+                    cancel: function (index, layero) {
+                        $("#acceptJobDiv").addClass('hide');
+                        layer.close(index);
+                    }
+                });
+            },
+            /*启用和禁用type=1禁用type=2启用*/
+            handleLock: function (type) {
+                var checkStatus = layui.table.checkStatus("listTable");
+                console.log(checkStatus.data)
+                if (checkStatus.data.length == 0) {
+                    core.error("请先选择要" + (type == 1 ? "禁用" : "启用") + "的用户!")
+                    return;
+                } else {
+                    vm.selectedUserIds = [];
+                    var lockedCount = 0;
+                    for (var i = 0; i < checkStatus.data.length; i++) {
+                        vm.selectedUserIds.push(checkStatus.data[i].id);
+                        if (checkStatus.data[i].username == "admin" && type == 1) {
+                            core.error('admin是系统管理员账号，不能被禁用')
+                            return;
+                        }
+                        //type ==1禁用/==2启用
+                        if (checkStatus.data[i].locked) {
+                            lockedCount++;
+                        }
+                    }
+                    console.log(lockedCount)
+                    if (type == 2 && lockedCount == 0) {
+                        core.error("您选择的用户中没有需要启用的用户!")
+                        return;
+                    }
+                    if (type == 1 && lockedCount == vm.selectedUserIds.length) {
+                        core.error("您选择的用户中没有需要禁用的用户!")
+                        return;
+                    }
+                    this.doAction("/sysAccount/lock", {
+                        id: vm.selectedUserIds.join(","),
+                        type: type
+                    });
+                }
+            },
+            /*跳转到维护信息页面*/
+            handleUserMaintain: function (data) {
+                parent.addTabs({
+                    id: data.id,
+                    title: '维护--' + data.realname,
+                    close: true,
+                    url: '/sysUserMaintain/userManager/' + data.id,
+                    urlType: "relative"
+                })
+            }
+        },
+        created: function () {
+            this.initLoad = true;
+        },
+        updated: function () {
+        },
+        mounted: function () {
+            this.fn_reloadDeptTree();
+            layui.use(['table', 'laytpl'], function () {
+                table = layui.table;
+                listTable = table.render({
+                    id: 'listTable',
+                    elem: '#listTable',
+                    page: true,
+                    method: 'post',
+                    url: base + '/sysAccount/listPage',
+                    height: 'full-80',
+                    limit: 50,
+                    limits: [50,100,1000],
+                    even: true,
+                    request: {
+                        pageName: 'pageNum',
+                        limitName: 'pageSize',
+                    },
+                    where: {
+                        name: $("#name").val(),
+                        status: $("#status").val(),
+                        deptId: '',
+                    },
+                    cols: [[
+                        {type: 'checkbox'},
+                        {title: '序号', type: 'numbers', width: 50},
+                        {
+                            field: 'username', title: '用户名', templet: function (row) {
+                                return row.username.replace(vm.searchData.name, "<l style='color:red'>" + vm.searchData.name + "</l>");
+                            }
+                        },
+                        {
+                            field: 'realname', title: '姓名', templet: function (row) {
+                                return row.realname.replace(vm.searchData.name, "<l style='color:red'>" + vm.searchData.name + "</l>");
+                            }
+                        },
+                        {field: 'role', title: '角色'},
+                        {field: 'jobname', title: '岗位'},
+                        {
+                            field: 'locked', title: '状态', templet: function (row) {
+                                return row.locked ? "<span style='color: orangered'>已禁用</span>" : "启用中";
+                            }
+                        },
+                        {field: 'phone', title: '手机'},
+                        {field: 'mail', title: '邮件'},
+                        {field: 'create_by_date', title: '创建时间'},
+                        {field: 'create_by_name', title: '创建人'},
+                        {title: '操作', align: 'center', minWidth: 120, toolbar: '#toolBarFixed'},
+                    ]]
+                });
+                table.on("tool(listTable)", function (obj) {
+                    var data = obj.data, layEvent = obj.event;
+                    if (layEvent == "userMaintain") {
+                        vm.handleUserMaintain(data);
+                    }
+                });
+            });
+        }
+    });
+
+    //  父节点点击得出父节点下所有type=dept的Id集合
+    function getChildren(node, result) {
+        var children = node.children;
+        result.push(node.id)
+        if (children) {
+            for (var i in children) {
+                getChildren(children[i], result);
+            }
+        }
+        return result;
+    }
+</script>
+<%}%>

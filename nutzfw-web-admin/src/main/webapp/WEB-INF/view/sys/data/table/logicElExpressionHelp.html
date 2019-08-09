@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>逻辑表达式编写说明</title>
+    <style>
+        ul > li {
+            font-size: 14px;
+            padding: 5px;
+        }
+        h4 {
+            text-align: center;
+            padding: 0px;
+            margin: 0px;
+        }
+        .red{
+            color: red;
+        }
+    </style>
+</head>
+<body>
+<h4>数据库采用MYSQL请勿使用不支持的函数</h4>
+<a href="http://www.w3school.com.cn/sql/sql_dates.asp" target="_blank">MySQL Date 函数 资料查阅</a>
+<ul>
+    <li>请使用半角数字字符和括号</li>
+    <li>字符串类型例子：学校共有教职工<span class="red">{字段名A}</span>人</li>
+    <li>数字类型例子：<span class="red">{字段名A}+10*({字段名B}-{字段名C})*{字段名D}/{字段名E}</span></li>
+    <li>日期类型例子1：<span class="red">TIMESTAMPADD(part,startdate,enddate)</span>part 为year, month, day等, now()表示当前时间
+    </li>
+    <li>日期类型例子2：<span class="red">DATEDIFF(endData,startDate)</span>返回两个日期之间的天数</li>
+    <li>类似<span class="red">{字段名A}</span>的参数可以出现在在表达式中的任意位置</li>
+    <li><span class="red">U_GetAgeFromIdentity({字段名A})</span></li>
+    <li><span class="red">U_GetBirthDayFromIdentity({字段名A})</span></li>
+    <li><span class="red">U_GetDateInternal('year|month|day',{日期字段A},{日期字段B})</span></li>
+    <li><span class="red">U_GetSexFromIdentity({字段名A})</span></li>
+    <li>NOW()返回当前的日期和时间</li>
+    <li>CURDATE()返回当前的日期</li>
+    <li>CURTIME()返回当前的时间</li>
+    <li>DATE()提取日期或日期/时间表达式的日期部分</li>
+</ul>
+</body>
+</html>

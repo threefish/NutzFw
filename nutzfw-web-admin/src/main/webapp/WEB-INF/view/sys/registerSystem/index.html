@@ -1,0 +1,148 @@
+<%
+var title="系统注册";
+layout("/layouts/blank.html",{title:title}){
+%>
+<style type="text/css">
+    .content-header {
+        text-align: center;
+    }
+
+    .form-horizontal {
+        width: 800px;
+        margin: 0 auto;
+    }
+</style>
+<section class="content-header">
+    <h1>
+        ${title}
+    </h1>
+</section>
+<section class="content" id="container" v-if="initLoad">
+    <div class="form-horizontal" v-if="type==''">
+        <div class="box-body box box-warning">
+            <div class="form-group">
+                <label class="col-sm-2 control-label">单位名称：</label>
+                <div class="col-sm-10">
+                    <input :disabled="fromDataEdit" class="form-control"
+                           type="text" v-model="fromData.unitName">
+                    <span class="help-block" style="color:red ">名称修改后注册码失效,需要重新申请注册码，进行注册</span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">开始注册日期：</label>
+                <div class="col-sm-10">
+                    <input :disabled="fromDataEdit" class="form-control" disabled readonly type="text"
+                           v-model="fromData.registrationTime">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">注册截至日期：</label>
+                <div class="col-sm-10">
+                    <select :disabled="fromDataEdit" class="form-control" v-model="fromData.registrationMonth">
+                        <option value="0">请选择</option>
+                        <option value="1">试用1个月</option>
+                        <option value="6">试用半年</option>
+                        <option value="12">1年</option>
+                        <option value="24">2年</option>
+                        <option value="36">3年</option>
+                        <option value="60">5年</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">系统注册码：</label>
+                <div class="col-sm-10">
+                    <span class="help-block" style="color:red ">下载注册申请文件后发送给我司审核后，会发放注册码文件。</span>
+                </div>
+            </div>
+            <div class="box-footer" style="text-align: center">
+                <div :disabled="fromDataSubmit" @click="handleDownLoadRegFile" class="btn btn-info"
+                     type="button" v-if="!fromDataEdit">下载注册申请文件
+                </div>
+                <div :disabled="fromDataSubmit" @click="handleUpload" class="btn btn-info"
+                     type="button" v-if="!fromDataEdit">已有注册文件
+                </div>
+            </div>
+            <form action="${base}/registerSystem/downloadRegFile" id="downloadRegFile" method="post"
+                  style="display: none">
+                <input name="unitName" type="text" v-model="fromData.unitName">
+                <input name="registrationMonth" type="text" v-model="fromData.registrationMonth">
+            </form>
+        </div>
+    </div>
+    <div class="form-horizontal" v-if="type=='upload'">
+        <div class="box-body box box-warning">
+            <form action="${base}/registerSystem/uploadRegFile" enctype='multipart/form-data' id="uploadRegFile"
+                  method="post">
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">单位名称：</label>
+                    <div class="col-sm-10">
+                        <input :disabled="fromDataEdit" class="form-control" name="unitName"
+                               readonly type="text" v-model="fromData.unitName">
+                        <span class="help-block" style="color:red ">名称修改后注册码失效,需要重新申请注册码，进行注册</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">注册文件：</label>
+                    <div class="col-sm-10">
+                        <input class="form-control" name="lic" type="file">
+                    </div>
+                </div>
+            </form>
+            <div class="box-footer" style="text-align: center">
+                <div :disabled="fromDataSubmit" @click="handleSubmit" class="btn btn-info"
+                     type="button" v-if="!fromDataEdit">确认注册
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="form-horizontal" v-if="type=='msg'">
+        <div style="text-align: center"> ${data.msg}</div>
+        <div style="text-align: center"><a href="${base!}/">跳转到首页</a></div>
+    </div>
+    </div>
+</section>
+<script type="text/javascript">
+    var vm = new Vue({
+        el: '#container',
+        data: {
+            fromData: {
+                registrationTime: "${data.registrationTime!}",
+                registrationMonth: 0,
+                unitName: "${data.unitName!}",
+            },
+            fromDataSubmit: false,
+            fromDataEdit: false,
+            initLoad: false,
+            type: "${data.type}",
+        },
+        methods: {
+            handleDownLoadRegFile: function () {
+                if (this.fromData.registrationMonth != 0 && this.fromData.unitName != "") {
+                    $("#downloadRegFile").submit();
+                    this.type = "upload";
+                    this.fromDataSubmit = false;
+                } else {
+                    core.error("请输入 单位名称、注册截至日期！");
+                }
+            },handleUpload: function () {
+                this.type = "upload";
+                this.fromDataSubmit = false;
+            },
+            handleSubmit: function () {
+                if (this.fromDataSubmit == false) {
+                    this.fromDataSubmit = true;
+                    $("#uploadRegFile").submit();
+                }
+            }
+        },
+        created: function () {
+            this.initLoad = true;
+        },
+        updated: function () {
+        },
+        mounted: function () {
+        }
+    });
+</script>
+<%}%>

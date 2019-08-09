@@ -1,0 +1,6 @@
+<select ${attrs} class="${class} dict-select">
+    <option value="" key-val="">--请选择--</option>
+    <%for(item in list){%>
+    <option value="${item.id}" key-val="${item.val}">${item.lable}</option>
+    <%}%>
+</select>

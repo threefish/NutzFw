@@ -1,0 +1,6 @@
+<%for(item in list){%>
+<div style="display: inline-block; padding-right: 20px;">
+    <input ${attrs} class="${class} dict-checkbox" id="${item.domId!}" key-val="${item.val}" type="checkbox" value="${item.id}">
+    <label for="${item.domId!}">${item.lable}</label>
+</div>
+<%}%>

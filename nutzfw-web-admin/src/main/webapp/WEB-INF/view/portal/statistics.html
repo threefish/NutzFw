@@ -1,0 +1,278 @@
+<%
+var title="统计管理";
+layout("/layouts/blank.html",{title:title}){
+%>
+<style type="text/css">
+    .required {
+        color: red;
+    }
+
+    .save {
+        display: none;
+    }
+
+    .show_now {
+        float: right;
+    }
+
+    #echarts_showNow {
+        height: 400px;
+        display: none;
+        border: solid 1px #aaa;
+        border-radius: 8px;
+    }
+</style>
+<section class="content-header">
+    <h1>
+        ${title}
+        <!--<small>控制面板</small>-->
+    </h1>
+</section>
+<section class="content" id="container">
+    <div class="col-sm-5" style="min-width: 150px;">
+        <div class="top_bar">
+            <%if(so.hasPermission("portal.save")){%>
+            <div class="layui-btn layui-btn-sm layui-btn-normal" @click="fn_editStatistics(1)">新增统计</div>
+            <div class="layui-btn layui-btn-sm layui-btn-normal" @click="fn_editStatistics(2)">修改</div>
+            <%}%>
+            <%if(so.hasPermission("portal.del")){%>
+            <div class="layui-btn layui-btn-sm layui-btn-normal" @click="fn_del(1)">删除</div>
+            <%}%>
+        </div>
+        <div>
+            <%if(so.hasPermission("statistics.query")){%>
+            <div id="statisticsListTable" lay-filter='statisticsListTable'></div>
+            <%}%>
+        </div>
+    </div>
+    <div class="col-sm-7" style="min-width: 150px;">
+        <div class="top_bar">
+            <%if(so.hasPermission("portal.save")){%>
+            <div class="layui-btn layui-btn-sm layui-btn-normal save" @click="save">保存</div>
+            <%}%>
+        </div>
+        <div id="editBox" style="display: none;padding: 15px">
+            <input type="hidden" v-model="statisticsData.id">
+            <div class="form-group">
+                <label>统计名称<span class="required">*</span></label>
+                <input type="text" v-model="statisticsData.name" class="form-control input-sm" placeholder="统计名称">
+            </div>
+            <div class="form-group">
+                <label>图形类型<span class="required">*</span></label>
+                <select class="form-control input-sm" v-model="statisticsData.type" placeholder="排序">
+                    <option value="1" checked>饼状图</option>
+                    <option value="2">柱状图</option>
+                    <option value="3">折线图</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>是否定制<span class="required">*</span></label><br>
+                <input type="radio" id="zero" checked style="margin-left: 5%" value="false" v-model="statisticsData.customized">
+                <label for="zero">否</label>
+                <input type="radio" id="one" style="margin-left: 10%" value="true" v-model="statisticsData.customized">
+                <label for="one">是</label>
+            </div>
+            <div class="form-group" v-show="statisticsData.customized=='true'||statisticsData.customized==true">
+                <label>定制类型<span class="required">*</span></label>
+                <select class="form-control input-sm" v-model="statisticsData.customizedType" placeholder="定制类型">
+                    <option value="job_user">岗位人数统计</option>
+                    <option value="dept_user">部门人数统计</option>
+                    <!--<option value="2">柱状图</option>-->
+                    <!--<option value="3">折线图</option>-->
+                </select>
+            </div>
+            <div class="form-group" v-if="statisticsData.customized=='true'||statisticsData.customized==true">
+                <label>参数<span class="required">*</span></label>
+                <input type="text" v-model="statisticsData.customizedParams" class="form-control input-sm" placeholder="参数">
+            </div>
+            <div class="form-group">
+                <label>排序<span class="required">*</span></label>
+                <input type="number" v-model="statisticsData.sort" class="form-control input-sm" placeholder="排序">
+            </div>
+            <div class="form-group">
+                <label>描述<span class="required">*</span></label>
+                <input type="text" v-model="statisticsData.description" class="form-control input-sm" placeholder="描述">
+            </div>
+            <div class="form-group" v-if="!statisticsData.customized||statisticsData.customized=='false'">
+                <label>查询语句<span class="required">*</span></label>
+                <div class="layui-btn layui-btn-sm layui-btn-normal show_now" @click="fn_showNow">预览</div>
+                <textarea style="height: 200px;resize: none;" v-model="statisticsData.sqlStr"
+                          class="form-control layui-code" placeholder="查询语句"></textarea>
+            </div>
+            <div class="form-group" id="echarts_showNow">
+            </div>
+        </div>
+    </div>
+
+</section>
+<script type="text/javascript" src="${base!}/static/plugins/jquery/jquery.base64.js?_=${productVersion}"></script>
+<script type="text/javascript">
+    var selectId, protalTree;
+    var vm = new Vue({
+        el: "#container",
+        data: {
+            statisticsData: {
+            },
+            statisticsListGrid: "",
+        },
+        methods: {
+            fn_loadStatisticsList: function () {
+                layui.use(['table'], function () {
+                    var table = layui.table;
+                    vm.statisticsListGrid = table.render({
+                        id: 'statisticsListTable',
+                        elem: '#statisticsListTable',
+                        page: true,
+                        method: 'post',
+                        url: base + '/statistics/query',
+//                        height: 'full-130',
+                        limit: 50,
+                        even: true,
+                        request: {
+                            pageName: 'pageNum',
+                            limitName: 'pageSize',
+                        },
+                        cols: [[
+                            {type: 'checkbox'},
+                            {title: '序号', type: 'numbers', align: 'center'},
+                            {field: 'name', title: '统计名称', align: 'center'},
+                            {
+                                field: 'type', title: '角色名称', align: 'center', templet: function (row) {
+                                    return row.type == 1 ? "饼状图" : "柱状图"
+                                }
+                            },
+                            {field: 'description', title: '描述', align: 'center'},
+                        ]],
+                    });
+                });
+            },
+            fn_editStatistics: function (type) {
+                $("#echarts_showNow").hide()
+                if (type == 1) {
+                    /*新增统计*/
+                    $('.save').css('display', 'inline-block');
+                    vm.statisticsData = {
+                        customized:false,
+                    };
+                } else {
+                    /*修改*/
+                    var checkStatus = layui.table.checkStatus("statisticsListTable");
+                    if (checkStatus.data.length == 0) {
+                        core.error("请先选择要修改的统计!")
+                        return;
+                    } else if (checkStatus.data.length > 1) {
+                        core.error("每次只能修改一个统计!")
+                        return;
+                    } else {
+                        $('.save').css('display', 'inline-block');
+
+                        vm.statisticsData = checkStatus.data[0];
+                    }
+                }
+                $("#editBox").show();
+            },
+            fn_del: function () {
+                var checkStatus = layui.table.checkStatus("statisticsListTable");
+                if (checkStatus.data.length == 0) {
+                    core.error("请先选择要删除的统计!")
+                    return;
+                } else {
+                    core.confirm("删除后无法恢复!<br>确定删除统计?", function () {
+                        var ids = [];
+                        for (var i = 0; i < checkStatus.data.length; i++) {
+                            ids[i] = checkStatus.data[i].id;
+                        }
+                        var jsonre = core.postJSON("/statistics/del", {ids: ids.join(",")});
+                        core.msg(jsonre);
+                        if (jsonre.ok) {
+                            vm.statisticsListGrid.reload();
+                        }
+                    })
+
+                }
+            },
+            save: function () {
+                var data = Object.assign({}, vm.statisticsData);
+                var customized = data.customized==true||data.customized=="true";
+                if (!data.name)
+                    core.error('统计名称不能为空');
+                else if (!data.type)
+                    core.error('图形类型不能为空');
+                else if (!data.customizedType&&customized)
+                    core.error('定制类型不能为空');
+                else if (!data.customizedParams&&customized)
+                    core.error('参数不能为空');
+                else if (!data.sort)
+                    core.error('排序不能为空');
+                else if (!data.description)
+                    core.error('描述不能为空');
+                else if (!data.sqlStr&&!customized)
+                    core.error('查询语句不能为空');
+                else {
+                    data.sqlStr=customized?"":data.sqlStr;
+                    var str = $.base64.encode(data.sqlStr);
+                    data.sqlStr = str;
+
+                    var jsonre = core.postJSON("/statistics/save", data);
+                    core.msg(jsonre);
+                    if(jsonre.ok) {
+                        vm.statisticsData = {
+                            customized: false,
+                        };
+                        vm.statisticsListGrid.reload();
+                    }
+                }
+                ;
+            },
+            fn_showNow: function () {
+                var type = vm.statisticsData.type;
+                if (type == undefined) {
+                    core.error("请先选择图形类型!");
+                    return;
+                }
+                $.base64.utf8encode = true;
+                var str = $.base64.encode(vm.statisticsData.sqlStr);
+                var jsonre = core.postJSON("/statistics/showNow", {sqlStr: str});
+                if (!jsonre.ok) {
+                    core.msg(jsonre)
+                } else {
+                    var ds = jsonre.data;
+                    var allName = [];
+                    var allValues = [];
+                    for (var i in ds) {
+                        allName[i] = ds[i].name;
+                        allValues[i] = ds[i].value;
+                    }
+                    $("#echarts_showNow").show()
+                    if (type == 1) {
+                        core.showEchartsPie({
+                            el: "echarts_showNow",
+                            text: vm.statisticsData.name,
+                            data: ds,
+                            names: allName,
+                        })
+                    } else if (type == 2) {
+                        core.showEchartsBar({
+                            el: "echarts_showNow",
+                            text: vm.statisticsData.name,
+                            xAxisData: allName,
+                            data: allValues,
+                        });
+                    } else if (type == 3) {
+                        core.showEchartsLine({
+                            el: "echarts_showNow",
+                            text: vm.statisticsData.name,
+                            xAxisData: allName,
+                            data: allValues,
+                        });
+                    }
+                }
+            }
+        },
+        mounted: function () {
+            this.fn_loadStatisticsList();
+
+        }
+    })
+</script>
+<%}%>

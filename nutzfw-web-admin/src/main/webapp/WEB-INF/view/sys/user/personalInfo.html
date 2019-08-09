@@ -1,0 +1,117 @@
+<%
+var title="个人资料";
+layout("/layouts/blank.html",{title:title}){
+%>
+<style type="text/css">
+    .layui-tab-content {
+        padding: 0px;
+    }
+
+    .frame-box {
+        min-height: 700px;
+    }
+</style>
+<section class="content" id="container" v-if="initLoad">
+    <div class="layui-tab layui-tab-card">
+        <ul class="layui-tab-title">
+            <li class="layui-this">个人信息</li>
+            <li>附属信息</li>
+        </ul>
+        <div class="layui-tab-content">
+            <div class="layui-tab-item layui-show">
+                <iframe id="personalData" :src="personalDataUrl" frameborder="no" class="frame-box"
+                        border="0" width="100%"
+                        :height="frameBoxHeight" marginwidth="0"
+                        marginheight="0"
+                        scrolling-x="no" scrolling-y="auto" allowtransparency-y="yes"></iframe>
+
+                <div class="text-center" style="margin: 8px">
+                    <%if(so.hasPermission("sysPersonal.editToReview")){%>
+                    <button class="layui-btn layui-btn-sm layui-btn-normal" @click="editPersonalData">
+                        <span v-if="!fromDataSubmit">编辑个人信息</span>
+                        <span v-if="fromDataSubmit">取消编辑</span>
+                    </button>
+                    <button class="layui-btn layui-btn-sm layui-btn-warm" v-if="fromDataSubmit" @click="handleSubmit">
+                        提交审核
+                    </button>
+                    <%}%> <span v-if="personalLoadPendingReviewCount!=0">有{{personalLoadPendingReviewCount}}条调整记录，正在等待审核！(再次编辑将覆盖审核记录)</span>
+                </div>
+            </div>
+            <div class="layui-tab-item">
+                <iframe id="scheduleIndex" src="${base}/manage/user/scheduleIndex" frameborder="no" class="frame-box"
+                        border="0" width="100%"
+                        :height="frameBoxHeight+45" marginwidth="0"
+                        marginheight="0"
+                        scrolling-x="no" scrolling-y="auto" allowtransparency-y="yes"></iframe>
+            </div>
+        </div>
+    </div>
+</section>
+<script type="text/javascript">
+    var vm = new Vue({
+        el: '#container',
+        data: {
+            fromData: {
+                avatar: "${session.me.avatar!}",//头像
+                avatarDesc: "${base!}/File/avatar?id=${session.me.avatar!}",//头像
+            },
+            fromDataSubmit: false,
+            viewPersonalData: "${base}/manage/user/viewPersonalData?tableId=${data.tableId}&sourceId=${data.sourceId!}",
+            editPersonalDataToReview: "${base}/manage/user/editPersonalDataToReview?tableId=${data.tableId}&sourceId=${data.sourceId!}",
+            initLoad: false,
+            personalDataUrl: "",
+            frameBoxHeight: "100%",
+            personalLoadPendingReviewCount: 0,
+        },
+        methods: {
+            editPersonalData: function () {
+                if (this.fromDataSubmit) {
+                    this.fromDataSubmit = false;
+                    this.personalDataUrl = this.viewPersonalData;
+                } else {
+                    this.personalDataUrl = this.editPersonalDataToReview;
+                    setTimeout(function () {
+                        vm.fromDataSubmit = true;
+                    }, 500)
+                }
+            },
+            handleSubmit: function () {
+                var iframeVm = document.getElementById("personalData").contentWindow.vm;
+                var postData = iframeVm.getPostData();
+                var json = core.postJSON("/manage/user/saveReviewData", {
+                    tableId: "${data.tableId}",
+                    data: JSON.stringify(postData)
+                });
+                core.msg(json);
+                if (json.ok) {
+                    this.fromDataSubmit = false;
+                    this.personalDataUrl = this.viewPersonalData;
+                } else {
+                    this.fromDataSubmit = true;
+                }
+                this.loadPendingReviewCount();
+            },
+            loadPendingReviewCount: function () {
+                var json = core.postJSON("/manage/user/loadPendingReviewCount", {tableId: "${data.tableId}"});
+                if (json.ok) {
+                    this.personalLoadPendingReviewCount = json.data;
+                }
+            }
+        },
+        created: function () {
+            this.initLoad = true;
+        },
+        updated: function () {
+        },
+        mounted: function () {
+            layui.use('element', function () {
+                //取得首页高度
+                var mainIndexHeight = window.parent.$("[data-pageid='mainIndex']:eq(1)").height();
+                vm.frameBoxHeight = mainIndexHeight - 130;
+            });
+            this.personalDataUrl = this.viewPersonalData;
+            this.loadPendingReviewCount();
+        }
+    });
+</script>
+<%}%>

@@ -1,0 +1,640 @@
+<%
+var title="高级查询";
+layout("/layouts/blank.html",{title:title}){
+%>
+<style type="text/css">
+    body {
+        height: 100%;
+    }
+
+    #container {
+        margin: 0 5px;
+        height: 100%;
+    }
+
+    .b-content {
+        height: 100%;
+        overflow: hidden;
+        background: #fff;
+    }
+
+    .b-left {
+        width: 230px;
+        float: left;
+        height: 100%;
+        overflow-y: auto;
+    }
+
+    .b-right {
+        width: calc(100% - 235px);
+        float: left;
+        margin-left: 5px;
+    }
+
+    .b-right-top {
+        height: 250px;
+        overflow: hidden;
+    }
+
+    .b-tab-bar {
+        height: 45px;
+        min-width: 800px;
+    }
+
+    .b-tab-bar-btn {
+        height: 30px;
+        line-height: 30px;
+        margin-top: -5px;
+    }
+
+    .b-tab-bar-select {
+        display: inline-block;
+        height: 30px;
+        border: #cdcdcd solid 1px;
+        margin: 8px 10px 0px 0px;
+    }
+
+    .b-ztree-box {
+        height: 100%;
+        overflow: auto;
+    }
+
+    .table-select {
+        height: 20px;
+        border: 1px #d6d5d5 solid;
+        line-height: 20px;
+        width: 100%;
+    }
+</style>
+<section id="container" v-if="initLoad">
+    <div class="b-content">
+        <div class="b-left">
+            <div class="b-ztree-box">
+                <div class="ztree" id="dbTableTree"></div>
+            </div>
+        </div>
+        <div class="b-right">
+            <div class="b-right-top">
+                <div class="b-tab-bar">
+                    <span>依据</span>
+                    <select class="b-tab-bar-select" id="selectTable">
+                        <option value=''>请选择基本表</option>
+                    </select>
+                    <span>进行查询</span>
+                    <button class="b-tab-bar-btn layui-btn" @click="searchData">查询</button>
+                    <button class="b-tab-bar-btn layui-btn" @click="reset">重置</button>
+                    <button class="b-tab-bar-btn layui-btn" @click="clean">清除</button>
+                    <button class="b-tab-bar-btn layui-btn" @click="exportExcel">导出结果</button>
+                    <button class="b-tab-bar-btn layui-btn" @click="fullScreen">放大查看</button>
+                    <!--  <button class="b-tab-bar-btn layui-btn" id="saveCnd">保存条件</button>
+                      <button class="b-tab-bar-btn layui-btn" id="openCnd">打开条件</button>
+                      <button class="b-tab-bar-btn layui-btn" id="manageCnd">条件管理</button>
+                      -->
+                </div>
+                <div class="condition">
+                    <table id="condition" lay-filter="condition"></table>
+                </div>
+            </div>
+            <div class="b-right-content" id="queryDataListBox">
+                <table id="queryDataList" lay-filter="queryDataList"></table>
+            </div>
+        </div>
+    </div>
+    <div style="display: none">
+        <form method="post" target="_blank" accept-charset="UTF-8" action="${base}/sysDataQuery/exportExcel"
+              id="exportFrom" enctype='application/x-www-form-urlencoded'>
+            <input type="hidden" name="cndList">
+            <input type="hidden" name="selectTable">
+            <input type="hidden" name="exportType">
+            <input type="hidden" name="pageNum">
+            <input type="hidden" name="pageSize">
+            <input type="hidden" name="tableType">
+        </form>
+    </div>
+</section>
+<script type="text/html" id="AttachTypeTpl">
+    <div style="text-align: center">
+        {{#
+        var data=d[d.LAY_FIELD]!=null?d[d.LAY_FIELD]:0;
+        var num=data!=0?(data.split(",").length):0;
+        }}
+        {{#if(num>0){ }}
+        <div class="layui-btn layui-btn-xs layui-btn-normal" lay-event="showAttach" data-field="{{d.LAY_FIELD}}">
+            查看附件({{num}})
+        </div>
+        {{# }else{ }}
+        无附件
+        {{# } }}
+    </div>
+</script>
+<script type="text/html" id="AttachTypeImgTpl">
+    <div style="text-align: center">
+        {{#
+        var data=d[d.LAY_FIELD]!=null?d[d.LAY_FIELD]:0;
+        var num=data!=0?(data.split(",").length):0;
+        }}
+        {{#if(num>0){ }}
+        <div class="layui-btn layui-btn-xs layui-btn-normal" lay-event="showAttach" data-field="{{d.LAY_FIELD}}">
+            查看图片({{num}})
+        </div>
+        {{# }else{ }}
+        无图片
+        {{# } }}
+    </div>
+</script>
+<script type="text/html" id="fieldDesc">
+    {{# if(d.fieldType==0||d.fieldType==1||d.fieldType==2||d.fieldType==3){ }}
+    <select lay-ignore class="table-select" onChange="vm.changeType(this)" data-index="{{d.LAY_TABLE_INDEX}}"
+            data-field="fieldDesc">
+        <option value="0" {{ d.fieldDesc==0?'selected':'' }}>无</option>
+        <option value="1" {{ d.fieldDesc==1?'selected':'' }}>升序</option>
+        <option value="2" {{ d.fieldDesc==2?'selected':'' }}>降序</option>
+    </select>
+    {{# } }}
+</script>
+<script type="text/html" id="fieldLinkType">
+    {{# if(d.fieldType==0||d.fieldType==1||d.fieldType==2||d.fieldType==3){ }}
+    <select lay-ignore class="table-select" onChange="vm.changeType(this)" data-index="{{d.LAY_TABLE_INDEX}}"
+            data-field="fieldLinkType">
+        <option value="0" {{ d.fieldLinkType==0?'selected':'' }}>与</option>
+        <option value="1" {{ d.fieldLinkType==1?'selected':'' }}>或</option>
+    </select>
+    {{# } }}
+</script>
+<script type="text/html" id="fieldGroup">
+    {{# if(d.fieldType==0||d.fieldType==1||d.fieldType==2||d.fieldType==3){ }}
+    <select lay-ignore class="table-select" onChange="vm.changeType(this)" data-index="{{d.LAY_TABLE_INDEX}}"
+            data-field="fieldGroup">
+        <option value="0" {{ d.fieldGroup==0?'selected':'' }}>无</option>
+        <option value="1" {{ d.fieldGroup==1?'selected':'' }}>分组</option>
+        <option value="2" {{ d.fieldGroup==2?'selected':'' }}>总和</option>
+        <option value="3" {{ d.fieldGroup==3?'selected':'' }}>平均值</option>
+        <option value="4" {{ d.fieldGroup==4?'selected':'' }}>最小值</option>
+        <option value="5" {{ d.fieldGroup==5?'selected':'' }}>最大值</option>
+        <option value="6" {{ d.fieldGroup==6?'selected':'' }}>计数</option>
+    </select>
+    {{# } }}
+</script>
+<script type="text/html" id="fieldShow">
+    <select lay-ignore class="table-select" onChange="vm.changeType(this)" data-index="{{d.LAY_TABLE_INDEX}}"
+            data-field="fieldShow">
+        <option value="0" {{ d.fieldShow==0?'selected':'' }}>输出</option>
+        <option value="1" {{ d.fieldShow==1?'selected':'' }}>不输出</option>
+    </select>
+</script>
+<script type="text/html" id="fieldFixed">
+    <select lay-ignore class="table-select" onChange="vm.changeType(this)" data-index="{{d.LAY_TABLE_INDEX}}"
+            data-field="fieldFixed">
+        <option value="0" {{ d.fieldFixed==0?'selected':'' }}>无</option>
+        <option value="1" {{ d.fieldFixed==1?'selected':'' }}>左固定</option>
+        <option value="2" {{ d.fieldFixed==2?'selected':'' }}>右固定</option>
+    </select>
+</script>
+<script type="text/html" id="conditionToolDel">
+    <div class=" layui-btn layui-btn-xs layui-btn-danger" lay-event="del">删除</div>
+</script>
+<script type="text/html" id="conditionToolSetting">
+    {{# if(d.fieldType==0||d.fieldType==1||d.fieldType==2||d.fieldType==3){ }}
+    <div class="layui-btn layui-btn-xs layui-btn-danger" lay-event="setting">设置条件</div>
+    {{# } }}
+</script>
+
+<script type="text/javascript" src="${base!}/static/plugins/jquery/jquery.base64.js?_=${productVersion}"></script>
+<script type="text/javascript">
+    var queryDataList, conditionTable, dbTableManger, table, tableScrollTop;
+    var selectTable = new Array(); //选择的表
+    var selectTableVal = "";//当前主表值
+    var vm = new Vue({
+        el: '#container',
+        data: {
+            lastCndText: "",
+            initLoad: false,
+        },
+        methods: {
+            fullScreen: function () {
+                layer.open({
+                    type: 1,
+                    maxmin: true,
+                    shade: true,
+                    area: ['100%', '100%'],
+                    title: "放大查看",
+                    content: $('#queryDataListBox'),
+                    success: function (layero, index) {
+                        layer.full(index);
+                        table.reload('queryDataList', {height: 'full-60'});
+                    },
+                    end: function () {
+                        table.reload('queryDataList', {height: 'full-280'});
+                    }
+                });
+            },
+            exportExcel: function () {
+                layer.confirm('您希望以哪种方式导出结果？', {
+                    btn: ['当前页', '全部结果'] //按钮
+                }, function () {
+                    vm.exportSubmit(0);
+                }, function () {
+                    vm.exportSubmit(1);
+                });
+            },
+            exportSubmit: function (type) {
+                var datalist = this.getCndListData();
+                $("input[name='cndList']").val($.base64.encode(JSON.stringify(datalist), "UTF-8"));
+                $("input[name='selectTable']").val($("#selectTable").val());
+                $("input[name='exportType']").val(type);
+                var config = table.getTablePageConfig('queryDataList');
+                $("input[name='pageNum']").val(config.curr);
+                $("input[name='pageSize']").val(config.limit);
+                $("input[name='tableType']").val("${data.tableType!}");
+                $("#exportFrom").submit();
+                layer.closeAll();
+            },
+            changeType: function (t) {
+                var el = $(t);
+                var index = el.attr('data-index');
+                var field = el.attr('data-field');
+                var dataArr = vm.getCndListData();
+                var rowData = dataArr[index];
+                rowData[field] = Number(el.val());
+                var newDataArr = new Array();
+                for (var i in dataArr) {
+                    if (i == index) {
+                        newDataArr.push(rowData);
+                    } else {
+                        newDataArr.push(dataArr[i]);
+                    }
+                }
+                vm.reloadCndData(newDataArr);
+            },
+            reloadCndData: function (dataArr) {
+                tableScrollTop = $(".condition .layui-table-main")[0].scrollTop;
+                if (dataArr == undefined) {
+                    conditionTable.reload({
+                        data: table.cache['condition'], done: function () {
+                            vm.scrollTop($(".condition .layui-table-main")[0]);
+                        }
+                    });
+                } else {
+                    conditionTable.reload({
+                        data: dataArr, done: function () {
+                            vm.scrollTop($(".condition .layui-table-main")[0]);
+                        }
+                    });
+                }
+            }, scrollTop: function (el) {
+                el.scrollTop = tableScrollTop;
+            },
+            getCndListData: function () {
+                var cacheDataArr = table.cache['condition'];
+                var dataArr = new Array();
+                for (var i in cacheDataArr) {
+                    var row = cacheDataArr[i];
+                    if ((!(row instanceof Array)) && (row instanceof Object)) {
+                        dataArr.push(cacheDataArr[i]);
+                    }
+                }
+                return dataArr;
+            },
+            searchData: function () {
+                var cndList = this.getCndListData();
+                var json = core.postJSON("/sysDataQuery/getCols", {
+                    cndList: $.base64.encode(JSON.stringify(cndList), "UTF-8"),
+                    selectTable: $("#selectTable").val(),
+                    tableType: "${data.tableType!}"
+                });
+                var cols = [json.data];
+                table.reload('queryDataList', {
+                    cols: cols,
+                    height: 'full-280',
+                    page: {curr: 1},
+                    where: {
+                        cndList: $.base64.encode(JSON.stringify(cndList), "UTF-8"),
+                        selectTable: $("#selectTable").val(),
+                        tableType: "${data.tableType!}"
+                    }
+                });
+            },
+            reset: function () {
+                table.cache['condition'] = [];
+                tableCndRender(dbTableManger.getCheckedData());
+            },
+            clean: function () {
+                dbTableManger.checkAllNodes(false);
+                tableCndRender(new Array());
+            }
+        },
+        created: function () {
+            this.initLoad = true;
+        },
+        updated: function () {
+
+        },
+        mounted: function () {
+            layui.use(['table'], function () {
+                table = layui.table;
+                dbTableManger = new showZtree({
+                    el: "#dbTableTree",
+                    url: "/sysDataTable/authDbTree",
+                    data: {id: "id", name: "text"},
+                    otherParam: {tableType: "${data.tableType!}"},
+                    isCheckbox: true,
+                    rightClickMenu: [
+                        {title: "全选", click: "selectAll"},
+                        {title: "全不选", click: "unSelectAll"},
+                        {title: "反选", click: "inverseSelection"}
+                    ],
+                    onSelect: function (node) {
+                        dbTableManger.checkOrUnCheckNode(node)
+                        return false;
+                    },
+                    onExpand: function (event, treeId, node) {
+                        for (var i in node.children) {
+                            var data = node.children[i];
+                            autoCheck(data);
+                        }
+                    },
+                    onCheck: function (node) {
+                        var check = false;
+                        if (node.type == 6 || node.type == 7 || node.type == 8) {
+                            check = true;
+                        } else if (node.zAsync == false) {
+                            dbTableManger.expandNode(node);
+                        } else {
+                            check = true;
+                        }
+                        if (check) {
+                            tableCndRender(dbTableManger.getCheckedData());
+                        }
+                        return false;
+                    },
+                    onUnCheck: function (node) {
+                        var check = false;
+                        if (node.type == 6 || node.type == 7 || node.type == 8) {
+                            check = true;
+                        } else if (node.zAsync == false) {
+                            dbTableManger.expandNode(node);
+                        } else {
+                            check = true;
+                        }
+                        if (check) {
+                            tableCndRender(dbTableManger.getCheckedData());
+                        }
+                        return false;
+                    }
+                });
+                queryDataList = table.render({
+                    id: 'queryDataList',
+                    elem: '#queryDataList',
+                    page: true,
+                    method: 'post',
+                    url: base + '/sysDataQuery/queryDataList',
+                    height: 'full-280',
+                    limit: 50,
+                    size: 'sm',
+                    even: true,
+                    request: {
+                        pageName: 'pageNum',
+                        limitName: 'pageSize',
+                    },
+                    cols: [[
+                        {title: '查询结果', width: 160}
+                    ]],
+                    done:function(data){
+                       if(data.status==500){
+                        core.error(data.msg);
+                       }
+                    }
+                });
+                table.on("tool(queryDataList)", function (obj) {
+                    var data = obj.data, layEvent = obj.event;
+                    if (layEvent == "showAttach") {
+                        var dataField = $(obj.tr).find("div[lay-event=showAttach]").attr("data-field");
+                        core.showAttachList(data[dataField]);
+                    }
+                });
+                conditionTable = table.render({
+                    id: 'condition',
+                    elem: '#condition',
+                    page: false,
+                    limit: 1000,
+                    height: 190,
+                    page: false,
+                    size: 'sm',
+                    data: [],
+                    cols: [[
+                        {field: 'tableName', title: '表名', width: 150},
+                        {field: 'text', title: '字段名称', width: 150},
+                        {field: 'cndText', title: '查询条件'},
+                        {title: '设置条件', align: 'center', width: 100, toolbar: '#conditionToolSetting'},
+                        {field: 'fieldLinkType', title: '字段组合', align: 'center', width: 100, toolbar: '#fieldLinkType'},
+                        {
+                            field: 'fieldDesc',
+                            title: '字段排序',
+                            align: 'center',
+                            width: 100,
+                            toolbar: '#fieldDesc'
+                        },
+                        {
+                            field: 'fieldGroup',
+                            title: '分组',
+                            align: 'center',
+                            width: 100,
+                            toolbar: '#fieldGroup'
+                        },
+                        {
+                            field: 'fieldShow',
+                            title: '输出',
+                            align: 'center',
+                            width: 100,
+                            toolbar: '#fieldShow'
+                        },
+                        {
+                            field: 'fieldFixed',
+                            title: '固定',
+                            align: 'center',
+                            width: 100,
+                            toolbar: '#fieldFixed'
+                        },
+                        {title: '', align: 'center', width: 80, fixed: 'right', toolbar: '#conditionToolDel'},
+                    ]],
+                });
+                table.on('tool(condition)', function (obj) {
+                    var data = obj.data;
+                    var layEvent = obj.event;
+                    if (layEvent == 'del') {
+                        obj.del();
+                        var arr = dbTableManger.getNodesByParam("id", data.id);
+                        for (var i in arr) {
+                            var item = arr[i];
+                            if (item.type == 1) {
+                                dbTableManger.checkOrUnCheckNode(item);
+                            }
+                        }
+                        vm.reloadCndData();
+                    } else if (layEvent == 'setting') {
+                        vm.lastCndText = data.cndText;
+                        layer.open({
+                            scrollbar: false,
+                            type: 2,
+                            title: "设置条件",
+                            area: ['60%', '70%'],
+                            content: base + '/sysDataQuery/settingCondition?filedid=' + data.id,
+                            btn: ['确定', '取消'],
+                            yes: function (index) {
+                                var $$ = $(document.getElementById("layui-layer-iframe" + index).contentWindow.document);
+                                var lastCndVal = $$.find("#lastCnd").val();
+                                $.post(base + "/sysDataQuery/checkSqlCnd", {
+                                    where: $.base64.encode(lastCndVal, "UTF-8")
+                                }, function (res) {
+                                    if (res.ok) {
+                                        obj.data.cndText = lastCndVal;
+                                        obj.update(obj.data);
+                                        vm.reloadCndData();
+                                        layer.close(index);
+                                    } else {
+                                        layer.open({
+                                            title: '条件错误',
+                                            area: ['300px', '300px'],
+                                            content: "<div style='padding: 10px'>" + res.msg + "</div>",
+                                            type: 1
+                                        });
+                                    }
+                                }, "JSON");
+                            }
+                        });
+                    }
+                })
+            });
+            function autoCheck(node) {
+                var tableDataList = table.cache['condition'];
+                for (var i in tableDataList) {
+                    var row = tableDataList[i];
+                    if (row.id == node.id) {
+                        dbTableManger.checkNode(node);
+                    }
+                }
+            }
+        }
+    });
+
+    /**
+     *
+     * @param datalist 全部的
+     */
+    function tableCndRender(datalist) {
+        if (datalist.length == 0) {
+            $("#selectTable").html("<option value=''>请选择基本表</option>");
+        }
+        selectTable = new Array();
+        selectTableVal = $("#selectTable").val();
+        selectTableVal = selectTableVal == null || selectTableVal == undefined ? "" : selectTableVal;
+        var newArr = new Array();
+        for (var i in datalist) {
+            var node = datalist[i];
+            if (node.type == 1) {
+                var nodeTable = node.getParentNode();
+                var newnode = new Object();
+                newnode.id = node.id;
+                newnode.text = node.text;
+                newnode.tableName = nodeTable.text;
+                newnode.cndText = "";
+                newnode.fieldGroup = 0;
+                newnode.fieldLinkType = 0;
+                newnode.fieldType = node.fieldType;
+                newnode.fieldDesc = 0;
+                newnode.fieldShow = 0;
+                newnode.fieldFixed = 0;
+                newArr.push(newnode);
+                var tempTable = new Object();
+                tempTable.id = nodeTable.id;
+                tempTable.text = nodeTable.text;
+                pushSelectTable(tempTable);
+            }
+        }
+        craeteConditionDataList(newArr);
+    }
+
+    function craeteConditionDataList(newdatalist) {
+        var datalist = getOldData(newdatalist);
+        conditionTable.reload({data: datalist});
+    }
+
+
+    /**
+     * 从缓存中取出相同数据
+     */
+    function getOldData(datalist) {
+        var idTab2TableList = table.cache['condition'];
+        var oldDataListArr = new Array();
+        for (var i in idTab2TableList) {
+            var oldnode = idTab2TableList[i];
+            if ((!(oldnode instanceof Array)) && (oldnode instanceof Object)) {
+                for (var x in datalist) {
+                    var newNode = datalist[x];
+                    if (newNode.id == oldnode.id) {
+                        oldnode.id = newNode.id;
+                        oldnode.text = newNode.text;
+                        oldnode.tableName = newNode.tableName;
+                        oldnode.cndText = newNode.cndText;
+                        oldnode.fieldGroup = newNode.fieldGroup;
+                        oldnode.fieldLinkType = newNode.fieldLinkType;
+                        oldnode.fieldType = newNode.fieldType;
+                        oldnode.fieldDesc = newNode.fieldDesc;
+                        oldnode.fieldShow = newNode.fieldShow;
+                        oldnode.fieldFixed = newNode.fieldFixed;
+                        datalist[x] = oldnode;
+                        oldDataListArr.push(oldnode);
+                    }
+                }
+            }
+        }
+        for (var i in datalist) {
+            var newnode = datalist[i];
+            var isAdd = true;
+            for (var x in oldDataListArr) {
+                var oldnode = oldDataListArr[x];
+                if (oldnode.id == newnode.id) {
+                    isAdd = false;
+                }
+            }
+            if (isAdd) {
+                oldDataListArr.push(newnode);
+            }
+        }
+        return oldDataListArr;
+    }
+
+    function pushSelectTable(obj) {
+        for (var i in selectTable) {
+            var node = selectTable[i];
+            if (node.id == obj.id) {
+                return false
+            }
+        }
+        selectTable.push(obj);
+        var selectTableEl = $("#selectTable");
+        selectTableEl.html("");
+        var fristNodeId = 0;
+        var inTable = false;
+        for (var i in selectTable) {
+            var node = selectTable[i];
+            if (i == 0) {
+                fristNodeId = node.id;
+                if (selectTableVal == "") {
+                    selectTableVal = fristNodeId;
+                }
+            }
+            if (node.id == selectTableVal) {
+                inTable = true;
+            }
+            var op = $("<option value='" + node.id + "' >" + node.text + "</option>");
+            selectTableEl.append(op);
+        }
+        if (inTable == false) {
+            selectTableVal = fristNodeId;
+        }
+        selectTableEl.val(selectTableVal);
+    }
+
+</script>
+<%}%>

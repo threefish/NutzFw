@@ -1,0 +1,69 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <parent>
+        <artifactId>NutzFw</artifactId>
+        <groupId>com.nutzfw</groupId>
+        <version>2.0</version>
+    </parent>
+
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>nutzfw-web-admin</artifactId>
+    <packaging>war</packaging>
+    <name>nutzfw-web-admin Maven Webapp</name>
+    <url>http://maven.apache.org</url>
+    <build>
+        <finalName>nutzfw-web-admin</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.0</version>
+            </plugin>
+            <!-- 合并多个war -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <configuration>
+                    <!--<overlays>-->
+                    <!--<overlay>-->
+                    <!--<groupId>com.nutzfw</groupId>-->
+                    <!--<artifactId>common-framework</artifactId>-->
+                    <!--</overlay>-->
+                    <!--</overlays>-->
+                </configuration>
+            </plugin>
+        </plugins>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+            <resource>
+                <directory>src/main/java</directory>
+                <includes>
+                    <include>**/*.xml</include>
+                </includes>
+                <filtering>false</filtering>
+            </resource>
+        </resources>
+    </build>
+    <dependencies>
+        <!--以下是普通java项目 二方库 -->
+        <dependency>
+            <groupId>com.nutzfw</groupId>
+            <artifactId>nutzfw-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.bull.javamelody</groupId>
+            <artifactId>javamelody-core</artifactId>
+            <version>1.79.0</version>
+        </dependency>
+        <!--以下是第三方库-->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok_version}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+</project>

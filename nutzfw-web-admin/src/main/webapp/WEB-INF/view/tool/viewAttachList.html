@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>查看文件</title>
+    <link rel="stylesheet" href="${base!}/static/plugins/video/video-js.min.css?_=${productVersion}">
+    <!--框架所需的插件-->
+    <!-- Bootstrap 3.3.6 -->
+    <link rel="stylesheet" href="${base!}/static/plugins/bootstrap/css/bootstrap.min.css?_=${productVersion}">
+    <!-- jQuery 2.2.3 -->
+    <script src="${base!}/static/plugins/jquery/jquery-3.4.1.min.js?_=${productVersion}"></script>
+    <!-- Bootstrap 3.3.6 -->
+    <script src="${base!}/static/plugins/bootstrap/js/bootstrap.min.js?_=${productVersion}"></script>
+</head>
+<body>
+<ul class="nav nav-tabs" role="tablist">
+    <%for(var item in data){%>
+    <li role="presentation" class="${itemLP.first?'active'}">
+        <a href="#${item.id}" aria-controls="${item.id}" role="tab" data-toggle="tab">${item.name}</a>
+    </li>
+    <%}%>
+</ul>
+<div class="tab-content">
+    <%for(var item in data){%>
+    <div role="tabpanel" style="text-align: center;" class="tab-pane ${itemLP.first?'active'}" id="${item.id}">
+        <%if(strutil.contain("pic,tif,gif,jpg,jpeg,bmp,png",item.ext)) {%>
+        <img src="${base}/File/attachAct?id=${item.id}" width="auto" height="auto">
+        <% }else if(strutil.contain("mp3,mp4,ram,wma,mmf,amr,aac,flac,avi,mpg,mov,webm",item.ext)) {%>
+        <iframe src="${base}/File/mp4View?id=${item.id}" frameborder="no" border="0" width="100%"
+                style="min-height: 700px;" height="100%" marginwidth="0"
+                marginheight="0"
+                scrolling-x="no" scrolling-y="auto" allowtransparency-y="yes"></iframe>
+        <% }else if(strutil.contain("pdf",item.ext)) {%>
+        <iframe src="${base}/File/pdfView?id=${item.id}" frameborder="no" border="0" width="100%"
+                style="min-height: 700px;" height="100%" marginwidth="0"
+                marginheight="0"
+                scrolling-x="no" scrolling-y="auto" allowtransparency-y="yes"></iframe>
+        <%}else{%>
+        <div style="text-align: center;margin-top: 20%">
+            <a style="font-size: 18px" href="${base}/File/attachAct?id=${item.id}">不支持在线查看，请下载查看</a>
+        </div>
+        <%}%>
+    </div>
+    <%}%>
+</div>
+</body>
+</html>

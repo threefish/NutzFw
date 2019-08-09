@@ -1,0 +1,243 @@
+html, body {
+    min-width: 1366px;
+    min-height: 768px;
+    position: relative;
+    overflow: auto;
+}
+
+.login-logo {
+    margin-bottom: 15px;
+}
+
+.login-box-body {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+    -moz-transform: translate(-50%, -50%);
+    -o-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    border-radius: 8px;
+}
+
+.QRcode {
+    width: 50px;
+    height: 50px;
+    background: url("../../../../static/css/theme/2/img/QR.png") no-repeat 0px 0px;
+    background-size: 100% 100%;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+    z-index: 101;
+}
+
+.PC {
+    width: 50px;
+    height: 50px;
+    background: url("../../../../static/css/theme/2/img/PC.png") no-repeat 0px 0px;
+    background-size: 100% 100%;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+    z-index: 101;
+}
+
+.QRcode-img {
+    width: 150px;
+    height: 150px;
+    margin-bottom: 10px;
+}
+
+.code-box {
+    width: 271px;
+    text-align: center;
+    position: relative;
+
+}
+
+.QRcode-modal {
+    width: 165px;
+    height: 165px;
+    background-color: rgba(1, 1, 1, 0.7);
+    position: absolute;
+    top: -10px;
+    left: 54px;
+
+}
+
+.QRbtn {
+    position: absolute;
+    bottom: 0;
+}
+
+.box {
+    width: 90px;
+    height: 25px;
+    border: 1px solid #cccccc;
+    position: absolute;
+    background: #FFFFFF;
+    line-height: 25px;
+    text-align: center;
+    font-size: 14px;
+    color: #666666;
+    top: 0;
+    left: -100px;
+}
+
+.sanjiao {
+    position: absolute;
+    top: 7px;
+    right: -6px;
+    width: 10px;
+    height: 10px;
+    background: #FFFFFF;
+    transform: rotate(45deg);
+    border: 1px solid #cccccc;
+    border-left: 0;
+    border-bottom: 0;
+
+}
+
+.login-page {
+    background-size: 100% 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.lang li a {
+    cursor: default;
+}
+
+.form-control-feedback {
+    height: 39px;
+    line-height: 39px;
+}
+
+input {
+    border-radius: 4px !important;
+    line-height: 25px !important;
+    height: auto !important;
+    border: 1px solid #ddd !important;
+}
+
+input:focus {
+    border: 1px solid #0174D4 !important;
+}
+
+.loginBtn {
+    line-height: 25px !important;
+    border-radius: 4px !important;
+    color: #fff !important;
+    background-color: #0174D4;
+    border-color: #0174D4;
+}
+
+.loginBtn:hover {
+    color: #fff;
+    background-color: #0181DD;
+    border-color: #0181DD;
+}
+
+#loginPage {
+    margin: 0;
+    height: 100%;
+    width: 100%;
+    background-size: 100% 100%;
+}
+
+/*样式2*/
+.login-box-body {
+    height: 300px;
+    width: 600px;
+    padding: 30px 20px;
+}
+
+.msgDiv {
+    float: left;
+    padding-right: 20px;
+    top: 50%;
+    left: 0;
+    -ms-transform: translate(-50%, -50%);
+    -moz-transform: translate(-50%, -50%);
+    -o-transform: translate(-50%, -50%);
+    transform: translate(20px, -50%);
+    position: absolute;
+    width: 250px;
+}
+
+.login_form {
+    float: right;
+    padding-left: 20px;
+    border-left: 1px solid #ddd;
+    position: absolute;
+    top: 50%;
+    right: 0;
+    -ms-transform: translate(-50%, -50%);
+    -moz-transform: translate(-50%, -50%);
+    -o-transform: translate(-50%, -50%);
+    transform: translate(-20px, -50%);
+}
+
+.productLogoImg {
+    width: 150px;
+    height: 150px;
+    border-radius: 100%;
+}
+
+.productName {
+    width: 100%;
+    text-align: center;
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    font-family: "Helvetica Neue", "Segoe UI", Helvetica, Verdana, sans-serif;
+}
+
+.productEnLongName {
+    font-size: 12px;
+    width: 100%;
+    text-align: center;
+}
+
+.form-control {
+    width: 280px;
+}
+
+.captchaImg {
+    width: 120px;
+    margin-left: 10px;
+    float: right;
+    border: 1px solid #ddd;
+    height: 39px;
+}
+
+.captcha {
+    width: 150px;
+}
+
+.login-bg {
+    background: url("../../../../static/css/theme/2/img/login_bg.jpg") no-repeat center center #f6f6f6;
+}
+
+.download-app {
+    cursor: pointer;
+    color: #538cad;
+    position: relative;
+}
+
+.download-qrcode {
+    display: none;
+}
+
+.download-app:hover > .download-qrcode {
+    display: block;
+    bottom: 0px;
+    position: absolute;
+    left: 35px;
+    text-align: center;
+    background: #ffffff;
+    width: 200px;
+    height: 190px;
+}

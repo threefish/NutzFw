@@ -1,0 +1,717 @@
+<%
+layout("/layouts/blank.html",{title:"数据库监控"}){
+%>
+<style type="text/css">
+    .box {
+        background: #ffffff;
+        margin: 15px 0px;
+        padding: 15px;
+    }
+
+    a {
+        cursor: pointer;
+    }
+</style>
+<section class="content-header">
+    <h1>
+        数据库监控
+        <small>控制面板</small>
+    </h1>
+</section>
+<section class="content">
+    <!-- Nav tabs -->
+    <ul class="nav nav-tabs" role="tablist">
+        <li class="active" role="presentation"><a data-toggle="tab" href="#index" onclick="loadIndex()" role="tab">运行环境</a></li>
+        <li role="presentation"><a data-toggle="tab" href="#dataSource" onclick="loadDataSource()" role="tab">数据源</a></li>
+        <li role="presentation"><a href="#sql" role="tab" data-toggle="tab" onclick="loadSql()">SQL监控</a></li>
+        <li role="presentation"><a href="#app" role="tab" data-toggle="tab" onclick="loadApp()">应用监控</a></li>
+        <li role="presentation"><a href="#uri" role="tab" data-toggle="tab" onclick="loadURI()">url监控</a></li>
+        <li role="presentation"><a data-toggle="tab" href="#session" onclick="loadSession()" role="tab">会话监控<span style="font-size: 12px">（需在web.xml中开启 sessionStatEnable 同时在线数大了,会挂的）</span></a></li>
+    </ul>
+    <!-- Tab panes -->
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane active" id="index">
+            <table style="background-color: #fff" class="table table-bordered responsive-utilities">
+                <thead>
+                <tr>
+                    <th colspan="2">
+                        <button class="btn btn-sm btn-primary" onclick="loadIndex()">
+                            <i class="icon-undo"></i> 刷新
+                        </button>
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td class="td_lable lang">版本</td>
+                    <td id="DruidVersion"></td>
+                </tr>
+                <tr>
+                    <td class="td_lable lang">驱动</td>
+                    <td id="DruidDrivers"></td>
+                </tr>
+                <tr>
+                    <td class="td_lable lang">是否允许重置</td>
+                    <td id="ResetEnable"></td>
+                </tr>
+                <tr>
+                    <td class="td_lable lang">重置次数</td>
+                    <td id="ResetCount"></td>
+                </tr>
+                <tr>
+                    <td class="td_lable lang">java版本</td>
+                    <td id="JavaVersion"></td>
+                </tr>
+                <tr>
+                    <td class="td_lable lang">jvm名称</td>
+                    <td id="JavaVMName"></td>
+                </tr>
+                <tr>
+                    <td class="td_lable lang">classpath路径</td>
+                    <td id="JavaClassPath"></td>
+                </tr>
+                <tr>
+                    <td class="td_lable lang">启动时间</td>
+                    <td id="StartTime"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div role="tabpanel" class="tab-pane" id="dataSource">
+            <table class="table table-bordered" style="background-color: #fff">
+                <thead>
+                <tr>
+                    <th colspan="3">
+                        <button class="btn btn-sm btn-primary" onclick="loadDataSource()">
+                            <i class="icon-undo"></i> 刷新
+                        </button>
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td class="td_lable col-md-2"><span class="lang">连接列表</span></td>
+                    <td class="col-md-8"><a onclick="openConnectionPool()">查看</a> <input type="hidden" id="dataSourceId"
+                                                                                         value=""></td>
+                    <td class="col-md-2"></td>
+                </tr>
+                <tr>
+                    <td class="td_lable">* <span class="lang">用户名</span></td>
+                    <td id="dataSource_UserName"></td>
+                    <td class="lang">指定建立连接时使用的用户名</td>
+                </tr>
+                <tr>
+                    <td class="td_lable">* <span class="lang">连接地址</span></td>
+                    <td id="dataSource_URL"></td>
+                    <td class="lang">jdbc连接字符串</td>
+                </tr>
+                <tr>
+                    <td class="td_lable">* <span class="lang">数据库类型</span></td>
+                    <td id="dataSource_DbType"></td>
+                    <td class="lang">数据库类型</td>
+                </tr>
+                <tr>
+                    <td class="td_lable">* <span class="lang">驱动类名</span></td>
+                    <td id="dataSource_DriverClassName"></td>
+                    <td class="lang">jdbc驱动的类名</td>
+                </tr>
+                <tr>
+                    <td class="td_lable">* <span class="lang">filter类名</span></td>
+                    <td id="dataSource_FilterClassNames"></td>
+                    <td class="lang">filter的类名</td>
+                </tr>
+                <tr>
+                    <td class="td_lable">* <span class="lang">获取检测</span></td>
+                    <td id="dataSource_TestOnBorrow"></td>
+                    <td class="lang">是否在获得连接后检测其可用性</td>
+                </tr>
+                <tr>
+                    <td class="td_lable">* <span class="lang">空闲检测</span></td>
+                    <td id="dataSource_TestWhileIdle"></td>
+                    <td class="lang">是否在连接空闲一段时间后检测其可用性</td>
+                </tr>
+                <tr>
+                    <td class="td_lable">* <span class="lang">释放检测</span></td>
+                    <td id="dataSource_TestOnReturn"></td>
+                    <td class="lang">是否在连接放回连接池后检测其可用性</td>
+                </tr>
+                <tr>
+                    <td class="td_lable">* <span class="lang">初始化大小</span></td>
+                    <td id="dataSource_InitialSize"></td>
+                    <td class="lang">连接池建立时创建的初始化连接数</td>
+                </tr>
+                <tr>
+                    <td class="td_lable">* <span class="lang">最小空闲数</span></td>
+                    <td id="dataSource_MinIdle"></td>
+                    <td class="lang">连接池中最小的活跃连接数</td>
+                </tr>
+                <tr>
+                    <td class="td_lable">* <span class="lang">最大连接数</span></td>
+                    <td id="dataSource_MaxActive"></td>
+                    <td class="lang">连接池中最大的活跃连接数</td>
+                </tr>
+                <tr>
+                    <td class="td_lable">* <span class="lang">查询超时</span></td>
+                    <td id="dataSource_QueryTimeout"></td>
+                    <td class="lang">查询超时时间</td>
+                </tr>
+                <tr>
+                    <td class="td_lable">* <span class="lang">事务超时</span></td>
+                    <td id="dataSource_TransactionQueryTimeout"></td>
+                    <td class="lang">事务查询超时时间</td>
+                </tr>
+                <tr>
+                    <td class="td_lable">* <span class="lang">登录超时</span></td>
+                    <td id="dataSource_LoginTimeout"></td>
+                    <td class="lang"></td>
+                </tr>
+                <tr>
+                    <td class="td_lable">* <span class="lang">连接检查类</span></td>
+                    <td id="dataSource_ValidConnectionCheckerClassName"></td>
+                    <td class="lang"></td>
+                </tr>
+                <tr>
+                    <td class="td_lable">* <span class="lang">异常排序类</span></td>
+                    <td id="dataSource_ExceptionSorterClassName"></td>
+                    <td class="lang"></td>
+                </tr>
+                <tr>
+                    <td class="td_lable">* <span class="lang">自动提交</span></td>
+                    <td id="dataSource_DefaultAutoCommit"></td>
+                    <td class="lang"></td>
+                </tr>
+                <tr>
+                    <td class="td_lable">* <span class="lang">默认只读设置</span></td>
+                    <td id="dataSource_DefaultReadOnly"></td>
+                    <td class="lang"></td>
+                </tr>
+                <tr>
+                    <td class="td_lable">* <span class="lang">默认事务隔离</span></td>
+                    <td id="dataSource_DefaultTransactionIsolation"></td>
+                    <td class="lang"></td>
+                </tr>
+                <tr>
+                    <td class="td_lable"><span class="lang">等待次数</span></td>
+                    <td id="dataSource_NotEmptyWaitCount"></td>
+                    <td class="lang">获取连接时最多等待多少次</td>
+                </tr>
+                <tr>
+                    <td class="td_lable"><span class="lang">等待最大时长</span></td>
+                    <td id="dataSource_NotEmptyWaitMillis"></td>
+                    <td class="lang">获取连接时最多等待多长时间</td>
+                </tr>
+                <tr>
+                    <td class="td_lable"><span class="lang">等待线程数量</span></td>
+                    <td id="dataSource_WaitThreadCount"></td>
+                    <td class="lang">当前等待获取连接的线程数</td>
+                </tr>
+                <tr>
+                    <td class="td_lable"><span class="lang">事务启动数</span></td>
+                    <td id="dataSource_StartTransactionCount"></td>
+                    <td class="lang">事务开始的个数</td>
+                </tr>
+                <tr>
+                    <td class="td_lable"><span class="lang">事务时间分布</span></td>
+                    <td id="dataSource_TransactionHistogram"></td>
+                    <td class="lang">事务运行时间分布，分布区间为[0-10 ms, 10-100 ms, 100-1 s, 1-10 s, 10-100 s, &gt;100 s]</td>
+                </tr>
+                <tr>
+                    <td class="td_lable"><span class="lang">池中连接数</span></td>
+                    <td id="dataSource_PoolingCount"></td>
+                    <td class="lang">当前连接池中的数目</td>
+                </tr>
+                <tr>
+                    <td class="td_lable"><span class="lang">池中连接数峰值</span></td>
+                    <td id="dataSource_PoolingPeak"></td>
+                    <td class="lang">连接池中数目的峰值</td>
+                </tr>
+                <tr>
+                    <td class="td_lable"><span class="lang">连接数峰值发生</span></td>
+                    <td id="dataSource_PoolingPeakTime"></td>
+                    <td class="lang">连接池数目峰值出现的时间</td>
+                </tr>
+                <tr>
+                    <td class="td_lable"><span class="lang">活跃连接数</span></td>
+                    <td id="dataSource_ActiveCount"></td>
+                    <td class="lang">当前连接池中活跃连接数</td>
+                </tr>
+                <tr>
+                    <td class="td_lable"><span class="lang">活跃连接数峰值</span></td>
+                    <td id="dataSource_ActivePeak"></td>
+                    <td class="lang">连接池中活跃连接数峰值</td>
+                </tr>
+                <tr>
+                    <td class="td_lable"><span class="lang">活跃数峰值发生</span></td>
+                    <td id="dataSource_ActivePeakTime"></td>
+                    <td class="lang">活跃连接池峰值出现的时间</td>
+                </tr>
+                <tr>
+                    <td class="td_lable"><span class="lang">逻辑打开次数</span></td>
+                    <td id="dataSource_LogicConnectCount"></td>
+                    <td class="lang">产生的逻辑连接建立总数</td>
+                </tr>
+                <tr>
+                    <td class="td_lable"><span class="lang">逻辑关闭次数</span></td>
+                    <td id="dataSource_LogicCloseCount"></td>
+                    <td class="lang">产生的逻辑连接关闭总数</td>
+                </tr>
+                <tr>
+                    <td class="td_lable"><span class="lang">逻辑错误次数</span></td>
+                    <td id="dataSource_LogicConnectErrorCount"></td>
+                    <td class="lang">产生的逻辑连接出错总数</td>
+                </tr>
+                <tr>
+                    <td class="td_lable"><span class="lang">物理打开次数</span></td>
+                    <td id="dataSource_PhysicalConnectCount"></td>
+                    <td class="lang">产生的物理连接建立总数</td>
+                </tr>
+                <tr>
+                    <td class="td_lable"><span class="lang">物理关闭数量</span></td>
+                    <td id="dataSource_PhysicalCloseCount"></td>
+                    <td class="lang">产生的物理关闭总数</td>
+                </tr>
+                <tr>
+                    <td class="td_lable"><span class="lang">物理错误次数</span></td>
+                    <td id="dataSource_PhysicalConnectErrorCount"></td>
+                    <td class="lang">产生的物理连接失败总数</td>
+                </tr>
+                <tr>
+                    <td class="td_lable"><span class="lang">执行数</span></td>
+                    <td id="dataSource_ExecuteCount"></td>
+                    <td class="lang"></td>
+                </tr>
+                <tr>
+                    <td class="td_lable"><span class="lang">错误数</span></td>
+                    <td id="dataSource_ErrorCount"></td>
+                    <td class="lang"></td>
+                </tr>
+                <tr>
+                    <td class="td_lable"><span class="lang">提交数</span></td>
+                    <td id="dataSource_CommitCount"></td>
+                    <td class="lang"></td>
+                </tr>
+                <tr>
+                    <td class="td_lable"><span class="lang">回滚数</span></td>
+                    <td id="dataSource_RollbackCount"></td>
+                    <td class="lang"></td>
+                </tr>
+                <tr>
+                    <td class="td_lable"><span class="lang">PSCache访问次数</span></td>
+                    <td id="dataSource_PSCacheAccessCount"></td>
+                    <td class="lang">PSCache访问总数</td>
+                </tr>
+                <tr>
+                    <td class="td_lable"><span class="lang">PSCache命中次数</span></td>
+                    <td id="dataSource_PSCacheHitCount"></td>
+                    <td class="lang">PSCache命中次数</td>
+                </tr>
+                <tr>
+                    <td class="td_lable"><span class="lang">PSCache丢失次数</span></td>
+                    <td id="dataSource_PSCacheMissCount"></td>
+                    <td class="lang">PSCache丢失次数</td>
+                </tr>
+                <tr>
+                    <td class="td_lable"><span class="lang">连接持有时间分布</span></td>
+                    <td id="dataSource_ConnectionHoldTimeHistogram"></td>
+                    <td class="lang">连接持有时间分布，分布区间为[0-1 ms, 1-10 ms, 10-100 ms, 100ms-1s, 1-10 s, 10-100 s, 100-1000 s,
+                        &gt;1000 s]
+                    </td>
+                </tr>
+                <tr>
+                    <td class="td_lable"><span class="lang">Clob打开次数</span></td>
+                    <td id="dataSource_ClobOpenCount"></td>
+                    <td class="lang">Clob打开数</td>
+                </tr>
+                <tr>
+                    <td class="td_lable"><span class="lang">Blob打开次数</span></td>
+                    <td id="dataSource_BlobOpenCount"></td>
+                    <td class="lang">Blob打开数</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div role="tabpanel" class="tab-pane" id="sql">
+            <table class="table table-bordered table-striped responsive-utilities" style="background-color: #fff">
+                <thead>
+                <tr>
+                    <th colspan="15">
+                        <button class="btn btn-sm btn-primary" onclick="loadSql()">
+                            <i class="icon-undo"></i> 刷新
+                        </button>
+                    </th>
+                </tr>
+                </thead>
+                <thead>
+                <tr>
+                    <th>序号</th>
+                    <th>SQL</th>
+                    <th>执行数</th>
+                    <th>执行时间</th>
+                    <th class="langTitle" title="最慢的执行耗时">最慢</th>
+                    <th class="langTitle" title="在事务中运行的次数">事务中</th>
+                    <th>错误数</th>
+                    <th>更新行数</th>
+                    <th>读取行数</th>
+                    <th>执行中</th>
+                    <th>最大并发</th>
+                    <th><span class="lang">执行时间分布</span> <br>[ <a class="langTitle"
+                                                                  title="0-1毫秒次数">-</a> <a
+                            class="langTitle"
+                            title="1-10毫秒次数">-</a> <a
+                            class="langTitle" title="10-100毫秒次数">-</a> <a
+                            class="langTitle"
+                            title="100-1000毫秒次数">-</a>
+                        <a
+                                class="langTitle" title="1-10秒次数">-</a> <a
+                                class="langTitle"
+                                title="10-100秒次数">-</a>
+                        <a class="langTitle"
+                           title="100-1000秒次数">-</a> <a class="langTitle" title="大于1000秒次数">-</a> ]
+                    </th>
+                    <th><span class="lang">执行+RS时分布</span> <br>[ <a id="th-ExecuteAndResultHoldTimeHistogram[0]"
+                                                                    class="langTitle" title="0-1毫秒次数">-</a> <a
+                            id="th-ExecuteAndResultHoldTimeHistogram[1]" class="langTitle" title="1-10毫秒次数">-</a> <a
+                            id="th-ExecuteAndResultHoldTimeHistogram[2]" class="langTitle" title="10-100毫秒次数">-</a>
+                        <a id="th-ExecuteAndResultHoldTimeHistogram[3]" class="langTitle" title="100-1000毫秒次数">-</a> <a
+                                id="th-ExecuteAndResultHoldTimeHistogram[4]" class="langTitle"
+                                title="1-10秒次数">-</a> <a id="th-ExecuteAndResultHoldTimeHistogram[5]" class="langTitle"
+                                                         title="10-100秒次数">-</a> <a
+                                id="th-ExecuteAndResultHoldTimeHistogram[6]"
+                                class="langTitle" title="100-1000秒次数">-</a> <a
+                                id="th-ExecuteAndResultHoldTimeHistogram[7]" class="langTitle" title="大于1000秒次数">-</a> ]
+                    </th>
+                    <th><span class="lang">读取行分布</span> <br>[ <a id="th-FetchRowCountHistogram[0]" class="langTitle"
+                                                                 title="读取行数为0">-</a> <a
+                            id="th-FetchRowCountHistogram[1]"
+                            class="langTitle" title="读取行数1-9">-</a> <a id="th-FetchRowCountHistogram[2]"
+                                                                       class="langTitle" title="读取行数10-99">-</a> <a
+                            id="th-FetchRowCountHistogram[3]" class="langTitle"
+                            title="读取行数100-999">-</a> <a id="th-FetchRowCountHistogram[4]" class="langTitle"
+                                                         title="读取行数1000-9999">-</a> <a
+                            id="th-FetchRowCountHistogram[5]" class="langTitle"
+                            title="读取行数大于9999">-</a> ]
+                    </th>
+                    <th><span class="lang">更新行分布</span> <br>[ <a id="th-EffectedRowCountHistogram[0]" class="langTitle"
+                                                                 title="更新行数为0">-</a> <a
+                            id="th-EffectedRowCountHistogram[1]"
+                            class="langTitle" title="更新行数1-9">-</a> <a id="th-EffectedRowCountHistogram[2]"
+                                                                       class="langTitle" title="更新行数10-99">-</a> <a
+                            id="th-EffectedRowCountHistogram[3]"
+                            class="langTitle" title="更新行数100-999">-</a> <a id="th-EffectedRowCountHistogram[4]"
+                                                                           class="langTitle" title="更新行数1000-9999">-</a>
+                        <a id="th-EffectedRowCountHistogram[5]"
+                           class="langTitle" title="更新行数大于9999">-</a> ]
+                    </th>
+                    <iframe id="tmp_downloadhelper_iframe" style="display: none;"></iframe>
+                </tr>
+                </thead>
+                <tbody id="sqlPanel">
+
+                </tbody>
+            </table>
+        </div>
+        <div role="tabpanel" class="tab-pane" id="app">
+            <table class="table table-bordered" style="background-color: #fff">
+                <thead>
+                <tr>
+                    <th colspan="2">
+                        <button class="btn btn-sm btn-primary" onclick="loadApp()">
+                            <i class="icon-undo"></i> 刷新
+                        </button>
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td class="td_lable lang">ContextPath</td>
+                    <td id="app_ContextPath"></td>
+                </tr>
+                <tr>
+                    <td class="td_lable lang">执行中</td>
+                    <td id="app_RunningCount"></td>
+                </tr>
+                <tr>
+                    <td class="td_lable lang">最大并发</td>
+                    <td id="app_ConcurrentMax"></td>
+                </tr>
+                <tr>
+                    <td class="td_lable lang">请求次数</td>
+                    <td id="app_RequestCount"></td>
+                </tr>
+                <tr>
+                    <td class="td_lable lang">SessionCount</td>
+                    <td id="app_SessionCount"></td>
+                </tr>
+                <tr>
+                    <td class="td_lable lang">事务提交数</td>
+                    <td id="app_JdbcCommitCount"></td>
+                </tr>
+                <tr>
+                    <td class="td_lable lang">事务回滚数</td>
+                    <td id="app_JdbcRollbackCount"></td>
+                </tr>
+                <tr>
+                    <td class="td_lable lang">Jdbc执行数</td>
+                    <td id="app_JdbcExecuteCount"></td>
+                </tr>
+                <tr>
+                    <td class="td_lable lang">Jdbc时间</td>
+                    <td id="app_JdbcExecuteTimeMillis"></td>
+                </tr>
+                <tr>
+                    <td class="td_lable lang">读取行数</td>
+                    <td id="app_JdbcFetchRowCount"></td>
+                </tr>
+                <tr>
+                    <td class="td_lable lang">更新行数</td>
+                    <td id="app_JdbcUpdateCount"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div role="tabpanel" class="tab-pane" id="uri">
+            <table class="table table-bordered table-striped responsive-utilities" style="background-color: #fff">
+                <thead>
+                <tr>
+                    <th colspan="14">
+                        <button class="btn btn-sm btn-primary" onclick="loadURI()">
+                            <i class="icon-undo"></i> 刷新
+                        </button>
+                    </th>
+                </tr>
+                <tr>
+                    <th>N</th>
+                    <th>URI</th>
+                    <th>请求次数</th>
+                    <th>请求时间</th>
+                    <th>执行中</th>
+                    <th>最大并发</th>
+                    <th>Jdbc执行数</th>
+                    <th>Jdbc出错数</th>
+                    <th>Jdbc时间</th>
+                    <th>事务提交数</th>
+                    <th>事务回滚数</th>
+                    <th>读取行数</th>
+                    <th>更新行数</th>
+                    <th><span class="lang">区间分布</span> <br>[ <a class="langTitle"
+                                                                title="0-1毫秒次数">-</a> <a
+                            class="langTitle"
+                            title="1-10毫秒次数">-</a>
+                        <a class="langTitle" title="10-100毫秒次数">-</a> <a
+                                class="langTitle"
+                                title="100-1000毫秒次数">-</a>
+                        <a
+                                class="langTitle" title="1-10秒次数">-</a> <a class="langTitle"
+                                                                           title="10-100秒次数">-</a> <a
+                                class="langTitle"
+                                title="100-1000秒次数">-</a>
+                        <a class="langTitle" title="大于1000秒次数">-</a> ]
+                    </th>
+                </tr>
+                </thead>
+                <tbody id="URIPanle">
+                </tbody>
+            </table>
+        </div>
+        <div role="tabpanel" class="tab-pane" id="session">
+            <table class="table table-bordered table-striped" style="background-color: #fff">
+                <thead>
+                <tr>
+                    <th colspan="16">
+                        <button class="btn btn-sm btn-primary" onclick="loadSession()">
+                            <i class="icon-undo"></i> 刷新
+                        </button>
+                    </th>
+                </tr>
+                <tr>
+                    <th>N</th>
+                    <th>SESSIONID</th>
+                    <th>Principal</th>
+                    <th>创建时间</th>
+                    <th>最后访问时间</th>
+                    <th>访问ip地址</th>
+                    <th>请求次数</th>
+                    <th>总共请求时间</th>
+                    <th>执行中</th>
+                    <th>最大并发</th>
+                    <th>Jdbc执行数</th>
+                    <th>Jdbc时间</th>
+                    <th>事务提交数</th>
+                    <th>事务回滚数</th>
+                    <th>读取行数</th>
+                    <th>更新行数</th>
+                </tr>
+                <tr></tr>
+                </thead>
+                <tbody id="sessionPanel">
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+<script type="text/javascript">
+    $(function () {
+        loadIndex();
+    })
+
+    function openConnectionPool() {
+        core.openUrl("/monitor/druid/connectionPool?id=" + $('#dataSourceId').val(), "连接池信息", "600px", "600px", 1);
+    }
+
+    function loadDataSource() {
+        var index = layer.load(0, {shade: false});
+        $.post(base + '/druid/datasource.json', {}, function (data) {
+            layer.close(index);
+            if (data.ResultCode == 1) {
+                var con = data.Content[0];
+                for (key in con) {
+                    if ($('#dataSource_' + key).length) {
+                        $('#dataSource_' + key).text(con[key]);
+                    }
+                }
+                $('#dataSourceId').val(con.Identity);
+            } else if (data.msg) {
+                core.showMsg(data.msg, data.ok);
+            } else {
+                core.showMsg("调用druid api失败!")
+            }
+        }, 'json');
+    }
+    function loadSql() {
+        var index = layer.load(0, {shade: false});
+        $.post(base + '/druid/sql.json', {}, function (data) {
+            layer.close(index);
+            if (data.ResultCode == 1) {
+                var sqlPanel = $('#sqlPanel').empty();
+                var items = data.Content;
+                items.sort(function (a, b) {
+                    return a.ID < b.ID ? 1 : -1;
+                });
+                $(items).each(
+                        function (i, item) {
+                            sqlPanel.append('<tr><td>' + item.ID + '</td><td class="pop-5"><a  title="' + item.SQL + '" onclick="openSqlDetail(' + item.ID + ')" >'
+                                    + item.SQL.substring(0, 25) + '</a></td><td>' + item.ExecuteCount + '</td><td>' + item.ExecuteAndResultSetHoldTime + '</td><td>'
+                                    + item.MaxTimespan + '</td><td>' + item.InTransactionCount + '</td><td>' + item.ErrorCount + '</td><td>' + item.EffectedRowCount + '</td><td>'
+                                    + item.FetchRowCount + '</td><td>' + item.RunningCount + '</td><td>' + item.ConcurrentMax + '</td><td>' + item.Histogram + '</td><td>'
+                                    + item.ExecuteAndResultHoldTimeHistogram + '</td><td>' + item.FetchRowCountHistogram + '</td><td>' + item.EffectedRowCountHistogram
+                                    + '</td></tr>');
+                        });
+            } else if (data.msg) {
+                core.showMsg(data.msg, data.ok);
+            } else {
+                core.showMsg("调用druid api失败!")
+            }
+        }, 'json');
+    }
+
+    function openSqlDetail(id) {
+        core.openUrl("/monitor/druid/sqlDetail?sqlId=" + id, "sql监控详情", "600px", "600px",  1);
+    }
+    function openSessionDetail(sessionId) {
+        core.openUrl("/monitor/druid/sessionDetail?sessionId=" + sessionId, "会话监控详情", "600px", "600px", 1);
+    }
+    function openURIDetail(uri) {
+        core.openUrl("/monitor/druid/uriDetail?uri=" + uri, "URI监控详情","600px", "600px",  1);
+    }
+    function loadApp() {
+        var index = layer.load(0, {shade: false});
+        $.post(base + '/druid/webapp.json', {}, function (data) {
+            layer.close(index);
+            if (data.ResultCode == 1) {
+                var con = data.Content[0];
+                $('#app_ContextPath').text(con.ContextPath);
+                $('#app_RunningCount').text(con.RunningCount);
+                $('#app_ConcurrentMax').text(con.ConcurrentMax);
+                $('#app_RequestCount').text(con.RequestCount);
+                $('#app_SessionCount').text(con.SessionCount);
+                $('#app_JdbcCommitCount').text(con.JdbcCommitCount);
+                $('#app_JdbcRollbackCount').text(con.JdbcRollbackCount);
+                $('#app_JdbcExecuteCount').text(con.JdbcExecuteCount);
+                $('#app_JdbcExecuteTimeMillis').text(con.JdbcExecuteTimeMillis);
+                $('#app_JdbcFetchRowCount').text(con.JdbcFetchRowCount);
+                $('#app_JdbcUpdateCount').text(con.JdbcUpdateCount);
+            } else if (data.msg) {
+                core.showMsg(data.msg, data.ok);
+            } else {
+                core.showMsg("调用druid api失败!")
+            }
+        }, 'json');
+    }
+    function loadURI() {
+        var index = layer.load(0, {shade: false});
+        $.post(base + '/druid/weburi.json', {}, function (data) {
+            layer.close(index);
+            if (data.ResultCode == 1) {
+                var URIPanle = $('#URIPanle').empty();
+                var items = data.Content;
+                items.sort(function (a, b) {
+                    return a.ID < b.ID ? 1 : -1;
+                });
+                $(items).each(
+                        function (i, item) {
+                            URIPanle.append('<tr><td>' + (i + 1) + '</td><td><a onclick="openURIDetail(\'' + item.URI + '\')">' + item.URI + '</a></td><td>' + item.RequestCount
+                                    + '</td><td>' + item.RequestTimeMillis + '</td><td>' + item.RunningCount + '</td><td>' + item.ConcurrentMax + '</td><td>'
+                                    + item.JdbcExecuteCount + '</td><td>' + item.JdbcExecuteErrorCount + '</td><td>' + item.JdbcExecuteTimeMillis + '</td><td>'
+                                    + item.JdbcCommitCount + '</td><td>' + item.JdbcRollbackCount + '</td><td>' + item.JdbcFetchRowCount + '</td><td>' + item.JdbcUpdateCount
+                                    + '</td><td>[' + item.Histogram + ']</td></tr>');
+                        });
+            } else if (data.msg) {
+                core.showMsg(data.msg, data.ok);
+            } else {
+                core.showMsg("调用druid api失败!")
+            }
+        }, 'json');
+    }
+    function loadSession() {
+        var index = layer.load(0, {shade: false});
+        $.post(base + '/druid/websession.json', {}, function (data) {
+            layer.close(index);
+            if (data.ResultCode == 1) {
+                var sessionPanel = $('#sessionPanel').empty();
+                var items = data.Content;
+                items.sort(function (a, b) {
+                    return a.ID < b.ID ? 1 : -1;
+                });
+                $(items).each(
+                        function (i, item) {
+                            sessionPanel.append('<tr><td>' + (i + 1) + '</td><td><a  onclick="openSessionDetail(\'' + item.SESSIONID + '\')">' + item.SESSIONID + '</a></td>'
+                                    + item.Principal + '<td></td><td>' + item.CreateTime + '</td><td>' + item.LastAccessTime + '</td><td>' + item.RemoteAddress + '</td><td>'
+                                    + item.RequestCount + '</td><td>' + item.RequestTimeMillisTotal + '</td><td>' + item.RunningCount + '</td><td>' + item.ConcurrentMax
+                                    + '</td><td>' + item.JdbcExecuteCount + '</td><td>' + item.JdbcExecuteTimeMillis + '</td><td>' + item.JdbcCommitCount + '</td><td>'
+                                    + item.JdbcRollbackCount + '</td><td>' + item.JdbcFetchRowCount + '</td><td>' + item.JdbcUpdateCount + '</td></tr>');
+                        });
+            } else if (data.msg) {
+                core.showMsg(data.msg, data.ok);
+            } else {
+                core.showMsg("调用druid api失败!")
+            }
+        }, 'json');
+    }
+    function loadIndex() {
+        var index = layer.load(0, {shade: false});
+        $.post(base + '/druid/basic.json', {}, function (data) {
+            layer.close(index);
+            if (data.ResultCode == 1) {
+                $('#DruidVersion').text(data.Content.Version);
+                $('#DruidDrivers').empty();
+                $(data.Content.Drivers).each(function (i, item) {
+                    $('#DruidDrivers').append(item + "<br>");
+                });
+                $('#ResetEnable').text(data.Content.ResetEnable);
+                $('#ResetCount').text(data.Content.ResetCount);
+                $('#JavaVersion').text(data.Content.JavaVersion);
+                $('#JavaVMName').text(data.Content.JavaVMName);
+                $('#JavaClassPath').empty();
+                $(data.Content.JavaClassPath.split(';')).each(function (i, item) {
+                    $('#JavaClassPath').append(item + "<br>");
+                });
+                $('#StartTime').text(data.Content.StartTime);
+            } else if (data.msg) {
+                core.showMsg(data.msg, data.ok);
+            } else {
+                core.showMsg("调用druid api失败!")
+            }
+        }, 'json');
+    }
+</script>
+<%}%>

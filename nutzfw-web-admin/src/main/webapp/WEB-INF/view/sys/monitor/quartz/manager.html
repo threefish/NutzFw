@@ -1,0 +1,256 @@
+<%
+var title="任务管理";
+layout("/layouts/blank.html",{title:title}){
+%>
+<style type="text/css">
+    .dataTbleBox {
+        background: #ffffff;
+        margin: 15px 0px;
+        padding: 15px;
+    }
+</style>
+<section class="content-header">
+    <h1>
+        ${title}
+        <small>控制面板</small>
+    </h1>
+</section>
+<section class="content">
+    <div style="background: #ffffff">
+        <div id="joblistTable" lay-filter='joblistTable'></div>
+    </div>
+</section>
+<script type="text/html" id="jobStatus">
+    {{# if(d.jobStatus=='NORMAL'){ }}
+    触发器正常
+    {{# }else if(d.jobStatus=='PAUSED'){ }}
+    已暂停
+    {{# }else if(d.jobStatus=='NONE'){ }}
+    已停止
+    {{# }else if(d.jobStatus=='BLOCKED'){ }}
+    堵塞中
+    {{# }else if(d.jobStatus=='RUNING'){ }}
+    正在运行
+    {{# } }}
+</script>
+
+<script type="text/html" id="toolBarFixed">
+    {{# var data=['layui-btn-disabled','layui-btn-disabled','layui-btn-disabled','layui-btn-disabled','layui-btn-disabled'] }}
+    {{# if(d.jobStatus=='NORMAL'||d.jobStatus=='RUNING'){
+    data[1]="";
+    data[3]="";
+    data[4]="";
+    }else if(d.jobStatus=='PAUSED'){
+    data[2]="";
+    data[3]="";
+    data[4]="";
+    }else if(d.jobStatus=='NONE'){
+    data[0]="";
+    } }}
+    <div>
+        <%if(so.hasPermission("sysMonitor.startJob")){%>
+        <a class="{{data[0]}} layui-btn layui-btn-xs layui-btn-danger" lay-event="startJob">启动</a>
+        <%}%>
+        <%if(so.hasPermission("sysMonitor.pauseJob")){%>
+        <a class="{{data[1]}} layui-btn layui-btn-xs " lay-event="pauseJob">暂停</a>
+        <%}%>
+        <%if(so.hasPermission("sysMonitor.resumJob")){%>
+        <a class="{{data[2]}} layui-btn layui-btn-xs layui-btn-warm" lay-event="resumJob">恢复</a>
+        <%}%>
+        <%if(so.hasPermission("sysMonitor.stopJob")){%>
+        <a class="{{data[4]}} layui-btn layui-btn-xs layui-btn-danger" lay-event="stopJob">停止</a>
+        <%}%>
+        <%if(so.hasPermission("sysMonitor.atOnceJob")){%>
+        <a class="{{data[3]}} layui-btn layui-btn-xs layui-btn-normal" lay-event="atOnceJob">立即执行一次</a>
+        <%}%>
+        <%if(so.hasPermission("sysMonitor.jobRunHistory")){%>
+        <a class="layui-btn layui-btn-xs layui-btn-normal" lay-event="viewHistory">错误记录</a>
+        <%}%>
+    </div>
+</script>
+<script type="text/html" id="jobType">
+    <input type="checkbox" lay-skin="switch" lay-text="自动启用|手动启用" data-id="{{d.uuid}}" lay-filter="jobType"
+           value="{{d.jobType}}" {{
+           (d.jobType=='0'||d.jobType==0)?'checked':'' }}>
+</script>
+<script type="text/html" id="topToolbar">
+    <%if(so.hasPermission("sysMonitor.addJob")){%>
+    <div class="layui-btn layui-btn-sm" lay-event="add">添加任务</div>
+    <%}%>
+</script>
+<script type="text/javascript">
+    var quartzJobGrid;
+    $(function () {
+        layui.use(['table', 'element', 'laytpl', 'form',], function () {
+            var table = layui.table;
+            var form = layui.form;
+            quartzJobGrid = table.render({
+                id: 'joblistTable',
+                elem: '#joblistTable',
+                page: true,
+                method: 'post',
+                url: base + '/monitor/jobs/query',
+                height: 'full-100',
+                limit: 50,
+                toolbar: '#topToolbar',
+                defaultToolbar: ['filter'],
+                request: {
+                    pageName: 'pageNum',
+                    limitName: 'pageSize',
+                },
+                cols: [[
+                    {title: '序号', type: 'numbers', width: 50, totalRowText: '合计：'},
+                    {field: 'jobName', title: '任务名称', width: 200},
+                    {field: 'jobCorn', title: '表达式', width: 150, event: 'jobCorn', style: 'cursor: pointer;'},
+                    {field: 'jobKlass', title: '任务路径'},
+                    {field: 'args', title: '运行参数', event: 'args', style: 'cursor: pointer;'},
+                    {field: 'jobDesc', title: '描述'},
+                    {field: 'jobShort', title: '排序号', event: 'updateShortNo', width: 80},
+                    {field: 'jobStatus', title: '任务状态', width: 100, templet: '#jobStatus'},
+                    {
+                        field: 'jobLastStatus', title: '最后一次执行结果', templet: function (row) {
+                            return row.jobLastStatus == true ? "成功" : "<span style='color: red'>失败</span>";
+                        }
+                    },
+                    {field: 'jobType', title: '任务类型', width: 120, templet: '#jobType'},
+                    {title: '操作', align: 'center', width: 450, fixed: 'right', toolbar: '#toolBarFixed'},
+                ]],
+            });
+            form.on('switch(jobType)', function (obj) {
+                var value = obj.value;
+                var $el = $(obj.elem);
+                var id = $el.attr("data-id");
+                if (value == '0') {
+                    $el.val('1');
+                } else {
+                    $el.val('0');
+                }
+                var json = core.postJSON("/monitor/jobs/changeJobType", {id: id, jobType: $el.val()});
+                core.msg(json);
+            });
+            table.on("toolbar(joblistTable)", function (obj) {
+                var data = obj.data, layEvent = obj.event;
+                if (layEvent == "add") {
+                    core.msg("开发中！");
+                }
+            });
+            table.on("tool(joblistTable)", function (obj) {
+                var data = obj.data, layEvent = obj.event;
+                if (!$(this).hasClass("layui-btn-disabled")) {
+                    var id = data.uuid;
+                    var ac = layEvent;
+                    if (ac == "viewHistory") {
+                        window.parent.layer.open({
+                            type: 2,
+                            title: ['执行历史'],
+                            shade: 0.3,
+                            area: ['80%', '80%'],
+                            content: "${base!}/monitor/jobs/jobRunHistory?id=" + id,
+                            btnAlign: "r",
+                        });
+                    } else if (layEvent === 'args') {
+                        layer.prompt({
+                            formType: 2,
+                            title: '修改 [' + data.jobName + '] 的运行参数 ---- 参数为标准的json字符串',
+                            value: data.args,
+                            area: ['600px', '300px'],
+                        }, function (value, index) {
+                            if (value == "") {
+                                core.msg("请输入运行参数");
+                            } else {
+                                //这里一般是发送修改的Ajax请求
+                                var json = core.postJSON("/monitor/jobs/updateArgs", {args: value, id: data.uuid});
+                                core.msg(json);
+                                if (json.ok) {
+                                    //同步更新表格和缓存对应的值
+                                    obj.update({
+                                        args: value
+                                    });
+                                    layer.close(index);
+                                }
+                            }
+                        });
+                    } else if (layEvent === 'updateShortNo') {
+                        layer.prompt({
+                            formType: 0,
+                            title: '修改 [' + data.jobName + '] 排序号',
+                            value: data.jobShort,
+                            area: ['300px', '300px'],
+                        }, function (value, index) {
+                            if (value == "") {
+                                core.msg("请输入排序号");
+                            } else {
+                                //这里一般是发送修改的Ajax请求
+                                var json = core.postJSON("/monitor/jobs/updateShortNo", {
+                                    shortNo: value,
+                                    id: data.uuid
+                                });
+                                core.msg(json);
+                                if (json.ok) {
+                                    quartzJobGrid.reload('joblistTable', {})
+                                    layer.close(index);
+                                }
+                            }
+                        });
+                    } else if (layEvent === 'jobCorn') {
+                        layer.prompt({
+                            formType: 3,
+                            title: '修改 [' + data.jobName + '] 的运行表达式',
+                            value: data.jobCorn,
+                            area: ['600px', '300px'],
+                        }, function (value, index) {
+                            if (value == "") {
+                                core.msg("请输入运行参数");
+                            } else {
+                                //这里一般是发送修改的Ajax请求
+                                var json = core.postJSON("/monitor/jobs/updatejobCorn", {
+                                    jobCorn: value,
+                                    id: data.uuid
+                                });
+                                core.msg(json);
+                                if (json.ok) {
+                                    //同步更新表格和缓存对应的值
+                                    obj.update({
+                                        jobCorn: value
+                                    });
+                                    layer.close(index);
+                                }
+                            }
+                        });
+                    } else {
+                        var text = data.jobName;
+                        var acName = new Object();
+                        acName.startJob = "启动";
+                        acName.pauseJob = "暂停";
+                        acName.resumJob = "恢复";
+                        acName.stopJob = "停止";
+                        acName.atOnceJob = "立即执行一次";
+                        core.confirm('确定<span style="color: red;">' + acName[ac] + '</span>【' + text + '】任务？', function () {
+                            $.ajax({
+                                url: base + '/monitor/jobs/' + ac,
+                                type: "POST",
+                                data: {id: id},
+                                error: function (request) {
+                                    layer.msg("网络连接出错", {icon: 5, time: 1000});
+                                },
+                                dataType: "json",
+                                success: function (data) {
+                                    if (data && data.ok) {
+                                        layer.msg(data.msg, {icon: 1});
+                                    } else {
+                                        layer.msg(data.msg, {icon: 7, time: 2000});
+                                    }
+                                    quartzJobGrid.reload('joblistTable', {});
+                                    setTimeout(function () {
+                                        quartzJobGrid.reload('joblistTable', {});
+                                    }, 2000);
+                                }
+                            });
+                        });
+                    }
+                }
+            });
+        });
+    });
+</script>
+<%}%>

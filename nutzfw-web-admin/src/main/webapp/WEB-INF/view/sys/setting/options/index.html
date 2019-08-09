@@ -1,0 +1,282 @@
+<%
+var title="系统设置";
+layout("/layouts/blank.html",{title:title}){
+%>
+<style type="text/css">
+</style>
+<section class="content-header">
+    <h1>
+        ${title}
+        <small>控制面板</small>
+    </h1>
+</section>
+<section class="content" id="container" v-if="initLoad">
+    <div class="from-box">
+        <form class="form-horizontal" id="form1">
+            <div class="box-body box box-warning">
+               <div class="form-group" style="height: 100px">
+                    <label class="col-sm-2 control-label">系统logo图片</label>
+                    <div class="col-sm-10">
+                        <img :src="fromData.productLogoSrc" style="width: 100px;height: 100px;border: 1px #cdcdcd solid;">
+                        <div class="btn btn-info btn-xs" @click="handleUploadProductLogo">上传图片</div>
+                        <div class="btn btn-info btn-xs" @click="handleProductLogoSrc">剪切上传</div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">单位名称：</label>
+                    <div class="col-sm-10">
+                        <input type="text" data-rule="required" class="form-control" :disabled="fromDataEdit"
+                               v-model="fromData.unitName">
+                        <span class="help-block" style="color:red ">名称修改后注册码失效,需要重新申请注册码，进行注册</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">系统名称</label>
+                    <div class="col-sm-10">
+                        <input type="text" data-rule="required" data-rule="required" class="form-control"
+                               :disabled="fromDataEdit" v-model="fromData.productLongName">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">系统英文名称</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" data-rule="required" :disabled="fromDataEdit"
+                               v-model="fromData.productEnLongName">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">系统简称</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" data-rule="required" :disabled="fromDataEdit"
+                               v-model="fromData.productSortName">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">系统默认主题：</label>
+                    <div class="col-sm-10">
+                        <select class="form-control" v-model="fromData.theme" :disabled="fromDataEdit">
+                            <option value="1">主题1</option>
+                            <option value="2">主题2</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">登录界面扫码登录开关：</label>
+                    <div class="col-sm-10">
+                        <select class="form-control" v-model="fromData.qrCodeLogin" :disabled="fromDataEdit">
+                            <option value="true">开启</option>
+                            <option value="false">关闭</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">初始登录强制修改密码：</label>
+                    <div class="col-sm-10">
+                        <div style="display: inline-block;padding-right: 20px">
+                            <input type="radio" class="magic-radio" id="fristLoginNeedChangePass1"
+                                   :disabled="fromDataEdit" v-model="fromData.fristLoginNeedChangePass" value="true"
+                                   name="fristLoginNeedChangePass">
+                            <label for="fristLoginNeedChangePass1">是</label>
+                        </div>
+                        <div style="display: inline-block">
+                            <input type="radio" class="magic-radio" id="fristLoginNeedChangePass2"
+                                   :disabled="fromDataEdit" v-model="fromData.fristLoginNeedChangePass" value="false"
+                                   name="fristLoginNeedChangePass">
+                            <label for="fristLoginNeedChangePass2">否</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">密码定时过期(月)：</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" data-rule="required" v-model="fromData.passExpired"
+                               :disabled="fromDataEdit">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">密码强度限制：</label>
+                    <div class="col-sm-10">
+                        <select class="form-control" v-model="fromData.passStrength" :disabled="fromDataEdit">
+                            <option value="0">无验证</option>
+                            <option value="1">字母加数字不小于6位</option>
+                            <option value="2">字母大小写加数字</option>
+                            <option value="3">字母大小写都有加数字加特殊字符</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">登录错误次数限制：</label>
+                    <div class="col-sm-10">
+                        <input type="text" :disabled="fromDataEdit" class="form-control" data-rule="required"
+                               v-model="fromData.errorPassInputTimes">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">登录验证码：</label>
+                    <div class="col-sm-10">
+                        <select class="form-control" v-model="fromData.needVerificationCode" :disabled="fromDataEdit">
+                            <option value="-1">无</option>
+                            <option value="0">有</option>
+                            <option value="1">错误1次</option>
+                            <option value="2">错误2次</option>
+                            <option value="3">错误3次</option>
+                            <option value="4">错误4次</option>
+                            <option value="5">错误5次</option>
+                            <option value="6">错误6次</option>
+                            <option value="7">错误7次</option>
+                            <option value="8">错误8次</option>
+                            <option value="9">错误9次</option>
+                            <option value="10">错误10次</option>
+                            <option value="11">错误11次</option>
+                            <option value="12">错误12次</option>
+                            <option value="13">错误13次</option>
+                            <option value="14">错误14次</option>
+                            <option value="15">错误15次</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">系统版本号：</label>
+                    <div class="col-sm-10">
+                        <input type="text" :disabled="fromDataEdit" class="form-control" data-rule="required"
+                               v-model="fromData.version">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">注册时间：</label>
+                    <div class="col-sm-10">
+                        <input type="text" :disabled="fromDataEdit" class="form-control" readonly disabled
+                               v-model="fromData.registrationTime">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">注册失效时间：</label>
+                    <div class="col-sm-10">
+                        <input :disabled="fromDataEdit" class="form-control" disabled readonly type="text"
+                               v-model="fromData.registrationExpirationTime">
+                    </div>
+                </div>
+            <!-- /.box-body -->
+            <div class="box-footer" style="text-align: center">
+                <button type="button" :disabled="!fromDataEdit" @click="handleEdit" v-if="fromDataEdit"
+                        class="btn btn-info ">编辑
+                </button>
+                &nbsp;&nbsp;&nbsp;&nbsp;
+                <button type="button" :disabled="fromDataSubmit" v-if="!fromDataEdit" @click="handleSubmit"
+                        class="btn btn-info">提交
+                </button>
+                &nbsp;&nbsp;&nbsp;&nbsp;
+                <button type="button" :disabled="fromDataSubmit" v-if="!fromDataEdit" @click="handleChanEdit"
+                        class="btn btn-info">取消
+                </button>
+            </div>
+            <!-- /.box-footer -->
+            </div>
+
+        </form>
+    </div>
+</section>
+<script type="text/javascript">
+    var vm = new Vue({
+        el: '#container',
+        data: {
+            fromData: {
+                fristLoginNeedChangePass: "${sys.fristLoginNeedChangePass}",
+                passExpired: "${sys.passExpired}",
+                passStrength: "${sys.passStrength}",
+                theme: "${sys.theme}",
+                errorPassInputTimes: "${sys.errorPassInputTimes}",
+                needVerificationCode: "${sys.needVerificationCode}",
+                version: "${sys.version}",
+                registrationTime: "${sys.registrationTime}",
+                registrationExpirationTime: "${sys.registrationExpirationTime}",
+                unitName: "${sys.unitName}",
+                productLongName: "${sys.productLongName}",
+                productSortName: "${sys.productSortName}",
+                productEnLongName: "${sys.productEnLongName}",
+                productLogo: "${sys.productLogo}",
+                qrCodeLogin: "${sys.qrCodeLogin}",
+                productLogoSrc: "${base!}/File/productLogo",
+            },
+            fromDataSubmit: false,
+            fromDataEdit: true,
+            initLoad: false,
+        },
+        methods: {
+            handleEdit: function () {
+                this.fromDataEdit = false;
+                core.SMValidator('#form1');
+            },
+            handleProductLogoSrc: function () {
+                var config = {
+                    title: "上传LOGO-剪切模式",
+                    module: "avatar",
+                    x: 90, y: 90,
+                    w: "600px", h: "600px",
+                    fun: function (layerIndex, data) {
+                        vm.fromData.productLogo = data.id;
+                        vm.fromData.productLogoSrc = "${base!}/File/productLogo?_="+new Date().getTime();
+                        var jsonre = core.postJSON("/sysOptions/changeProductLogo", {id: data.data});
+                        core.msg(jsonre);
+                        if(jsonre.ok){
+                            setTimeout(function(){
+                                window.parent.location.reload()
+                            },1000);
+                        }
+                        parent.layer.close(layerIndex);
+                    }
+                };
+                parent.HUCuploadFile.cutImg(config);
+            },
+            handleUploadProductLogo: function () {
+                var config = {
+                    fileExtensions: "gif,jpg,bmp,png",
+                    title: "上传LOGO",
+                    module: "avatar",
+                    ok: function (layerIndex, data) {
+                        vm.fromData.productLogo = data.id;
+                        vm.fromData.productLogoSrc = "${base!}/File/productLogo?_=" + new Date().getTime();
+                        var jsonre = core.postJSON("/sysOptions/changeProductLogo", {id: data.data});
+                        core.msg(jsonre);
+                        if (jsonre.ok) {
+                            setTimeout(function () {
+                                window.parent.location.reload()
+                            }, 1000);
+                        }
+                        parent.layer.close(layerIndex);
+                    }
+                };
+                parent.HUCuploadFile.singleUpload(config);
+            },
+            handleChanEdit: function () {
+                this.fromDataEdit = true;
+            },
+            handleSubmit: function () {
+                this.fromDataSubmit = true;
+                if (core.validate('#form1')) {
+                    var fromData = core.convertDataJSON(this.fromData)
+                    var jsonre = core.postJSON("/sysOptions/update", fromData);
+                    core.msg(jsonre);
+                    if (jsonre.ok) {
+                        this.fromData = jsonre.data;
+                        this.fromData.productLogoSrc = "${base!}/File/productLogo?_="+new Date().getTime();
+                        this.fromDataSubmit = false;
+                        this.fromDataEdit = true;
+                    } else {
+                        this.fromDataSubmit = false;
+                    }
+                } else {
+                    this.fromDataSubmit = false;
+                }
+            }
+        },
+        created: function () {
+            this.initLoad = true;
+        },
+        updated: function () {
+        },
+        mounted: function () {
+        }
+    });
+</script>
+<%}%>

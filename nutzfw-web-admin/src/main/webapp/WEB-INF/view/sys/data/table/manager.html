@@ -1,0 +1,272 @@
+<%
+var title="在线表单管理";
+layout("/layouts/blank.html",{title:title}){
+%>
+<style type="text/css">
+    .required {
+        color: red;
+    }
+
+    .searchBox {
+        float: left;
+        margin-right: 20px;
+    }
+
+    .searchBox select, .searchBox input {
+        height: 32px;
+    }
+
+    .layui-btn {
+        height: 32px;
+        line-height: 32px;
+    }
+</style>
+<section class="content-header">
+    <h1>
+        ${title}
+        <small>控制面板</small>
+    </h1>
+</section>
+
+<section class="content" id="container" v-if="initLoad">
+    <%if(so.hasPermission("sysDataTable.manager")){%>
+    <table class="searchBox">
+        <tr>
+            <td class="form-lable" width="80px" style="text-align: center;">
+                表类型：
+            </td>
+            <td class="form-lable">
+                <div class="input-group">
+                    <select class="form-control" placeholder="表类型" v-model="searchData.tableType">
+                        <option value="" checked>全部</option>
+                        <option value="PrimaryTable">人员主表</option>
+                        <option value="Schedule">人员附表</option>
+                        <option value="SingleTable">数据单表</option>
+                    </select>
+                </div>
+            </td>
+            <td class="form-lable" width="80px" style="text-align: center;">
+                状态：
+            </td>
+            <td class="form-lable">
+                <div class="input-group">
+                    <select class="form-control" placeholder="状态" v-model="searchData.status">
+                        <option value="-1" checked>全部</option>
+                        <option value="0">未同步</option>
+                        <option value="1">已同步</option>
+                        <option value="2">同步失败</option>
+                    </select>
+                </div>
+            </td>
+            <td class="form-lable" width="80px" style="text-align: center;">
+                表名：
+            </td>
+            <td class="form-lable">
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="表名" v-model="searchData.name">
+                </div>
+            </td>
+            <td>
+                <div style="margin-left: 20px" @click="fn_searchTables" class="layui-btn layui-btn-sx layui-btn-normal">
+                    查询
+                </div>
+            </td>
+        </tr>
+    </table>
+    <%}%>
+    <%if(so.hasPermission("sysDataTable.add")){%>
+    <div class="layui-btn layui-btn-sx layui-btn-normal" @click="handleAdd">新增</div>
+    <%}%>
+    <%if(so.hasPermission("sysDataTable.revertTableStructure")){%>
+    <div class="layui-btn layui-btn-sx layui-btn-normal" @click="handleRevertTableStructure">还原表结构</div>
+    <%}%>
+    <div style="background: #ffffff">
+        <div id="listTable" lay-filter='listTable'></div>
+    </div>
+    <div style="display: none;padding: 10px" id="synchronizeTypeBox">
+        <select v-model="synchronizeType" class="form-control">
+            <option value="0">保留数据进行同步-(错误的配置可能会导致失败)</option>
+            <option value="1">删除表后新建-(系统表不支持删除后新建)</option>
+        </select>
+    </div>
+</section>
+<script type="text/html" id="toolBarFixed">
+    <%if(so.hasPermission("sysDataTable.edit")){%>
+    <div class="layui-btn layui-btn-sm layui-btn-normal" lay-event="edit">编辑</div>
+    <%}%>
+    <%if(so.hasPermission("sysDataTable.del")){%>
+    <div class="layui-btn layui-btn-sm layui-btn-normal" lay-event="del">删除</div>
+    <%}%>
+    <%if(so.hasPermission("sysDataTable.synchronize")){%>
+    <div class="layui-btn layui-btn-sm layui-btn-normal" lay-event="synchronize">同步</div>
+    <%}%>
+    <%if(so.hasPermission("sysDataTable.backupTableStructure")){%>
+    <div class="layui-btn layui-btn-sm layui-btn-normal" lay-event="backupTableStructure">备份表结构</div>
+    <%}%>
+</script>
+<script type="text/javascript" src="${base!}/static/js/sys/enums.js?_=${productVersion}"></script>
+<script type="text/javascript">
+    var listTable;
+    var vm = new Vue({
+        el: '#container',
+        data: {
+            fromData: {},
+            fromDataSubmit: false,
+            fromDataEdit: true,
+            initLoad: false,
+            synchronizeType: 0,
+            searchData: {
+                tableType: "",
+                status: "-1",
+            },
+        },
+        methods: {
+            handleAdd: function () {
+                parent.core.openUrlOk("/sysDataTable/add", "新增表单", '90%', '90%', function (body, index) {
+                    var iframeVm = parent.window.frames['layui-layer-iframe' + index].window.vm;
+                    if (iframeVm.handleSave()) {
+                        parent.layer.close(index);
+                        listTable.reload();
+                    }
+                });
+            },
+            handleDel: function (roleid) {
+                var jsonre = core.postJSON("/sysDataTable/del", {id: roleid});
+                core.msg(jsonre);
+                if (jsonre.ok) {
+                    listTable.reload();
+                }
+            },
+            handleRevertTableStructure: function () {
+                var opt = {
+                    fileType: "file",
+                    fileExtensions: "bak",
+                    module: "temp",
+                    title: "还原数据表",
+                    ok: function (index, response) {
+                        layer.closeAll();
+                        var attachId = response.data;
+                        var json = core.postJSON("/sysDataTable/revertTableStructure", {attachId: attachId});
+                        core.msg(json);
+                        listTable.reload();
+                    }
+                }
+                core.singleUpload(opt)
+            },
+            fn_searchTables: function () {
+                listTable.reload({
+                    where: vm.searchData,
+                    page: {curr: 1}
+                });
+            }
+        },
+        created: function () {
+            this.initLoad = true;
+        },
+        updated: function () {
+
+        },
+        mounted: function () {
+            layui.use(['table'], function () {
+                var table = layui.table;
+                listTable = table.render({
+                    id: 'listTable',
+                    elem: '#listTable',
+                    page: true,
+                    method: 'post',
+                    url: base + '/sysDataTable/query',
+                    height: 'full-130',
+                    limit: 50,
+                    even: true,
+                    request: {
+                        pageName: 'pageNum',
+                        limitName: 'pageSize',
+                    },
+                    where: vm.searchData,
+                    cols: [[
+                        {title: '序号', type: 'numbers', width: 50},
+                        {type: 'checkbox'},
+                        {
+                            field: 'tableType', title: '表类型', templet: function (row) {
+                                return TableType[row.tableType];
+                            }
+                        },
+                        {
+                            field: 'name', title: '表名', templet: function (row) {
+                                return row.name.replace(vm.searchData.name, "<l style='color:red'>" + vm.searchData.name + "</l>");
+                            }
+                        },
+                        {field: 'tableName', title: '物理表名'},
+                        {field: 'comment', title: '备注'},
+                        {
+                            field: 'system', title: '是否系统表', templet: function (row) {
+                                if (row.system) {
+                                    return "<span>系统表</span>";
+                                } else {
+                                    return "<span style='color: #0a99ec'>用户表</span>";
+                                }
+                            }
+                        },
+                        {field: 'version', title: '版本'},
+                        {
+                            field: 'status', title: '状态', templet: function (row) {
+                                switch (row.status) {
+                                    case 0:
+                                        return "<span style='color: #ec0c03'>未同步</span>";
+                                        break;
+                                    case 1:
+                                        return "<span style='color: #0a99ec'>已同步</span>";
+                                        break;
+                                    case 2:
+                                        return "<span style='color: #ec0c03'>同步失败</span>";
+                                        break;
+                                }
+                                return "";
+                            }
+                        },
+                        {title: '操作', width: 380, align: 'center', fixed: 'right', toolbar: '#toolBarFixed'},
+                    ]],
+                });
+                table.on("tool(listTable)", function (obj) {
+                    var data = obj.data, layEvent = obj.event;
+                    if (layEvent == "synchronize") {
+                        layer.open({
+                            type: 1,
+                            title: "数据库同步模式选择",
+                            area: ['400px', '180px'],
+                            content: $("#synchronizeTypeBox"),
+                            btn: ["确定同步", "取消"],
+                            yes: function (index) {
+                                var jsonre = core.postJSON("/sysDataTable/synchronize", {
+                                    id: data.id,
+                                    synchronizeType: vm.synchronizeType
+                                });
+                                core.msg(jsonre);
+                                if (jsonre.ok) {
+                                    listTable.reload();
+                                    layer.close(index);
+                                }
+                            }
+                        });
+                    } else if (layEvent == "edit") {
+                        parent.core.openUrlOk("/sysDataTable/edit?id=" + data.id, "编辑表单", '90%', '90%', function (body, index) {
+                            var iframeVm = parent.window.frames['layui-layer-iframe' + index].window.vm;
+                            if (iframeVm.handleSave()) {
+                                parent.layer.close(index);
+                                listTable.reload();
+                                core.msg("操作成功！")
+                            }
+                        });
+                    } else if (layEvent == "del") {
+                        core.confirm("删除后无法恢复!<br>确定删除?", function () {
+                            vm.handleDel(data.id);
+                        })
+                    } else if (layEvent == "backupTableStructure") {
+                        window.open("${base!}/sysDataTable/backupTableStructure/" + data.id, "_blank");
+                    }
+                });
+            });
+        }
+    });
+</script>
+<%}%>

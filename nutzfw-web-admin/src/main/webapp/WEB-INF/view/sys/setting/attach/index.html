@@ -1,0 +1,91 @@
+<%
+var title="附件管理";
+layout("/layouts/blank.html",{title:title}){
+%>
+<style type="text/css">
+</style>
+<section class="content-header">
+    <h1>
+        ${title}
+        <small>控制面板</small>
+    </h1>
+</section>
+<section class="content" id="container" v-if="initLoad">
+    <!-- <ul>
+         <li>待开发</li>
+         <li>实体类：com.nutzfw.modules.sys.entity.FileAttach</li>
+         <li>参考定时任务界面</li>
+         <li>其他：</li>
+         <li>1、需提供各类文件查看功能（图片(旋转放大缩小等等)、音视频播放、PDF查看、Excle在线查看、Word下载，其他未知文件下载）</li>
+         <li>2、根据文件类别com.nutzfw.enums.Attach进行筛选</li>
+     </ul>-->
+    <div style="background: #ffffff">
+        <div id="joblistTable" lay-filter='joblistTable'></div>
+    </div>
+</section>
+<script type="text/html" id="toolBarFixed">
+    <div>
+        <%if(so.hasPermission("sysAttach.index")){%>
+        <a class="layui-btn layui-btn-xs layui-btn-danger" lay-event="fileview">文件预览</a>
+        <%}%>
+    </div>
+</script>
+<script type="text/javascript" src="${base!}/static/plugins/video/video.min.js?_=${productVersion}"></script>
+<script type="text/javascript">
+    var listTable;
+    var attachAct = '${base}/File/attachAct?id=';
+    $(function () {
+        layui.use(['table', 'element', 'laytpl'], function () {
+            var sys_attach_type = JSON.parse('${data.sys_attach_type}');
+            var table = layui.table; //表格
+            listTable = table.render({
+                id: 'joblistTable',
+                elem: '#joblistTable',
+                page: true,
+                method: 'post',
+                url: base + '/sysAttach/query',
+                height: 'full-130',
+                limit: 50,
+                even: true,
+                request: {
+                    pageName: 'pageNum',
+                    limitName: 'pageSize',
+                },
+                cols: [[
+                    {title: '序号', type: 'numbers', width: 50},
+                    {
+                        field: 'attachtype', title: '文件类型', templet: function (row) {
+                            return sys_attach_type[row.attachtype];
+                        }
+                    },
+                    {field: 'fileName', title: '文件名字'},
+                    {field: 'md5', title: 'md5'},
+                    {field: 'filesize', title: '文件大小', width: 150},
+                    {field: 'opByDesc', title: '添加人', width: 150},
+                    {field: 'adduser', title: '用户名', width: 150},
+                    {field: 'addtime', title: '添加时间', width: 200},
+                    {
+                        field: 'delFlag', title: '删除标记', width: 100, templet: function (row) {
+                            return row.delFlag ? "<span style='color: red'>已删除</span>" : "未删除";
+                        }
+                    },
+                    {title: '操作', align: 'center', width: 150, fixed: 'right', toolbar: '#toolBarFixed'},
+                ]],
+            });
+            table.on("tool(joblistTable)", function (obj) {
+                if (!$(this).hasClass("layui-btn-disabled")) {
+                    var data = obj.data, layEvent = obj.event;
+                    var ac = layEvent;
+                    if (ac == "fileview") {
+                        viewFile(data);
+                    }
+                }
+            });
+        });
+    });
+
+    function viewFile(data) {
+        core.showAttachList(data.id);
+    }
+</script>
+<%}%>

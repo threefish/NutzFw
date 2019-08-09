@@ -1,0 +1,251 @@
+<%
+var title="条件筛选";
+layout("/layouts/blank.html",{title:title}){
+%>
+<style type="text/css">
+    .field-box {
+        width: 100%;
+    }
+
+    .input-group {
+        padding: 3px;
+    }
+
+    .input-group {
+        width: 100%;
+    }
+
+    .input-group-addon {
+        width: 20%;
+    }
+
+    .center-addon {
+        border-right: none;
+        padding: 0;
+    }
+
+    .center-select {
+        border: none;
+        height: 32px;
+    }
+
+    .between-box {
+        padding: 0px;
+        margin: 0px;
+        width: 36%;
+    }
+
+    .between-box input {
+        border: none;
+        cursor: pointer;
+        background: #fffcf7;
+        height: 30px;
+    }
+
+    .center-lable {
+        text-align: left;
+        text-indent: 1em;
+    }
+
+    div.tree {
+        width: calc(100% - 40px) !important;
+    }
+
+    .input-group-addon-right-icon {
+        height: 34px;
+        width: 40px;
+    }
+    .input-group-addon.lable{
+        max-width: 120px;
+        width: 120px;
+        text-align: right;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+</style>
+<section id="container" v-if="initLoad">
+    <div class="field-box">
+        <%if(data.table.tableType!='SingleTable'){%>
+        <div class="input-group">
+            <div class="input-group-addon lable">用户名/姓名:</div>
+            <div class="input-group-addon center-addon center-lable">
+                包含
+            </div>
+            <input type="text" v-model="userNameOrRealName" class="form-control" placeholder="用户名/姓名 模糊查询">
+        </div>
+        <div class="input-group">
+            <div class="input-group-addon lable">部门:</div>
+            <div class="input-group-addon center-addon center-lable">
+                包含
+            </div>
+            <input type="text" v-model="deptDesc" @click="handleShowDepts" class="form-control" readonly
+                   placeholder="请选择部门">
+        </div>
+        <%}%>
+        <%for(var item in data.fields){%>
+        <div class="input-group">
+            <div class="input-group-addon lable" title="${item.name}">${item.name}:</div>
+            <div class="input-group-addon center-addon">
+                <select class="form-control center-select" v-model="fields[${itemLP.index-1}].joiner"
+                        :value="fields[${itemLP.index-1}].joiner">
+                    <option value="=">等于</option>
+                    <option value="!=">不等于</option>
+                    <option value="<">小于</option>
+                    <option value="<=">小于或等于</option>
+                    <option value=">">大于</option>
+                    <option value=">=">大于或等于</option>
+                    <option value="like">包含</option>
+                    <option value="not like">不包含</option>
+                    <option value="start like">开始以</option>
+                    <option value="end like">结束以</option>
+                    <option value="between">介于</option>
+                    <option value="not between">非介于</option>
+                    <option value="is null">是 null</option>
+                    <option value="is not null">不是 null</option>
+                    <option value="empty">是空的</option>
+                    <option value="not empty">不是空的</option>
+                </select>
+            </div>
+            <!--介于格式-->
+            <div class="input-group-addon between-box"
+                 v-if="fields[${itemLP.index-1}].joiner=='between'||fields[${itemLP.index-1}].joiner=='not between'">
+                <%if(item.controlType==5||item.controlType==6){%>
+                <!--日期格式-->
+                <input type="text" class="form-control" v-model="fields[${itemLP.index-1}].startVal"
+                       v-if="fields[${itemLP.index-1}].isDate"
+                       :d-format="fields[${itemLP.index-1}].dateFormat==''?'yyyy-MM-dd HH:mm:ss':'yyyy-MM-dd'"
+                       :d-type="fields[${itemLP.index-1}].dateFormat==''?'datetime':'date'"
+                       d-name="startVal" data-index="${itemLP.index-1}"
+                       readonly>
+                <%}else{%>
+                <input type="text" class="form-control" v-model="fields[${itemLP.index-1}].startVal">
+                <%}%>
+            </div>
+            <div class="input-group-addon between-box"
+                 v-if="fields[${itemLP.index-1}].joiner=='between'||fields[${itemLP.index-1}].joiner=='not between'">
+                <%if(item.controlType==5||item.controlType==6){%>
+                <!--日期格式-->
+                <input type="text" class="form-control" v-model="fields[${itemLP.index-1}].endVal"
+                       v-if="fields[${itemLP.index-1}].isDate"
+                       :d-format="fields[${itemLP.index-1}].dateFormat==''?'yyyy-MM-dd HH:mm:ss':'yyyy-MM-dd'"
+                       :d-type="fields[${itemLP.index-1}].dateFormat==''?'datetime':'date'"
+                       d-name="endVal" data-index="${itemLP.index-1}"
+                       readonly>
+                <%}else{%>
+                <input type="text" class="form-control" v-model="fields[${itemLP.index-1}].endVal">
+                <%}%>
+            </div>
+            <div v-if="!(fields[${itemLP.index-1}].joiner=='between'||fields[${itemLP.index-1}].joiner=='not between')">
+                <%if(item.dictSysCode!=''){%>
+                <!--字典-->
+                ${dict(item.dictSysCode,false,"tree","fields["+(itemLP.index-1)+"].val","END","v-model=fields["+(itemLP.index-1)+"].val")}
+                <%}else if(item.fieldType==2&&(item.controlType==5||item.controlType==6)){%>
+                <!--日期-->
+                <%if(item.controlType==5){%>
+                <input type="text" v-model="fields[${itemLP.index-1}].val" class="form-control"
+                       d-format="yyyy-MM-dd" d-type="date" data-index="${itemLP.index-1}"
+                       d-name="val" readonly>
+                <%}else if(item.controlType==6){%>
+                <input type="text" v-model="fields[${itemLP.index-1}].val" class="form-control"
+                       d-format="yyyy-MM-dd HH:mm:ss" d-type="datetime" data-index="${itemLP.index-1}"
+                       d-name="val" readonly>
+                <%}%>
+                <%}else if(item.fieldType==1){%>
+                <input class="form-control" type="number" v-model.number="fields[${itemLP.index-1}].val">
+                <%}else{%>
+                <input type="text" class="form-control" v-model="fields[${itemLP.index-1}].val">
+                <%}%>
+            </div>
+        </div>
+        <%}%>
+    </div>
+</section>
+<script type="text/javascript">
+    var win = window.parent || window;
+    var laydate, vm = new Vue({
+        el: '#container',
+        data: {
+            userNameOrRealName: '',
+            deptIds: '',
+            deptDesc: '',
+            fields:${data.fieldsJson},
+        },
+        methods: {
+            handleShowDepts: function () {
+                win.core.showMenusSimpleTree({
+                    title: "选择部门",
+                    url: "/sysOrganize/department/tree",
+                    isCheckbox: true,
+                    chkboxType: {"Y": "s", "N": "ps"},
+                    data: {id: "id", pid: "pid", name: "name"},
+                    onOk: function (data) {
+                        var ids = new Array();
+                        var names = new Array();
+                        for (var i in data) {
+                            ids.push(data[i].id);
+                            names.push(data[i].name);
+                        }
+                        vm.deptIds = ids.join(",");
+                        vm.deptDesc = names.join(",");
+                        return true;
+                    }
+                });
+            },
+            reverEnumDesc: function (fieldName, sysCode) {
+                var ids = new Function("vm", "return vm." + fieldName)(this);
+                return core.postJSON("/sysDict/getDictName", {sysCode: sysCode, ids: ids});
+            },
+            dictChange: function (fieldId, dictValFieldName) {
+                //字典变化，需要修改依赖值的内容
+                core.dictChange(fieldId, dictValFieldName, this)
+            },
+            handleShowEnumTree: function (fieldName, sysCode, multipleDict) {
+                core.handleShowEnumTree(fieldName, sysCode, multipleDict, this);
+            },
+            renderDate: function () {
+                $("[d-format]").each(function () {
+                    var fieldname = $(this).attr("d-name");
+                    var format = $(this).attr("d-format");
+                    var type = $(this).attr("d-type");
+                    var index = $(this).attr("data-index");
+                    var el = $(this)[0];
+                    laydate.render({
+                        elem: el,
+                        type: type,
+                        format: format,
+                        done: function (value) {
+                            vm.fields[index][fieldname] = value;
+                        }
+                    });
+                });
+            }
+        },
+        created: function () {
+            this.initLoad = true;
+        },
+        updated: function () {
+            this.renderDate();
+        },
+        mounted: function () {
+            /*时间选择*/
+            layui.use(['laytpl', 'laydate'], function () {
+                laydate = layui.laydate;
+                if (win.vm.filterBoxFields && win.vm.filterBoxFields.length > 0) {
+                    vm.fields = win.vm.filterBoxFields;
+                }
+                if (win.vm.userNameOrRealName) {
+                    vm.userNameOrRealName = win.vm.userNameOrRealName;
+                }
+                if (win.vm.deptIds) {
+                    vm.deptIds = win.vm.deptIds;
+                }
+                if (win.vm.deptDesc) {
+                    vm.deptDesc = win.vm.deptDesc;
+                }
+                vm.renderDate();
+            });
+        }
+    });
+</script>
+<%}%>

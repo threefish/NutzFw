@@ -1,0 +1,357 @@
+<%
+var title="岗位管理";
+layout("/layouts/blank.html",{title:title}){
+%>
+<style type="text/css">
+    .required {
+        color: red;
+    }
+
+    .searchBox {
+        float: left;
+        margin-right: 20px;
+    }
+
+    .searchBox select, .searchBox input {
+        height: 32px;
+    }
+
+    .layui-btn {
+        height: 32px;
+        line-height: 32px;
+    }
+</style>
+<section class="content-header">
+    <h1>
+        ${title}
+        <small>控制面板</small>
+    </h1>
+</section>
+<section class="content" id="container" v-if="initLoad">
+    <%if(so.hasPermission("sysOrganize.job.index")){%>
+    <table class="searchBox">
+        <tr>
+            <td class="form-lable" width="110px" style="text-align: center;">
+                岗位编号/名称：
+            </td>
+            <td class="form-lable">
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="岗位编号/名称" v-model="searchData.name">
+                </div>
+            </td>
+            <td class="form-lable" width="80px" style="text-align: center;">
+                岗位性质：
+            </td>
+            <td class="form-lable">
+                <div class="input-group">
+                    ${dict("sys_user_natures",false,"input-sm","END",'v-model="searchData.nature"')}
+                </div>
+            </td>
+            <td class="form-lable" width="80px" style="text-align: center;">
+                岗位分类：
+            </td>
+            <td class="form-lable">
+                <div class="input-group">
+                    ${dict("sys_user_category",false,"input-sm","END",'v-model="searchData.category"')}
+                </div>
+            </td>
+            <td>
+                <div style="margin-left: 20px" @click="fn_search" class="layui-btn layui-btn-sx layui-btn-normal">查询
+                </div>
+            </td>
+        </tr>
+    </table>
+    <%}%>
+    <%if(so.hasPermission("sysOrganize.job.saveOrUpdate")){%>
+    <div class="layui-btn layui-btn-sx layui-btn-normal" @click="handleAddOrEdit(1)">添加</div>
+    <%}%>
+    <%if(so.hasPermission("sysOrganize.job.allocation")){%>
+    <div class="layui-btn layui-btn-sx layui-btn-normal" @click="handleAllocation">分配给部门</div>
+    <%}%>
+    <%if(so.hasPermission("sysOrganize.job.changeAllocation")){%>
+    <div class="layui-btn layui-btn-sx layui-btn-normal" @click="handleChangeAllocation">取消分配</div>
+    <%}%>
+    <%if(so.hasPermission("sysOrganize.job.distributionPage")){%>
+    <div class="layui-btn layui-btn-sx layui-btn-normal" @click="handleJobDistr">查看岗位分布</div>
+    <%}%>
+    <div id="dataBox" style="display: none;padding: 15px">
+        <div class="form-grou">
+            <label>岗位编号<span class="required">*</span></label>
+            <input type="text" v-model="fromData.code" class="form-control input-sm" placeholder="岗位编号">
+        </div>
+        <div class="form-grou">
+            <label>岗位名称<span class="required">*</span></label>
+            <input type="text" v-model="fromData.name" class="form-control input-sm" placeholder="岗位名称">
+        </div>
+        <div class="form-grou">
+            <label>岗位性质<span class="required">*</span></label>
+            ${dict("sys_user_natures",false,"input-sm","END",'v-model="fromData.nature"')}
+        </div>
+        <div class="form-grou">
+            <label>岗位分类<span class="required">*</span></label>
+            ${dict("sys_user_category",false,"input-sm","END",'v-model="fromData.category"')}
+        </div>
+        <div class="form-grou">
+            <label>是否统计<span class="required">*</span></label>
+            <select v-model="fromData.isStatistics" class="form-control input-sm" >
+                <option value="1" checked>是</option>
+                <option value="0">否</option>
+            </select>
+        </div>
+    </div>
+    <div style="background: #ffffff">
+        <div id="joblistTable" lay-filter='joblistTable'></div>
+    </div>
+</section>
+<script type="text/html" id="toolBarFixed">
+    <%if(so.hasPermission("sysOrganize.job.saveOrUpdate")){%>
+    <div class="layui-btn layui-btn-sm layui-btn-normal" lay-event="edit">编辑</div>
+    <%}%>
+    <%if(so.hasPermission("sysOrganize.job.del")){%>
+    <div class="layui-btn layui-btn-sm layui-btn-normal" lay-event="del">删除</div>
+    <%}%>
+</script>
+<script type="text/javascript">
+    var jobGrid;
+    var category = ${categoryName};
+    var natures = ${naturesName};
+    var vm = new Vue({
+        el: '#container',
+        data: {
+            fromData: {
+                id: "",
+                code: "",
+                name: "",
+                nature: "0",
+                category: "0",
+                deptsDesc: "",
+                isStatistics:1,
+            },
+            fromDataSubmit: false,
+            fromDataEdit: true,
+            initLoad: false,
+            deptids: [],
+            deptnames: [],
+            jobids: [],
+            searchData:{
+                name:"",
+                category:0,
+                nature:0,
+            }
+        },
+        methods: {
+            fn_search:function () {
+                jobGrid.reload({
+                    where:vm.searchData,
+                    page:{curr:1}
+                })
+            },
+            handleAddOrEdit: function (status) {
+                if (status == 1) {
+                    vm.fromData = {
+                        id: "",
+                        code: "",
+                        name: "",
+                        nature: "0",
+                        category: "0",
+                        deptsDesc: "",
+                        isStatistics:1
+                    }
+                }
+                layer.open({
+                    scrollbar: false,
+                    type: 1,
+                    title: status == 1 ? "新增岗位" : "修改岗位",
+                    area: ['500px', '400px'],
+                    content: $("#dataBox"),
+                    btn: ['确定', '取消'],
+                    yes: function (index) {
+                        var fromData = core.convertDataJSON(vm.fromData);
+                        var jsonre = core.postJSON("/sysOrganize/job/saveOrUpdate", fromData);
+                        core.msg(jsonre);
+                        if (jsonre.ok) {
+                            vm.fromDataSubmit = false;
+                            vm.fromDataEdit = true;
+                            jobGrid.reload();
+                            layer.close(index);
+                        } else {
+                            vm.fromDataSubmit = false;
+                        }
+                    }
+                });
+            },
+            handleAllocation: function () {
+                var checkStatus = layui.table.checkStatus('joblistTable'); //test即为基础参数id对应的值
+                if (checkStatus.data.length == 0) {
+                    core.error("请先选择岗位!")
+                    return;
+                } else {
+                    vm.jobids = [];
+                    for (var i = 0; i < checkStatus.data.length; i++) {
+                        vm.jobids.push(checkStatus.data[i].id);
+                    }
+                }
+                var deptTree = core.showMenusSimpleTree({
+                    title: "选择分配的部门",
+                    url: "/sysOrganize/department/tree",
+                    isCheckbox: true,
+                    data: {id: "id", pid: "pid", name: "name"},
+                    onOk: function (data) {
+                        if (data.length == 0) {
+                            core.error("请选择要分配的部门!")
+                            return false;
+                        } else {
+                            vm.deptnames = [];
+                            vm.deptids = [];
+                            for (var i = 0; i < data.length; i++) {
+                                vm.deptnames.push(data[i].name);
+                                vm.deptids.push(data[i].id);
+                            }
+                            var jsonre = core.postJSON("/sysOrganize/job/allocation", {
+                                deptId: vm.deptids.join(","),
+                                jobId: vm.jobids.join(","),
+                                deptName: vm.deptnames.join(",")
+                            });
+                            core.msg(jsonre);
+                            if (jsonre.ok) {
+                                jobGrid.reload();
+                            }
+                        }
+                        return true;
+                    },
+                    onSuccess: function (data) {
+                        var node = data.getNodes()[0];
+                        node.nocheck = true;
+                        node.chkDisabled = true;
+                        data.updateNode(node)
+                    }
+                });
+            },
+            handleChangeAllocation: function () {
+                var checkStatus = layui.table.checkStatus('joblistTable'); //test即为基础参数id对应的值
+                if (checkStatus.data.length == 0) {
+                    core.error("请先选择岗位!")
+                    return;
+                } else {
+                    vm.jobids = [];
+                    for (var i = 0; i < checkStatus.data.length; i++) {
+                        vm.jobids.push(checkStatus.data[i].id);
+                    }
+                }
+                core.showMenusSimpleTree({
+                    title: "选择移除的部门",
+                    url: "/sysOrganize/department/tree",
+                    isCheckbox: true,
+                    data: {id: "id", pid: "pid", name: "name"},
+                    onOk: function (data) {
+                        if (data.length == 0) {
+                            core.error("请选择要移除的部门!")
+                            return false;
+                        } else {
+                            vm.deptnames = [];
+                            vm.deptids = [];
+                            for (var i = 0; i < data.length; i++) {
+                                vm.deptnames.push(data[i].name);
+                                vm.deptids.push(data[i].id);
+                            }
+                            var jsonre = core.postJSON("/sysOrganize/job/changeAllocation", {
+                                deptId: vm.deptids.join(","),
+                                jobId: vm.jobids.join(","),
+                                deptName: vm.deptnames.join(",")
+                            });
+                            core.msg(jsonre);
+                            if (jsonre.ok) {
+                                jobGrid.reload();
+                            }
+                        }
+                        return true;
+                    },
+                    onSuccess: function (data) {
+                        var node = data.getNodes()[0];
+                        node.nocheck = true;
+                        node.chkDisabled = true;
+                        data.updateNode(node)
+                    }
+                });
+            },
+            handleDel: function (roleid) {
+                var jsonre = core.postJSON("/sysOrganize/job/del", {id: roleid});
+                core.msg(jsonre);
+                if (jsonre.ok) {
+                    jobGrid.reload();
+                }
+            },
+            handleJobDistr: function () {
+                layer.open({
+                    type: 2,
+                    title: ['岗位分布'],
+                    shade: 0.3,
+                    area: ['80%', '80%'],
+                    content: "${base!}/sysOrganize/job/distributionPage",
+                });
+            }
+        },
+        created: function () {
+            this.initLoad = true;
+        },
+        updated: function () {
+        },
+        mounted: function () {
+            layui.use(['table', 'laytpl'], function () {
+                var table = layui.table;
+                jobGrid = table.render({
+                    id: 'joblistTable',
+                    elem: '#joblistTable',
+                    page: true,
+                    method: 'post',
+                    url: base + '/sysOrganize/job/query',
+                    height: 'full-130',
+                    limit: 50,
+                    even: true,
+                    request: {
+                        pageName: 'pageNum',
+                        limitName: 'pageSize',
+                    },
+                    cols: [[
+                        {type: 'checkbox'},
+                        {title: '序号', type: 'numbers', width: 50},
+                        {field: 'code', title: '岗位编号', templet: function (row) {
+                            return row.code.replace(vm.searchData.name, "<l style='color:red'>" + vm.searchData.name + "</l>");
+                        }
+                        },
+                        {field: 'name', title: '岗位名称', templet: function (row) {
+                            return row.name.replace(vm.searchData.name, "<l style='color:red'>" + vm.searchData.name + "</l>");
+                        }
+                        },
+                        {
+                            field: 'nature', title: '岗位性质', templet: function (d) {
+                            return natures[d.nature];
+                        }
+                        },
+                        {
+                            field: 'category', title: '岗位分类', templet: function (d) {
+                            return category[d.category];
+                        }
+                        },
+                        {field: 'deptsDesc', title: '分配部门'},
+                        {title: '操作', align: 'center', width: 450, fixed: 'right', toolbar: '#toolBarFixed'},
+                    ]],
+                });
+                table.on("tool(joblistTable)", function (obj) {
+                    if (!$(this).hasClass("layui-btn-disabled")) {
+                        if (obj.event == "edit") {
+                            var data = obj.data, layEvent = obj.event;
+                            vm.fromData = data;
+                            vm.handleAddOrEdit(2);
+                        } else if (obj.event == "del") {
+                            core.confirm("删除后无法恢复!<br>确定删除岗位?", function () {
+                                vm.handleDel(obj.data.id);
+                            })
+                        }
+                    }
+                });
+            });
+        }
+    });
+</script>
+<%}%>

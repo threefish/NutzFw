@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>视频文件查看器</title>
+    <link rel="stylesheet" href="${base!}/static/plugins/video/video-js.min.css?_=${productVersion}">
+    <script type="text/javascript" src="${base!}/static/plugins/ckplayer/ckplayer.js?_=${productVersion}"></script>
+    <style>
+        img {
+            display: none
+        }
+    </style>
+</head>
+<body>
+<div id="video" style="width: 100%; height: 700px"></div>
+<script type="text/javascript">
+    var videoObject = {
+        container: '#video', //容器的ID或className
+        variable: 'player',//播放函数名称
+        //flashplayer:true,
+        video: [['${base}/File/attachAct?id=${data.attachId}', 'video/mp4', '中文标清', 0]]
+    };
+    var player = new ckplayer(videoObject);
+</script>
+</body>
+</body>
+</html>

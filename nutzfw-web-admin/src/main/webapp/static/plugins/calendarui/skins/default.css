@@ -1,0 +1,75 @@
+@charset "utf-8";
+.date-clendar {
+    background: #FFFFFF;
+    display: block;
+    margin: 0 auto;
+}
+
+.date-top {
+    height: 50px;
+    line-height: 50px;
+    background: #fff;
+    width: 91%;
+    margin: auto;
+    /*margin: 0 auto;*/
+    /*text-align: center;*/
+}
+
+.date-top--cen {
+    display: inline-block !important;
+    float: left;
+    width: 100px;
+    color: #00a5e0;
+    font-size: 16px;
+    font-weight: bolder;
+}
+
+.date-top--next {
+    display: inline-block !important;
+    float: right;
+    width: 30px;
+    font-size: 16px;
+    cursor: pointer;
+    color: #00a5e0;
+    text-align: center;
+
+}
+#calendar{
+    background: #f7f8fd;
+}
+.head-week {
+    height: 25px;
+    line-height: 25px;
+    display: inline-block;
+    float: left;
+    font-weight: bolder;
+    text-align: center;
+    font-size: 12px;
+    /*border-bottom: 1px #cdcdcd dashed;*/
+    margin-bottom: 5px;
+}
+#week_5,#week_6{
+    color: red;
+}
+.red{
+    color: red;
+}
+
+.day {
+    display: inline-block !important;
+    float: left;
+    cursor: pointer;
+    text-align: center;
+    height: 35px;
+    line-height: 35px;
+    font-size: 12px;
+}
+
+/*.day:hover {*/
+    /*border: 1px #CDCDCD dashed;*/
+/*}*/
+
+.day.notvis {
+    color: #BFBFBF!important;
+
+}
