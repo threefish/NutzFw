@@ -156,7 +156,7 @@ Java开源企业级快速开发框架，拥有完善的权限控制、代码生�
 | 模块   |      描述      |  备注 |
 |:----------|:-------------|:------|
 | nutzfw-common|MVC核心||
-| nutzfw-license|产品授权管理|非开源|
+| nutzfw-license|客户产品授权包|可以对客户进行授权控制（机器、时间、同时在线数、并发等）。非开源（如有需要可私聊）|
 | nutzfw-web-admin|web核心包||
 | nutzfw-web-user-front|无需登录的用户前台|包含用户采用邮箱验证码注册|
 | nutzfw-web-flowable|工作流深度订制| gitee & github start 100+ 再开源 |
@@ -183,3 +183,6 @@ Java开源企业级快速开发框架，拥有完善的权限控制、代码生�
 
 #### 欢迎打赏
 ![donation](https://gitee.com/threefish/NutzCodeInsight/raw/master/image/donation.jpg)
+
+#### 关于
+  本项目完全开源，商用完全免费。但请勿侵犯作者合法权益，如申请软著等。
