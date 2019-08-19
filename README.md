@@ -3,7 +3,7 @@
 [![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
 [![PowerByNutz](https://img.shields.io/badge/PowerBy-Nutz-green.svg)](https://github.com/nutzam/nutz)
 
-[QQ交流群:671442044](https://shang.qq.com/wpa/qunwpa?idkey=7af5197df45f0db8c78ca89962f0b8ab7cc2f2f0769a25a73528bb14cb1697e4)
+[QQ交流群:671442044](https://shang.qq.com/wpa/qunwpa?idkey=6f668db4991eb344d1cf643617665a34f654c08e0d73cb34777fca6b1679ace5)
 
 [点我在线体验](http://114.67.74.123:8084)
 > admin 666666
