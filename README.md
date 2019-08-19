@@ -174,10 +174,9 @@ Nutz 社区支持 [https://nutz.cn](https://nutz.cn) 及 Nutz 使用手册 [http
 |![效果图](doc/imgae/3.png)|![效果图](doc/imgae/4.png)|
 |![效果图](doc/imgae/5.png)|![效果图](doc/imgae/6.png)|
 |![效果图](doc/imgae/7.png)|![效果图](doc/imgae/8.png)|
-|![效果图](doc/imgae/9.png)|![效果图](doc/imgae/10.png)|
+|![效果图](doc/imgae/9.png)|![效果图](doc/imgae/15.png)|
 |![效果图](doc/imgae/11.png)|![效果图](doc/imgae/12.png)|
 |![效果图](doc/imgae/13.png)|![效果图](doc/imgae/14.png)|
-|![效果图](doc/imgae/15.png)||
 
 
 #### 欢迎打赏
