@@ -1,21 +1,27 @@
 package com.nutzfw.core;
 
 import com.github.threefish.nutz.sqltpl.SqlsTplHolder;
+import com.nutzfw.core.common.entity.BaseEntity;
 import com.nutzfw.core.common.util.ScanerAotuCreateMenusUtil;
+import com.nutzfw.core.plugin.init.InitSetup;
 import com.nutzfw.core.plugin.view.BeetlViewMaker;
+import com.nutzfw.modules.sys.entity.QuartzJob;
 import org.nutz.dao.Dao;
 import org.nutz.ioc.Ioc;
 import org.nutz.ioc.impl.PropertiesProxy;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.mvc.NutConfig;
-import org.nutz.mvc.Setup;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author 黄川 huchuc@vip.qq.com
  * @date: 2019/3/22
  */
 @IocBean
-public class WebAdminInitSetup extends SystemInit implements Setup {
+public class WebAdminInitSetup implements InitSetup {
 
     @Override
     public void init(NutConfig nutConfig) {
@@ -33,4 +39,23 @@ public class WebAdminInitSetup extends SystemInit implements Setup {
 
     }
 
+    @Override
+    public void addAttachType(HashMap<String, String> attachType) {
+
+    }
+
+    @Override
+    public void addDictGroup(HashMap<String, String> dictGroup) {
+
+    }
+
+    @Override
+    public void addQuartzJob(List<QuartzJob> quartzJobs) {
+
+    }
+
+    @Override
+    public void addTablesFilters(Set<Class<? extends BaseEntity>> tablesFilters) {
+
+    }
 }

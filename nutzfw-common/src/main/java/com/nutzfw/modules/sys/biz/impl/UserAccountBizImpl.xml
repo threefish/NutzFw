@@ -23,6 +23,6 @@
         <exp>}</exp>
     </sql>
     <sql id="listUserNameByRoleCodes" wrap="true">
-       select user_id from sys_user_account_role $condition group by  user_id
+       select u.username from sys_user_account_role as ur LEFT JOIN sys_role as r on r.id=ur.role_id LEFT JOIN sys_user_account as u on u.userid=ur.user_id   $condition group by  user_id
     </sql>
 </Sqls>

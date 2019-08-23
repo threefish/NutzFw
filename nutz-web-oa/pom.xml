@@ -28,7 +28,14 @@
                             <groupId>com.nutzfw</groupId>
                             <artifactId>nutzfw-web-flowable</artifactId>
                         </overlay>
+                        <overlay>
+                            <!-- empty groupId/artifactId is detected as the current build -->
+                            <!-- 代表当前WAR项目，默认情况下当前WAR项目是先被拷贝的，如果要控制其顺序，则使用空的overlay -->
+                            <!-- any other overlay will be applied after the current build since they have not been configured in the overlays element -->
+                        </overlay>
                     </overlays>
+                    <attachClasses>true</attachClasses>
+                    <dependentWarIncludes>WEB-INF/view/**</dependentWarIncludes>
                 </configuration>
             </plugin>
         </plugins>

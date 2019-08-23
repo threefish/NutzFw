@@ -36,7 +36,7 @@ public class NewsServiceImpl extends BaseServiceImpl<News> implements NewsServic
     @Override
     public List<News> queryIndexNewsList(UserAccount sessionUserAccount, Set<String> sessionRoleIds) {
         return queryEntityBySql("queryIndexNewsList", NutMap.NEW(),
-                Cnd.where(Cnd.exps("r.roleId", "in", sessionRoleIds).orEX("d.deptId", "=", sessionUserAccount.getDeptId())),
+                Cnd.where(Cnd.exps("r.roleId", "in", sessionRoleIds).or("d.deptId", "=", sessionUserAccount.getDeptId())),
                 new Pager(1, 10)
         ).getData();
     }
@@ -45,7 +45,7 @@ public class NewsServiceImpl extends BaseServiceImpl<News> implements NewsServic
     public List<News> queryIndexImgNewsList(UserAccount sessionUserAccount, Set<String> sessionRoleIds) {
         return queryEntityBySql("queryIndexNewsList", NutMap.NEW(),
                 Cnd.where("n.isrecomm", "=", true)
-                        .and(Cnd.exps("r.roleId", "in", sessionRoleIds).orEX("d.deptId", "=", sessionUserAccount.getDeptId())),
+                        .and(Cnd.exps("r.roleId", "in", sessionRoleIds).or("d.deptId", "=", sessionUserAccount.getDeptId())),
                 new Pager(1, 10)
         ).getData();
     }
@@ -55,7 +55,7 @@ public class NewsServiceImpl extends BaseServiceImpl<News> implements NewsServic
         PageDataDTO pageDataDTO = queryEntityBySql("queryIndexNewsList",
                 NutMap.NEW(),
                 Cnd.where("n.title", "like", "%" + key + "%")
-                        .and(Cnd.exps("r.roleId", "in", sessionRoleIds).orEX("d.deptId", "=", sessionUserAccount.getDeptId())),
+                        .and(Cnd.exps("r.roleId", "in", sessionRoleIds).or("d.deptId", "=", sessionUserAccount.getDeptId())),
                 new Pager(pageNum, pageSize)
         );
         return LayuiTableDataListVO.pageByData(pageDataDTO.getData(), pageDataDTO.getCount());

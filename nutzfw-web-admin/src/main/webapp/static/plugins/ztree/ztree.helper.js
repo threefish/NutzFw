@@ -178,11 +178,13 @@ var ztreeTool = {
                 treeManager.selectNode(node);
                 zTreeBeforeClick("", node, "");
             }
-            var selectedIds = opt.selectedIds.split(",");
-            if (selectedIds.length > 0) {
-                for (var i = 0; i < selectedIds.length; i++) {
-                    var node = treeManager.getNodesByParam(opt.data.id, selectedIds[i])[0];
-                    treeManager.checkNode(node, true, true);
+            if (opt.selectedIds != undefined) {
+                var selectedIds = opt.selectedIds.split(",");
+                if (selectedIds.length > 0) {
+                    for (var i = 0; i < selectedIds.length; i++) {
+                        var node = treeManager.getNodesByParam(opt.data.id, selectedIds[i])[0];
+                        treeManager.checkNode(node, true, true);
+                    }
                 }
             }
             if (treeManager.getNodes().length == 0) {

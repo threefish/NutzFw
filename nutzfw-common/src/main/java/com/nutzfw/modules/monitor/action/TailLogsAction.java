@@ -63,8 +63,8 @@ public class TailLogsAction extends BaseAction {
     @RequiresPermissions("sysTailLogs.index")
     public LayuiTableDataListVO loginLogListData() {
         List<NutMap> list = new ArrayList<>();
-        list.add(NutMap.NEW().setv("name", "error").setv("status", errorWs.getStatus()).setv("command", debugWs.getCommand()));
-        list.add(NutMap.NEW().setv("name", "info").setv("status", infoWs.getStatus()).setv("command", debugWs.getCommand()));
+        list.add(NutMap.NEW().setv("name", "error").setv("status", errorWs.getStatus()).setv("command", errorWs.getCommand()));
+        list.add(NutMap.NEW().setv("name", "info").setv("status", infoWs.getStatus()).setv("command", infoWs.getCommand()));
         list.add(NutMap.NEW().setv("name", "debug").setv("status", debugWs.getStatus()).setv("command", debugWs.getCommand()));
         return LayuiTableDataListVO.allData(list);
     }

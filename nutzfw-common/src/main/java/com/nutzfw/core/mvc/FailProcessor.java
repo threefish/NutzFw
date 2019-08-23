@@ -5,6 +5,7 @@ import com.nutzfw.core.common.cons.Cons;
 import com.nutzfw.core.common.error.PreventDuplicateSubmitError;
 import com.nutzfw.core.common.util.ElUtil;
 import com.nutzfw.core.common.util.StringUtil;
+import com.nutzfw.core.plugin.view.BeetlViewMaker;
 import com.nutzfw.modules.organize.entity.UserAccount;
 import com.nutzfw.modules.sys.entity.ErrorLogHistory;
 import com.nutzfw.modules.sys.service.ErrorLogHistoryService;
@@ -59,7 +60,9 @@ public class FailProcessor extends ViewProcessor {
         } else {
             //继续执行原始逻辑
             super.process(ac);
-            this.asyncInsertErrorLogHistory(ac);
+            if (!BeetlViewMaker.isDev) {
+                this.asyncInsertErrorLogHistory(ac);
+            }
         }
     }
 

@@ -21,7 +21,7 @@ import java.util.Map;
 public class LeaveExternalFormExecutor extends DefaualtExternalFormExecutor {
 
     @Inject
-    protected LeaveService leaveService;
+    LeaveService leaveService;
 
     @Inject
     FlowTaskService flowTaskService;

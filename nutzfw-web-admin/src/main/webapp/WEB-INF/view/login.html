@@ -142,7 +142,7 @@
                 rememberMe: "",
             },
             fromDataSubmit: false,
-            showCaptcha: false,
+            showCaptcha: "${sys.needVerificationCode}" == "0",
             captchaImgSrc: "",
             QrCodeLoginImgSrc: "",
             scanQrCodeLoginIntervalTime: 0,
@@ -297,6 +297,9 @@
                 this.fromData.username = loginUser.username;
                 this.fromData.password = loginUser.password;
                 this.fromData.rememberMe = loginUser.rememberMe;
+            }
+            if (this.showCaptcha) {
+                this.handleChangeCaptcha();
             }
         },
         mounted: function () {

@@ -15,8 +15,8 @@ import com.nutzfw.modules.organize.service.*;
 import com.nutzfw.modules.sys.action.QuartzJobAction;
 import com.nutzfw.modules.sys.biz.UserAccountBiz;
 import com.nutzfw.modules.sys.entity.QuartzJob;
-import com.nutzfw.modules.sys.service.QuartzJobService;
 import com.nutzfw.modules.sys.quartz.job.UserImportJob;
+import com.nutzfw.modules.sys.service.QuartzJobService;
 import org.nutz.dao.Cnd;
 import org.nutz.dao.Dao;
 import org.nutz.dao.Sqls;
@@ -337,7 +337,7 @@ public class UserAccountBizImpl implements UserAccountBiz, ISqlDaoExecuteService
 
     @Override
     public List<String> listUserNameByRoleCodes(List<String> roleCodes) {
-        return queryStrsBySql("listUserNameByRoleCodes", NutMap.NEW(), Cnd.where("locked", "=", false).and("role_code", "in", roleCodes));
+        return queryStrsBySql("listUserNameByRoleCodes", NutMap.NEW(), Cnd.where("r.locked", "=", false).and("r.role_code", "in", roleCodes));
     }
 
     @Override

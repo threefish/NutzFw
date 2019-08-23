@@ -128,7 +128,8 @@ layout("/layouts/blank.html",{title:title}){
                 core.showAttachList(this.fromData[fieldName]);
             },
             reverEnumDesc: function (fieldName, sysCode) {
-                return core.postJSON("/sysDict/getDictName", {sysCode: sysCode, ids: this.fromData[fieldName]});
+                var ids = new Function("vm", "return vm." + fieldName)(this);
+                return core.postJSON("/sysDict/getDictName", {sysCode: sysCode, ids: ids});
             },
             dictChange: function (fieldId, dictValFieldName) {
                 //字典变化，需要修改依赖值的内容

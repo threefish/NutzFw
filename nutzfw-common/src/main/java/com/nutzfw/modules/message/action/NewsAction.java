@@ -74,7 +74,7 @@ public class NewsAction extends BaseAction {
      * @return
      */
     @At("/list")
-    @Ok("json:{nullAsEmtry:true,dateFormat:'yyyy年MM月dd日'}")
+    @Ok("json:{dateFormat:'yyyy年MM月dd日',locked:'content',nullAsEmtry:true}")
     @RequiresPermissions("News.index")
     public LayuiTableDataListVO list(@Param("pageNum") int pageNum,
                                      @Param("pageSize") int pageSize,

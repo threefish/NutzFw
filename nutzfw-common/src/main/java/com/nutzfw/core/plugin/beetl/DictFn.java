@@ -13,7 +13,6 @@ import org.nutz.lang.Files;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
 
-import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -53,9 +52,6 @@ public class DictFn implements Function {
             return "数据字典参数格式不正确！！！";
         }
         DictDTO dto = getDictDTO(obj);
-        if (dto.getDictType() == null) {
-            return MessageFormat.format("数据字典 {0} 类型不存在！！！", dto.getSysCode());
-        }
         return this.render(dto, context);
     }
 
@@ -86,7 +82,7 @@ public class DictFn implements Function {
             dto.getHtmlClass().add("form-control");
         }
         Template template = context.gt.getTemplate(templeText, resourceLoader);
-        Map data = new HashMap(6);
+        Map data = new HashMap(8);
         data.put("dict", dto.getDictType());
         data.put("list", dto.getDictVals());
         data.put("attrs", Strings.join(" ", dto.getHtmlAttrs()));
@@ -114,6 +110,10 @@ public class DictFn implements Function {
         dto.setSysCode(Strings.sNull(obj[0]).trim());
         dto.setMultiple(false);
         dto.setDisabled(false);
+        dto.setDictType(dictBiz.getDict(dto.getSysCode()));
+        if (dto.getDictType() == null) {
+            throw new RuntimeException("[" + dto.getSysCode() + "]字典类型不存在，请检查！");
+        }
         int endStartIndex = getEndStartIndex(obj);
         if (endStartIndex > 1) {
             dto.setMultiple(Boolean.parseBoolean(Strings.sNull(obj[1]).trim()));
@@ -127,7 +127,6 @@ public class DictFn implements Function {
         if (Strings.isBlank(dto.getVueModelFieldName())) {
             dto.setVueModelFieldName(getVueModelFieldName(obj, endStartIndex));
         }
-        dto.setDictType(dictBiz.getDict(dto.getSysCode()));
         dto.setDictVals(dictBiz.list(dto.getSysCode()));
         AtomicBoolean end = new AtomicBoolean(false);
         Arrays.stream(obj).forEach(val -> {
