@@ -1,0 +1,135 @@
+<%
+var title="流程管理";
+layout("/layouts/blank.html",{title:title}){
+%>
+<style type="text/css">
+    .dataTbleBox {
+        background: #ffffff;
+        margin: 15px 0px;
+        padding: 15px;
+    }
+</style>
+<section class="content" id="container">
+    <div style="background: #ffffff">
+        <div id="listTable" lay-filter='listTable'></div>
+    </div>
+</section>
+<script type="text/html" id="toolBarFixed">
+    <%if(so.hasPermission('sys.flow.process.update')){%>
+    {{# if(d.suspensionState == 1) { }}
+    <a class="layui-btn layui-btn-xs layui-btn-normal" lay-event="suspend">挂起</a>
+    {{# }else{ }}
+    <a class="layui-btn layui-btn-xs layui-btn-warm" lay-event="active">激活</a>
+    {{# } }}
+    <%}%>
+    <%if(so.hasPermission('sys.flow.process.deleteDeployment')){%>
+    <a class="layui-btn layui-btn-xs layui-btn-danger" lay-event="del">删除</a>
+    <%}%>
+</script>
+<script type="text/javascript">
+    var listTable, vm = new Vue({
+        el: '#container',
+        data: {
+        },
+        methods: {
+            handleSuspend: function (data) {
+                core.confirm("确认要挂起该流程吗?", function () {
+                    var jsonre = core.postJSON("/flow/process/update/suspend", {procDefId: data.id});
+                    core.msg(jsonre);
+                    if (jsonre.ok) {
+                        vm.handleSearchTable();
+                    }
+                });
+            },
+            handleActive: function (data) {
+                core.confirm("确认要激活该流程吗?", function () {
+                    var jsonre = core.postJSON("/flow/process/update/active", {procDefId: data.id});
+                    core.msg(jsonre);
+                    if (jsonre.ok) {
+                        vm.handleSearchTable();
+                    }
+                });
+            },
+            handleDiagram: function (data) {
+                if (data.diagramResourceName != "") {
+                    parent.core.openUrl("/flow/process/resource/read?procDefId=" + data.id + "&resType=image", "流程图查看", "80%", "80%")
+                } else {
+                    core.error("无流程图片！");
+                }
+            },
+            handleDel: function (data) {
+                core.confirm("将级联删除流程实例、流程图等资源，删除后无法恢复!<br>确定删除?", function () {
+                    var jsonre = core.postJSON("/flow/process/deleteDeployment", {deploymentId: data.deploymentId});
+                    core.msg(jsonre);
+                    if (jsonre.ok) {
+                        vm.handleSearchTable();
+                    }
+                });
+            },
+            handleSearchTable: function () {
+                listTable.reload();
+            },
+            layuiInit: function () {
+                layui.use(['table', 'element', 'laytpl',], function () {
+                    var table = layui.table;
+                    listTable = table.render({
+                        id: 'listTable',
+                        elem: '#listTable',
+                        page: true,
+                        method: 'post',
+                        url: base + '/flow/process/listPage',
+                        height: 'full-50',
+                        even: false,
+                        limit: 50,
+                        cols: [[
+                            {title: '序号', type: 'numbers', width: 50},
+                            {field: 'categoryName', title: '流程分类'},
+                            {field: 'id', title: '流程Id'},
+                            {field: 'name', title: '流程名称'},
+                            {field: 'key', title: '流程KEY'},
+                            {field: 'version', title: '流程版本'},
+                            {field: 'deploymentTime', title: '部署时间'},
+                            {
+                                field: 'resourceName', title: '流程XML', templet: function (d) {
+                                    return '<a target="_blank" href="${base}/flow/process/resource/read?procDefId=' + d.id + '&resType=xml" title="查看流程XML">' + d.resourceName + '</a>';
+                                }
+                            },
+                            {
+                                field: 'diagramResourceName',
+                                title: '流程图片',
+                                event: "diagram",
+                                style: "color: #337ab7;cursor: pointer;text-decoration: none;"
+                            },
+                            {title: '操作', align: 'center', width: 180, fixed: 'right', toolbar: '#toolBarFixed'},
+                        ]],
+                    });
+                    table.on("tool(listTable)", function (obj) {
+                        var data = obj.data, layEvent = obj.event;
+                        switch (layEvent) {
+                            case "suspend":
+                                vm.handleSuspend(data);
+                                break;
+                            case "active":
+                                vm.handleActive(data);
+                                break;
+                            case "del":
+                                vm.handleDel(data);
+                                break;
+                            case "diagram":
+                                vm.handleDiagram(data);
+                                break;
+                        }
+                    });
+                });
+            }
+        },
+        created: function () {
+            this.layuiInit();
+        },
+        updated: function () {
+        },
+        mounted: function () {
+        }
+    });
+</script>
+<%}%>

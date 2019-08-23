@@ -1,0 +1,95 @@
+<%
+var title="发起任务";
+layout("/layouts/blank.html",{title:title}){
+%>
+<style type="text/css">
+    .dataTbleBox {
+        background: #ffffff;
+        margin: 15px 0px;
+        padding: 15px;
+    }
+</style>
+<section class="content" id="container">
+    <div style="background: #ffffff">
+        <div id="listTable" lay-filter='listTable'></div>
+    </div>
+</section>
+<script type="text/html" id="toolBarFixed">
+    <a class="layui-btn layui-btn-xs layui-btn-danger" lay-event="start">发起</a>
+</script>
+<script type="text/javascript">
+    var listTable, vm = new Vue({
+        el: '#container',
+        data: {},
+        methods: {
+            handleStart: function (data) {
+                parent.core.openUrl('/general/flow/process/form?flow.procDefId=' + data.id + "&flow.procDefKey=" + data.key + "&flow.procDefversion=" + data.version, "发起任务 [" + data.name + "]", "80%", "80%", function () {
+                    vm.handleSearchTable();
+                });
+            },
+            handleDiagram: function (data) {
+                if (data.diagramResourceName != "") {
+                    parent.core.openUrl("/flow/process/resource/read?procDefId=" + data.id + "&resType=image", "流程图查看", "80%", "80%")
+                } else {
+                    core.error("无流程图片！");
+                }
+            },
+            handleSearchTable: function () {
+                listTable.reload();
+            },
+            layuiInit: function () {
+                layui.use(['table', 'element', 'laytpl',], function () {
+                    var table = layui.table;
+                    listTable = table.render({
+                        id: 'listTable',
+                        elem: '#listTable',
+                        page: true,
+                        method: 'post',
+                        url: base + '/flowTask/processDataList',
+                        height: 'full-50',
+                        even: false,
+                        limit: 50,
+                        cols: [[
+                            {title: '序号', type: 'numbers', width: 50},
+                            {field: 'categoryName', title: '流程分类'},
+                            {field: 'name', title: '流程名称'},
+                            {field: 'key', title: '流程标识'},
+                            {
+                                field: 'version', title: '流程版本', templet: function (d) {
+                                    return 'V:' + d.version;
+                                }
+                            },
+                            {field: 'deploymentTime', title: '更新时间'},
+                            {
+                                field: 'diagramResourceName',
+                                title: '流程图片',
+                                event: "diagram",
+                                style: "color: #337ab7;cursor: pointer;text-decoration: none;"
+                            },
+                            {title: '操作', align: 'center', width: 100, fixed: 'right', toolbar: '#toolBarFixed'},
+                        ]],
+                    });
+                    table.on("tool(listTable)", function (obj) {
+                        var data = obj.data, layEvent = obj.event;
+                        switch (layEvent) {
+                            case "start":
+                                vm.handleStart(data);
+                                break;
+                            case "diagram":
+                                vm.handleDiagram(data);
+                                break;
+                        }
+                    });
+                });
+            }
+        },
+        created: function () {
+            this.layuiInit();
+        },
+        updated: function () {
+        },
+        mounted: function () {
+        }
+    });
+</script>
+<%}%>

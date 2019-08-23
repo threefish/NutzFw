@@ -1,0 +1,226 @@
+package com.nutzfw.modules.flow.action;
+
+import com.nutzfw.core.common.cons.Cons;
+import com.nutzfw.core.common.filter.CheckRoleAndSession;
+import com.nutzfw.core.common.vo.AjaxResult;
+import com.nutzfw.core.common.vo.LayuiTableDataListVO;
+import com.nutzfw.core.plugin.flowable.dto.FlowSubmitInfoDTO;
+import com.nutzfw.core.plugin.flowable.dto.UserTaskExtensionDTO;
+import com.nutzfw.core.plugin.flowable.enums.TaskFormStatusEnum;
+import com.nutzfw.core.plugin.flowable.service.FlowProcessDefinitionService;
+import com.nutzfw.core.plugin.flowable.service.FlowTaskService;
+import com.nutzfw.core.plugin.flowable.vo.FlowTaskVO;
+import com.nutzfw.modules.common.action.BaseAction;
+import com.nutzfw.modules.flow.biz.GeneralFlowBiz;
+import com.nutzfw.modules.flow.service.FlowCustomQueryService;
+import com.nutzfw.modules.organize.entity.UserAccount;
+import org.flowable.bpmn.model.UserTask;
+import org.flowable.engine.RepositoryService;
+import org.flowable.engine.repository.ProcessDefinition;
+import org.flowable.task.api.Task;
+import org.nutz.aop.interceptor.ioc.TransAop;
+import org.nutz.ioc.aop.Aop;
+import org.nutz.ioc.loader.annotation.Inject;
+import org.nutz.ioc.loader.annotation.IocBean;
+import org.nutz.lang.Strings;
+import org.nutz.lang.util.NutMap;
+import org.nutz.mvc.annotation.*;
+
+import java.util.Map;
+
+/**
+ * @author huchuc@vip.qq.com
+ * @date: 2019/6/20
+ * 通用流程
+ */
+@IocBean
+@Filters(@By(type = CheckRoleAndSession.class, args = {Cons.SESSION_USER_KEY, Cons.SESSION_USER_ROLE}))
+@At("/general/flow/process")
+public class GeneralProcessAction extends BaseAction {
+
+    @Inject
+    GeneralFlowBiz generalFlowBiz;
+
+    @Inject
+    FlowProcessDefinitionService flowProcessDefinitionService;
+    @Inject
+    FlowCustomQueryService       flowCustomQueryService;
+    @Inject
+    FlowTaskService              flowTaskService;
+
+    @Inject
+    RepositoryService repositoryService;
+
+    @At("/form")
+    @GET
+    @Ok("btl:WEB-INF/view/modules/flow/general/flowAudit.html")
+    public NutMap form(@Param("::flow.") FlowTaskVO flowTaskVO, @Attr(Cons.SESSION_USER_KEY) UserAccount sessionUserAccount) {
+        // 获取流程实例对象
+        if (flowTaskVO.getProcInsId() != null) {
+            flowTaskVO.setBusinessId(flowProcessDefinitionService.getBusinessInfo(flowTaskVO.getProcInsId()));
+        }
+        if (Strings.isNotBlank(flowTaskVO.getTaskId()) && flowTaskVO.isTodoTask()) {
+            Task task = flowTaskService.getTask(flowTaskVO.getTaskId());
+            if (task != null) {
+                //设置委托状态
+                flowTaskVO.setDelegateStatus(task.getDelegationState());
+            }
+        } else if (Strings.isBlank(flowTaskVO.getProcDefId()) && Strings.isNotBlank(flowTaskVO.getProcDefKey())) {
+            ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery().processDefinitionKey(flowTaskVO.getProcDefKey()).latestVersion().singleResult();
+            flowTaskVO.setProcDefId(processDefinition.getId());
+            flowTaskVO.setProcDefversion(processDefinition.getVersion());
+        }
+        NutMap nutMap = new NutMap();
+        String formPage = generalFlowBiz.getFormPage(flowTaskVO);
+        if (Strings.isBlank(formPage)) {
+            throw new RuntimeException("表单不能为空");
+        }
+        nutMap.put("formPage", formPage);
+        nutMap.put("flow", flowTaskVO);
+        nutMap.put("title", generalFlowBiz.getFlowName(flowTaskVO));
+        nutMap.put("formData", generalFlowBiz.loadFormData(flowTaskVO, sessionUserAccount));
+        nutMap.put("status", TaskFormStatusEnum.EDIT);
+        if (flowTaskVO.isFinishTask()) {
+            nutMap.put("status", TaskFormStatusEnum.VIEW);
+        } else if (Strings.isBlank(flowTaskVO.getTaskId())) {
+            nutMap.put("status", TaskFormStatusEnum.EDIT);
+        } else {
+            nutMap.put("status", TaskFormStatusEnum.AUDIT);
+        }
+        return nutMap;
+    }
+
+    /**
+     * 取得流程下一节点
+     *
+     * @param formData
+     * @param flowTaskVO
+     * @return
+     */
+    @At("/getNextNode")
+    @POST
+    @Ok("json")
+    public AjaxResult getNextNode(@Param("::form") Map formData, @Param("::flow") FlowTaskVO flowTaskVO) {
+        try {
+            UserTask userTask = flowTaskService.previewNextNode(formData, flowTaskVO);
+            if (userTask != null) {
+                return AjaxResult.sucess(userTask.getId());
+            }
+            return AjaxResult.error("下一步不是用户节点");
+        } catch (Exception e) {
+            throw new RuntimeException("事务无法打开！");
+        }
+    }
+
+    /**
+     * 展示下一步流程审核人选择
+     *
+     * @param flowTaskVO
+     * @return
+     */
+    @At("/choiceNextReviewerUser")
+    @POST
+    @Ok("json")
+    public LayuiTableDataListVO choiceNextReviewerUser(@Param("::flow") FlowTaskVO flowTaskVO, @Param("nextNodeId") String nextNodeId) {
+        UserTaskExtensionDTO dto = flowProcessDefinitionService.getUserTaskExtension(flowTaskVO.getTaskDefKey(), flowTaskVO.getProcDefId());
+        if (dto.isDynamicFreeChoiceNextReviewerMode()) {
+            if (Strings.isNotBlank(nextNodeId)) {
+                dto = flowProcessDefinitionService.getUserTaskExtension(nextNodeId, flowTaskVO.getProcDefId());
+                FlowSubmitInfoDTO submitInfoDTO = flowCustomQueryService.getFlowSubmitInfo(flowTaskVO.getTaskId());
+                return LayuiTableDataListVO.allData(generalFlowBiz.listUserTaskNodeAllReviewerUser(dto, submitInfoDTO));
+            }
+        }
+        return LayuiTableDataListVO.noData();
+    }
+
+    /**
+     * 流程回退
+     *
+     * @param formData
+     * @param flowTaskVO
+     */
+    @At("/backToStep")
+    @POST
+    @Ok("json")
+    @Aop(TransAop.READ_COMMITTED)
+    public AjaxResult backToStep(@Param("::form") Map formData, @Param("::flow") FlowTaskVO flowTaskVO, @Attr(Cons.SESSION_USER_KEY) UserAccount sessionUserAccount) {
+        if (formData != null && flowTaskVO != null) {
+            String message = generalFlowBiz.backToStep(formData, flowTaskVO, sessionUserAccount);
+            if (Strings.isNotBlank(message)) {
+                return AjaxResult.error(message);
+            }
+            return AjaxResult.sucessMsg("回退成功");
+        } else {
+            return AjaxResult.error("参数异常");
+        }
+    }
+
+    /**
+     * 加签
+     *
+     * @param formData
+     * @param flowTaskVO
+     */
+    @At("/addMultiInstance")
+    @POST
+    @Ok("json")
+    @Aop(TransAop.READ_COMMITTED)
+    public AjaxResult addMultiInstance(@Param("::form") Map formData, @Param("::flow") FlowTaskVO flowTaskVO, @Attr(Cons.SESSION_USER_KEY) UserAccount sessionUserAccount) {
+        if (formData != null && flowTaskVO != null) {
+            String message = generalFlowBiz.addMultiInstance(formData, flowTaskVO, sessionUserAccount);
+            if (Strings.isNotBlank(message)) {
+                return AjaxResult.error(message);
+            }
+            return AjaxResult.sucessMsg("加签成功");
+        } else {
+            return AjaxResult.error("参数异常");
+        }
+    }
+
+
+    /**
+     * 启动流程--工单执行（完成任务）
+     *
+     * @param formData
+     * @param flowTaskVO
+     * @return
+     */
+    @At("/saveAudit")
+    @Ok("json")
+    @Aop(TransAop.READ_COMMITTED)
+    public AjaxResult saveAudit(@Param("::form") Map formData, @Param("::flow") FlowTaskVO flowTaskVO, @Attr(Cons.SESSION_USER_KEY) UserAccount sessionUserAccount) {
+        if (formData != null && flowTaskVO != null) {
+            if (Strings.isNotBlank(flowTaskVO.getBusinessId())) {
+                String message = generalFlowBiz.userAudit(formData, flowTaskVO, sessionUserAccount);
+                if (message != null) {
+                    return AjaxResult.error(message);
+                }
+            } else if (Strings.isBlank(sessionUserAccount.getDeptId())) {
+                return AjaxResult.error("流程发起人不存在任何部门中！");
+            } else {
+                String message = generalFlowBiz.start(formData, flowTaskVO, sessionUserAccount, getSessionRoleCodes());
+                return AjaxResult.sucessMsg(message);
+            }
+            return AjaxResult.sucessMsg("操作成功！");
+        } else {
+            return AjaxResult.error("参数异常");
+        }
+    }
+
+
+    /**
+     * 加载表单信息
+     *
+     * @param flowTaskVO
+     */
+    @At("/loadFormData")
+    @POST
+    @Ok("json:{dateFormat:'yyyy-MM-dd HH:mm',locked:'flow'}")
+    public AjaxResult loadFormData(@Param("::flow") FlowTaskVO flowTaskVO, @Attr(Cons.SESSION_USER_KEY) UserAccount sessionUserAccount) {
+        Object formData = generalFlowBiz.loadFormData(flowTaskVO, sessionUserAccount);
+        if (formData == null) {
+            return AjaxResult.error("数据不存在，可能是新增");
+        }
+        return AjaxResult.sucess(formData);
+    }
+}

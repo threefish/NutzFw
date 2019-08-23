@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <title>${sys.productLongName}</title>
+    <%include("/inc/platform_header.html"){}%>
+    <script src="${base!}/static/plugins/iscroll/iscroll.js"></script>
+    <style>
+        #control-sidebar {
+            overflow-x: hidden !important;
+        }
+
+        .search-bar {
+            position: fixed;
+            top: 50px;
+            background-color: #232d33;
+            z-index: 1;
+        }
+
+        .query-list {
+            margin-left: -15px;
+            width: 450px;
+            padding-top: 150px;
+        }
+
+        #path {
+            padding: 10px 15px 10px 0;
+        }
+
+        .query-list #dept {
+            border-bottom: 1px solid #1d262b;
+        }
+
+        .query-list .depet {
+            padding: 15px;
+            position: relative;
+            height: 50px;
+            overflow: hidden;
+        }
+
+        .query-list .depet .depet:nth-of-type(1) {
+            margin-top: 16px;
+        }
+
+        .query-list .depet #nodata a,
+        #person #nodata a {
+            text-align: center;
+            color: #b8c7ce;
+            background-color: #151a1d;
+            margin-left: 15px;
+            margin-top: 15px;
+        }
+
+        .query-list .depet #nodata a:hover {
+            background-color: #151a1d;
+        }
+
+        .depet:after {
+            position: absolute;
+            content: "";
+            height: 1px;
+            background-color: rgba(30, 38, 44, .8);
+            width: 100%;
+            left: 15px;
+            bottom: 0;
+        }
+
+        .query-list .depet.active {
+            height: auto;
+            background-color: #1f282c;
+        }
+
+        .query-list .depet.active:after {
+            content: "";
+            width: 100%;
+            height: 1px;
+            background-color: #181e23;
+            position: absolute;
+            right: 0;
+            bottom: 0;
+        }
+
+        .query-list .depet:hover {
+            cursor: pointer;
+            background-color: #1f282c;
+        }
+
+        .query-list .control-sidebar-menu {
+            box-sizing: border-box;
+            margin-top: 10px;
+            margin-right: 0;
+            width: 100%;
+        }
+
+        #person .control-sidebar-menu {
+            padding-left: 15px;
+        }
+
+        #person .menu-info,
+        #dept .menu-info {
+            position: relative;
+        }
+
+        .person-dept {
+            margin-left: 20px;
+            position: absolute;
+            top: 5px;
+            right: 15px;
+        }
+
+        #p-loading {
+            text-align: center;
+            padding: 15px;
+            background-color: #151a1d;
+        }
+
+        .skin-blue .main-header .navbar {
+            background-color: #2f5b78;
+        }
+
+        .product-name {
+            font-size: 26px;
+            color: #fff;
+            text-align: center;
+            line-height: 50px;
+            font-weight: bold;
+            font-family: "楷体", "新宋体", "微软雅黑";
+        }
+
+        .product-logo {
+            width: 50px;
+            height: 50px;
+            background-size: 50px 50px;
+            margin-left: 8px;
+            margin-right: 8px;
+        }
+
+        .tabLeft {
+            margin-left: 40px;
+        }
+
+        .content-tabs nav.page-tabs {
+            margin-left: 80px;
+        }
+
+        .main-header, .wrapper {
+            min-width: 1024px !important;
+        }
+    </style>
+</head>
+<body class="hold-transition skin-blue sidebar-mini fixed">
+<div class="wrapper">
+    <header class="main-header">
+        <nav class="navbar navbar-static-top">
+            <div class="navbar-custom-menu navbar-left" style="float: left">
+                <ul class="nav navbar-nav">
+                    <li class="dropdown">
+                        <img src="${base!}/File/productLogo" class="product-logo"/>
+                    </li>
+                    <li class="dropdown product-name">
+                        ${sys.productLongName}
+                    </li>
+                </ul>
+            </div>
+            <div class="navbar-custom-menu">
+                <ul class="nav navbar-nav">
+                    <li class="dropdown notifications-menu" id="taskMessageNotice">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" title="流程待办通知">
+                            <i class="fa fa-bell-o"></i>
+                            <span class="label label-warning">{{notice.length}}</span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li class="header" style="text-align: center" v-if="notice.length==0">
+                                暂无流程待办
+                            </li>
+                            <li>
+                                <ul class="menu">
+                                    <li v-for="item in notice">
+                                        <a href="#" v-if="item.todo">
+                                            <i class="fa fa-user text-aqua"></i>
+                                            <span>[待办理]&nbsp;&nbsp;{{item.content}}</span>
+                                        </a>
+                                        <a href="#" v-if="item.claim">
+                                            <i class="fa fa-users text-aqua"></i>
+                                            <span>[待签收]&nbsp;&nbsp;{{item.content}}</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li @click="showAllFlowNotice" class="footer">
+                                <a href="#" style="border-top: 1px solid #eeeeee;border-bottom: none">前往办理</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <!-- Tasks: style can be found in dropdown.less -->
+                    <li class="dropdown tasks-menu" style="display: none">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            <i class="fa fa-flag-o"></i>
+                            <span class="label label-danger">9</span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li class="header">您有9个任务</li>
+                            <li>
+                                <!-- inner menu: contains the actual data -->
+                                <ul class="menu">
+                                    <li><!-- Task item -->
+                                        <a href="#">
+                                            <h3>
+                                                Design some buttons
+                                                <small class="pull-right">20%</small>
+                                            </h3>
+                                            <div class="progress xs">
+                                                <div class="progress-bar progress-bar-aqua" style="width: 20%"
+                                                     role="progressbar" aria-valuenow="20" aria-valuemin="0"
+                                                     aria-valuemax="100">
+                                                    <span class="sr-only">20% Complete</span>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </li>
+                                    <!-- end task item -->
+                                    <li><!-- Task item -->
+                                        <a href="#">
+                                            <h3>
+                                                Create a nice theme
+                                                <small class="pull-right">40%</small>
+                                            </h3>
+                                            <div class="progress xs">
+                                                <div class="progress-bar progress-bar-green" style="width: 40%"
+                                                     role="progressbar" aria-valuenow="20" aria-valuemin="0"
+                                                     aria-valuemax="100">
+                                                    <span class="sr-only">40% Complete</span>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </li>
+                                    <!-- end task item -->
+                                    <li><!-- Task item -->
+                                        <a href="#">
+                                            <h3>
+                                                Some task I need to do
+                                                <small class="pull-right">60%</small>
+                                            </h3>
+                                            <div class="progress xs">
+                                                <div class="progress-bar progress-bar-red" style="width: 60%"
+                                                     role="progressbar" aria-valuenow="20" aria-valuemin="0"
+                                                     aria-valuemax="100">
+                                                    <span class="sr-only">60% Complete</span>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </li>
+                                    <!-- end task item -->
+                                    <li><!-- Task item -->
+                                        <a href="#">
+                                            <h3>
+                                                Make beautiful transitions
+                                                <small class="pull-right">80%</small>
+                                            </h3>
+                                            <div class="progress xs">
+                                                <div class="progress-bar progress-bar-yellow" style="width: 80%"
+                                                     role="progressbar" aria-valuenow="20" aria-valuemin="0"
+                                                     aria-valuemax="100">
+                                                    <span class="sr-only">80% Complete</span>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </li>
+                                    <!-- end task item -->
+                                </ul>
+                            </li>
+                            <li class="footer">
+                                <a href="#">View all tasks</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <!-- User Account: style can be found in dropdown.less -->
+                    <li class="dropdown user user-menu">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            <div style="background: url(${base}/File/avatar?id=${session.me.avatar!}) no-repeat center center;background-size: 100%;border: 1px #FFF solid;"
+                                 class="user-image"></div>
+                            <span class="hidden-xs">
+                               ${session.me.dept.name!} -- ${session.me.realName}
+                            </span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li class="user-header">
+                                <img src="${base!}/File/avatar?id=${session.me.avatar!}" class="img-circle"
+                                     alt="myavatar">
+                                <ul style="color: #fff;line-height: 25px;">
+                                    <li> ${session.me.realName}</li>
+                                    <li> 用户名:${session.me.userName}</li>
+                                    <li> 部门:${session.me.dept.name!}</li>
+                                    <li>
+                                        <small>注册时间：${session.me.createByDate,dateFormat='yyyy年MM月dd日'}</small>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li class="user-body" style="display: none">
+                                <div class="row">
+                                    <div class="col-xs-4 text-center">
+                                        <a href="#">关注</a>
+                                    </div>
+                                    <div class="col-xs-4 text-center">
+                                        <a href="#">粉丝</a>
+                                    </div>
+                                    <div class="col-xs-4 text-center">
+                                        <a href="#">朋友</a>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="user-footer">
+                                <div class="pull-center text-center">
+                                    <a class="btn btn-default btn-flat" id="personalInfo">个人资料</a>
+                                    <a class="btn btn-default btn-flat" id="changePass">修改密码</a>
+                                    <a class="btn btn-default btn-flat" data-toggle="control-sidebar">通讯录</a>
+                                </div>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="${base!}/management/logout"><i class="fa fa-lock"></i>&nbsp;注销登录</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+    <!-- Left side column. contains the logo and sidebar -->
+    <aside class="main-sidebar">
+        <!-- sidebar: style can be found in sidebar.less -->
+        <!-- search form -->
+        <div class="sidebar-form">
+            <div class="input-group">
+                <input type="text" name="q" autocomplete="off" class="form-control" placeholder="查找菜单">
+                <span class="input-group-btn">
+                <button type="button" name="search" id="search-btn" class="btn btn-flat" onclick="search_menu()"><i
+                        class="fa fa-search"></i>
+                </button>
+              </span>
+            </div>
+        </div>
+        <section class="sidebar">
+            <!-- /.search form -->
+            <!-- sidebar menu: : style can be found in sidebar.less -->
+            <ul class="sidebar-menu"></ul>
+        </section>
+        <!-- /.sidebar -->
+    </aside>
+    <!-- Content Wrapper. Contains page content -->
+    <div class="content-wrapper" id="content-wrapper" style="min-height: 421px;background: #fff">
+        <!--bootstrap tab风格 多标签页-->
+        <div id="platform">
+            <div class="content-tabs">
+                <button class="roll-nav roll-left tabIndex" data-toggle="offcanvas" role="button">
+                    <i class="fa fa-bars"></i>
+                </button>
+                <button class="roll-nav roll-left tabLeft" onclick="scrollTabLeft()">
+                    <i class="fa fa-backward"></i>
+                </button>
+                <nav class="page-tabs menuTabs tab-ui-menu" id="tab-menu">
+                    <div class="page-tabs-content" style="margin-left: 0px;">
+                    </div>
+                </nav>
+                <button class="roll-nav roll-right tabRight" onclick="scrollTabRight()">
+                    <i class="fa fa-forward" style="margin-left: 3px;"></i>
+                </button>
+                <button class="roll-nav roll-right fullscreen" onclick="App.handleFullScreen()"><i
+                        class="fa fa-arrows-alt"></i></button>
+            </div>
+        </div>
+        <div class="content-iframe " style="background-color: #ffffff; ">
+            <div class="tab-content " id="tab-content">
+
+            </div>
+        </div>
+    </div>
+    <!-- /.content-wrapper -->
+    <%include("/inc/footer.html"){}%>
+    <!-- Control Sidebar -->
+    <aside class="control-sidebar control-sidebar-dark" id="control-sidebar">
+        <!-- Create the tabs -->
+        <!-- Tab panes -->
+        <div class="tab-content">
+            <!-- Home tab content -->
+            <div class="tab-pane active" id="control-sidebar-home-tab">
+                <div class="search-bar">
+                    <ul class="nav nav-tabs nav-justified control-sidebar-tabs">
+                        <li class="active"><a href="#control-sidebar-home-tab" data-toggle="tab">通讯录</a></li>
+                        <li style="display: none"><a href="#control-sidebar-settings-tab" data-toggle="tab">在线IM</a>
+                        </li>
+                    </ul>
+                    <h3 class="control-sidebar-heading">通讯录</h3>
+                    <div>
+                        <input id="search" class="form-control search-address-book" placeholder="模糊查询">
+                    </div>
+                    <div id="path" class="path">
+                        <a href="javascript:;" class="control-sidebar-dark"></a> <span
+                            class="search-key hide">搜索:</span>
+                    </div>
+                </div>
+                <div id="queryList" class="query-list clearfix">
+                    <div class="menu-item">
+
+                        <div id="dept">
+
+                        </div>
+                        <div id="person">
+
+                        </div>
+                    </div>
+                </div>
+
+
+                <!--<div class="displayScorll"></div>-->
+            </div>
+            <!-- /.tab-pane -->
+            <!-- Stats tab content -->
+            <div class="tab-pane" id="control-sidebar-stats-tab">Stats Tab Content</div>
+            <!-- /.tab-pane -->
+            <!-- Settings tab content -->
+            <div class="tab-pane" id="control-sidebar-settings-tab">
+                <form method="post">
+                    <h3 class="control-sidebar-heading">在线IM</h3>
+                    <div class="form-group">
+                        <label class="control-sidebar-subheading">
+                            Report panel usage
+                            <input type="checkbox" class="pull-right" checked>
+                        </label>
+
+                        <p>
+                            Some information about this general settings option
+                        </p>
+                    </div>
+                    <!-- /.form-group -->
+
+                    <div class="form-group">
+                        <label class="control-sidebar-subheading">
+                            Allow mail redirect
+                            <input type="checkbox" class="pull-right" checked>
+                        </label>
+
+                        <p>
+                            Other sets of options are available
+                        </p>
+                    </div>
+                    <!-- /.form-group -->
+
+                    <div class="form-group">
+                        <label class="control-sidebar-subheading">
+                            Expose author name in posts
+                            <input type="checkbox" class="pull-right" checked>
+                        </label>
+
+                        <p>
+                            Allow the user to show his name in blog posts
+                        </p>
+                    </div>
+                    <!-- /.form-group -->
+
+                    <h3 class="control-sidebar-heading">Chat Settings</h3>
+
+                    <div class="form-group">
+                        <label class="control-sidebar-subheading">
+                            Show me as online
+                            <input type="checkbox" class="pull-right" checked>
+                        </label>
+                    </div>
+                    <!-- /.form-group -->
+
+                    <div class="form-group">
+                        <label class="control-sidebar-subheading">
+                            Turn off notifications
+                            <input type="checkbox" class="pull-right">
+                        </label>
+                    </div>
+                    <!-- /.form-group -->
+
+                    <div class="form-group">
+                        <label class="control-sidebar-subheading">
+                            Delete chat history
+                            <a href="javascript:void(0)" class="text-red pull-right"><i class="fa fa-trash-o"></i></a>
+                        </label>
+                    </div>
+                    <!-- /.form-group -->
+                </form>
+            </div>
+            <!-- /.tab-pane -->
+        </div>
+    </aside>
+    <div class="control-sidebar-bg"></div>
+</div>
+<script src="${base}/static/plugins/web-socket-js/src/swfobject.js?_=${productVersion}"></script>
+<script src="${base}/static/plugins/web-socket-js/web_socket.js?_=${productVersion}"></script>
+<script>
+    var taskMessageNoticeVm = new Vue({
+        el: '#taskMessageNotice',
+        data: {
+            notice: [],
+            frameNames: ["iframe__flowTask_todo", "iframe__flowTask_hasSent", "iframe__flowTask_historic"]
+        },
+        methods: {
+            createWs: function () {
+                var WS_URL = window.location.host + base + "/flow/task/MessageNotice";
+                if (location.protocol == 'http:') {
+                    ws = new WebSocket("ws://" + WS_URL);
+                } else {
+                    ws = new WebSocket("wss://" + WS_URL);
+                }
+                ws.onmessage = function (event) {
+                    taskMessageNoticeVm.onMessage(event);
+                };
+                ws.onopen = function () {
+                    taskMessageNoticeVm.queryTaskNotice();
+                };
+            },
+            queryTaskNotice: function () {
+                //加个100ms延迟，有时候后端事务可能还未完成
+                setTimeout(function () {
+                    ws.send(JSON.stringify({action: "queryTaskNotice"}));
+                }, 100);
+            },
+            onMessage: function (event) {
+                let data = JSON.parse(event.data);
+                if (data.type == "hasTaskMessageNotice") {
+                    this.queryTaskNotice();
+                } else {
+                    this.notice = data;
+                    this.frameNames.forEach(v => {
+                        try {
+                            window.frames[v].contentWindow.vm.handleSearchTable();
+                        } catch (e) {
+                        }
+                    });
+                    //5分钟后再自动查询下消息通知状态-防止有未考虑到的情况，请不要更改为setInterval
+                    setTimeout(function () {
+                        taskMessageNoticeVm.queryTaskNotice();
+                    }, 1000 * 60 * 5);
+                }
+            },
+            showAllFlowNotice: function () {
+                addTabs({
+                    id: "iframe__flowTask_todo",
+                    title: "待办任务",
+                    close: true,
+                    url: "${base}/flowTask/todo",
+                    urlType: "",
+                });
+            }
+        },
+        mounted: function () {
+            this.createWs();
+        }
+    })
+</script>
+<script>
+    $(function () {
+        var fn = {
+            node: {
+                searchKey: $('.search-key'),
+                depet: $('#dept'),
+                person: $('#person')
+            },
+            iskeyUp: false,
+            loading: '<div id="p-loading">正在加载数据...</div>',
+            nextData: false,
+            targetNode: null,
+            puseLoading: false,
+            data: {
+                data: null,
+                count: 2,
+            },
+            init() {
+//                绑定事件
+                this.bindEvent();
+//                回车搜索
+                this.search();
+//                初始化 部门数据
+                this.initData();
+//                滚动到底部加载下一页
+                this.scrollRefresh();
+            },
+            initData() {
+                var that = this;
+                $.ajax({
+                    url: '${base!}/sysOrganize/department/tree',
+                    type: 'POST',
+                    async: false,
+                    dataType: 'json',
+                    success: function (data) {
+                        var html = ''
+                        that.data.data = data;
+                        for (var x in data) {
+                            if (data[x].pid == 0 && data[x].id != 0)
+                                html += '<div id="depet-' + data[x].id + '" class="depet" pid="' + data[x].pid + '" data-click="handelDept"><span>' + data[x].name + '</span></div>'
+
+                        }
+                        that.node.depet.empty();
+                        that.node.depet.html(html);
+
+                    }
+                })
+            },
+//            点击部门 获取 人员信息
+            reqPerson(node, e, that) {
+                var id = node.attr('id').split('-')[1]
+                $.ajax({
+                    url: '${base!}/manage/user/usersByDept',
+                    type: 'post',
+                    data: {deptId: id},
+                    dataType: 'json',
+                    success: function (res) {
+                        that.createPerson(res.data)
+                    }
+                })
+            },
+//            绑定click 事件
+            bindEvent() {
+                var that = this;
+                $('body').on('click', '[data-click]', function (e) {
+                    var name = $(this).attr('data-click');
+                    that[name].call($(this), e, that);
+                    that.targetNode = $(this);
+                    return false;
+                })
+            },
+//            搜索
+            search() {
+                var that = this;
+                $(document).keyup(function (event) {
+                    if (event.keyCode == 13) {
+                        that.iskeyUp = true;
+                        var val = $("#search").val();
+                        that.puseLoading = false;
+                        that.node.searchKey.text('搜索："' + val + '"').removeClass('hide').addClass('show');
+                        $('#person').empty();
+                        if (val) {
+                            that.createDepet(val);
+                        } else {
+                            $('#dept').empty();
+                        }
+                        $.ajax({
+                            url: '${base!}/manage/user/user_search',
+                            type: 'post',
+                            data: {key: val, pageNum: 1, pageSize: 20},
+                            dataType: 'json',
+                            success: function (res) {
+                                that.createPerson(res.data, true, false)
+                            }
+                        })
+                    }
+                });
+            },
+//            点击部门时的处理函数
+            handelDept(e, that) {
+                var name = $(this).attr('id').split('-')[1];
+                that.reqPerson($(this), e, that);
+                that.createDepet(name, true, $(this));
+                if ($(this).hasClass('active')) {
+                    $(this).removeClass('active');
+                } else {
+                    $(this).addClass('active');
+                }
+                $(this).siblings().removeClass('active')
+            },
+//            模糊查询部门
+            findData(name) {
+                var data = this.data.data;
+                var arr = []
+                for (var x in data) {
+                    if (data[x].name.indexOf(name) != -1) {
+                        arr.push(data[x])
+                    }
+                }
+                return arr;
+            },
+//            渲染部门dom
+            createDepet(json, dept, node) {
+                var html = '';
+                if (!dept) {
+                    var data = this.findData(json);
+                    for (var x in data) {
+                        html += '<div id="depet-' + data[x].id + '" class="depet" pid="' + data[x].pid + '" data-click="handelDept"><span>' + data[x].name + '</span></div>'
+
+                    }
+                    this.node.depet.empty();
+                    this.node.depet.html(html);
+                } else {
+                    for (var i in this.data.data) {
+                        if (this.data.data[i].pid == json) {
+                            console.log(this.data.data[i]);
+                            if (!$("#depet-" + this.data.data[i].id).length) {
+                                html += '<div id="depet-' + this.data.data[i].id + '" class="depet" pid="' + this.data.data[i].pid + '" data-click="handelDept"><span>' + this.data.data[i].name + '</span></div>'
+                            }
+
+                        }
+                    }
+                    console.log(node)
+                    node.append(html);
+                }
+            },
+//            渲染 人员dom
+//            @param data:数据 flag 为true时是渲染peroson 元素里  flag false时渲染到 当前部门下面 str 为true时是数据加载完毕 false时是暂时无数据
+            createPerson(data, flag, str) {
+                var html = '';
+                var nodata = null;
+                if (!flag) {
+                    if (data.length != 0) {
+                        for (var x in data) {
+                            if (!this.targetNode.find('#p-' + this.targetNode.attr('id').split('-')[1]).length) {
+                                html +=
+                                    '<li> <a href="javascript:;">' +
+                                    '<i class="menu-icon fa fa-user bg-yellow"></i>' +
+                                    '<div class="menu-info">' +
+                                    '<h4 class="control-sidebar-subheading">' + data[x].name + '</h4>' +
+                                    '<p>' + (data[x].phone ? data[x].phone : "无手机号") + '<span class="person-dept">' +
+                                    this.targetNode.find('span:eq(0)').text() + '</span></p>' +
+                                    '<p>' + data[x].mail + '</p></div> </a> </li>';
+                            }
+                        }
+                    } else {
+
+                        if (!this.targetNode.find('#nodata').length) {
+                            html = '<li id="nodata"><a href="javascript:;">暂无数据</a></li>'
+                        }
+
+                    }
+
+                    var
+                        ul = '<ul id="p-' + this.targetNode.attr('id').split('-')[1] + '" class="control-sidebar-menu">' + html + '</ul>';
+                    this.targetNode.append(ul);
+                } else {
+                    this.node.person.append(this.loading);
+                    this.node.person.find('#nodata').remove();
+                    var lastData = this.node.person.find('ul').html();
+                    if (data.length != 0) {
+                        for (var x in data) {
+                            html +=
+                                '<li> <a href="javascript:;">' +
+                                '<i class="menu-icon fa fa-user bg-yellow"></i>' +
+                                '<div class="menu-info">' +
+                                '<h4 class="control-sidebar-subheading">' + data[x].name + '</h4>' +
+                                '<p>' + (data[x].phone ? data[x].phone : "无手机号") + '<span class="person-dept">' + data[x].deptName + '</span></p>' +
+                                '<p class="hide">mail : ' + (data[x].mail) + '</p></div> </a> </li>';
+                        }
+                    } else {
+                        if ($("#dept").is(":empty")) {
+                            this.puseLoading = true;
+                            html = '<li id="nodata"><a href="javascript:;">' + (str ? "数据加载完毕" : "暂无数据") + '</a></li>'
+                        }
+                    }
+                    this.node.person.empty();
+                    this.node.person.html('<ul class="control-sidebar-menu">' + (lastData ? lastData : "") + html + '</ul>');
+                }
+            },
+//            滚动加载下一页
+            scrollRefresh() {
+                var flag = false;
+                var that = this;
+                $('#control-sidebar').scroll(function () {
+                    console.log(that.iskeyUp)
+                    if (!that.iskeyUp) return false;
+                    var h = ($('#queryList').outerHeight(true) + 100);
+                    var nowHeight = $(this).scrollTop() + $(window).height();
+                    if (nowHeight >= h) {
+                        $('#p-loading').show();
+
+                        that.loadNextPage(that.data.count)
+                    }
+                });
+            },
+//           获取下一页 数据
+            loadNextPage(num) {
+                var that = this;
+                if (!that.puseLoading) {
+                    $.ajax({
+                        url: '${base!}/manage/user/user_search',
+                        type: 'post',
+                        async: false,
+                        data: {key: $("#search").val(), pageNum: num, pageSize: 20},
+                        dataType: 'json',
+                        success: function (res) {
+                            $('#p-loading').hide();
+                            that.data.count += 1;
+                            that.createPerson(res.data, true, true)
+                        }
+                    })
+                }
+            }
+        }
+        fn.init()
+    })
+</script>
+</body>
+</html>

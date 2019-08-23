@@ -1,0 +1,349 @@
+<!doctype html>
+<!--[if lt IE 7]>
+<html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>
+<html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>
+<html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js"> <!--<![endif]-->
+<head>
+    <meta charset="utf-8">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <title>流程设计器</title>
+    <meta content="" name="description">
+    <meta content="initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, width=device-width"
+          name="viewport">
+    <meta content="#ffffff" name="theme-color">
+
+    <link href="${base!}/static/flowable-modeler/images/apple-touch-icon.png?v=Om5N75Y123" rel="apple-touch-icon"
+          sizes="180x180">
+    <link href="${base!}/static/flowable-modeler/images/favicon-32x32.png?v=Om5N75Y123" rel="icon" sizes="32x32"
+          type="image/png">
+    <link href="${base!}/static/flowable-modeler/images/favicon-16x16.png?v=Om5N75Y123" rel="icon" sizes="16x16"
+          type="image/png">
+    <link href="manifest.json" rel="manifest">
+    <link color="#506d75" href="${base!}/static/flowable-modeler/images/safari-pinned-tab.svg?v=Om5N75Y123"
+          rel="mask-icon">
+    <link href="${base!}/static/flowable-modeler/libs/ui-grid_3.0.0/ui-grid.css" rel="Stylesheet" type="text/css"/>
+    <link href="${base!}/static/flowable-modeler/libs/handsontable_0.31.2/handsontable.full.min.css" rel="Stylesheet"
+          type="text/css"/>
+
+    <!-- build:css ${base!}/static/flowable-modeler/styles/3thparty.css -->
+    <link href="${base!}/static/flowable-modeler/libs/bootstrap_3.1.1/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="${base!}/static/flowable-modeler/libs/bootstrap-tour_0.9.1/bootstrap-tour.min.css" rel="stylesheet"/>
+    <link href="${base!}/static/flowable-modeler/libs/angular-spectrum-colorpicker_1.0.13/spectrum.css"
+          rel="stylesheet"/>
+    <!-- endbuild -->
+
+    <link href="${base!}/static/flowable-modeler/editor-app/editor/css/editor.css?_=${productVersion}v=2" media="screen"
+          rel="Stylesheet"
+          type="text/css"/>
+    <link href="${base!}/static/flowable-modeler/editor-app/css/style.css?_=${productVersion}v=2" rel="stylesheet"
+          type="text/css"/>
+
+    <!-- build:css ${base!}/static/flowable-modeler/styles/style.css -->
+    <link href="${base!}/static/flowable-modeler/styles/common/style.css" rel="stylesheet">
+    <link href="${base!}/static/flowable-modeler/styles/common/style-retina.css" rel="stylesheet">
+    <link href="${base!}/static/flowable-modeler/styles/style-editor.css" rel="stylesheet">
+    <!-- endbuild -->
+    <script>
+        var FLOWABLE = FLOWABLE || {};
+        FLOWABLE.CONFIG = {
+            'onPremise': true,
+            'contextRoot': '${base}',
+            'webContextRoot': '${base}/static/flowable-modeler/',
+            'datesLocalization': false
+        };
+    </script>
+</head>
+<body ng-app="flowableModeler" ng-cloak>
+
+<div class="navbar navbar-fixed-top navbar-inverse" id="main-header" role="navigation" style="display: none">
+    <div class="fixed-container">
+        <div class="navbar-header">
+            <a class="landing-logo" ng-click="backToLanding()" ng-if="account != null && account != undefined"
+               title="{{'GENERAL.MAIN-TITLE' | translate}}">
+                <img ng-src="{{appResourceRoot}}static/${base!}/static/flowable-modeler/images/flowable-logo.png"
+                     ng-srcset="{{appResourceRoot}}static/${base!}/static/flowable-modeler/images/flowable-logo.png 1x, {{appResourceRoot}}${base!}/static/flowable-modeler/images/flowable-logo@2x.png 2x">
+            </a>
+            <ul class="nav navbar-nav" id="main-nav" ng-show="authenticated">
+                <li ng-class="{'active' : item.id == mainPage.id}" ng-repeat="item in mainNavigation">
+                    <a ng-click="setMainPage(item)">{{item.title | translate}}</a>
+                </li>
+            </ul>
+        </div>
+        <div class="pull-right {{currentAppDefinition.definition.theme}}"
+             ng-class="{'app-indicator': currentAppDefinition}" ng-cloack ng-if="authenticated">
+                <span ng-if="currentAppDefinition.definition.theme">
+                    {{currentAppDefinition.name}}
+                </span>
+            <i class="glyphicon {{currentAppDefinition.definition.icon}}"></i>
+
+            <div activiti-fix-dropdown-bug class="dropdown btn-group btn-group-sm">
+                <button class="btn btn-default dropdown-toggle" data-toggle="dropdown" type="button">
+                    {{account.firstName && account.firstName != 'null' ? account.firstName : ''}} {{account.lastName &&
+                    account.lastName != 'null' ? account.lastName : ''}}
+                    <span aria-hidden="true" class="glyphicon glyphicon-chevron-down" style="font-size: 10px"></span>
+                </button>
+                <ul class="dropdown-menu pull-right">
+                    <li><a href="" ng-click="logout()" translate>GENERAL.ACTION.LOGOUT</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--[if lt IE 9]>
+<div class="unsupported-browser">
+    <p class="alert error">您使用的是不受支持的浏览器。请升级您的浏览器以使用编辑器.</p>
+</div>
+<![endif]-->
+<!--[if IE 9]>
+<div id="no-flash-message" class="unsupported-browser" style="display: none">
+    <p class="alert error">没有安装Adobe Flash。请安装Adobe Flash以使用此版本的Internet Explorer上的文件上载功能。</p>
+</div>
+<script>
+    var hasFlash = false;
+    try {
+        hasFlash = Boolean(new ActiveXObject('ShockwaveFlash.ShockwaveFlash'));
+    } catch (exception) {
+        hasFlash = ('undefined' != typeof navigator.mimeTypes['application/x-shockwave-flash']);
+    }
+    if (!hasFlash) {
+        var showNoFlashMessage = function () {
+            var element = document.getElementById('no-flash-message');
+            element.style.display = "block";
+        };
+        showNoFlashMessage();
+    }
+</script>
+<![endif]-->
+<div class="alert-wrapper" ng-cloak>
+    <div class="alert fadein {{alerts.current.type}}" ng-click="dismissAlert()" ng-show="alerts.current">
+        <i class="glyphicon"
+           ng-class="{'glyphicon-ok': alerts.current.type == 'info', 'glyphicon-remove': alerts.current.type == 'error'}"></i>
+        <span>{{alerts.current.message}}</span>
+
+        <div class="pull-right" ng-show="alerts.queue.length > 0">
+            <span class="badge">{{alerts.queue.length + 1}}</span>
+        </div>
+    </div>
+</div>
+
+<div class="wrapper full clearfix" id="main" ng-cloak ng-style="{height: window.height + 'px'}" ng-view=""
+     style="padding: 0px;">
+</div>
+
+<!--[if lt IE 9]>
+<script src="${base!}/static/flowable-modeler/libs/es5-shim-15.3.4.5/es5-shim.js"></script>
+<script src="${base!}/static/flowable-modeler/libs/json3_3.2.6/lib/json3.min.js"></script>
+<![endif]-->
+
+<script src="${base!}/static/flowable-modeler/libs/jquery_1.11.0/jquery.min.js"></script>
+<script src="${base!}/static/flowable-modeler/libs/jquery-ui-1.10.3.custom.min.js"></script>
+<script src="${base!}/static/flowable-modeler/libs/angular_1.3.13/angular.js"></script>
+<script src="${base!}/static/flowable-modeler/libs/angular-animate_1.3.13/angular-animate.min.js"></script>
+<script src="${base!}/static/flowable-modeler/libs/bootstrap_3.1.1/js/bootstrap.min.js"></script>
+<script src="${base!}/static/flowable-modeler/libs/angular-resource_1.3.13/angular-resource.min.js"></script>
+<script src="${base!}/static/flowable-modeler/libs/angular-cookies_1.3.13/angular-cookies.min.js"></script>
+<script src="${base!}/static/flowable-modeler/libs/angular-sanitize_1.3.13/angular-sanitize.min.js"></script>
+<script src="${base!}/static/flowable-modeler/libs/angular-route_1.3.13/angular-route.min.js"></script>
+<script src="${base!}/static/flowable-modeler/libs/angular-translate_2.15.1/angular-translate.min.js"></script>
+<script src="${base!}/static/flowable-modeler/libs/angular-translate-storage-cookie/angular-translate-storage-cookie.js"></script>
+<script src="${base!}/static/flowable-modeler/libs/angular-translate-loader-static-files/angular-translate-loader-static-files.js"></script>
+<script src="${base!}/static/flowable-modeler/libs/angular-strap_2.1.6/angular-strap.min.js"></script>
+<script src="${base!}/static/flowable-modeler/libs/angular-strap_2.1.6/angular-strap.tpl.min.js"></script>
+<script src="${base!}/static/flowable-modeler/libs/momentjs_2.18.1/momentjs.min.js"></script>
+<script src="${base!}/static/flowable-modeler/libs/bootstrap-tour_0.9.1/bootstrap-tour.min.js"></script>
+<script src="${base!}/static/flowable-modeler/libs/ng-file-upload/ng-file-upload-shim.min.js"></script>
+<script src="${base!}/static/flowable-modeler/libs/ng-file-upload/ng-file-upload.min.js"></script>
+
+<script src="${base!}/static/flowable-modeler/editor-app/libs/ui-utils.min-0.2.1.js" type="text/javascript"></script>
+<script src="${base!}/static/flowable-modeler/libs/ui-grid_3.0.0/ui-grid.js" type="text/javascript"></script>
+<script src="${base!}/static/flowable-modeler/libs/angular-dragdrop_1.0.11/angular-dragdrop.min.js"
+        type="text/javascript"></script>
+<script src="${base!}/static/flowable-modeler/editor-app/libs/mousetrap/1.6.0/mousetrap.min.js"
+        type="text/javascript"></script>
+<script src="${base!}/static/flowable-modeler/editor-app/libs/jquery.autogrow-textarea.js"
+        type="text/javascript"></script>
+
+<script src="${base!}/static/flowable-modeler/libs/handsontable_0.31.2/handsontable.full.min.js"
+        type="text/javascript"></script>
+<script src="${base!}/static/flowable-modeler/libs/ng-handsontable_0.13/ngHandsontable.js"
+        type="text/javascript"></script>
+
+<script src="${base!}/static/flowable-modeler/editor-app/libs/prototype-1.7.3.js" type="text/javascript"></script>
+<script src="${base!}/static/flowable-modeler/editor-app/libs/path_parser.js" type="text/javascript"></script>
+
+<script src="${base!}/static/flowable-modeler/libs/angular-spectrum-colorpicker_1.0.13/spectrum.js"
+        type="text/javascript"></script>
+<script src="${base!}/static/flowable-modeler/libs/angular-spectrum-colorpicker_1.0.13/angular-spectrum-colorpicker.min.js"
+        type="text/javascript"></script>
+<script src="${base!}/static/flowable-modeler/libs/angular-scroll_0.5.7/angular-scroll.min.js"
+        type="text/javascript"></script>
+<script src="${base!}/static/flowable-modeler/libs/angular-drag-and-drop-lists_1.2.0/angular-drag-and-drop-lists.js"
+        type="text/javascript"></script>
+<script src="${base!}/static/flowable-modeler/libs/html2canvas_0.4.1/html2canvas.js"></script>
+
+<!-- build:js ${base!}/static/flowable-modeler/scripts/scripts.js -->
+<script src="${base!}/static/flowable-modeler/editor-app/editor/i18n/translation_en_us.js"
+        type="text/javascript"></script>
+<script src="${base!}/static/flowable-modeler/editor-app/editor/i18n/translation_signavio_en_us.js"
+        type="text/javascript"></script>
+<script src="${base!}/static/flowable-modeler/editor-app/editor/oryx.debug.js" type="text/javascript"></script>
+
+<script src="${base!}/static/flowable-modeler/scripts/app.js"></script>
+<script src="${base!}/static/flowable-modeler/scripts/configuration/url-config.js"></script>
+<script src="${base!}/static/flowable-modeler/scripts/editor-directives.js"></script>
+<script src="${base!}/static/flowable-modeler/scripts/controllers/processes.js"></script>
+<script src="${base!}/static/flowable-modeler/scripts/controllers/process.js"></script>
+<script src="${base!}/static/flowable-modeler/scripts/controllers/casemodels.js"></script>
+<script src="${base!}/static/flowable-modeler/scripts/controllers/casemodel.js"></script>
+<script src="${base!}/static/flowable-modeler/scripts/controllers/forms.js"></script>
+<script src="${base!}/static/flowable-modeler/scripts/controllers/form.js"></script>
+<script src="${base!}/static/flowable-modeler/scripts/controllers/decision-tables.js"></script>
+<script src="${base!}/static/flowable-modeler/scripts/controllers/decision-table.js"></script>
+<script src="${base!}/static/flowable-modeler/scripts/controllers/app-definitions.js"></script>
+<script src="${base!}/static/flowable-modeler/scripts/controllers/app-definition.js"></script>
+<script src="${base!}/static/flowable-modeler/scripts/controllers/model-common-actions.js"></script>
+
+<script src="${base!}/static/flowable-modeler/scripts/services/util-services.js"></script>
+<script src="${base!}/static/flowable-modeler/scripts/services/identity-services.js"></script>
+
+<script src="${base!}/static/flowable-modeler/scripts/services/form-services.js"></script>
+<script src="${base!}/static/flowable-modeler/scripts/controllers/form-builder.js"></script>
+<script src="${base!}/static/flowable-modeler/scripts/configuration/form-builder-toolbar-default-actions.js"
+        type="text/javascript"></script>
+<script src="${base!}/static/flowable-modeler/scripts/configuration/form-builder-toolbar.js"
+        type="text/javascript"></script>
+<script src="${base!}/static/flowable-modeler/scripts/controllers/form-toolbar-controller.js"
+        type="text/javascript"></script>
+<script src="${base!}/static/flowable-modeler/scripts/controllers/form-readonly-view.js"></script>
+
+<script src="${base!}/static/flowable-modeler/scripts/services/decision-table-service.js"></script>
+<script src="${base!}/static/flowable-modeler/scripts/controllers/decision-table-editor.js"></script>
+<script src="${base!}/static/flowable-modeler/scripts/configuration/decision-table-toolbar-default-actions.js"
+        type="text/javascript"></script>
+<script src="${base!}/static/flowable-modeler/scripts/configuration/decision-table-toolbar.js"
+        type="text/javascript"></script>
+<script src="${base!}/static/flowable-modeler/scripts/controllers/decision-table-toolbar-controller.js"
+        type="text/javascript"></script>
+
+<script src="${base!}/static/flowable-modeler/scripts/controllers/app-definition-builder.js"></script>
+<script src="${base!}/static/flowable-modeler/scripts/configuration/app-definition-toolbar-default-actions.js"
+        type="text/javascript"></script>
+<script src="${base!}/static/flowable-modeler/scripts/configuration/app-definition-toolbar.js"
+        type="text/javascript"></script>
+<script src="${base!}/static/flowable-modeler/scripts/controllers/app-definition-toolbar-controller.js"
+        type="text/javascript"></script>
+
+<script src="${base!}/static/flowable-modeler/editor-app/eventbus.js" type="text/javascript"></script>
+
+<script src="${base!}/static/flowable-modeler/editor-app/editor-controller.js" type="text/javascript"></script>
+<script src="${base!}/static/flowable-modeler/editor-app/stencil-controller.js" type="text/javascript"></script>
+<script src="${base!}/static/flowable-modeler/editor-app/toolbar-controller.js" type="text/javascript"></script>
+<script src="${base!}/static/flowable-modeler/editor-app/header-controller.js" type="text/javascript"></script>
+<script src="${base!}/static/flowable-modeler/editor-app/select-shape-controller.js" type="text/javascript"></script>
+<script src="${base!}/static/flowable-modeler/editor-app/define-data-controller.js" type="text/javascript"></script>
+<script src="${base!}/static/flowable-modeler/editor-app/process-navigator-controller.js"
+        type="text/javascript"></script>
+<script src="${base!}/static/flowable-modeler/editor-app/editormanager.js" type="text/javascript"></script>
+
+<script src="${base!}/static/flowable-modeler/editor-app/tour.js" type="text/javascript"></script>
+<script src="${base!}/static/flowable-modeler/editor-app/editor-utils.js" type="text/javascript"></script>
+<script src="${base!}/static/flowable-modeler/editor-app/configuration/toolbar-default-actions.js"
+        type="text/javascript"></script>
+
+<script src="${base!}/static/flowable-modeler/editor-app/configuration/properties-data-properties-controller.js"
+        type="text/javascript"></script>
+<script src="${base!}/static/flowable-modeler/editor-app/configuration/properties-default-controllers.js"
+        type="text/javascript"></script>
+<script src="${base!}/static/flowable-modeler/editor-app/configuration/properties-execution-listeners-controller.js"
+        type="text/javascript"></script>
+<script src="${base!}/static/flowable-modeler/editor-app/configuration/properties-event-listeners-controller.js"
+        type="text/javascript"></script>
+<script src="${base!}/static/flowable-modeler/editor-app/configuration/properties-assignment-controller.js"
+        type="text/javascript"></script>
+<script src="${base!}/static/flowable-modeler/editor-app/configuration/properties-fields-controller.js"
+        type="text/javascript"></script>
+<script src="${base!}/static/flowable-modeler/editor-app/configuration/properties-form-properties-controller.js"
+        type="text/javascript"></script>
+<script src="${base!}/static/flowable-modeler/editor-app/configuration/properties-in-parameters-controller.js"
+        type="text/javascript"></script>
+<script src="${base!}/static/flowable-modeler/editor-app/configuration/properties-calledelementtype-controller.js"
+        type="text/javascript"></script>
+<script src="${base!}/static/flowable-modeler/editor-app/configuration/properties-multiinstance-controller.js"
+        type="text/javascript"></script>
+<script src="${base!}/static/flowable-modeler/editor-app/configuration/properties-expansion-controller.js"
+        type="text/javascript"></script>
+<script src="${base!}/static/flowable-modeler/editor-app/configuration/properties-process-historylevel-controller.js"
+        type="text/javascript"></script>
+<script src="${base!}/static/flowable-modeler/editor-app/configuration/properties-ordering-controller.js"
+        type="text/javascript"></script>
+<script src="${base!}/static/flowable-modeler/editor-app/configuration/properties-out-parameters-controller.js"
+        type="text/javascript"></script>
+<script src="${base!}/static/flowable-modeler/editor-app/configuration/properties-task-listeners-controller.js"
+        type="text/javascript"></script>
+<script src="${base!}/static/flowable-modeler/editor-app/configuration/properties-form-reference-controller.js"
+        type="text/javascript"></script>
+<script src="${base!}/static/flowable-modeler/editor-app/configuration/properties-sequenceflow-order-controller.js"
+        type="text/javascript"></script>
+<script src="${base!}/static/flowable-modeler/editor-app/configuration/properties-condition-expression-controller.js"
+        type="text/javascript"></script>
+<script src="${base!}/static/flowable-modeler/editor-app/configuration/properties-signal-definitions-controller.js"
+        type="text/javascript"></script>
+<script src="${base!}/static/flowable-modeler/editor-app/configuration/properties-signal-scope-controller.js"
+        type="text/javascript"></script>
+<script src="${base!}/static/flowable-modeler/editor-app/configuration/properties-message-definitions-controller.js"
+        type="text/javascript"></script>
+<script src="${base!}/static/flowable-modeler/editor-app/configuration/properties-message-scope-controller.js"
+        type="text/javascript"></script>
+<script src="${base!}/static/flowable-modeler/editor-app/configuration/properties-duedate-controller.js"
+        type="text/javascript"></script>
+<script src="${base!}/static/flowable-modeler/editor-app/configuration/properties-decisiontable-reference-controller.js"
+        type="text/javascript"></script>
+<script src="${base!}/static/flowable-modeler/editor-app/configuration/properties-case-reference-controller.js"
+        type="text/javascript"></script>
+<script src="${base!}/static/flowable-modeler/editor-app/configuration/properties-process-reference-controller.js"
+        type="text/javascript"></script>
+<script src="${base!}/static/flowable-modeler/editor-app/configuration/properties-transition-event-controller.js"
+        type="text/javascript"></script>
+<script src="${base!}/static/flowable-modeler/editor-app/configuration/properties-trigger-mode-controller.js"
+        type="text/javascript"></script>
+<script src="${base!}/static/flowable-modeler/editor-app/configuration/properties-planitem-dropdown-controller.js"
+        type="text/javascript"></script>
+<script src="${base!}/static/flowable-modeler/editor-app/configuration/properties-plan-item-lifecycle-listeners-controller.js"
+        type="text/javascript"></script>
+<script src="${base!}/static/flowable-modeler/editor-app/configuration/properties-httprequest-controller.js"
+        type="text/javascript"></script>
+
+<script src="${base!}/static/flowable-modeler/editor-app/editor-config.js" type="text/javascript"></script>
+
+<script src="${base!}/static/flowable-modeler/editor-app/configuration/url-config.js" type="text/javascript"></script>
+
+<script src="${base!}/static/flowable-modeler/editor-app/configuration/toolbar.js" type="text/javascript"></script>
+<script src="${base!}/static/flowable-modeler/editor-app/configuration/toolbar-custom-actions.js"
+        type="text/javascript"></script>
+
+<script src="${base!}/static/flowable-modeler/editor-app/configuration/properties.js" type="text/javascript"></script>
+<script src="${base!}/static/flowable-modeler/editor-app/configuration/properties-custom-controllers.js"
+        type="text/javascript"></script>
+
+<script src="${base!}/static/flowable-modeler/editor-app/configuration/flowable-header-custom.js"
+        type="text/javascript"></script>
+<script src="${base!}/static/flowable-modeler/editor-app/configuration/flowable-toolbar-custom-actions.js"
+        type="text/javascript"></script>
+
+<script src="${base!}/static/flowable-modeler/scripts/common/directives.js"></script>
+<script src="${base!}/static/flowable-modeler/scripts/common/providers-config.js"></script>
+<script src="${base!}/static/flowable-modeler/scripts/common/services/resource-service.js"></script>
+<script src="${base!}/static/flowable-modeler/scripts/common/services/recursion-helper.js"></script>
+<script src="${base!}/static/flowable-modeler/scripts/common/controllers/about.js"></script>
+<!-- endbuild -->
+
+<!-- Integration extensions -->
+<script app="editor" src="${base!}/static/flowable-modeler/scripts/resource-loader.js?_=${productVersion}v=2"></script>
+
+</body>
+</html>

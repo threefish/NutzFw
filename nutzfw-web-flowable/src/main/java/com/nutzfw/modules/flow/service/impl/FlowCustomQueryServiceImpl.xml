@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE Sqls PUBLIC "nutz-sqltpl" "https://threefish.gitee.io/nutz-sqltpl/nutz-sqltpl.dtd">
+<Sqls class="com.nutzfw.modules.flow.service.impl.FlowCustomQueryServiceImpl">
+    <sql id="getFlowSubmitInfo" wrap="true">
+        select NAME_ as name ,TEXT_ as val from ACT_RU_VARIABLE
+        where PROC_INST_ID_ = (select PROC_INST_ID_ from act_ru_task where ID_ = @taskId)
+        and TASK_ID_ is null AND NAME_ like "FLOW_%";
+    </sql>
+    <sql id="listUserTaskNodeAllReviewerUser" wrap="true">
+        SELECT realName,userName,dept.`name` as deptName from sys_user_account as u LEFT JOIN sys_department as dept ON dept.id=u.deptId $condition
+    </sql>
+</Sqls>

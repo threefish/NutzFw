@@ -1,0 +1,184 @@
+<%
+var title="待办";
+layout("/layouts/blank.html",{title:title}){
+%>
+<style type="text/css">
+    .dataTbleBox {
+        background: #ffffff;
+        margin: 15px 0px;
+        padding: 15px;
+    }
+</style>
+<section class="content" id="container">
+    <div style="background: #ffffff">
+        <div id="listTable" lay-filter='listTable'></div>
+    </div>
+</section>
+<!--{{# if(d.assignee != null && d.claimTime != null){ }}-->
+<script type="text/html" id="toolBarFixed">
+    {{# if(d.delegateStatus == 'PENDING'){ }}
+    <a class="layui-btn layui-btn-xs layui-btn-danger" lay-event="handle" title="当前任务是他人委托您办理的。">办理委托</a>
+    {{# }else if(d.assignee != null){ }}
+    <a class="layui-btn layui-btn-xs layui-btn-danger" lay-event="handle">办理</a>
+    <a class="layui-btn layui-btn-xs layui-btn-danger" lay-event="delegate" title="将当前任务委托给他人办理，委托人完成后，任务会归还给您。">委托</a>
+    <a class="layui-btn layui-btn-xs layui-btn-danger" lay-event="transfer" title="将当前任务转派给他人办理。">转派</a>
+    {{# if(d.claimTime != null){ }}
+    <a class="layui-btn layui-btn-xs layui-btn-danger" lay-event="unclaim">取消签收</a>
+    {{# } }}
+    {{# }else if(d.assignee == null || d.assignee.length == 0){ }}
+    <a class="layui-btn layui-btn-xs" lay-event="claim">签收</a>
+    {{# } }}
+    {{# if(d.executionId == ""){ }}
+    <a class="layui-btn layui-btn-xs layui-btn-danger" lay-event="del">删除</a>
+    {{# } }}
+    <a class="layui-btn layui-btn-xs layui-btn-danger" lay-event="diagram">跟踪</a>
+</script>
+<script type="text/javascript">
+    var listTable, vm = new Vue({
+        el: '#container',
+        data: {},
+        methods: {
+            handleUnclaim: function (data) {
+                core.postSyncJSON("/flowTask/unclaim", {taskId: data.taskId}, function (json) {
+                    core.msg(json);
+                    if (json.ok) {
+                        vm.handleSearchTable();
+                    }
+                });
+            },
+            handleClaim: function (data) {
+                core.postSyncJSON("/flowTask/claim", {taskId: data.taskId}, function (json) {
+                    core.msg(json);
+                    if (json.ok) {
+                        vm.handleSearchTable();
+                    }
+                });
+            },
+            handleDelegate: function (data) {
+                core.showSelectUsers({
+                    option: {
+                        multipleSelection: false,
+                    },
+                    onOk: function (users) {
+                        var json = core.postJSON("/flowTask/delegate", {
+                            taskId: data.taskId,
+                            userName: users[0].userName
+                        });
+                        core.msg(json);
+                        if (json.ok) {
+                            vm.handleSearchTable();
+                        }
+                        return true;
+                    }
+                });
+            },
+            handleTransfer: function (data) {
+                core.prompt("请输入转派原因", function (reason) {
+                    core.showSelectUsers({
+                        option: {
+                            multipleSelection: false,
+                        },
+                        onOk: function (users) {
+                            var json = core.postJSON("/flowTask/transfer", {
+                                taskId: data.taskId,
+                                userName: users[0].userName,
+                                reason: reason,
+                            });
+                            core.msg(json);
+                            if (json.ok) {
+                                vm.handleSearchTable();
+                            }
+                            return true;
+                        }
+                    });
+                })
+            },
+            handleDel: function (data) {
+                core.prompt("请输入删除理由", function (reason) {
+                    core.postSyncJSON("/flowTask/deleteTask", {taskId: data.taskId, reason: reason}, function (json) {
+                        core.msg(json);
+                        if (json.ok) {
+                            vm.handleSearchTable();
+                        }
+                    });
+                });
+            },
+            handleHandle: function (data) {
+                var param = '?flow.taskId=' + data.taskId + '&flow.taskName=' + encodeURIComponent(data.taskName) + '&flow.taskDefKey=' + data.taskDefKey + '&flow.procInsId=' + data.procInsId + '&flow.procDefId=' + data.procDefId + '&flow.status=' + data.status;
+                var url = '/general/flow/process/form' + param;
+                parent.core.openUrl(url, "任务办理 [" + data.taskName + "]", "80%", "800px", function () {
+                    vm.handleSearchTable();
+                });
+            },
+            handleDiagramViewer: function (data) {
+                parent.core.openUrl("/flowTask/diagramViewer?definitionId=" + data.procDefId + "&instanceId=" + data.procInsId, "流程图查看", "80%", "80%");
+            },
+            handleSearchTable: function () {
+                listTable.reload();
+            },
+            layuiInit: function () {
+                layui.use(['table', 'element', 'laytpl',], function () {
+                    var table = layui.table;
+                    listTable = table.render({
+                        id: 'listTable',
+                        elem: '#listTable',
+                        page: true,
+                        method: 'post',
+                        url: base + '/flowTask/todoData',
+                        height: 'full-50',
+                        even: false,
+                        limit: 50,
+                        cols: [[
+                            {title: '序号', type: 'numbers', width: 50},
+                            {field: 'categoryName', title: '流程分类'},
+                            {field: 'taskTitle', title: '标题', width: 350},
+                            {field: 'procDefname', title: '流程名称'},
+                            {field: 'taskName', title: '当前环节'},
+                            {
+                                field: 'version', title: '流程版本', templet: function (d) {
+                                    return 'V:' + d.procDefversion;
+                                }
+                            },
+                            {field: 'createTime', title: '任务开始时间'},
+                            {title: '操作', align: 'center', width: 280, fixed: 'right', toolbar: '#toolBarFixed'},
+                        ]],
+                    });
+                    table.on("tool(listTable)", function (obj) {
+                        var data = obj.data, layEvent = obj.event;
+                        switch (layEvent) {
+                            case "unclaim":
+                                vm.handleUnclaim(data);
+                                break;
+                            case "claim":
+                                vm.handleClaim(data);
+                                break;
+                            case "handle":
+                                vm.handleHandle(data);
+                                break;
+                            case "delegate":
+                                vm.handleDelegate(data);
+                                break;
+                            case "transfer":
+                                vm.handleTransfer(data);
+                                break;
+                            case "del":
+                                vm.handleDel(data);
+                                break;
+                            case "diagram":
+                                vm.handleDiagramViewer(data);
+                                break;
+                        }
+                    });
+                });
+            }
+        },
+        created: function () {
+            this.layuiInit();
+        },
+        updated: function () {
+        },
+        mounted: function () {
+        }
+    });
+</script>
+<%}%>

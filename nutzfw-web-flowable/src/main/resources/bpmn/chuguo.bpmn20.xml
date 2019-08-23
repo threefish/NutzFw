@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+             xmlns:flowable="http://flowable.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath"
+             targetNamespace="o8i5gn0dleh1jp28pni08gqbo6">
+    <process id="chuguo" name="请假流程" isExecutable="true">
+        <documentation>出国请假</documentation>
+        <extensionElements>
+            <nutzfw:externalformexecutor xmlns:nutzfw="http://flowable.org/modeler">
+                <![CDATA[$ioc:leaveExternalFormExecutor]]></nutzfw:externalformexecutor>
+        </extensionElements>
+        <dataObject id="processTitle" name="processTitle" itemSubjectRef="xsd:string">
+            <extensionElements>
+                <flowable:value>${user.realName} 发起的出国请假</flowable:value>
+            </extensionElements>
+        </dataObject>
+        <startEvent id="startevent1" name="发起流程" flowable:formKey="form.html"></startEvent>
+        <endEvent id="sid-42F3D64C-A30C-4468-A799-A975AFDEAE59" name="流程结束"></endEvent>
+        <userTask id="deptLeaderAudit" name="部门领导审批(2人会签)" flowable:assignee="$INITIATOR" flowable:formKey="form.html">
+            <extensionElements>
+                <modeler:initiator-can-complete xmlns:modeler="http://flowable.org/modeler">
+                    <![CDATA[true]]></modeler:initiator-can-complete>
+                <nutzfw:user-task-expansion xmlns:nutzfw="http://flowable.org/modeler">
+                    <![CDATA[{"callBackType":"PREVIOUS_STEP","callBackNodes":"modifyApply","callBackNodesDesc":"调整申请","addMultiInstance":"true","addMultiInstanceUserType":"USERS","addMultiInstanceValues":"admin","addMultiInstanceValuesDesc":"超级管理员","agreeButtonName":"同意","refuseButtonName":"拒绝","replyOpinion":"true","handwritingSignature":"false","delMultiInstance":"false","formDataDynamicAssignment":"formData.deptLeadText=flowTask.comment;","taskReviewerScope":"FLOW_SUBMITTER","candidateUsers":[],"candidateGroups":[],"assignTaskReviewerMode":"false","assignee":"","nextReviewerCandidateUsers":[{"userName":"1079","realName":"谢晓林","$$hashKey":"object:948"},{"userName":"0084","realName":"张永先","$$hashKey":"object:949"},{"userName":"5075","realName":"杜秀华","$$hashKey":"object:950"},{"userName":"2092","realName":"廖周虎","$$hashKey":"object:951"},{"userName":"2150","realName":"冯艳艳","$$hashKey":"object:952"},{"userName":"3016","realName":"张琳","$$hashKey":"object:953"},{"userName":"7005","realName":"马仕芳","$$hashKey":"object:954"},{"userName":"0263","realName":"张志强","$$hashKey":"object:955"},{"userName":"0197","realName":"苟姿","$$hashKey":"object:956"},{"userName":"4073","realName":"唐川","$$hashKey":"object:957"},{"userName":"0310","realName":"阮永权","$$hashKey":"object:958"},{"userName":"2840","realName":"罗俊怡","$$hashKey":"object:959"},{"userName":"0045","realName":"胡子英","$$hashKey":"object:960"},{"userName":"1013","realName":"杜斌","$$hashKey":"object:961"},{"userName":"3027","realName":"赵旭","$$hashKey":"object:962"},{"userName":"5042","realName":"何炳林","$$hashKey":"object:963"},{"userName":"5089","realName":"张克莲","$$hashKey":"object:964"},{"userName":"5690","realName":"周陈","$$hashKey":"object:965"},{"userName":"0180","realName":"罗德奎","$$hashKey":"object:966"},{"userName":"2082","realName":"廖凤琼","$$hashKey":"object:967"},{"userName":"2079","realName":"侯拥军","$$hashKey":"object:968"},{"userName":"2059","realName":"任洪瑛","$$hashKey":"object:969"},{"userName":"0224","realName":"马荣碧","$$hashKey":"object:970"},{"userName":"2870","realName":"李长春","$$hashKey":"object:971"}],"dynamicFreeChoiceNextReviewerMode":"true"}]]></nutzfw:user-task-expansion>
+            </extensionElements>
+            <multiInstanceLoopCharacteristics isSequential="false">
+                <loopCardinality>1</loopCardinality>
+            </multiInstanceLoopCharacteristics>
+        </userTask>
+        <userTask id="hrAudit" name="人事审批" flowable:candidateGroups="superadmin" flowable:formKey="form.html">
+            <extensionElements>
+                <modeler:group-info-name-superadmin xmlns:modeler="http://flowable.org/modeler">
+                    <![CDATA[超级管理员]]></modeler:group-info-name-superadmin>
+                <modeler:activiti-idm-candidate-group xmlns:modeler="http://flowable.org/modeler">
+                    <![CDATA[true]]></modeler:activiti-idm-candidate-group>
+                <modeler:initiator-can-complete xmlns:modeler="http://flowable.org/modeler">
+                    <![CDATA[false]]></modeler:initiator-can-complete>
+                <nutzfw:user-task-expansion xmlns:nutzfw="http://flowable.org/modeler">
+                    <![CDATA[{"callBackType":"PREVIOUS_STEP","callBackNodes":"modifyApply","callBackNodesDesc":"调整申请","addMultiInstance":"true","addMultiInstanceUserType":"USERS","addMultiInstanceValues":"admin","addMultiInstanceValuesDesc":"超级管理员啊","agreeButtonName":"同意","refuseButtonName":"拒绝","replyOpinion":"true","handwritingSignature":"false","taskReviewerScope":"USER_ROLE_GROUPS","formDataDynamicAssignment":"formData.hrText=flowTask.comment;","candidateUsers":[],"candidateGroups":[{"roleCode":"hr","roleName":"人事部","$$hashKey":"object:738"}],"assignTaskReviewerMode":"false","assignee":"","nextReviewerCandidateUsers":[{"userName":"1079","realName":"谢晓林","$$hashKey":"object:742"},{"userName":"0084","realName":"张永先","$$hashKey":"object:743"},{"userName":"5075","realName":"杜秀华","$$hashKey":"object:744"},{"userName":"2092","realName":"廖周虎","$$hashKey":"object:745"},{"userName":"5720","realName":"杨丽清","$$hashKey":"object:746"},{"userName":"0165","realName":"蒲军","$$hashKey":"object:747"},{"userName":"2850","realName":"冯睿章","$$hashKey":"object:748"},{"userName":"1013","realName":"杜斌","$$hashKey":"object:749"},{"userName":"5057","realName":"陈思奇","$$hashKey":"object:750"},{"userName":"4160","realName":"张凌凤","$$hashKey":"object:751"},{"userName":"0180","realName":"罗德奎","$$hashKey":"object:752"},{"userName":"0104","realName":"苟菊龙","$$hashKey":"object:753"},{"userName":"2079","realName":"侯拥军","$$hashKey":"object:754"},{"userName":"0056","realName":"李淑芳","$$hashKey":"object:755"},{"userName":"2801","realName":"刘敏","$$hashKey":"object:756"}],"dynamicFreeChoiceNextReviewerMode":"true"}]]></nutzfw:user-task-expansion>
+            </extensionElements>
+        </userTask>
+        <userTask id="modifyApply" name="调整申请" flowable:formKey="form.html">
+            <extensionElements>
+                <nutzfw:user-task-expansion xmlns:nutzfw="http://flowable.org/modeler">
+                    <![CDATA[{"callBackType":"NONE","callBackNodes":"","callBackNodesDesc":"","addMultiInstance":"false","addMultiInstanceUserType":"USERS","addMultiInstanceValues":"","addMultiInstanceValuesDesc":"","agreeButtonName":"重新发起","refuseButtonName":"结束流程","replyOpinion":"false","handwritingSignature":"false","taskReviewerScope":"FLOW_SUBMITTER","formDataDynamicAssignment":"","candidateUsers":[],"candidateGroups":[],"assignee":""}]]></nutzfw:user-task-expansion>
+            </extensionElements>
+        </userTask>
+        <exclusiveGateway id="sid-619936F9-E7B8-4550-BEF3-58D99C2B3C9F"></exclusiveGateway>
+        <sequenceFlow id="sid-7BD2E5C2-5084-4B18-942F-96E1F20399E7" sourceRef="deptLeaderAudit"
+                      targetRef="sid-619936F9-E7B8-4550-BEF3-58D99C2B3C9F"></sequenceFlow>
+        <sequenceFlow id="sid-CB60463A-59A1-4507-928A-48EAB63B6D64" name="同意"
+                      sourceRef="sid-619936F9-E7B8-4550-BEF3-58D99C2B3C9F" targetRef="hrAudit">
+            <conditionExpression xsi:type="tFormalExpression"><![CDATA[${auditPass}]]></conditionExpression>
+        </sequenceFlow>
+        <sequenceFlow id="sid-30377AA8-2BB9-4E00-8D7C-0085FF84D12B" name="不同意"
+                      sourceRef="sid-619936F9-E7B8-4550-BEF3-58D99C2B3C9F" targetRef="modifyApply">
+            <conditionExpression xsi:type="tFormalExpression"><![CDATA[${!auditPass}]]></conditionExpression>
+        </sequenceFlow>
+        <exclusiveGateway id="sid-442F0737-2336-4199-9DD5-2B738F203374"></exclusiveGateway>
+        <sequenceFlow id="sid-CF59B953-FAE9-49EA-B1FA-055625CF6CA6" sourceRef="modifyApply"
+                      targetRef="sid-442F0737-2336-4199-9DD5-2B738F203374"></sequenceFlow>
+        <sequenceFlow id="sid-FC57E08F-EB64-4287-8449-FB2941C88B5A" name="结束流程"
+                      sourceRef="sid-442F0737-2336-4199-9DD5-2B738F203374"
+                      targetRef="sid-F7F97A0D-166B-4A51-B9C4-317E50ACD975">
+            <conditionExpression xsi:type="tFormalExpression"><![CDATA[${!auditPass}]]></conditionExpression>
+        </sequenceFlow>
+        <sequenceFlow id="sid-4713F816-A377-4F61-8062-82B768411F5D" name="重新申报"
+                      sourceRef="sid-442F0737-2336-4199-9DD5-2B738F203374" targetRef="deptLeaderAudit">
+            <conditionExpression xsi:type="tFormalExpression"><![CDATA[${auditPass}]]></conditionExpression>
+        </sequenceFlow>
+        <exclusiveGateway id="sid-91DE1F48-21EC-4584-9D97-B96713E87055"></exclusiveGateway>
+        <serviceTask id="sid-F7F97A0D-166B-4A51-B9C4-317E50ACD975" name="自动化任务"
+                     flowable:class="com.nutzfw.modules.business.leave.delegate.AutomatedTaskJavaDelegate">
+            <documentation>可以推送、发邮件、发通知、数据入库、等等一系列自动化任务</documentation>
+        </serviceTask>
+        <sequenceFlow id="sid-04259F75-8513-479C-A3AE-0AAA202CEC2C" name="同意"
+                      sourceRef="sid-91DE1F48-21EC-4584-9D97-B96713E87055"
+                      targetRef="sid-F7F97A0D-166B-4A51-B9C4-317E50ACD975">
+            <conditionExpression xsi:type="tFormalExpression"><![CDATA[${auditPass}]]></conditionExpression>
+        </sequenceFlow>
+        <sequenceFlow id="sid-7E185139-4402-4A2C-B740-83BFE0E63B3A" sourceRef="sid-F7F97A0D-166B-4A51-B9C4-317E50ACD975"
+                      targetRef="sid-42F3D64C-A30C-4468-A799-A975AFDEAE59"></sequenceFlow>
+        <userTask id="generalMmanager" name="总经理审核" flowable:formKey="form.html">
+            <documentation>总经理审核</documentation>
+            <extensionElements>
+                <nutzfw:user-task-expansion xmlns:nutzfw="http://flowable.org/modeler">
+                    <![CDATA[{"replyOpinion":"true","handwritingSignature":"true","callBackType":"NONE","callBackNodes":"","callBackNodesDesc":"","addMultiInstance":false,"delMultiInstance":false,"delMultiInstanceExecutionIsCompleted":false,"agreeButtonName":"同意","refuseButtonName":"拒绝","formDataDynamicAssignment":"formData.generalMmanagerText=flowTask.comment;","assignee":"","candidateUsers":[],"candidateGroups":[],"dynamicFreeChoiceNextReviewerMode":false,"nextReviewerCandidateUsers":[]}]]></nutzfw:user-task-expansion>
+            </extensionElements>
+        </userTask>
+        <sequenceFlow id="sid-A967DD21-BED6-4F9F-808D-925C55728C8E" sourceRef="generalMmanager"
+                      targetRef="sid-91DE1F48-21EC-4584-9D97-B96713E87055"></sequenceFlow>
+        <sequenceFlow id="sid-ABD2A5E3-7F78-4250-BEED-951B6C9AAA61" name="不同意"
+                      sourceRef="sid-91DE1F48-21EC-4584-9D97-B96713E87055" targetRef="modifyApply">
+            <conditionExpression xsi:type="tFormalExpression"><![CDATA[${!auditPass}]]></conditionExpression>
+        </sequenceFlow>
+        <sequenceFlow id="sid-559C6BF2-FD95-48E2-A302-3A3D255924A6" sourceRef="startevent1"
+                      targetRef="deptLeaderAudit"></sequenceFlow>
+        <sequenceFlow id="sid-8E80A61F-19C4-4699-9CA9-DF4847F5330D" sourceRef="hrAudit"
+                      targetRef="generalMmanager"></sequenceFlow>
+    </process>
+    <bpmndi:BPMNDiagram id="BPMNDiagram_chuguo">
+        <bpmndi:BPMNPlane bpmnElement="chuguo" id="BPMNPlane_chuguo">
+            <bpmndi:BPMNShape bpmnElement="startevent1" id="BPMNShape_startevent1">
+                <omgdc:Bounds height="30.0" width="30.0" x="75.0" y="70.0"></omgdc:Bounds>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="sid-42F3D64C-A30C-4468-A799-A975AFDEAE59"
+                              id="BPMNShape_sid-42F3D64C-A30C-4468-A799-A975AFDEAE59">
+                <omgdc:Bounds height="28.0" width="28.0" x="1095.0" y="386.0"></omgdc:Bounds>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="deptLeaderAudit" id="BPMNShape_deptLeaderAudit">
+                <omgdc:Bounds height="80.0" width="100.0" x="195.0" y="45.0"></omgdc:Bounds>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="hrAudit" id="BPMNShape_hrAudit">
+                <omgdc:Bounds height="80.0" width="100.0" x="510.0" y="45.0"></omgdc:Bounds>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="modifyApply" id="BPMNShape_modifyApply">
+                <omgdc:Bounds height="80.0" width="100.0" x="345.0" y="210.0"></omgdc:Bounds>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="sid-619936F9-E7B8-4550-BEF3-58D99C2B3C9F"
+                              id="BPMNShape_sid-619936F9-E7B8-4550-BEF3-58D99C2B3C9F">
+                <omgdc:Bounds height="40.0" width="40.0" x="375.0" y="65.0"></omgdc:Bounds>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="sid-442F0737-2336-4199-9DD5-2B738F203374"
+                              id="BPMNShape_sid-442F0737-2336-4199-9DD5-2B738F203374">
+                <omgdc:Bounds height="40.0" width="40.0" x="375.0" y="375.0"></omgdc:Bounds>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="sid-91DE1F48-21EC-4584-9D97-B96713E87055"
+                              id="BPMNShape_sid-91DE1F48-21EC-4584-9D97-B96713E87055">
+                <omgdc:Bounds height="40.0" width="40.0" x="900.0" y="65.0"></omgdc:Bounds>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="sid-F7F97A0D-166B-4A51-B9C4-317E50ACD975"
+                              id="BPMNShape_sid-F7F97A0D-166B-4A51-B9C4-317E50ACD975">
+                <omgdc:Bounds height="80.0" width="100.0" x="870.0" y="360.0"></omgdc:Bounds>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="generalMmanager" id="BPMNShape_generalMmanager">
+                <omgdc:Bounds height="80.0" width="100.0" x="690.0" y="45.0"></omgdc:Bounds>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNEdge bpmnElement="sid-FC57E08F-EB64-4287-8449-FB2941C88B5A"
+                             id="BPMNEdge_sid-FC57E08F-EB64-4287-8449-FB2941C88B5A">
+                <omgdi:waypoint x="414.75994623655885" y="395.1882075471698"></omgdi:waypoint>
+                <omgdi:waypoint x="869.9999999999934" y="399.52380952380946"></omgdi:waypoint>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="sid-A967DD21-BED6-4F9F-808D-925C55728C8E"
+                             id="BPMNEdge_sid-A967DD21-BED6-4F9F-808D-925C55728C8E">
+                <omgdi:waypoint x="789.9499999999999" y="85.0"></omgdi:waypoint>
+                <omgdi:waypoint x="900.0" y="85.0"></omgdi:waypoint>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="sid-ABD2A5E3-7F78-4250-BEED-951B6C9AAA61"
+                             id="BPMNEdge_sid-ABD2A5E3-7F78-4250-BEED-951B6C9AAA61">
+                <omgdi:waypoint x="911.5384615384615" y="96.50961538461537"></omgdi:waypoint>
+                <omgdi:waypoint x="799.0" y="250.0"></omgdi:waypoint>
+                <omgdi:waypoint x="444.95000000000005" y="250.0"></omgdi:waypoint>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="sid-8E80A61F-19C4-4699-9CA9-DF4847F5330D"
+                             id="BPMNEdge_sid-8E80A61F-19C4-4699-9CA9-DF4847F5330D">
+                <omgdi:waypoint x="609.95" y="85.0"></omgdi:waypoint>
+                <omgdi:waypoint x="690.0" y="85.0"></omgdi:waypoint>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="sid-7BD2E5C2-5084-4B18-942F-96E1F20399E7"
+                             id="BPMNEdge_sid-7BD2E5C2-5084-4B18-942F-96E1F20399E7">
+                <omgdi:waypoint x="294.9499999999723" y="85.0"></omgdi:waypoint>
+                <omgdi:waypoint x="375.0" y="85.0"></omgdi:waypoint>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="sid-559C6BF2-FD95-48E2-A302-3A3D255924A6"
+                             id="BPMNEdge_sid-559C6BF2-FD95-48E2-A302-3A3D255924A6">
+                <omgdi:waypoint x="104.94999923927439" y="85.0"></omgdi:waypoint>
+                <omgdi:waypoint x="195.0" y="85.0"></omgdi:waypoint>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="sid-30377AA8-2BB9-4E00-8D7C-0085FF84D12B"
+                             id="BPMNEdge_sid-30377AA8-2BB9-4E00-8D7C-0085FF84D12B">
+                <omgdi:waypoint x="395.0" y="104.94395820714718"></omgdi:waypoint>
+                <omgdi:waypoint x="395.0" y="210.0"></omgdi:waypoint>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="sid-04259F75-8513-479C-A3AE-0AAA202CEC2C"
+                             id="BPMNEdge_sid-04259F75-8513-479C-A3AE-0AAA202CEC2C">
+                <omgdi:waypoint x="920.0" y="104.94683433830528"></omgdi:waypoint>
+                <omgdi:waypoint x="920.0" y="360.0"></omgdi:waypoint>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="sid-7E185139-4402-4A2C-B740-83BFE0E63B3A"
+                             id="BPMNEdge_sid-7E185139-4402-4A2C-B740-83BFE0E63B3A">
+                <omgdi:waypoint x="969.9499999999999" y="400.0"></omgdi:waypoint>
+                <omgdi:waypoint x="1095.0" y="400.0"></omgdi:waypoint>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="sid-CF59B953-FAE9-49EA-B1FA-055625CF6CA6"
+                             id="BPMNEdge_sid-CF59B953-FAE9-49EA-B1FA-055625CF6CA6">
+                <omgdi:waypoint x="395.0" y="289.95000000000005"></omgdi:waypoint>
+                <omgdi:waypoint x="395.0" y="375.0"></omgdi:waypoint>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="sid-4713F816-A377-4F61-8062-82B768411F5D"
+                             id="BPMNEdge_sid-4713F816-A377-4F61-8062-82B768411F5D">
+                <omgdi:waypoint x="375.0" y="395.0"></omgdi:waypoint>
+                <omgdi:waypoint x="245.0" y="395.0"></omgdi:waypoint>
+                <omgdi:waypoint x="245.0" y="124.95"></omgdi:waypoint>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="sid-CB60463A-59A1-4507-928A-48EAB63B6D64"
+                             id="BPMNEdge_sid-CB60463A-59A1-4507-928A-48EAB63B6D64">
+                <omgdi:waypoint x="414.9439582071351" y="85.0"></omgdi:waypoint>
+                <omgdi:waypoint x="510.0" y="85.0"></omgdi:waypoint>
+            </bpmndi:BPMNEdge>
+        </bpmndi:BPMNPlane>
+    </bpmndi:BPMNDiagram>
+</definitions>

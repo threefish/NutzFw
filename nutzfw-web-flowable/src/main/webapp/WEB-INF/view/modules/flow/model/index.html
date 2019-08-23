@@ -1,0 +1,416 @@
+<%
+var title="流程定义";
+layout("/layouts/blank.html",{title:title}){
+%>
+<style type="text/css">
+    body {
+        height: 100%;
+    }
+
+    .b-content {
+        height: 100%;
+        overflow: hidden;
+        background: #fff;
+    }
+
+    .b-left {
+        width: 230px;
+        float: left;
+        height: 100%;
+        overflow-y: auto;
+    }
+
+    .b-right {
+        width: calc(100% - 235px);
+        float: left;
+        margin-left: 5px;
+    }
+
+    .b-ztree-box {
+        height: 100%;
+        overflow: auto;
+    }
+
+</style>
+<div class="b-content">
+    <div class="b-left">
+        <div class="b-ztree-box">
+            <section id="container">
+                <div id="model" style="display: none;padding: 5px">
+                    <div class="form-group">
+                        <label>分类</label>
+                        <div class="input-group" style="width: 100%;">
+                            <input type="text" class="form-control input-sm" v-model="fromData.categoryName" disabled>
+                            <div class="input-group-addon" @click="choseModelFlowType">
+                                <i class="fa fa-edit"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>名称</label>
+                        <input type="text" v-model="fromData.name" :disabled="!fromDataEdit" class="form-control"
+                               placeholder="名称必填" maxlength="50">
+                    </div>
+                    <div class="form-group">
+                        <label>key</label>
+                        <input type="text" v-model="fromData.key" :disabled="!fromDataEdit" class="form-control"
+                               placeholder="key" maxlength="50">
+                    </div>
+                    <div class="form-group">
+                        <label>描述</label>
+                        <textarea v-model="fromData.description" :disabled="!fromDataEdit" class="form-control"
+                                  placeholder="描述" style="resize: none"></textarea>
+                    </div>
+                </div>
+                <div id="flowType" style="display: none;padding: 5px">
+                    <div class="form-group">
+                        <label>上级</label>
+                        <div class="input-group" style="width: 100%;">
+                            <input type="text" class="form-control input-sm" v-model="flowTypeData.pName" disabled>
+                            <div class="input-group-addon" @click="choseParentType">
+                                <i class="fa fa-edit"></i>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="form-group">
+                        <label>名称</label>
+                        <input type="text" v-model="flowTypeData.name" :disabled="!fromDataEdit" class="form-control"
+                               placeholder="名称必填" maxlength="50">
+                    </div>
+                </div>
+                <div style="margin: 5px">
+                    <button class="layui-btn layui-btn-xs" @click="handleEditFlowType('添加')">添加</button>
+                    <button class="layui-btn layui-btn-xs" @click="handleEditFlowType('编辑')"
+                            :class="{'layui-btn-disabled': canDelFlowType()}">编辑
+                    </button>
+                    <button class="layui-btn layui-btn-xs" @click="handleDelFlowType"
+                            :class="{'layui-btn-disabled': canDelFlowType()}">删除
+                    </button>
+                </div>
+            </section>
+            <div class="ztree" id="flowTypeTree"></div>
+        </div>
+    </div>
+    <div class="b-right">
+        <div style="background: #ffffff">
+            <div id="listTable" lay-filter='listTable'></div>
+        </div>
+    </div>
+</div>
+
+<script type="text/html" id="toolBarFixed">
+    <a class="layui-btn layui-btn-xs layui-btn-danger" lay-event="edit">编辑</a>
+    <a class="layui-btn layui-btn-xs layui-btn-danger" lay-event="changeType">调整分类</a>
+    <a class="layui-btn layui-btn-xs layui-btn-danger" lay-event="deployment">部署</a>
+    <a class="layui-btn layui-btn-xs layui-btn-danger" lay-event="export">导出</a>
+    <a class="layui-btn layui-btn-xs layui-btn-danger" lay-event="del">删除</a>
+</script>
+<script type="text/html" id="topToolbar">
+    <div class="btn toptoolbar layui-btn-primary layui-btn-sm" lay-event="handleAddModel">添加流程模型</div>
+    <div class="btn toptoolbar layui-btn-primary layui-btn-sm" lay-event="handleImportModel">导入流程模型</div>
+</script>
+<script type="text/javascript">
+    var listTable, treeDone = false, flowTypeTree, vm = new Vue({
+        el: '#container',
+        data: {
+            fromData: {
+                categoryId: "default",
+                categoryName: "未分类",
+                name: "",
+                key: "",
+                description: "",
+            },
+            flowTypeData: {
+                id: '',
+                pid: '',
+                pName: '',
+                name: '',
+            },
+            categoryId: "default",
+            fromDataEdit: true,
+        },
+        methods: {
+            canDelFlowType: function () {
+                return this.categoryId == '0' || this.categoryId == 'default';
+            }, choseModelFlowType: function () {
+                core.showMenusSimpleTree({
+                    title: "修改上级",
+                    url: "/FlowType/tree",
+                    isCheckbox: false,
+                    data: {id: "id", pid: "pid", name: "name"},
+                    onOk: function (data) {
+                        vm.fromData.categoryName = data.name;
+                        vm.fromData.categoryId = data.id;
+                        return true;
+                    }
+                });
+            },
+            choseParentType: function () {
+                core.showMenusSimpleTree({
+                    title: "修改上级",
+                    url: "/FlowType/tree",
+                    isCheckbox: false,
+                    data: {id: "id", pid: "pid", name: "name"},
+                    onOk: function (data) {
+                        vm.flowTypeData.pName = data.name;
+                        vm.flowTypeData.pid = data.id;
+                        return true;
+                    }
+                });
+            },
+            handleChangeType: function (data) {
+                core.showMenusSimpleTree({
+                    title: "调整流程分类[部署后生效]",
+                    url: "/FlowType/tree",
+                    isCheckbox: false,
+                    data: {id: "id", pid: "pid", name: "name"},
+                    selectId: data.category,
+                    onOk: function (node) {
+                        console.log(node)
+                        core.postSyncJSON("/flowable/category/edit", {
+                            modelId: data.id,
+                            categoryId: node.id
+                        }, function (res) {
+                            core.msg(res);
+                            if (res.ok) {
+                                vm.handleSearchTable();
+                            }
+                        });
+                        return true;
+                    }
+                });
+            },
+            handleDelFlowType: function () {
+                var node = flowTypeTree.getSelected();
+                core.confirm("确定删除[" + node.name + "]吗？", function () {
+                    var data = core.postJSON("/FlowType/del", {id: node.id});
+                    core.msg(data);
+                    if (data.ok) {
+                        if (node.getParentNode()) {
+                            vm.categoryId = node.getParentNode().id;
+                        }
+                        flowTypeTree.reload(vm.categoryId);
+                    }
+                });
+            },
+            handleEditFlowType: function (type) {
+                var node = flowTypeTree.getSelected();
+                if (type == '编辑') {
+                    this.flowTypeData.id = node.id;
+                    this.flowTypeData.pid = node.pid;
+                    this.flowTypeData.name = node.name;
+                    if (node.getParentNode()) {
+                        this.flowTypeData.pName = node.getParentNode().name;
+                    }
+                } else {
+                    this.flowTypeData.pName = node.name;
+                    this.flowTypeData.pid = node.id;
+                    this.flowTypeData.name = "";
+                }
+                layer.open({
+                    title: type + "分类",
+                    type: 1,
+                    area: ['400px', '300px'],
+                    content: $('#flowType'),
+                    btn: ["确定", "取消"],
+                    yes: function (index) {
+                        var data = core.postJSON("/FlowType/save", vm.flowTypeData);
+                        core.msg(data);
+                        if (data.ok) {
+                            layer.close(index);
+                            if (node.getParentNode()) {
+                                vm.categoryId = node.getParentNode().id;
+                            }
+                            flowTypeTree.reload(vm.categoryId);
+                        }
+                    }
+                });
+            },
+            handleAddModel: function () {
+                layer.open({
+                    title: "添加模型",
+                    type: 1,
+                    area: ['400px', '430px'],
+                    content: $('#model'),
+                    btn: ["确定", "取消"],
+                    yes: function (index) {
+                        var data = core.postJSON("/flowable/addModel", vm.fromData);
+                        core.msg(data);
+                        if (data.ok) {
+                            layer.close(index);
+                            vm.handleSearchTable();
+                        }
+                    }
+                });
+            },
+
+            handleImportModel: function () {
+                core.singleUpload({
+                    url: "/flowable/import",
+                    fileExtensions: "xml",
+                    module: "flowModel",
+                    fileType: "file",
+                    formData: {categoryId: vm.categoryId},
+                    auto: true,
+                    ok: function () {
+                        vm.handleSearchTable();
+                        return true;
+                    }
+                });
+            },
+            handleEdit: function (data) {
+                //使用parent.layer.open调用可以全屏
+                var loadIndex = layer.load(3);
+                layer.open({
+                    type: 2,
+                    shadeClose: false,
+                    title: false,
+                    shade: 0.3,
+                    area: ["100%", "100%"], // 宽高
+                    content: base + "/flowable/design#/editor/" + data.id,
+                    closeBtn: 0,
+                    success: function () {
+                        layer.close(loadIndex);
+                    },
+                    end: function () {
+                        vm.handleSearchTable();
+                    }
+                });
+            },
+            handleExport: function (data) {
+                window.open("${base}/flowable/export/" + data.id);
+            },
+            handleDel: function (data) {
+                core.confirm("将级联删除流程部署、流程实例、流程图等资源，删除后无法恢复!<br>确定删除?", function () {
+                    var jsonre = core.postJSON("/flowable/delete", {modelId: data.id});
+                    core.msg(jsonre);
+                    if (jsonre.ok) {
+                        listTable.reload();
+                    }
+                })
+            },
+            handleDeployment: function (data) {
+                core.confirm("开始部署流程?", function () {
+                    core.postSyncJSON("/flowable/deploy", {modelId: data.id}, function (jsonre) {
+                        core.msg(jsonre);
+                        if (jsonre.ok) {
+                            listTable.reload();
+                        }
+                    });
+                })
+            },
+            handleSearchTable: function () {
+                listTable.reload({
+                    where: {
+                        categoryId: vm.categoryId
+                    },
+                    page: {curr: 1}
+                });
+            },
+            ztreeInit: function () {
+                flowTypeTree = new showZtree({
+                    el: "#flowTypeTree",
+                    url: "/FlowType/tree",
+                    data: {id: "id", name: "name"},
+                    otherParam: {},
+                    selectId: vm.categoryId,
+                    onSelect: function (node) {
+                        vm.categoryId = node.id;
+                        vm.fromData.categoryId = node.id;
+                        vm.fromData.categoryName = node.name;
+                        vm.flowTypeData.pid = node.id;
+                        vm.flowTypeData.pName = node.name;
+                        if (node.id == "0") {
+                            $(".toptoolbar").addClass("layui-btn-disabled");
+                        } else {
+                            $(".toptoolbar").removeClass("layui-btn-disabled");
+                            vm.handleSearchTable();
+                        }
+                    }
+                })
+            },
+            layuiInit: function () {
+                layui.use(['table', 'element', 'laytpl',], function () {
+                    var table = layui.table;
+                    listTable = table.render({
+                        id: 'listTable',
+                        elem: '#listTable',
+                        page: true,
+                        method: 'post',
+                        url: base + '/flowable/listPage',
+                        height: 'full-50',
+                        toolbar: '#topToolbar',
+                        defaultToolbar: ['filter'],
+                        even: false,
+                        limit: 50,
+                        where: {
+                            categoryId: vm.categoryId
+                        },
+                        cols: [[
+                            {title: '序号', type: 'numbers', width: 50},
+                            {field: 'id', title: '模型编号'},
+                            {field: 'name', title: '模型名称'},
+                            {field: 'key', title: '模型代码'},
+                            {field: 'version', title: '模型版本'},
+                            {field: 'createTime', title: '创建时间'},
+                            {field: 'lastUpdateTime', title: '更新时间'},
+                            {field: 'deploymentId', title: '部署编号'},
+                            {
+                                field: 'deploymentId', title: '部署状态', templet: function (d) {
+                                    if (d.deploymentId == undefined || d.deploymentId == "") {
+                                        return "未部署"
+                                    } else {
+                                        return "<span style='color: #00B83F'>已部署</span>"
+                                    }
+                                }
+                            },
+                            {title: '操作', align: 'center', width: 280, fixed: 'right', toolbar: '#toolBarFixed'},
+                        ]],
+                        done: function () {
+                            if (treeDone == false) {
+                                vm.ztreeInit();
+                                treeDone = true;
+                            }
+                        }
+                    });
+                    table.on("tool(listTable)", function (obj) {
+                        var data = obj.data, layEvent = obj.event;
+                        if (layEvent == "edit") {
+                            vm.handleEdit(data);
+                        }
+                        if (layEvent == "deployment") {
+                            vm.handleDeployment(data);
+                        }
+                        if (layEvent == "changeType") {
+                            vm.handleChangeType(data);
+                        }
+                        if (layEvent == "del") {
+                            vm.handleDel(data);
+                        }
+                        if (layEvent == "export") {
+                            vm.handleExport(data);
+                        }
+                    });
+                    table.on("toolbar(listTable)", function (obj) {
+                        var layEvent = obj.event;
+                        if (layEvent == "handleAddModel") {
+                            vm.handleAddModel();
+                        }
+                        if (layEvent == "handleImportModel") {
+                            vm.handleImportModel();
+                        }
+                    });
+                });
+            }
+        },
+        created: function () {
+            this.layuiInit();
+        },
+        updated: function () {
+        },
+        mounted: function () {
+        }
+    });
+</script>
+<%}%>

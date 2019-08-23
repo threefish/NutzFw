@@ -1,0 +1,429 @@
+<%
+layout("/layouts/blank.html",{title:data.title}){
+%>
+<!--[if lt IE 9]>
+<script src="${base}/static/plugins/jsignature/flashcanvas.js?_=${productVersion}"></script>
+<![endif]-->
+<script src="${base}/static/plugins/jsignature/jSignature.min.js?_=${productVersion}"></script>
+<script src="${base}/static/plugins/jsignature/jSignature.min.noconflict.js?_=${productVersion}"></script>
+<style>
+    .form-horizontal {
+        padding: 5px;
+    }
+
+    .footer-btns {
+        padding: 10px;
+        text-align: center;
+        background: #fff;
+        border-top: 1px #f1eded solid;
+    }
+
+    .box-main {
+        height: 535px;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .audit-control {
+        background: #ffffff;
+    }
+
+    .row {
+        margin-right: 0px;
+        margin-left: 0px;
+    }
+
+    .comment-box {
+        padding: 5px;
+        border-top: 1px #e4e0e0 solid;
+    }
+
+    .signature {
+        margin: 5px;
+        position: absolute;
+        bottom: 50px;
+        width: calc(100% - 10px);
+    }
+
+    .signature.open {
+        background: #ffffff;
+        border: 2px #cdcdcd dashed;
+        margin: 5px;
+        z-index: 99999999;
+        position: absolute;
+    }
+
+    #informationTab {
+        overflow-y: auto;
+    }
+</style>
+<div class="main-content">
+    <ul class="nav nav-tabs" role="tablist" style="margin-top: 5px">
+        <li class="active" role="presentation"><a data-toggle="tab" href="#formTab" role="tab">${data.title}</a></li>
+        <%if(Strings.isNotBlank(data.flow.businessId)){%>
+        <li role="presentation"><a data-toggle="tab" href="#informationTab" role="tab">流转信息</a></li>
+        <%}%>
+        <li role="presentation"><a data-toggle="tab" href="#diagramTab" role="tab">流程图</a></li>
+    </ul>
+    <div class="tab-content">
+        <div class="tab-pane active" id="formTab" role="tabpanel">
+            <div class="box-main" id='formBoxMain'>
+                <%include(data.formPage){}%>
+            </div>
+        </div>
+        <%if(Strings.isNotBlank(data.flow.businessId)){%>
+        <div class="tab-pane" id="informationTab" role="tabpanel">
+            <iframe allowtransparency-y="yes" border="0" frameborder="no" height="400px" id="histoicFlowList"
+                    marginheight="0" marginwidth="0"
+                    scrolling-x="no" scrolling-y="auto" width="100%"></iframe>
+        </div>
+        <%}%>
+        <div class="tab-pane" id="diagramTab" role="tabpanel" style="overflow: auto">
+            <img src="${base}/flow/process/resource/read?procDefId=${data.flow.procDefId}&resType=image"
+                 style="margin: 0 auto;display: block;max-width: 100%" width="90%">
+        </div>
+    </div>
+    <div id="container">
+        <footer class="navbar-fixed-bottom audit-control">
+            <%if(data.status=='AUDIT'){%>
+            <div class="row comment-box" v-if="extensionProperty.replyOpinion">
+                <label class="control-label col-sm-12">
+                    批复意见：
+                </label>
+                <div class="col-sm-12">
+                    <textarea class="form-control required" rows="3" style="resize: none"
+                              v-model="flow.comment"></textarea>
+                </div>
+            </div>
+            <%}%>
+            <div class="footer-btns">
+                <%if(data.status=='EDIT'){%>
+                <div :disabled="fromDataSubmit" @click="handleSave(true)"
+                     class="btn btn-sm btn-primary">
+                    <i class="fa fa-check"></i>发起任务
+                </div>
+                <%}else if(data.status=='AUDIT'){%>
+                <div :disabled="fromDataSubmit" @click="handleSave(true)"
+                     class="btn btn-sm btn-primary">
+                    <i class="fa fa-check"></i>{{extensionProperty.agreeButtonName}}
+                </div>
+                <div :disabled="fromDataSubmit" @click="handleSave(false)" class="btn btn-sm btn-danger">
+                    <i class="fa fa-times"></i>{{extensionProperty.refuseButtonName}}
+                </div>
+                <div :disabled="fromDataSubmit" @click="handleBackToStep"
+                     class="btn btn-sm btn-warning"
+                     v-if="extensionProperty.callBackType!=='NONE'">
+                    <i class="fa fa-undo"></i>
+                    <span v-if="extensionProperty.callBackType!=='PREVIOUS_STEP'">自由回退</span>
+                    <span v-if="extensionProperty.callBackType=='PREVIOUS_STEP'">驳回</span>
+                </div>
+                <div :disabled="fromDataSubmit" @click="handleAddMultiInstance"
+                     class="btn btn-sm btn-warning"
+                     v-if="extensionProperty.multiInstanceNode && extensionProperty.addMultiInstance">
+                    <i class="fa fa-exchange"></i>加签
+                </div>
+                <%}%>
+                <button :disabled="fromDataSubmit" @click="handleWritingSignature" class="btn btn-sm btn-warning"
+                        type="button" v-if="extensionProperty.handwritingSignature">
+                    <i class="fa fa-edit"></i>
+                    <span v-if="flow.handWritingSignatureData==''">手写签字</span>
+                    <span v-if="flow.handWritingSignatureData!==''">查看签字</span>
+                </button>
+                <button @click="handleClose" class="btn btn-sm btn-default" type="button">
+                    <i class="fa fa-close"></i>关闭页面
+                </button>
+            </div>
+        </footer>
+        <div>
+            <div id="callBackNodes" style="display: none;padding: 8px">
+                <select class="form-control" v-model="flow.backToTaskDefKey">
+                    <option value="">请选择</option>
+                    <option :value="item" v-for="(item,i) in extensionProperty.callBackNodes.split(',')"
+                            v-text="extensionProperty.callBackNodesDesc.split(',')[i]"></option>
+                </select>
+            </div>
+        </div>
+        <!-- 签字区域-->
+        <div class="signature" id="signature"></div>
+        <div class="navbar-fixed-bottom" id="signatureBtn" style="display: none">
+            <div class="footer-btns">
+                <div @click="handleWritingSignatureOk" class="btn btn-sm btn-primary">确定</div>
+                <div @click="handleWritingSignatureReset" class="btn btn-sm btn-primary">重写</div>
+                <div @click="handleWritingSignatureChange" class="btn btn-sm btn-primary">取消</div>
+            </div>
+        </div>
+    </div>
+</div>
+<%}%>
+<script>
+    var signature, vm = new Vue({
+        el: '#container',
+        data: {
+            flow: {
+                taskId: '${data.flow.taskId}',
+                taskName: '${data.flow.taskName}',
+                taskDefKey: '${data.flow.taskDefKey}',
+                procInsId: '${data.flow.procInsId}',
+                procDefId: '${data.flow.procDefId}',
+                procDefKey: '${data.flow.procDefKey}',
+                businessId: '${data.flow.businessId}',
+                comment: '${data.flow.comment}',
+                delegateStatus: '${data.flow.delegateStatus}',
+                backToTaskDefKey: '',
+                addMultiInstanceAssignee: '',
+                flowNextReviewerAssignee: '',
+                handWritingSignatureData: '',
+                pass: true,
+            },
+            extensionProperty: {
+                callBackType: "NONE",
+                callBackNodes: "",
+                callBackNodesDesc: "",
+                multiInstanceNode: false,
+                addMultiInstance: false,
+                delMultiInstance: false,
+                delMultiInstanceExecutionIsCompleted: false,
+                handwritingSignature: false,
+                replyOpinion: false,
+                agreeButtonName: "同意",
+                refuseButtonName: "拒绝",
+                dynamicFreeChoiceNextReviewerMode: false,
+            },
+            fromDataSubmit: false,
+            initLoad: false,
+            boxMainHeight: 535,
+            status: '${data.status}',
+            signatureInit: false,
+        },
+        methods: {
+            handleClose: function () {
+                parent.layer.closeAll();
+            },
+            handleDoSaveAudit: function () {
+                var status = form.handleSaveAuditBefor == undefined || form.handleSaveAuditBefor();
+                if (status) {
+                    this.fromDataSubmit = true;
+                    $.post("${base}/general/flow/process/saveAudit", {
+                        form: form.formData,
+                        flow: this.flow
+                    }, function (data) {
+                        core.msg(data);
+                        if (data.ok) {
+                            setTimeout(function () {
+                                window.parent.layer.closeAll()
+                            }, 1000);
+                        } else {
+                            vm.fromDataSubmit = false;
+                        }
+                    }, "JSON");
+                } else {
+                    console.info("校验失败！")
+                }
+            },
+            handleWritingSignature: function () {
+                if (this.signatureInit) {
+                    signature.show();
+                } else {
+                    signature = $("#signature").jSignature();
+                    signature.addClass("open");
+                    this.signatureInit = true;
+                }
+                $("#signatureBtn").show();
+            },
+            handleWritingSignatureChange: function () {
+                signature.hide();
+                $("#signatureBtn").hide();
+            },
+            handleWritingSignatureReset: function () {
+                signature.jSignature('reset');
+            },
+            handleWritingSignatureOk: function () {
+                this.handleWritingSignatureChange();
+                this.flow.handWritingSignatureData = signature.jSignature("getData");
+            },
+            handleChoiceNextReviewerUser: function () {
+                var post = {form: form.formData, flow: this.flow};
+                core.postSyncJSON("/general/flow/process/getNextNode", post, function (data) {
+                    if (data.ok) {
+                        var opt = {
+                            option: {
+                                url: "/general/flow/process/choiceNextReviewerUser",
+                                method: "post",
+                                param: {
+                                    flow: vm.flow,
+                                    nextNodeId: data.data
+                                },
+                                key: "query",
+                                checkbox: false,
+                                openSearch: false,
+                                selectPrimaryKey: "userName",
+                                selectPrimaryValues: "",
+                                cols: [
+                                    {field: 'realName', title: '姓名'},
+                                    {field: 'userName', title: '用户名'},
+                                    {field: 'deptName', title: '部门'},
+                                ],
+                            },
+                            title: "请选择下一步流程办理人",
+                            width: "600px",
+                            height: "600px",
+                            onOk: function (selectData) {
+                                if (selectData.length == 0) {
+                                    core.warn("请选择下一步流程办理人")
+                                    return false;
+                                }
+                                vm.flow.flowNextReviewerAssignee = selectData[0].userName;
+                                vm.handleDoSaveAudit();
+                                return true;
+                            },
+                        }
+                        core.showChoseTableData(opt);
+                    } else {
+                        //下一步不是用户节点，忽略[选择下一步审核人]的操作，直接完成任务
+                        this.handleDoSaveAudit();
+                    }
+                });
+            },
+            handleSave: function (pass) {
+                core.confirmAndTitle("确认提交并完成流程任务吗？", "流程提示", function () {
+                    vm.flow.pass = pass;
+                    if (vm.fromDataSubmit == false) {
+                        if (vm.extensionProperty.dynamicFreeChoiceNextReviewerMode && vm.flow.delegateStatus == '') {
+                            vm.handleChoiceNextReviewerUser();
+                        } else {
+                            vm.handleDoSaveAudit();
+                        }
+                    } else {
+                        core.msg("数据正在提交，请稍候...")
+                    }
+                });
+            },
+            handleBackToStep: function () {
+                core.confirmAndTitle("确认回退吗？", "流程提示", function () {
+                    if (vm.extensionProperty.callBackType == 'FREE_STEP') {
+                        layer.open({
+                            type: 1,
+                            title: "请选择回退节点",
+                            area: ['300px', '150px'],
+                            content: $("#callBackNodes"),
+                            btn: ['确定', '取消'],
+                            btn1: function (index) {
+                                vm.handleDoBackToStep();
+                                layer.close(index);
+                            },
+                            success: function (layero) {
+                                layer.setTop(layero);
+                            }
+                        });
+                    } else {
+                        vm.handleDoBackToStep()
+                    }
+                });
+            },
+            handleDoBackToStep: function () {
+                if (this.fromDataSubmit == false) {
+                    var status = form.handleBackToStepBefor == undefined || form.handleBackToStepBefor();
+                    if (status) {
+                        this.fromDataSubmit = true;
+                        $.post("${base}/general/flow/process/backToStep", {
+                            form: form.formData,
+                            flow: this.flow,
+                        }, function (data) {
+                            core.msg(data);
+                            if (data.ok) {
+                                setTimeout(function () {
+                                    window.parent.layer.closeAll()
+                                }, 1000);
+                            } else {
+                                vm.fromDataSubmit = false;
+                            }
+                        }, "JSON");
+                    } else {
+                        console.info("校验失败！")
+                    }
+                } else {
+                    core.msg("数据正在提交，请稍候...")
+                }
+            },
+            handleAddMultiInstance: function () {
+                core.confirmAndTitle("确认加签吗？", "流程提示", function () {
+                    if (vm.fromDataSubmit == false) {
+                        var status = form.handleAddMultiInstanceBefor == undefined || form.handleAddMultiInstanceBefor();
+                        if (status) {
+                            core.showSelectUsers({
+                                option: {
+                                    multipleSelection: false,
+                                },
+                                onOk: function (users) {
+                                    if (users.length == 0) {
+                                        core.warn("请选择人员")
+                                        return false;
+                                    }
+                                    vm.fromDataSubmit = true;
+                                    vm.flow.addMultiInstanceAssignee = users[0].userName;
+                                    $.post("${base}/general/flow/process/addMultiInstance", {
+                                        form: form.formData,
+                                        flow: vm.flow,
+                                    }, function (data) {
+                                        core.msg(data);
+                                        if (data.ok) {
+                                            setTimeout(function () {
+                                                window.parent.layer.closeAll()
+                                            }, 1000);
+                                        } else {
+                                            vm.fromDataSubmit = false;
+                                        }
+                                    }, "JSON");
+                                    return true;
+                                }
+                            });
+                        } else {
+                            console.info("校验失败！")
+                        }
+                    } else {
+                        core.msg("数据正在提交，请稍候...")
+                    }
+                });
+            },
+            handleInit: function () {
+                $.post("${base}/general/flow/process/loadFormData", {flow: this.flow}, function (data) {
+                    if (data.ok) {
+                        form.formData = data.data;
+                    }
+                });
+                $.post("${base}/flowTask/getUserTaskExtension", {
+                    taskDefKey: this.flow.taskDefKey,
+                    procDefId: this.flow.procDefId
+                }, function (data) {
+                    vm.extensionProperty = data;
+                    if (!vm.extensionProperty.replyOpinion || vm.status == 'EDIT') {
+                        //不允许填写意见
+                        vm.boxMainHeight = vm.boxMainHeight + 108;
+                    }
+                    if (vm.status == 'VIEW') {
+                        $("#histoicFlowList").css({height: (vm.boxMainHeight - 40) + 'px'});
+                    } else {
+                        $("#histoicFlowList").css({height: vm.boxMainHeight + 'px'});
+                    }
+                    $("#formBoxMain").css({height: vm.boxMainHeight + 'px'});
+                    $("#diagram").css({height: vm.boxMainHeight + 'px'});
+                });
+                if (this.flow.businessId != "") {
+                    var url = "${base}/flowTask/histoicFlow?procInsId=${data.flow.procInsId}&startAct=&endAct=&t=" + new Date().getTime();
+                    $("#histoicFlowList").attr("src", url);
+                }
+                if (form.handleInitAfter != undefined) {
+                    form.handleInitAfter();
+                }
+            },
+        },
+        created: function () {
+            this.initLoad = true;
+        },
+        mounted: function () {
+            this.handleInit();
+        }
+    })
+</script>
+
+

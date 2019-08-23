@@ -1,0 +1,94 @@
+<%
+var title="已办";
+layout("/layouts/blank.html",{title:title}){
+%>
+<style type="text/css">
+    .dataTbleBox {
+        background: #ffffff;
+        margin: 15px 0px;
+        padding: 15px;
+    }
+</style>
+<section class="content" id="container">
+    <div style="background: #ffffff">
+        <div id="listTable" lay-filter='listTable'></div>
+    </div>
+</section>
+<script type="text/html" id="toolBarFixed">
+    <a class="layui-btn layui-btn-xs layui-btn-danger" lay-event="view">详情查看</a>
+    <a class="layui-btn layui-btn-xs layui-btn-danger" lay-event="diagram">跟踪</a>
+</script>
+<script type="text/javascript">
+    var listTable, vm = new Vue({
+        el: '#container',
+        data: {},
+        methods: {
+            handleView: function (data) {
+                parent.core.openUrl('/general/flow/process/form?flow.procInsId=' + data.procInsId + '&flow.procDefId=' + data.procDefId+'&flow.status=FINISH', "查看【"+data.taskTitle+"】", "80%", "80%");
+            },
+            handleDiagramViewer: function (data) {
+                if (data.processFinished) {
+                    parent.core.openUrl("/flowTask/diagramViewer?definitionId=" + data.procDefId + "&hisInsId=" + data.procInsId, "流程图查看", "80%", "80%");
+                } else {
+                    parent.core.openUrl("/flowTask/diagramViewer?definitionId=" + data.procDefId + "&instanceId=" + data.procInsId, "流程图查看", "80%", "80%");
+                }
+            },
+            handleSearchTable: function () {
+                listTable.reload();
+            },
+            layuiInit: function () {
+                layui.use(['table', 'element', 'laytpl',], function () {
+                    var table = layui.table;
+                    listTable = table.render({
+                        id: 'listTable',
+                        elem: '#listTable',
+                        page: true,
+                        method: 'post',
+                        url: base + '/flowTask/hasSentData',
+                        height: 'full-50',
+                        even: false,
+                        limit: 50,
+                        cols: [[
+                            {title: '序号', type: 'numbers', width: 50},
+                            {field: 'categoryName', title: '流程分类'},
+                            {field: 'taskTitle', title: '标题', width: 350},
+                            {field: 'procDefKey', title: '流程标识'},
+                            {field: 'procDefname', title: '流程名称'},
+                            {
+                                field: 'procDefversion', title: '流程版本', templet: function (d) {
+                                    return 'V:' + d.procDefversion;
+                                }
+                            },
+                            {
+                                field: 'processFinished', title: '流程状态', templet: function (d) {
+                                    return d.processFinished ? "<span style='color: #0080ff'>已结束</span>" : "<span>未结束</span>";
+                                }
+                            },
+                            {field: 'createTime', title: '开始时间'},
+                            {title: '操作', align: 'center', width: 250, fixed: 'right', toolbar: '#toolBarFixed'},
+                        ]],
+                    });
+                    table.on("tool(listTable)", function (obj) {
+                        var data = obj.data, layEvent = obj.event;
+                        switch (layEvent) {
+                            case "view":
+                                vm.handleView(data);
+                                break;
+                            case "diagram":
+                                vm.handleDiagramViewer(data);
+                                break;
+                        }
+                    });
+                });
+            }
+        },
+        created: function () {
+            this.layuiInit();
+        },
+        updated: function () {
+        },
+        mounted: function () {
+        }
+    });
+</script>
+<%}%>

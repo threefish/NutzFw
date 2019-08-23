@@ -1,0 +1,192 @@
+<%
+layout("/layouts/blank.html",{title:"流程历史"}){
+%>
+<style>
+
+    .flow-history-box > .header.endEvent {
+        background: #f1ad66;
+    }
+
+    .flow-history-box {
+        margin: 5px;
+        border: 1px #c3c3c3 solid;
+        border-radius: 2px;
+    }
+
+    .flow-history-box .header {
+        height: 30px;
+        line-height: 30px;
+        background: #f3efef;
+        padding: 0 5px;
+        border-bottom: 1px #c3c3c3 solid;
+    }
+
+    .flow-history-box .name {
+        float: left;
+        color: #2196F3;
+        font-weight: bold;
+        font-size: 14px;
+    }
+
+    .flow-history-box .status {
+        float: right;
+        font-size: 12px;
+        margin-left: 10px;
+        padding: 0px 8px;
+        color: #fff;
+        border-radius: 5px;
+        height: 20px;
+        line-height: 20px;
+        margin-top: 5px;
+    }
+
+    .flow-history-box .status.complete {
+        background: #acb7ac;
+    }
+
+    .flow-history-box .status.pending {
+        background: #f1a417;
+    }
+
+    .flow-history-box .time {
+        font-size: 12px;
+    }
+
+    ul, li {
+        list-style: none;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .comment-box {
+        margin: 5px;
+    }
+
+    .comment {
+        border: 1px #e8e8e8 dashed;
+        border-bottom: none;
+        padding: 5px;
+        font-size: 14px;
+    }
+
+    .comment .user-avatar {
+        width: 80px;
+        height: 80px;
+        float: left;
+    }
+
+    .user-avatar > img {
+        width: 80px;
+        height: 80px;
+        border-radius: 80px;
+        opacity: 1;
+        filter: alpha(opacity=100);
+    }
+
+    .comment .comment-content {
+        float: left;
+        width: calc(100% - 80px);
+        height: 60px;
+        overflow: auto;
+        padding: 5px;
+    }
+
+    .comment-bottom {
+        border-top: 1px #e8e8e8 dashed;
+    }
+
+    .comment .comment-user {
+        text-align: right;
+        font-size: 12px;
+    }
+
+    .history-content {
+        padding: 5px;
+    }
+
+    .btns {
+        float: right;
+    }
+
+    .btns > .layui-btn:hover {
+        opacity: 1;
+        filter: alpha(opacity=100);
+        background: #ffffff;
+    }
+
+    .signature-btn:hover > .signature {
+        display: block;
+        position: fixed;
+        width: 800px;
+        background: #ffffff;
+        left: calc(100% / 2 - 400px);
+        border: 1px #cdcdcd solid;
+        top: 40%;
+    }
+
+    .signature {
+        display: none;
+    }
+
+</style>
+<% for(his in data.histoicFlowList) { %>
+<div class="flow-history-box">
+    <div class="header ${his.activityType}">
+        <div class="name">${hisLP.size-hisLP.index+1}.&nbsp;${his.activityName}</div>
+        <%if(his.endTime==null){ %>
+        <div class="status pending">办理中</div>
+        <% }else{ %>
+        <div class="status complete">已完成</div>
+        <%}%>
+    </div>
+    <div class="history-content">
+        <div class="time">
+            ${his.activityType!='endEvent'?"办理人:"}
+            ${his.assigneeName}&nbsp;&nbsp;&nbsp;&nbsp;开始时间：${his.startTime!,
+            dateFormat='yyyy-MM-dd HH:mm:ss'}
+            <%if(his.endTime!=null){ %>
+            &nbsp;&nbsp;&nbsp;&nbsp;结束时间：${his.endTime!,dateFormat='yyyy-MM-dd HH:mm:ss'}
+            <%}%>
+            <%if(Strings.isNotBlank(his.timeConsuming)){ %>
+            &nbsp;&nbsp;&nbsp;&nbsp;任务历时：${his.timeConsuming!}
+            <%}%>
+        </div>
+        <% if(his.flowComments!=null) { %>
+        <div class="comment-box">
+            <ul>
+                <% for(comment in his.flowComments!) { %>
+                <li class="comment clearfix">
+                    <div class="clearfix">
+                        <div class="user-avatar">
+                            <img src="${base}/File/avatar?userName=${comment.userId}">
+                        </div>
+                        <div class="comment-content">${comment.fullMessage}</div>
+                        <div class="btns">
+                        <span class="comment-user">
+                            ${comment.userDesc}&nbsp;&nbsp;&nbsp;&nbsp;
+                            ${comment.time!,dateFormat='yyyy-MM-dd HH:mm:ss'}
+                        </span>
+                            <%if(comment.handWritingSignatureAttachment!=null){%>
+                            <div class="layui-btn layui-btn-primary layui-btn-xs signature-btn">查看签字
+                                <div class="signature">
+                                    <img src="${comment.handWritingSignatureAttachment.content!}" width="100%">
+                                </div>
+                            </div>
+                            <%}%>
+                            <%if(comment.flowAttachments.~size>0){%>
+                            <div class="layui-btn layui-btn-primary layui-btn-xs">查看附件</div>
+                            <%}%>
+                        </div>
+
+                    </div>
+                </li>
+                <%}%>
+                <li class="comment-bottom"></li>
+            </ul>
+        </div>
+        <%}%>
+    </div>
+</div>
+<%}%>
+<%}%>

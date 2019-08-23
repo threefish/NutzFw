@@ -1,0 +1,353 @@
+<style>
+    * {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .form-group {
+        margin-bottom: 5px;
+    }
+
+    .ng-nav-title {
+        height: 35px;
+    }
+
+    .ng-nav-lable {
+        font-size: 14px;
+        min-width: 80px;
+        width: 25%;
+        display: block;
+        float: left;
+        height: 35px;
+        line-height: 35px;
+        text-align: center;
+        border: 1px #e0e0e0 solid;
+        margin-right: 5px;
+        padding: 0px 5px;
+        margin-right: -1px;
+    }
+
+    .ng-nav-lable.active, .ng-nav-lable:active {
+        background: #2196F3;
+        border: 1px #2196F3 solid;
+        color: #fff;
+        font-weight: bold;
+    }
+
+    .modal-content {
+        width: 900px;
+    }
+
+    @media (min-width: 768px) {
+        .modal-dialog {
+            width: 900px;
+            margin: 30px auto;
+        }
+    }
+
+    .col-xs-2, .col-xs-10, .col-xs-12 {
+        padding: 0px;
+    }
+
+    .user-block {
+        width: 25%;
+        float: left;
+        height: 30px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    .red {
+        color: red;
+    }
+</style>
+<div class="modal" ng-controller="FlowableExpansionPopupCtrl">
+    <div class="modal-dialog" data-backdrop="static" data-keyboard="false">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button aria-hidden="true" class="close" data-dismiss="modal" ng-click="close()" type="button">&times;
+                </button>
+                <h3> NutzFw扩展步骤属性-{{title}}-({{selectedShape.resourceId}})</h3>
+            </div>
+            <div class="modal-body">
+                <div class="detail-group clearfix">
+                    <div>
+                        <ul class="ng-nav-title" ng-init='activeTab=1'>
+                            <li class="ng-nav-lable" ng-class='{active:activeTab==1}' ng-click='activeTab=1'>
+                                当前步骤设置</li>
+                            <li class="ng-nav-lable" ng-class='{active:activeTab==2}' ng-click='activeTab=2'>回退设置</li>
+                            <li class="ng-nav-lable" ng-class='{active:activeTab==3}' ng-click='activeTab=3'
+                                ng-show="multiInstanceNode">
+                                多实例节点加签、减签
+                            </li>
+                            <li class="ng-nav-lable" ng-class='{active:activeTab==4}' ng-click='activeTab=4'
+                                ng-show="!multiInstanceNode">
+                                常规用户节点加签
+                            </li>
+                            <li class="ng-nav-lable" ng-class='{active:activeTab==5}' ng-click='activeTab=5'
+                                ng-show="!multiInstanceNode">
+                                <span class="red">下一步骤</span>审核人员设置
+                            </li>
+                        </ul>
+                        <div class="ng-nav-con clearfix">
+                            <div ng-show="activeTab==5 && !multiInstanceNode">
+                                <div class="form-group clearfix">
+                                    <div class="form-group">
+                                        <label class="ng-binding">自由选择下一步审核人(下一步流程要确保能通过流程条件正确跳转至用户任务节点)</label>
+                                        <select class="form-control ng-pristine ng-untouched ng-valid"
+                                                ng-model="expansionProperties.dynamicFreeChoiceNextReviewerMode">
+                                            <option value="false">关闭</option>
+                                            <option value="true">开启</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div ng-show='activeTab==1'>
+                                <div class="form-group clearfix">
+                                    <div class="form-group">
+                                        <label class="ng-binding">是否允许批复意见</label>
+                                        <select class="form-control ng-pristine ng-untouched ng-valid"
+                                                ng-model="expansionProperties.replyOpinion">
+                                            <option value="true">允许</option>
+                                            <option value="false">不允许</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group clearfix">
+                                    <div class="form-group">
+                                        <label class="ng-binding">是否允许手写签字</label>
+                                        <select class="form-control ng-pristine ng-untouched ng-valid"
+                                                ng-model="expansionProperties.handwritingSignature">
+                                            <option value="true">允许</option>
+                                            <option value="false">不允许</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group clearfix">
+                                    <div class="form-group">
+                                        <label class="ng-binding">同意按钮文字显示</label>
+                                        <input class="form-control ng-pristine ng-untouched ng-valid"
+                                               ng-model="expansionProperties.agreeButtonName"
+                                               placeholder="同意"
+                                               type="text">
+                                    </div>
+                                </div>
+                                <div class="form-group clearfix">
+                                    <div class="form-group">
+                                        <label class="ng-binding">拒绝按钮文字显示</label>
+                                        <input class="form-control ng-pristine ng-untouched ng-valid"
+                                               ng-model="expansionProperties.refuseButtonName"
+                                               placeholder="拒绝"
+                                               type="text">
+                                    </div>
+                                </div>
+                                <div class="form-group clearfix">
+                                    <div class="form-group">
+                                        <label class="ng-binding">表单数据在执行数据库更新前进行动态赋值&nbsp;&nbsp;(<i
+                                                style="color: #f1a417">function(formData,flowTask){ 输入的脚本内容 return
+                                            formData; }</i>)</label>
+                                        <textarea class="form-control ng-pristine ng-untouched ng-valid"
+                                                  ng-model="expansionProperties.formDataDynamicAssignment"
+                                                  placeholder="javaScript动态脚本" spellcheck="false"
+                                                  style="width: 100%;height:100px;resize: none;font-size: 12px;overflow: scroll"
+                                        ></textarea>
+                                    </div>
+                                </div>
+                                <div class="form-group clearfix">
+                                    <div class="form-group">
+                                        <label class="ng-binding">指定<span class="red">当前步骤</span>任务审核人范围</label>
+                                        <select class="form-control ng-pristine ng-untouched ng-valid"
+                                                ng-model="expansionProperties.taskReviewerScope">
+                                            <!-- 部门主管只能是当前部门人员 -->
+                                            <option value="">请选择-（不选无法保存）</option>
+                                            <option value="DEPARTMENT_HEAD">分配给-部门主管领导<i>(如果自己就是部门主管领导则分配给再上级部门主管办理)</i>
+                                            </option>
+                                            <option value="DEPARTMENT_LEADER">
+                                                分配给-部门分管领导<i>(如果自己就是部门分管领导则分配给部门主管领导办理)</i></option>
+                                            <option value="USER_ROLE_GROUPS">候选用户角色组</option>
+                                            <option value="FLOW_SUBMITTER">分配给-流程发起人</option>
+                                            <option value="SINGLE_USER">分配给指定用户</option>
+                                            <option value="MULTIPLE_USERS">多个候选用户</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group clearfix"
+                                         ng-show="expansionProperties.taskReviewerScope=='SINGLE_USER'">
+                                        <div class="form-group">
+                                            <label class="ng-binding">分配给指定用户</label>
+                                            <input class="form-control ng-pristine ng-untouched ng-valid"
+                                                   ng-model="expansionProperties.assignee"
+                                                   placeholder="分配给指定用户"
+                                                   type="text">
+                                        </div>
+                                    </div>
+                                    <div class="form-group clearfix"
+                                         ng-show="expansionProperties.taskReviewerScope=='USER_ROLE_GROUPS'">
+                                        <div class="form-group">
+                                            <label class="ng-binding">候选用户角色组</label>
+                                            <div class="inline-people-select">
+                                                <ul class="simple-list clearfix">
+                                                    <li class="user-block"
+                                                        ng-repeat="role in expansionProperties.candidateGroups">
+                                                        <i class="icon icon-user"></i>
+                                                        <span>{{role.roleName}}({{role.roleCode}})</span>
+                                                        <div class="actions">
+                                                            <a ng-click="removeCandidateGroups(role)">
+                                                                <i class="icon icon-remove"></i>
+                                                            </a>
+                                                        </div>
+                                                    </li>
+                                                </ul>
+                                                <div class="no-results"
+                                                     ng-if="expansionProperties.candidateUsers.length==0">
+                                                    没有选择候选人...
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <input auto-focus class="form-control ng-pristine ng-untouched ng-valid"
+                                               custom-keys delay="200" delayed-model="popup.roleFilter"
+                                               placeholder="模糊搜索" type="text"/>
+                                        <label class="ng-binding">候选用户角色组列表</label>
+                                        <div class="inline-people-select">
+                                            <ul class="simple-list">
+                                                <li ng-click="confirmRole(role)"
+                                                    ng-repeat="role in popup.userRoleResults">
+                                                    <div>{{role.roleName}}({{role.roleCode}})</div>
+                                                </li>
+                                            </ul>
+                                            <div class="nothing-to-see" ng-show="popup.userRoleResults.length == 0">
+                                                没有匹配的数据
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group clearfix"
+                                         ng-show="expansionProperties.taskReviewerScope=='MULTIPLE_USERS'">
+                                        <div class="form-group">
+                                            <label class="ng-binding">候选用户</label>
+                                            <div class="inline-people-select">
+                                                <ul class="simple-list clearfix">
+                                                    <li class="user-block"
+                                                        ng-repeat="user in expansionProperties.candidateUsers">
+                                                        <i class="icon icon-user"></i>
+                                                        <span>{{user.realName}}({{user.userName}})</span>
+                                                        <div class="actions">
+                                                            <a ng-click="removeCandidateUser(user)">
+                                                                <i class="icon icon-remove"></i>
+                                                            </a>
+                                                        </div>
+                                                    </li>
+                                                </ul>
+                                                <div class="no-results"
+                                                     ng-if="expansionProperties.candidateUsers.length==0">
+                                                    没有选择候选人...
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group"
+                                     ng-show="expansionProperties.taskReviewerScope=='MULTIPLE_USERS'||expansionProperties.taskReviewerScope=='SINGLE_USER'">
+                                    <input auto-focus class="form-control ng-pristine ng-untouched ng-valid"
+                                           custom-keys delay="200" delayed-model="popup.filter"
+                                           placeholder="模糊搜索" type="text"/>
+                                    <label class="ng-binding">候选用户列表</label>
+                                    <div class="inline-people-select">
+                                        <ul class="simple-list">
+                                            <li ng-click="confirmUser(user)"
+                                                ng-repeat="user in popup.userResults">
+                                                <div>{{user.userName}}---{{user.realName}}</div>
+                                            </li>
+                                        </ul>
+                                        <div class="nothing-to-see" ng-show="popup.userResults.length == 0">
+                                            没有匹配的数据
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div ng-show='activeTab==2'>
+                                <div class="form-group clearfix">
+                                    <div class="form-group">
+                                        <label class="ng-binding">回退类型</label>
+                                        <select class="form-control ng-pristine ng-untouched ng-valid"
+                                                ng-change="updateCallBackTypeSelection()"
+                                                ng-model="expansionProperties.callBackType">
+                                            <option value="NONE">不允许回退</option>
+                                            <option value="PREVIOUS_STEP">回退至指定节点(驳回)</option>
+                                            <option value="FREE_STEP">自由选择回退节点</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group" ng-show="expansionProperties.callBackType=='FREE_STEP'">
+                                        <div>
+                                            <label class="ng-binding">回退节点</label>
+                                        </div>
+                                        <span ng-repeat="item in callBackNodes">
+                                            &nbsp;&nbsp;&nbsp;
+                                            <input id="{{item.id}}_check" ng-checked="item.checked"
+                                                   ng-click="updateSelectionCheckbox($event,item.id)" type="checkbox">
+                                            <label for="{{item.id}}_check">{{item.name}}</label>
+                                             &nbsp;&nbsp;&nbsp;
+                                        </span>
+                                    </div>
+                                    <div class="form-group" ng-show="expansionProperties.callBackType=='PREVIOUS_STEP'">
+                                        <div>
+                                            <label class="ng-binding">回退节点</label>
+                                        </div>
+                                        <span ng-repeat="item in callBackNodes">
+                                            &nbsp;&nbsp;&nbsp;
+                                            <input id="{{item.id}}_radio" ng-checked="item.checked"
+                                                   ng-click="updateSelectionRadio($event,item.id)" type="radio">
+                                            <label for="{{item.id}}_radio">{{item.name}}</label>
+                                             &nbsp;&nbsp;&nbsp;
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div ng-show='activeTab==3'>
+                                <div class="form-group clearfix">
+                                    <div class="form-group">
+                                        <label class="ng-binding">加签</label>
+                                        <select class="form-control ng-pristine ng-untouched ng-valid"
+                                                ng-model="expansionProperties.addMultiInstance">
+                                            <option value="false">不允许</option>
+                                            <option value="true">允许</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group clearfix">
+                                    <div class="form-group">
+                                        <label class="ng-binding">减签(开发中，列出已经签收未办理人员减去)</label>
+                                        <select class="form-control ng-pristine ng-untouched ng-valid"
+                                                ng-model="expansionProperties.delMultiInstance">
+                                            <option value="false">不允许</option>
+                                            <option value="true">允许</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group clearfix" ng-show="expansionProperties.delMultiInstance=='true'">
+                                    <div class="form-group">
+                                        <label class="ng-binding">减签后触发父实例完成判断</label>
+                                        <select class="form-control ng-pristine ng-untouched ng-valid"
+                                                ng-model="expansionProperties.delMultiInstanceExecutionIsCompleted">
+                                            <option value="false">否</option>
+                                            <option value="true">是</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div ng-show='activeTab==4'>
+                                中国式流程-常规节点加签
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" ng-click="close()" translate>ACTION.CANCEL</button>
+                <button class="btn btn-primary" ng-click="save()" translate>ACTION.SAVE</button>
+            </div>
+        </div>
+    </div>
+</div>
