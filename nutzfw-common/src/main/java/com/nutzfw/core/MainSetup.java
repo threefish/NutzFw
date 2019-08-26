@@ -3,7 +3,6 @@ package com.nutzfw.core;
 import com.github.threefish.nutz.sqltpl.BeetlSqlTemplteEngineImpl;
 import com.nutzfw.core.common.cons.Cons;
 import com.nutzfw.core.common.entity.BaseEntity;
-import com.nutzfw.core.common.license.LicenseConfig;
 import com.nutzfw.core.mvc.PreventDuplicateSubmitProcessor;
 import com.nutzfw.core.plugin.beetl.GenMySqlFieldTypeFn;
 import com.nutzfw.core.plugin.init.AbstractInitSetup;
@@ -63,12 +62,12 @@ import java.util.*;
  */
 public class MainSetup extends AbstractInitSetup implements Setup {
 
-    static final String PACKAGE = "com.nutzfw";
+    private static final String          PACKAGE    = "com.nutzfw";
     /**
      * 子模块初始化启动器
      */
-    List<InitSetup> initSetups = new ArrayList<>();
-    private Log log = Logs.get();
+    private              List<InitSetup> initSetups = new ArrayList<>();
+    private              Log             log        = Logs.get();
 
     @Override
     public void init(NutConfig nutConfig) {
@@ -371,7 +370,6 @@ public class MainSetup extends AbstractInitSetup implements Setup {
      * @param ioc
      */
     private void setUpLicense(Ioc ioc) {
-        ioc.get(LicenseConfig.class);
     }
 
     /**
