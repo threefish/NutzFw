@@ -159,7 +159,6 @@ Nutz 社区支持 [https://nutz.cn](https://nutz.cn) 及 Nutz 使用手册 [http
 | 模块   |      描述      |  备注 |
 |:----------|:-------------|:------|
 | nutzfw-common|MVC核心||
-| nutzfw-license|客户产品授权包|软件提供商(开发者)对使用客户进行授权控制（机器、时间、同时在线数、并发等）。非开源（如有需要可私聊）|
 | nutzfw-web-admin|web核心包||
 | nutzfw-web-user-front|无需登录的用户前台|包含用户采用邮箱验证码注册|
 | nutzfw-web-flowable|工作流深度订制|  |
