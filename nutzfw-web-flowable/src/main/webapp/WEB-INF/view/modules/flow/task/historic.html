@@ -16,6 +16,7 @@ layout("/layouts/blank.html",{title:title}){
 </section>
 <script type="text/html" id="toolBarFixed">
     <a class="layui-btn layui-btn-xs layui-btn-danger" lay-event="view">详情查看</a>
+    <a class="layui-btn layui-btn-xs layui-btn-danger" lay-event="diagram">跟踪</a>
 </script>
 <script type="text/javascript">
     var listTable, vm = new Vue({
@@ -64,7 +65,7 @@ layout("/layouts/blank.html",{title:title}){
                             },
                             {field: 'createTime', title: '步骤开始时间'},
                             {field: 'endTime', title: '步骤完成时间'},
-                            {title: '操作', align: 'center', width: 250, fixed: 'right', toolbar: '#toolBarFixed'},
+                            {title: '操作', align: 'center', width: 180, fixed: 'right', toolbar: '#toolBarFixed'},
                         ]],
                     });
                     table.on("tool(listTable)", function (obj) {

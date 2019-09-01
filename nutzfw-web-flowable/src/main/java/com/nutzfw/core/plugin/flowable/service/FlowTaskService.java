@@ -8,6 +8,7 @@ import org.flowable.bpmn.model.UserTask;
 import org.flowable.engine.history.HistoricProcessInstance;
 import org.flowable.engine.runtime.ProcessInstance;
 import org.flowable.task.api.Task;
+import org.flowable.task.api.TaskInfo;
 import org.flowable.task.api.history.HistoricTaskInstance;
 
 import java.util.List;
@@ -109,16 +110,33 @@ public interface FlowTaskService {
      * 获取任务
      *
      * @param taskId 任务ID
+     * @return
      */
     Task getTask(String taskId);
 
     /**
      * 获取历史任务
      *
-     * @param procInsId 流程实例ID
+     * @param taskId 任务ID
+     * @return
      */
-    HistoricTaskInstance getHistoryTask(String procInsId);
+    HistoricTaskInstance getHistoryTask(String taskId);
 
+    /**
+     * 获取任务
+     *
+     * @param taskId 任务ID
+     * @return
+     */
+    TaskInfo getTaskOrHistoryTask(String taskId);
+
+
+    /**
+     * 获取历史任务
+     *
+     * @param procInsId 流程实例ID
+     * @return
+     */
     HistoricTaskInstance getHistoryTaskByProcessInstanceId(String procInsId);
 
     /**
@@ -137,11 +155,18 @@ public interface FlowTaskService {
      */
     void claim(String taskId, String userName);
 
+    /**
+     * 委托任务
+     *
+     * @param taskId
+     * @param userId
+     */
     void delegateTask(String taskId, String userId);
 
 
     /**
      * 转派
+     *
      * @param taskId
      * @param userId
      * @param reason
@@ -228,4 +253,5 @@ public interface FlowTaskService {
      * @throws Exception
      */
     UserTask previewNextNode(Map formData, FlowTaskVO flowTaskVO) throws Exception;
+
 }

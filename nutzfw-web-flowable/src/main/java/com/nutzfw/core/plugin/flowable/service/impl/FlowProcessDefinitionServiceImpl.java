@@ -9,6 +9,7 @@ import com.nutzfw.core.plugin.flowable.service.FlowProcessDefinitionService;
 import com.nutzfw.core.plugin.flowable.service.FlowTaskService;
 import com.nutzfw.core.plugin.flowable.util.FlowUtils;
 import com.nutzfw.core.plugin.flowable.vo.ProcessDefinitionEntitVO;
+import com.nutzfw.modules.flow.executor.ExternalFormExecutor;
 import com.nutzfw.modules.flow.service.FlowTypeService;
 import org.flowable.bpmn.model.Process;
 import org.flowable.bpmn.model.*;
@@ -22,6 +23,7 @@ import org.flowable.engine.repository.ProcessDefinition;
 import org.flowable.engine.repository.ProcessDefinitionQuery;
 import org.flowable.engine.runtime.ProcessInstance;
 import org.flowable.image.impl.DefaultProcessDiagramGenerator;
+import org.nutz.ioc.Ioc;
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.lang.Strings;
@@ -41,22 +43,19 @@ import java.util.concurrent.atomic.AtomicReference;
 public class FlowProcessDefinitionServiceImpl implements FlowProcessDefinitionService {
 
     @Inject
-    FlowTypeService flowTypeService;
-
+    FlowTypeService                  flowTypeService;
     @Inject
     NutzFwProcessEngineConfiguration nutzFwProcessEngineConfiguration;
-
     @Inject
-    FlowTaskService flowTaskService;
-
+    FlowTaskService                  flowTaskService;
     @Inject
-    FlowCacheService flowCacheService;
-
+    FlowCacheService                 flowCacheService;
     @Inject
-    RepositoryService repositoryService;
-
+    RepositoryService                repositoryService;
     @Inject
-    RuntimeService runtimeService;
+    RuntimeService                   runtimeService;
+    @Inject("refer:$ioc")
+    Ioc                              ioc;
 
     /**
      * 流程定义列表
@@ -139,7 +138,7 @@ public class FlowProcessDefinitionServiceImpl implements FlowProcessDefinitionSe
      * @return businessTable = ss[0];  businessId = ss[1];
      */
     @Override
-    public String getBusinessInfo(String procInsId) {
+    public String getBusinessKeyId(String procInsId) {
         ProcessInstance procIns = flowTaskService.getProcIns(procInsId);
         if (procIns != null) {
             return procIns.getBusinessKey();
@@ -201,6 +200,29 @@ public class FlowProcessDefinitionServiceImpl implements FlowProcessDefinitionSe
         });
         return externalFormExecutor.get();
     }
+
+    /**
+     * 获取外部表单执行器
+     *
+     * @param processDefId
+     * @return ExternalFormExecutor
+     */
+    @Override
+    public ExternalFormExecutor getExternalFormExecutor(String processDefId) {
+        ExternalFormExecutor executor;
+        try {
+            String externalFormExecutor = findExternalFormExecutor(processDefId);
+            if (externalFormExecutor.startsWith("$ioc:")) {
+                executor = ioc.get(ExternalFormExecutor.class, externalFormExecutor.substring(5));
+            } else {
+                throw new RuntimeException("表达式错误！");
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("获取外部表单执行器失败！", e);
+        }
+        return executor;
+    }
+
 
     /**
      * 获取指定节点的节点信息

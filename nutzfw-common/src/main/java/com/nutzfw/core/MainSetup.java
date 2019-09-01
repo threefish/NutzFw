@@ -62,12 +62,12 @@ import java.util.*;
  */
 public class MainSetup extends AbstractInitSetup implements Setup {
 
-    private static final String          PACKAGE    = "com.nutzfw";
+    static final String PACKAGE = "com.nutzfw";
     /**
      * 子模块初始化启动器
      */
-    private              List<InitSetup> initSetups = new ArrayList<>();
-    private              Log             log        = Logs.get();
+    List<InitSetup> initSetups = new ArrayList<>();
+    private Log log = Logs.get();
 
     @Override
     public void init(NutConfig nutConfig) {
@@ -111,8 +111,6 @@ public class MainSetup extends AbstractInitSetup implements Setup {
         this.initQuartzJobs(ioc, dao, conf);
         //设置表单防止重复提交
         this.setUpPreventDuplicateSubmit(ioc);
-        //注册授权证书
-        this.setUpLicense(ioc);
         initSetups.forEach(setup -> setup.init(nutConfig));
         //nutz-sqltpl 注册下自定义方法
         this.setUpBeetlSqlTemplateFunction(ioc);
@@ -364,13 +362,6 @@ public class MainSetup extends AbstractInitSetup implements Setup {
         beetlSqlTemplteEngine.getGt().registerFunction("genMysqlFieldType", new GenMySqlFieldTypeFn());
     }
 
-    /**
-     * 注册授权证书
-     *
-     * @param ioc
-     */
-    private void setUpLicense(Ioc ioc) {
-    }
 
     /**
      * 循环获取一次所有IocBean 避免单个服务创建失败，导致服务不可用，错误不好定位

@@ -18,6 +18,15 @@ import java.util.Set;
 @IocBean
 public class FrontInitSetup implements InitSetup {
 
+    @Override
+    public void init(NutConfig nutConfig) {
+
+    }
+
+    @Override
+    public void destroy(NutConfig nc) {
+
+    }
 
     @Override
     public void addAttachType(HashMap<String, String> attachType) {
@@ -36,16 +45,6 @@ public class FrontInitSetup implements InitSetup {
 
     @Override
     public void addTablesFilters(Set<Class<? extends BaseEntity>> tablesFilters) {
-
-    }
-
-    @Override
-    public void init(NutConfig nc) {
-
-    }
-
-    @Override
-    public void destroy(NutConfig nc) {
 
     }
 }

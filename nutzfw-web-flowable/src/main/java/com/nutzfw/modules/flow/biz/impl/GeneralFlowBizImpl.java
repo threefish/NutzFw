@@ -44,14 +44,11 @@ import java.util.stream.Collectors;
 public class GeneralFlowBizImpl implements GeneralFlowBiz {
 
     @Inject("refer:$ioc")
-    Ioc ioc;
-
+    Ioc                          ioc;
     @Inject
-    FlowTaskService flowTaskService;
-
+    FlowTaskService              flowTaskService;
     @Inject
-    FlowCacheService flowCacheService;
-
+    FlowCacheService             flowCacheService;
     @Inject
     FlowProcessDefinitionService flowProcessDefinitionService;
     @Inject
@@ -79,7 +76,10 @@ public class GeneralFlowBizImpl implements GeneralFlowBiz {
             flowTaskVO.setComment("[发起任务]");
             String title = flowTaskService.generateProcessTitle(flowTaskVO.getProcDefId(), formData, sessionUserAccount);
             variables.put(FlowConstant.PROCESS_TITLE, title);
-            String primaryKeyId = executor.start(formData, flowTaskVO, sessionUserAccount);
+            formData = executor.start(formData, flowTaskVO, sessionUserAccount);
+            //存储最新的formData
+            variables.put(FlowConstant.FORM_DATA, formData);
+            String primaryKeyId = formData.getOrDefault(FlowConstant.PRIMARY_KEY, "").toString();
             if (Strings.isBlank(primaryKeyId)) {
                 throw new RuntimeException("业务ID不能为空");
             }
@@ -213,18 +213,7 @@ public class GeneralFlowBizImpl implements GeneralFlowBiz {
     }
 
     private ExternalFormExecutor getExternalFormExecutor(String procDefId) {
-        ExternalFormExecutor executor;
-        try {
-            String externalFormExecutor = flowProcessDefinitionService.findExternalFormExecutor(procDefId);
-            if (externalFormExecutor.startsWith("$ioc:")) {
-                executor = ioc.get(ExternalFormExecutor.class, externalFormExecutor.substring(5));
-            } else {
-                throw new RuntimeException("表达式错误！");
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("获取外部表单执行器失败！", e);
-        }
-        return executor;
+        return flowProcessDefinitionService.getExternalFormExecutor(procDefId);
     }
 
     /**
@@ -235,11 +224,11 @@ public class GeneralFlowBizImpl implements GeneralFlowBiz {
      */
     private Map evalJavaScriptByModifyForm(Map formData, FlowTaskVO flowTaskVO, UserTaskExtensionDTO dto) {
         if (Strings.isNotBlank(dto.getFormDataDynamicAssignment())) {
-            StringBuffer jsCode = new StringBuffer("function modifyForm(formData,flowTask){ " + dto.getFormDataDynamicAssignment() + "  return formData; }");
+            StringBuffer jsCode = new StringBuffer("function modifyForm(formData,auditPass,flowTask){ " + dto.getFormDataDynamicAssignment() + "  return formData; }");
             try {
                 JsContex.get().compile(jsCode.toString());
                 JsContex.get().eval(jsCode.toString());
-                Object result = JsContex.get().invokeFunction("modifyForm", formData, flowTaskVO);
+                Object result = JsContex.get().invokeFunction("modifyForm", formData, flowTaskVO.isPass(), flowTaskVO);
                 formData = (Map) result;
             } catch (Exception e) {
                 log.error("解析动态JS错误", e);

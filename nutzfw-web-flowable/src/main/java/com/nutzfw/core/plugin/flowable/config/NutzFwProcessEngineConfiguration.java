@@ -2,6 +2,7 @@ package com.nutzfw.core.plugin.flowable.config;
 
 import com.nutzfw.core.plugin.flowable.config.listener.NutzFwProcessEngineLifecycleListener;
 import com.nutzfw.core.plugin.flowable.factory.CustomDefaultActivityBehaviorFactory;
+import com.nutzfw.core.plugin.flowable.interceptor.CustomCreateUserTaskInterceptor;
 import com.nutzfw.core.plugin.flowable.listener.ProxyFlowableEventListener;
 import com.nutzfw.core.plugin.flowable.listener.handle.TaskMessageNoticeHandle;
 import com.nutzfw.core.plugin.flowable.listener.handle.TastCreateSetCategoryHandle;
@@ -33,15 +34,17 @@ import java.util.List;
 public class NutzFwProcessEngineConfiguration extends StandaloneProcessEngineConfiguration {
 
     @Inject("refer:$ioc")
-    protected Ioc ioc;
+    Ioc                             ioc;
     @Inject
-    DataSource dataSource;
+    DataSource                      dataSource;
     @Inject
-    TastCreateSetCategoryHandle tastCreateSetCategoryHandle;
+    TastCreateSetCategoryHandle     tastCreateSetCategoryHandle;
     @Inject
-    TaskMessageNoticeHandle taskMessageNoticeHandle;
+    TaskMessageNoticeHandle         taskMessageNoticeHandle;
     @Inject
-    DepartmentLeaderService departmentLeaderService;
+    DepartmentLeaderService         departmentLeaderService;
+    @Inject
+    CustomCreateUserTaskInterceptor customCreateUserTaskInterceptor;
 
     /**
      * 变量与父类变量重名如果不覆盖 setDataSource 方法，注入 dataSource 时会导致当前类的dataSource为null
@@ -74,9 +77,9 @@ public class NutzFwProcessEngineConfiguration extends StandaloneProcessEngineCon
         this.setEventListeners(this.getGlobalFlowableEventListener());
         //自定义行为类工厂
         this.activityBehaviorFactory = new CustomDefaultActivityBehaviorFactory(departmentLeaderService, ioc);
+        this.setCreateUserTaskInterceptor(customCreateUserTaskInterceptor);
         return super.buildProcessEngine();
     }
-
 
     /**
      * 设置全局事件监听器

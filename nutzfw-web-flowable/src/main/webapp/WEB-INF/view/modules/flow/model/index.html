@@ -111,7 +111,7 @@ layout("/layouts/blank.html",{title:title}){
     <div class="btn toptoolbar layui-btn-primary layui-btn-sm" lay-event="handleImportModel">导入流程模型</div>
 </script>
 <script type="text/javascript">
-    var listTable, treeDone = false, flowTypeTree, vm = new Vue({
+    var listTable, treeDone = false, loadIndex, flowTypeTree, vm = new Vue({
         el: '#container',
         data: {
             fromData: {
@@ -167,7 +167,6 @@ layout("/layouts/blank.html",{title:title}){
                     data: {id: "id", pid: "pid", name: "name"},
                     selectId: data.category,
                     onOk: function (node) {
-                        console.log(node)
                         core.postSyncJSON("/flowable/category/edit", {
                             modelId: data.id,
                             categoryId: node.id
@@ -261,7 +260,7 @@ layout("/layouts/blank.html",{title:title}){
             },
             handleEdit: function (data) {
                 //使用parent.layer.open调用可以全屏
-                var loadIndex = layer.load(3);
+                loadIndex = layer.load(3);
                 layer.open({
                     type: 2,
                     shadeClose: false,
@@ -271,7 +270,7 @@ layout("/layouts/blank.html",{title:title}){
                     content: base + "/flowable/design#/editor/" + data.id,
                     closeBtn: 0,
                     success: function () {
-                        layer.close(loadIndex);
+
                     },
                     end: function () {
                         vm.handleSearchTable();

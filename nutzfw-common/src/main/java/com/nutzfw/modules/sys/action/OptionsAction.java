@@ -3,7 +3,6 @@ package com.nutzfw.modules.sys.action;
 import com.nutzfw.core.common.annotation.AutoCreateMenuAuth;
 import com.nutzfw.core.common.cons.Cons;
 import com.nutzfw.core.common.filter.CheckRoleAndSession;
-import com.nutzfw.core.common.license.LicenseConfig;
 import com.nutzfw.core.common.vo.AjaxResult;
 import com.nutzfw.core.plugin.view.BeetlViewMaker;
 import com.nutzfw.modules.sys.entity.Options;
@@ -26,8 +25,6 @@ import org.nutz.plugins.validation.Errors;
 public class OptionsAction {
 
 
-    @Inject
-    LicenseConfig licenseConfig;
     @Inject
     private OptionsService optionsService;
 
@@ -65,7 +62,6 @@ public class OptionsAction {
             optionsService.updateIgnoreNull(options);
             Cons.optionsCach = optionsService.fetch("0");
             BeetlViewMaker.updateBeetlGroupTemplate(Mvcs.getIoc());
-            licenseConfig.install();
             return AjaxResult.sucess(Cons.optionsCach, "修改成功");
         } catch (Exception e) {
             return AjaxResult.error(e.getMessage());

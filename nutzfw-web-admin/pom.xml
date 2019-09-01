@@ -24,18 +24,24 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
                 <configuration>
-                    <!--<overlays>-->
-                    <!--<overlay>-->
-                    <!--<groupId>com.nutzfw</groupId>-->
-                    <!--<artifactId>common-framework</artifactId>-->
-                    <!--</overlay>-->
-                    <!--</overlays>-->
+                    <overlays>
+                        <overlay>
+                            <!-- empty groupId/artifactId is detected as the current build -->
+                            <!-- 代表当前WAR项目，默认情况下当前WAR项目是先被拷贝的，如果要控制其顺序，则使用空的overlay -->
+                            <!-- any other overlay will be applied after the current build since they have not been configured in the overlays element -->
+                        </overlay>
+                    </overlays>
+                    <attachClasses>true</attachClasses>
+                    <dependentWarIncludes>WEB-INF/view/**</dependentWarIncludes>
                 </configuration>
             </plugin>
         </plugins>
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
+            </resource>
+            <resource>
+                <directory>../nutzfw-web-license/src/main/resources</directory>
             </resource>
             <resource>
                 <directory>src/main/java</directory>

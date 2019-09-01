@@ -2,6 +2,7 @@ package com.nutzfw.core.plugin.flowable.service;
 
 import com.nutzfw.core.common.vo.LayuiTableDataListVO;
 import com.nutzfw.core.plugin.flowable.dto.UserTaskExtensionDTO;
+import com.nutzfw.modules.flow.executor.ExternalFormExecutor;
 import org.flowable.bpmn.model.FlowElement;
 import org.flowable.bpmn.model.Process;
 import org.flowable.bpmn.model.UserTask;
@@ -43,17 +44,70 @@ public interface FlowProcessDefinitionService {
      */
     void deleteDeployment(String deploymentId);
 
-    String getBusinessInfo(String procInsId);
+    /**
+     * 取得业务表信息
+     *
+     * @param procInsId
+     * @return
+     */
+    String getBusinessKeyId(String procInsId);
 
+    /**
+     * 获取end节点
+     *
+     * @param processDefId
+     * @return FlowElement
+     */
     FlowElement findEndFlowElement(String processDefId);
 
+    /**
+     * 获取MainProcess
+     *
+     * @param processDefId
+     * @return FlowElement
+     */
     Process findMainProcess(String processDefId);
 
+    /**
+     * 获取外部表单执行器表达式
+     *
+     * @param processDefId
+     * @return FlowElement
+     */
     String findExternalFormExecutor(String processDefId);
 
+    /**
+     * 获取外部表单执行器
+     *
+     * @param processDefId
+     * @return ExternalFormExecutor
+     */
+    ExternalFormExecutor getExternalFormExecutor(String processDefId);
+
+    /**
+     * 获取指定节点的节点信息
+     *
+     * @param activityId          当前步骤ID
+     * @param processDefinitionId 流程定义ID
+     * @return
+     */
     FlowElement getFlowElementByActivityIdAndProcessDefinitionId(String activityId, String processDefinitionId);
 
+    /**
+     * 取得用户节点
+     *
+     * @param activityId
+     * @param processDefinitionId
+     * @return
+     */
     UserTask getUserTask(String activityId, String processDefinitionId);
 
+    /**
+     * 取得用户节点
+     *
+     * @param activityId
+     * @param processDefinitionId   key:version:id
+     * @return
+     */
     UserTaskExtensionDTO getUserTaskExtension(String activityId, String processDefinitionId);
 }

@@ -42,7 +42,7 @@ public class TastCreateSetCategoryHandle extends BaseEventListenerHandle {
         this.create();
         FlowableEntityEventImpl entityEvent = (FlowableEntityEventImpl) event;
         TaskEntityImpl task = (TaskEntityImpl) entityEvent.getEntity();
-        if(Strings.isBlank(task.getCategory())){
+        if (Strings.isBlank(task.getCategory())) {
             ProcessDefinition pd = flowCacheService.getProcessDefinitionCache(task.getProcessDefinitionId());
             Deployment deployment = flowCacheService.getDeploymentCache(pd.getDeploymentId());
             task.setCategory(deployment.getCategory());

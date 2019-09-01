@@ -9,12 +9,11 @@ public class FlowConstant {
     /**
      * 流程提交者-可以在后面流程中驳回重新办理
      */
-    public static final String SUBMITTER         = "FLOW_SUBMITTER";
+    public static final String SUBMITTER                              = "FLOW_SUBMITTER";
     /**
      * 流程提交者的部门
      */
-    public static final String SUBMITTER_DEPT_ID = "FLOW_SUBMITTER_DEPT_ID";
-
+    public static final String SUBMITTER_DEPT_ID                      = "FLOW_SUBMITTER_DEPT_ID";
     /**
      * 流程提交者当前拥有的角色
      */
@@ -35,19 +34,16 @@ public class FlowConstant {
      * 手写签字文件名
      */
     public static final String HAND_WRITING_SIGNATURE_ATTACHMENT_NAME = "手写签字";
-
     /**
      * 表单数据
      */
-    public static final String FORM_DATA = "formData";
-
+    public static final String FORM_DATA                              = "formData";
     /**
      * 未分类流程
      */
-    public static final String DEFAULT_CATEGORY = "default";
-
+    public static final String DEFAULT_CATEGORY                       = "default";
     /**
      * 业务表主键
      */
-    public static final String PRIMARY_KEY = "id";
+    public static final String PRIMARY_KEY                            = "id";
 }

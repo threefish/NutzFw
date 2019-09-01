@@ -32,11 +32,6 @@
         </resources>
     </build>
     <dependencies>
-        <dependency>
-            <groupId>com.nutzfw</groupId>
-            <artifactId>nutzfw-license</artifactId>
-            <version>${project.version}</version>
-        </dependency>
         <!--以下是第三方库-->
         <!--<dependency>-->
         <!--<groupId>com.eclipsesource.j2v8</groupId>-->

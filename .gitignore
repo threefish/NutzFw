@@ -26,4 +26,5 @@ hs_err_pid*
 /*.idea
 /.idea
 /.idea/*
-/*/target
+/web-admin/target
+/common-framework/target

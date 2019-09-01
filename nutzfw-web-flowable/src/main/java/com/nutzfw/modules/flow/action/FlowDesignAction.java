@@ -242,7 +242,7 @@ public class FlowDesignAction extends BaseAction {
     @Ok("json")
     @GET
     public NutMap getProcessInstanceModelJSON(String processInstanceId, @Param("processDefinitionId") String processDefinitionId) {
-        return flowDiagramUtils.getProcessInstanceModelJSON(processInstanceId, processDefinitionId);
+        return flowDiagramUtils.getHistoryProcessInstanceModelJSON(processInstanceId, processDefinitionId);
     }
 
     @At(value = "/admin/process-instances/?/history-model-json")

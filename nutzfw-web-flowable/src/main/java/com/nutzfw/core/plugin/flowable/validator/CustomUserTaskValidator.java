@@ -67,5 +67,9 @@ public class CustomUserTaskValidator extends UserTaskValidator {
             addError(errors, Problems.USER_TASK_LISTENER_IMPLEMENTATION_MISSING, process, userTask, "候选用户角色组不能为空");
             return;
         }
+        if (dto.getTaskReviewerScope() == TaskReviewerScopeEnum.JAVA_BEAN_ASSIGNMENT && Strings.isBlank(dto.getIocFlowAssignment())) {
+            addError(errors, Problems.USER_TASK_LISTENER_IMPLEMENTATION_MISSING, process, userTask, "JavaIocBean人员选择器不能为空");
+            return;
+        }
     }
 }

@@ -25,7 +25,7 @@ public abstract class AbstractJavaDelegate implements JavaDelegate {
     @Override
     public void execute(DelegateExecution execution) {
         try {
-            String businessKeyId = flowProcessDefinitionService.getBusinessInfo(execution.getProcessInstanceId());
+            String businessKeyId = flowProcessDefinitionService.getBusinessKeyId(execution.getProcessInstanceId());
             this.execute(execution, businessKeyId);
         } catch (Throwable e) {
             log.error("执行自动任务失败！", e);

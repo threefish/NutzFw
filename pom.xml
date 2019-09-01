@@ -10,7 +10,6 @@
     <modules>
         <!--框架核心-->
         <module>nutzfw-common</module>
-        <module>nutzfw-license</module>
         <module>nutzfw-web-flowable</module>
         <module>nutz-web-oa</module>
         <module>nutzfw-web-admin</module>

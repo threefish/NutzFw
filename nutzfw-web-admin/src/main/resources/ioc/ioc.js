@@ -39,6 +39,23 @@ var ioc = {
             connectionProperties: {java: "$conf.get('db.connectionProperties')"}
         }
     },
+    slaveDataSource: {
+        type: "com.alibaba.druid.pool.DruidDataSource",
+        events: {
+            create: "init",
+            depose: 'close'
+        },
+        fields: {
+            url: {java: "$conf.get('slave.db.url')"},
+            username: {java: "$conf.get('slave.db.username')"},
+            password: {java: "$conf.get('slave.db.password')"},
+            testWhileIdle: true,
+            validationQuery: {java: "$conf.get('slave.db.validationQuery')"},
+            maxActive: {java: "$conf.get('slave.db.maxActive')"},
+            filters: "config,wall,stat",
+            connectionProperties: {java: "$conf.get('slave.db.connectionProperties')"}
+        }
+    },
     noWalldataSource: {
         type: "com.alibaba.druid.pool.DruidDataSource",
         events: {
@@ -58,7 +75,16 @@ var ioc = {
     },
     dao: {
         type: "org.nutz.dao.impl.NutDao",
-        args: [{refer: "dataSource"}]
+        args: [{refer: "dataSource"}], //引用主数据源
+        fields: {
+            runner: {refer: "daoRunner"}
+        }
+    },
+    daoRunner: {
+        type: "org.nutz.dao.impl.sql.run.NutDaoRunner",
+        fields: {
+            slaveDataSource: {refer: "slaveDataSource"} //引用slave数据源
+        }
     },
     noWallDao: {
         type: "org.nutz.dao.impl.NutDao",

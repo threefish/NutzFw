@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.flowable.bpmn.model.*;
-import org.flowable.common.engine.api.FlowableObjectNotFoundException;
 import org.flowable.engine.HistoryService;
 import org.flowable.engine.RepositoryService;
 import org.flowable.engine.RuntimeService;
@@ -34,12 +33,11 @@ public class FlowDiagramUtils {
     @Inject
     RepositoryService repositoryService;
     @Inject
-    RuntimeService runtimeService;
+    RuntimeService    runtimeService;
     @Inject
-    HistoryService historyService;
-
-    List<String> eventElementTypes = new ArrayList<>();
-    Map<String, InfoMapper> propertyMappers = new HashMap<>();
+    HistoryService    historyService;
+    List<String>            eventElementTypes = new ArrayList<>();
+    Map<String, InfoMapper> propertyMappers   = new HashMap<>();
 
     public FlowDiagramUtils() {
         eventElementTypes.add("StartEvent");
@@ -52,26 +50,28 @@ public class FlowDiagramUtils {
     }
 
 
-    public NutMap getProcessInstanceModelJSON(String processInstanceId, String processDefinitionId) {
+    public NutMap getHistoryProcessInstanceModelJSON(String processInstanceId, String processDefinitionId) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode displayNode = objectMapper.createObjectNode();
         BpmnModel pojoModel = repositoryService.getBpmnModel(processDefinitionId);
         if (!pojoModel.getLocationMap().isEmpty()) {
             List<HistoricActivityInstance> hiActInsList = historyService.createHistoricActivityInstanceQuery()
-                    .processDefinitionId(processInstanceId)
+                    .processDefinitionId(processDefinitionId)
+                    .processInstanceId(processInstanceId)
                     .orderByHistoricActivityInstanceStartTime()
                     .asc()
                     .list();
             List<String> completedActivityInstances = new ArrayList<>();
             for (HistoricActivityInstance hiActIns : hiActInsList) {
                 HistoricActivityInstanceEntityImpl hiActInsImpl = (HistoricActivityInstanceEntityImpl) hiActIns;
-                if (hiActInsImpl.getActivityType() != null) {
-                    completedActivityInstances.add(hiActInsImpl.getActivityId());
-                }
+                completedActivityInstances.add(hiActInsImpl.getActivityId());
             }
-            Execution execution = getExecutionFromRequest(processInstanceId);
-            List<String> currentActivityinstances = runtimeService.getActiveActivityIds(execution.getId());
-            // Gather completed flows
+            Execution execution = runtimeService.createExecutionQuery().executionId(processInstanceId).singleResult();
+            List<String> currentActivityinstances = new ArrayList<>();
+            if (execution != null) {
+                currentActivityinstances = runtimeService.getActiveActivityIds(execution.getId());
+            }
+            //收集完成的节点
             List<String> completedFlows = gatherCompletedFlows(completedActivityInstances, currentActivityinstances, pojoModel);
             try {
                 GraphicInfo diagramInfo = new GraphicInfo();
@@ -102,71 +102,12 @@ public class FlowDiagramUtils {
                     }
                 }
             } catch (Exception e) {
-                log.error("Error creating model JSON", e);
+                log.error("创建模型JSON时出错", e);
             }
         }
         return FlowUtils.toNutMap(displayNode);
     }
 
-    public NutMap getHistoryProcessInstanceModelJSON(String processInstanceId, String processDefinitionId) {
-        ObjectMapper objectMapper = new ObjectMapper();
-        ObjectNode displayNode = objectMapper.createObjectNode();
-        BpmnModel pojoModel = repositoryService.getBpmnModel(processDefinitionId);
-        if (!pojoModel.getLocationMap().isEmpty()) {
-            List<HistoricActivityInstance> hiActInsList = historyService.createHistoricActivityInstanceQuery()
-                    .processDefinitionId(processDefinitionId)
-                    .orderByHistoricActivityInstanceStartTime()
-                    .finished()
-                    .asc()
-                    .list();
-
-            List<String> completedActivityInstances = new ArrayList<>();
-            for (HistoricActivityInstance hiActIns : hiActInsList) {
-                HistoricActivityInstanceEntityImpl hiActInsImpl = (HistoricActivityInstanceEntityImpl) hiActIns;
-                completedActivityInstances.add(hiActInsImpl.getActivityId());
-            }
-            // Gather completed flows
-            List<String> completedFlows = gatherCompletedFlows(completedActivityInstances, null, pojoModel);
-            try {
-                GraphicInfo diagramInfo = new GraphicInfo();
-                Set<String> completedElements = new HashSet<>(completedActivityInstances);
-                completedElements.addAll(completedFlows);
-
-                processProcessElements(pojoModel, displayNode, diagramInfo, completedElements, null);
-
-                displayNode.put("diagramBeginX", diagramInfo.getX());
-                displayNode.put("diagramBeginY", diagramInfo.getY());
-                displayNode.put("diagramWidth", diagramInfo.getWidth());
-                displayNode.put("diagramHeight", diagramInfo.getHeight());
-
-                if (completedActivityInstances != null) {
-                    ArrayNode completedActivities = displayNode.putArray("completedActivities");
-                    for (String completed : completedActivityInstances) {
-                        completedActivities.add(completed);
-                    }
-                }
-
-                if (completedFlows != null) {
-                    ArrayNode completedSequenceFlows = displayNode.putArray("completedSequenceFlows");
-                    for (String current : completedFlows) {
-                        completedSequenceFlows.add(current);
-                    }
-                }
-            } catch (Exception e) {
-                log.error("Error creating model JSON", e);
-            }
-        }
-        return FlowUtils.toNutMap(displayNode);
-    }
-
-
-    protected Execution getExecutionFromRequest(String executionId) {
-        Execution execution = runtimeService.createExecutionQuery().executionId(executionId).singleResult();
-        if (execution == null) {
-            throw new FlowableObjectNotFoundException("Could not find an execution with id '" + executionId + "'.", Execution.class);
-        }
-        return execution;
-    }
 
     protected List<String> gatherCompletedFlows(List<String> completedActivityInstances,
                                                 List<String> currentActivityinstances, BpmnModel pojoModel) {
@@ -177,7 +118,7 @@ public class FlowDiagramUtils {
             activities.addAll(currentActivityinstances);
         }
         // TODO: not a robust way of checking when parallel paths are active, should be revisited
-        // Go over all activities and check if it's possible to match any outgoing paths against the activities
+        // 浏览所有活动并检查是否可以匹配任何与活动相关的传出路径
         for (FlowElement activity : pojoModel.getMainProcess().getFlowElements()) {
             if (activity instanceof FlowNode) {
                 int index = activities.indexOf(activity.getId());
@@ -231,7 +172,6 @@ public class FlowDiagramUtils {
     }
 
     protected void processProcessElements(BpmnModel pojoModel, ObjectNode displayNode, GraphicInfo diagramInfo, Set<String> completedElements, Set<String> currentElements) throws Exception {
-
         if (pojoModel.getLocationMap().isEmpty()) {
             return;
         }
@@ -239,7 +179,6 @@ public class FlowDiagramUtils {
         ArrayNode elementArray = objectMapper.createArrayNode();
         ArrayNode flowArray = objectMapper.createArrayNode();
         ArrayNode collapsedArray = objectMapper.createArrayNode();
-
         if (CollectionUtils.isNotEmpty(pojoModel.getPools())) {
             ArrayNode poolArray = objectMapper.createArrayNode();
             boolean firstElement = true;
@@ -262,7 +201,6 @@ public class FlowDiagramUtils {
                     poolNode.set("lanes", laneArray);
                 }
                 poolArray.add(poolNode);
-
                 double rightX = poolInfo.getX() + poolInfo.getWidth();
                 double bottomY = poolInfo.getY() + poolInfo.getHeight();
                 double middleX = poolInfo.getX() + (poolInfo.getWidth() / 2);
@@ -281,19 +219,16 @@ public class FlowDiagramUtils {
                 firstElement = false;
             }
             displayNode.set("pools", poolArray);
-
         } else {
             // in initialize with fake x and y to make sure the minimal
             // values are set
             diagramInfo.setX(9999);
             diagramInfo.setY(1000);
         }
-
         for (org.flowable.bpmn.model.Process process : pojoModel.getProcesses()) {
             processElements(process.getFlowElements(), pojoModel, elementArray, flowArray,
                     collapsedArray, diagramInfo, completedElements, currentElements, null);
         }
-
         displayNode.set("elements", elementArray);
         displayNode.set("flows", flowArray);
         displayNode.set("collapsed", collapsedArray);
@@ -350,16 +285,13 @@ public class FlowDiagramUtils {
                                    GraphicInfo diagramInfo, Set<String> completedElements, Set<String> currentElements, ObjectNode collapsedNode) {
         ObjectMapper objectMapper = new ObjectMapper();
         for (FlowElement element : elementList) {
-
             ObjectNode elementNode = objectMapper.createObjectNode();
             if (completedElements != null) {
                 elementNode.put("completed", completedElements.contains(element.getId()));
             }
-
             if (currentElements != null) {
                 elementNode.put("current", currentElements.contains(element.getId()));
             }
-
             if (element instanceof SequenceFlow) {
                 SequenceFlow flow = (SequenceFlow) element;
                 elementNode.put("id", flow.getId());
@@ -367,7 +299,6 @@ public class FlowDiagramUtils {
                 elementNode.put("sourceRef", flow.getSourceRef());
                 elementNode.put("targetRef", flow.getTargetRef());
                 elementNode.put("name", flow.getName());
-
                 List<GraphicInfo> flowInfo = model.getFlowLocationGraphicInfo(flow.getId());
                 ArrayNode waypointArray = objectMapper.createArrayNode();
                 for (GraphicInfo graphicInfo : flowInfo) {
@@ -382,12 +313,9 @@ public class FlowDiagramUtils {
                 } else {
                     flowArray.add(elementNode);
                 }
-
             } else {
-
                 elementNode.put("id", element.getId());
                 elementNode.put("name", element.getName());
-
                 if (element instanceof FlowNode) {
                     FlowNode flowNode = (FlowNode) element;
                     ArrayNode incomingFlows = objectMapper.createArrayNode();
@@ -396,37 +324,30 @@ public class FlowDiagramUtils {
                     }
                     elementNode.set("incomingFlows", incomingFlows);
                 }
-
                 GraphicInfo graphicInfo = model.getGraphicInfo(element.getId());
                 if (graphicInfo != null) {
                     fillGraphicInfo(elementNode, graphicInfo, true);
                     fillDiagramInfo(graphicInfo, diagramInfo);
                 }
-
                 String className = element.getClass().getSimpleName();
                 elementNode.put("type", className);
                 fillEventTypes(className, element, elementNode);
-
                 if (element instanceof ServiceTask) {
                     ServiceTask serviceTask = (ServiceTask) element;
                     if (ServiceTask.MAIL_TASK.equals(serviceTask.getType())) {
                         elementNode.put("taskType", "mail");
                     }
                 }
-
                 if (propertyMappers.containsKey(className)) {
                     elementNode.set("org/flowable/db/properties", propertyMappers.get(className).map(element));
                 }
-
                 if (collapsedNode != null) {
                     ((ArrayNode) collapsedNode.get("elements")).add(elementNode);
                 } else {
                     elementArray.add(elementNode);
                 }
-
                 if (element instanceof SubProcess) {
                     SubProcess subProcess = (SubProcess) element;
-
                     ObjectNode newCollapsedNode = collapsedNode;
                     // skip collapsed sub processes
                     if (graphicInfo != null && graphicInfo.getExpanded() != null && !graphicInfo.getExpanded()) {
@@ -437,7 +358,6 @@ public class FlowDiagramUtils {
                         newCollapsedNode.putArray("flows");
                         collapsedArray.add(newCollapsedNode);
                     }
-
                     processElements(subProcess.getFlowElements(), model, elementArray, flowArray, collapsedArray,
                             diagramInfo, currentElements, currentElements, newCollapsedNode);
                 }

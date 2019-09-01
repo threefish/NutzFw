@@ -9,6 +9,7 @@ import com.nutzfw.core.plugin.flowable.dto.UserTaskExtensionDTO;
 import com.nutzfw.core.plugin.flowable.enums.TaskFormStatusEnum;
 import com.nutzfw.core.plugin.flowable.service.FlowProcessDefinitionService;
 import com.nutzfw.core.plugin.flowable.service.FlowTaskService;
+import com.nutzfw.core.plugin.flowable.util.FlowUtils;
 import com.nutzfw.core.plugin.flowable.vo.FlowTaskVO;
 import com.nutzfw.modules.common.action.BaseAction;
 import com.nutzfw.modules.flow.biz.GeneralFlowBiz;
@@ -17,7 +18,6 @@ import com.nutzfw.modules.organize.entity.UserAccount;
 import org.flowable.bpmn.model.UserTask;
 import org.flowable.engine.RepositoryService;
 import org.flowable.engine.repository.ProcessDefinition;
-import org.flowable.task.api.Task;
 import org.nutz.aop.interceptor.ioc.TransAop;
 import org.nutz.ioc.aop.Aop;
 import org.nutz.ioc.loader.annotation.Inject;
@@ -55,17 +55,15 @@ public class GeneralProcessAction extends BaseAction {
     @GET
     @Ok("btl:WEB-INF/view/modules/flow/general/flowAudit.html")
     public NutMap form(@Param("::flow.") FlowTaskVO flowTaskVO, @Attr(Cons.SESSION_USER_KEY) UserAccount sessionUserAccount) {
-        // 获取流程实例对象
-        if (flowTaskVO.getProcInsId() != null) {
-            flowTaskVO.setBusinessId(flowProcessDefinitionService.getBusinessInfo(flowTaskVO.getProcInsId()));
-        }
-        if (Strings.isNotBlank(flowTaskVO.getTaskId()) && flowTaskVO.isTodoTask()) {
-            Task task = flowTaskService.getTask(flowTaskVO.getTaskId());
-            if (task != null) {
-                //设置委托状态
-                flowTaskVO.setDelegateStatus(task.getDelegationState());
+        if (Strings.isNotBlank(flowTaskVO.getTaskId())) {
+            FlowUtils.setFlowTaskVo(flowTaskVO, flowTaskService.getTaskOrHistoryTask(flowTaskVO.getTaskId()));
+            if (flowTaskVO.getProcInsId() != null) {
+                // 设置业务表ID
+                flowTaskVO.setBusinessId(flowProcessDefinitionService.getBusinessKeyId(flowTaskVO.getProcInsId()));
             }
-        } else if (Strings.isBlank(flowTaskVO.getProcDefId()) && Strings.isNotBlank(flowTaskVO.getProcDefKey())) {
+        }
+        if (Strings.isBlank(flowTaskVO.getTaskId()) && Strings.isNotBlank(flowTaskVO.getProcDefKey())) {
+            //没有任务ID，是采用最新版本新增流程
             ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery().processDefinitionKey(flowTaskVO.getProcDefKey()).latestVersion().singleResult();
             flowTaskVO.setProcDefId(processDefinition.getId());
             flowTaskVO.setProcDefversion(processDefinition.getVersion());

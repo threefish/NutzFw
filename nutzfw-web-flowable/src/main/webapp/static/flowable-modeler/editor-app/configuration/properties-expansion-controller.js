@@ -48,24 +48,17 @@ angular.module('flowableModeler').controller('FlowableExpansionPopupCtrl',
             && $scope.property.value.expansionProperties !== undefined
             && $scope.property.value.expansionProperties !== null) {
             $scope.expansionProperties = angular.copy($scope.property.value.expansionProperties);
-            if ($scope.expansionProperties.agreeButtonName == undefined) {
-                $scope.expansionProperties.agreeButtonName = "同意";
-            }
-            if ($scope.expansionProperties.refuseButtonName == undefined) {
-                $scope.expansionProperties.refuseButtonName = "拒绝";
-            }
-            if ($scope.expansionProperties.formDataDynamicAssignment == undefined) {
-                $scope.expansionProperties.formDataDynamicAssignment = "";
-            }
-            if ($scope.expansionProperties.taskReviewerScope == undefined) {
-                $scope.expansionProperties.taskReviewerScope = "";
-            }
-            if ($scope.expansionProperties.candidateUsers == undefined) {
-                $scope.expansionProperties.candidateUsers = [];
-            }
-            if ($scope.expansionProperties.candidateGroups == undefined) {
-                $scope.expansionProperties.candidateGroups = [];
-            }
+            setDefaualtValue("replyOpinionName", "批复意见");
+            setDefaualtValue("replyOpinion", false);
+            setDefaualtValue("agreeButtonName", "同意");
+            setDefaualtValue("refuseButtonName", "拒绝");
+            setDefaualtValue("formDataDynamicAssignment", "");
+            setDefaualtValue("beforeCreateCurrentTaskFormDataDynamicAssignment", "");
+            setDefaualtValue("afterCreateCurrentTaskFormDataDynamicAssignment", "");
+            setDefaualtValue("taskReviewerScope", "");
+            setDefaualtValue("iocFlowAssignment", "");
+            setDefaualtValue("candidateUsers", []);
+            setDefaualtValue("candidateGroups", []);
         } else {
             $scope.expansionProperties = {
                 replyOpinion: false,//是否允许批复意见
@@ -79,10 +72,13 @@ angular.module('flowableModeler').controller('FlowableExpansionPopupCtrl',
                 agreeButtonName: "同意",//同意按钮文字显示
                 refuseButtonName: "拒绝",//拒绝按钮文字显示
                 formDataDynamicAssignment: "",//表单数据动态赋值
+                beforeCreateCurrentTaskFormDataDynamicAssignment: "",//创建当前任务之前，执行表单数据动态赋值更新
+                afterCreateCurrentTaskFormDataDynamicAssignment: "",//创建当前任务之后，执行表单数据动态赋值更新
                 taskReviewerScope: "",//指定当前用户步骤任务审核人范围
                 assignee: "",//分配给指定用户
                 candidateUsers: [],//多个候选用户
                 candidateGroups: [],//候选用户角色组
+                iocFlowAssignment: '',//JavaIocBean人员选择器
                 dynamicFreeChoiceNextReviewerMode: false,//自由选择下一步审核人(下一步流程要确保能通过流程条件正确跳转至用户任务节点)
             };
         }
@@ -95,6 +91,13 @@ angular.module('flowableModeler').controller('FlowableExpansionPopupCtrl',
                 }
             }
         });
+
+        function setDefaualtValue(field, defaualtValue) {
+            if ($scope.expansionProperties[field] == undefined) {
+                $scope.expansionProperties[field] = defaualtValue;
+            }
+        }
+
         $scope.popup = {
             userResults: [],
             userRoleResults: []

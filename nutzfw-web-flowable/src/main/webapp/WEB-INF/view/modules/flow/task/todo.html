@@ -106,7 +106,7 @@ layout("/layouts/blank.html",{title:title}){
             handleHandle: function (data) {
                 var param = '?flow.taskId=' + data.taskId + '&flow.taskName=' + encodeURIComponent(data.taskName) + '&flow.taskDefKey=' + data.taskDefKey + '&flow.procInsId=' + data.procInsId + '&flow.procDefId=' + data.procDefId + '&flow.status=' + data.status;
                 var url = '/general/flow/process/form' + param;
-                parent.core.openUrl(url, "任务办理 [" + data.taskName + "]", "80%", "800px", function () {
+                parent.core.openUrl(url, "任务办理 [" + data.taskName + "]", "80%", "80%", function () {
                     vm.handleSearchTable();
                 });
             },

@@ -146,7 +146,7 @@ layout("/layouts/blank.html",{title:"流程历史"}){
             ${his.assigneeName}&nbsp;&nbsp;&nbsp;&nbsp;开始时间：${his.startTime!,
             dateFormat='yyyy-MM-dd HH:mm:ss'}
             <%if(his.endTime!=null){ %>
-            &nbsp;&nbsp;&nbsp;&nbsp;结束时间：${his.endTime!,dateFormat='yyyy-MM-dd HH:mm:ss'}
+            &nbsp;&nbsp;&nbsp;&nbsp;处理时间：${his.endTime!,dateFormat='yyyy-MM-dd HH:mm:ss'}
             <%}%>
             <%if(Strings.isNotBlank(his.timeConsuming)){ %>
             &nbsp;&nbsp;&nbsp;&nbsp;任务历时：${his.timeConsuming!}

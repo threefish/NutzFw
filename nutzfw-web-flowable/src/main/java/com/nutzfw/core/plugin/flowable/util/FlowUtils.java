@@ -3,6 +3,8 @@ package com.nutzfw.core.plugin.flowable.util;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.nutzfw.core.plugin.flowable.converter.CustomUserTaskJsonConverter;
 import com.nutzfw.core.plugin.flowable.dto.UserTaskExtensionDTO;
+import com.nutzfw.core.plugin.flowable.enums.TaskStatusEnum;
+import com.nutzfw.core.plugin.flowable.vo.FlowTaskVO;
 import com.nutzfw.modules.organize.entity.UserAccount;
 import com.nutzfw.modules.sys.entity.Role;
 import org.flowable.bpmn.model.ExtensionElement;
@@ -15,6 +17,8 @@ import org.flowable.idm.engine.impl.persistence.entity.GroupEntity;
 import org.flowable.idm.engine.impl.persistence.entity.GroupEntityImpl;
 import org.flowable.idm.engine.impl.persistence.entity.UserEntity;
 import org.flowable.idm.engine.impl.persistence.entity.UserEntityImpl;
+import org.flowable.task.api.Task;
+import org.flowable.task.api.TaskInfo;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Strings;
@@ -113,7 +117,31 @@ public class FlowUtils {
                 dto.setMultiInstanceNode(true);
             }
         }
+        if (dto != null) {
+            dto.setUserTaskFormKey(userTask.getFormKey());
+            dto.setUserTaskName(userTask.getName());
+            dto.setUserTaskId(userTask.getId());
+            dto.setUserTaskDocumentation(userTask.getDocumentation());
+        }
         return dto;
     }
 
+    public static void setFlowTaskVo(FlowTaskVO flowTaskVO, TaskInfo task) {
+        if (task instanceof Task) {
+            flowTaskVO.setDelegateStatus(((Task) task).getDelegationState());
+            flowTaskVO.setStatus(Strings.isNotBlank(task.getAssignee()) ? TaskStatusEnum.TODO : TaskStatusEnum.CLAIM);
+        } else {
+            flowTaskVO.setStatus(TaskStatusEnum.FINISH);
+        }
+        flowTaskVO.setCategory(task.getCategory());
+        flowTaskVO.setDelegateUserName(task.getOwner());
+        flowTaskVO.setTaskId(task.getId());
+        flowTaskVO.setTaskDefKey(task.getTaskDefinitionKey());
+        flowTaskVO.setTaskName(task.getName());
+        flowTaskVO.setAssignee(task.getAssignee());
+        flowTaskVO.setCreateTime(task.getCreateTime());
+        flowTaskVO.setProcInsId(task.getProcessInstanceId());
+        flowTaskVO.setClaimTime(task.getClaimTime());
+        flowTaskVO.setProcDefId(task.getProcessDefinitionId());
+    }
 }

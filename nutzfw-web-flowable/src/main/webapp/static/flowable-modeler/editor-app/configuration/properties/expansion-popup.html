@@ -16,7 +16,7 @@
     .ng-nav-lable {
         font-size: 14px;
         min-width: 80px;
-        width: 25%;
+        width: 20%;
         display: block;
         float: left;
         height: 35px;
@@ -76,7 +76,8 @@
                     <div>
                         <ul class="ng-nav-title" ng-init='activeTab=1'>
                             <li class="ng-nav-lable" ng-class='{active:activeTab==1}' ng-click='activeTab=1'>
-                                当前步骤设置</li>
+                                当前步骤设置
+                            </li>
                             <li class="ng-nav-lable" ng-class='{active:activeTab==2}' ng-click='activeTab=2'>回退设置</li>
                             <li class="ng-nav-lable" ng-class='{active:activeTab==3}' ng-click='activeTab=3'
                                 ng-show="multiInstanceNode">
@@ -90,8 +91,48 @@
                                 ng-show="!multiInstanceNode">
                                 <span class="red">下一步骤</span>审核人员设置
                             </li>
+                            <li class="ng-nav-lable" ng-class='{active:activeTab==6}' ng-click='activeTab=6'>
+                                动态脚本
+                            </li>
                         </ul>
                         <div class="ng-nav-con clearfix">
+                            <div ng-show="activeTab==6">
+                                <div class="form-group clearfix">
+                                    <div class="form-group">
+                                        <label class="ng-binding"><b style="color: red">创建当前任务之前</b>执行表单数据动态赋值更新&nbsp;&nbsp;(function(formData,dto){<i
+                                                style="color: #f1a417"> 输入的脚本内容</i> return formData; }) <br>注释:
+                                            dto:UserTaskExtensionDTO </label>
+                                        <textarea class="form-control ng-pristine ng-untouched ng-valid"
+                                                  ng-model="expansionProperties.beforeCreateCurrentTaskFormDataDynamicAssignment"
+                                                  placeholder="javaScript动态脚本" spellcheck="false"
+                                                  style="width: 100%;height:100px;resize: none;font-size: 12px;overflow: scroll"
+                                        ></textarea>
+                                    </div>
+                                </div>
+                                <div class="form-group clearfix">
+                                    <div class="form-group">
+                                        <label class="ng-binding"><b style="color: red">创建当前任务之后</b>执行表单数据动态赋值更新&nbsp;&nbsp;(function(formData,dto,task){<i
+                                                style="color: #f1a417"> 输入的脚本内容</i> return formData; }) <br>注释:
+                                            dto:UserTaskExtensionDTO,task:TaskEntity </label>
+                                        <textarea class="form-control ng-pristine ng-untouched ng-valid"
+                                                  ng-model="expansionProperties.afterCreateCurrentTaskFormDataDynamicAssignment"
+                                                  placeholder="javaScript动态脚本" spellcheck="false"
+                                                  style="width: 100%;height:100px;resize: none;font-size: 12px;overflow: scroll"
+                                        ></textarea>
+                                    </div>
+                                </div>
+                                <div class="form-group clearfix">
+                                    <div class="form-group">
+                                        <label class="ng-binding">表单数据在<b style="color: red">审核后</b>执行数据库更新前进行动态赋值&nbsp;&nbsp;(function(formData,auditPass,flowTask){<i
+                                                style="color: #f1a417"> 输入的脚本内容</i> return formData; })</label>
+                                        <textarea class="form-control ng-pristine ng-untouched ng-valid"
+                                                  ng-model="expansionProperties.formDataDynamicAssignment"
+                                                  placeholder="javaScript动态脚本" spellcheck="false"
+                                                  style="width: 100%;height:100px;resize: none;font-size: 12px;overflow: scroll"
+                                        ></textarea>
+                                    </div>
+                                </div>
+                            </div>
                             <div ng-show="activeTab==5 && !multiInstanceNode">
                                 <div class="form-group clearfix">
                                     <div class="form-group">
@@ -127,6 +168,15 @@
                                 </div>
                                 <div class="form-group clearfix">
                                     <div class="form-group">
+                                        <label class="ng-binding">批复意见框提示文字</label>
+                                        <input class="form-control ng-pristine ng-untouched ng-valid"
+                                               ng-model="expansionProperties.replyOpinionName"
+                                               placeholder="批复意见"
+                                               type="text">
+                                    </div>
+                                </div>
+                                <div class="form-group clearfix">
+                                    <div class="form-group">
                                         <label class="ng-binding">同意按钮文字显示</label>
                                         <input class="form-control ng-pristine ng-untouched ng-valid"
                                                ng-model="expansionProperties.agreeButtonName"
@@ -145,18 +195,6 @@
                                 </div>
                                 <div class="form-group clearfix">
                                     <div class="form-group">
-                                        <label class="ng-binding">表单数据在执行数据库更新前进行动态赋值&nbsp;&nbsp;(<i
-                                                style="color: #f1a417">function(formData,flowTask){ 输入的脚本内容 return
-                                            formData; }</i>)</label>
-                                        <textarea class="form-control ng-pristine ng-untouched ng-valid"
-                                                  ng-model="expansionProperties.formDataDynamicAssignment"
-                                                  placeholder="javaScript动态脚本" spellcheck="false"
-                                                  style="width: 100%;height:100px;resize: none;font-size: 12px;overflow: scroll"
-                                        ></textarea>
-                                    </div>
-                                </div>
-                                <div class="form-group clearfix">
-                                    <div class="form-group">
                                         <label class="ng-binding">指定<span class="red">当前步骤</span>任务审核人范围</label>
                                         <select class="form-control ng-pristine ng-untouched ng-valid"
                                                 ng-model="expansionProperties.taskReviewerScope">
@@ -170,7 +208,18 @@
                                             <option value="FLOW_SUBMITTER">分配给-流程发起人</option>
                                             <option value="SINGLE_USER">分配给指定用户</option>
                                             <option value="MULTIPLE_USERS">多个候选用户</option>
+                                            <option value="JAVA_BEAN_ASSIGNMENT">由JavaIocBean人员选择器选取审核人员或组</option>
                                         </select>
+                                    </div>
+                                    <div class="form-group clearfix"
+                                         ng-show="expansionProperties.taskReviewerScope=='JAVA_BEAN_ASSIGNMENT'">
+                                        <div class="form-group">
+                                            <label class="ng-binding">JavaIocBean人员选择器(需要实现FlowAssignment接口)</label>
+                                            <input class="form-control ng-pristine ng-untouched ng-valid"
+                                                   ng-model="expansionProperties.iocFlowAssignment"
+                                                   placeholder="$ioc:flowUserSelect"
+                                                   type="text">
+                                        </div>
                                     </div>
                                     <div class="form-group clearfix"
                                          ng-show="expansionProperties.taskReviewerScope=='SINGLE_USER'">

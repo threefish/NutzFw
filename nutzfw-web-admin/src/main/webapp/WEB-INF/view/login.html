@@ -87,7 +87,7 @@
                 <div class="form-group has-feedback" v-if="showCaptcha">
                     <img :src="captchaImgSrc" @click="handleChangeCaptcha" class="captchaImg">
                     <input type="text" autocomplete="off" v-model.trim="fromData.captcha" class="form-control captcha"
-                           placeholder="验证码">
+                           maxlength="4" placeholder="验证码">
                 </div>
                 <div class="form-group">
                     <input type="checkbox" class="magic-checkbox" v-model="fromData.rememberMe" id="rememberMe">

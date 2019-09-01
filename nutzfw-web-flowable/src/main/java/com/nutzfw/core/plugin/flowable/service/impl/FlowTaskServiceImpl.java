@@ -38,6 +38,7 @@ import org.flowable.engine.task.Attachment;
 import org.flowable.engine.task.Comment;
 import org.flowable.task.api.DelegationState;
 import org.flowable.task.api.Task;
+import org.flowable.task.api.TaskInfo;
 import org.flowable.task.api.TaskQuery;
 import org.flowable.task.api.history.HistoricTaskInstance;
 import org.flowable.task.api.history.HistoricTaskInstanceQuery;
@@ -502,6 +503,15 @@ public class FlowTaskServiceImpl implements FlowTaskService {
         return historyService.createHistoricTaskInstanceQuery().taskId(taskId).singleResult();
     }
 
+    @Override
+    public TaskInfo getTaskOrHistoryTask(String taskId) {
+        TaskInfo taskInfo = getTask(taskId);
+        if (taskInfo == null) {
+            taskInfo = getHistoryTask(taskId);
+        }
+        return taskInfo;
+    }
+
     /**
      * 获取历史任务
      *
@@ -578,13 +588,13 @@ public class FlowTaskServiceImpl implements FlowTaskService {
     @Override
     public void complete(FlowTaskVO flowTaskVO, Map<String, Object> vars) {
         String taskId = flowTaskVO.getTaskId();
-        String procInsId = flowTaskVO.getProcInsId();
         String comment = flowTaskVO.getComment();
         // 设置流程变量
         if (vars == null) {
             vars = Maps.newHashMap();
         }
         Task task = getTask(taskId);
+        String procInsId = task.getProcessInstanceId();
         //是否委托
         boolean delegation = task.getDelegationState() != null && DelegationState.PENDING == task.getDelegationState();
         // 添加意见
@@ -735,5 +745,6 @@ public class FlowTaskServiceImpl implements FlowTaskService {
             Trans.clear(true);
         }
     }
+
 
 }

@@ -24,7 +24,9 @@ public enum TaskReviewerScopeEnum {
 
     SINGLE_USER("分配给指定用户"),
 
-    MULTIPLE_USERS("多个候选用户");
+    MULTIPLE_USERS("多个候选用户"),
+
+    JAVA_BEAN_ASSIGNMENT("由JavaIocBean人员选择器选取审核人员或组");
 
     static HashMap<String, TaskReviewerScopeEnum> lookup = new HashMap<>();
 

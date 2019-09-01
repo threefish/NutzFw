@@ -56,6 +56,10 @@ layout("/layouts/blank.html",{title:data.title}){
     #informationTab {
         overflow-y: auto;
     }
+
+    [v-cloak] {
+        display: none;
+    }
 </style>
 <div class="main-content">
     <ul class="nav nav-tabs" role="tablist" style="margin-top: 5px">
@@ -80,15 +84,15 @@ layout("/layouts/blank.html",{title:data.title}){
         <%}%>
         <div class="tab-pane" id="diagramTab" role="tabpanel" style="overflow: auto">
             <img src="${base}/flow/process/resource/read?procDefId=${data.flow.procDefId}&resType=image"
-                 style="margin: 0 auto;display: block;max-width: 100%" width="90%">
+                 style="margin: 0 auto;display: block;">
         </div>
     </div>
-    <div id="container">
+    <div id="container" v-cloak>
         <footer class="navbar-fixed-bottom audit-control">
             <%if(data.status=='AUDIT'){%>
             <div class="row comment-box" v-if="extensionProperty.replyOpinion">
                 <label class="control-label col-sm-12">
-                    批复意见：
+                    {{extensionProperty.replyOpinionName}}：
                 </label>
                 <div class="col-sm-12">
                     <textarea class="form-control required" rows="3" style="resize: none"
@@ -122,13 +126,13 @@ layout("/layouts/blank.html",{title:data.title}){
                      v-if="extensionProperty.multiInstanceNode && extensionProperty.addMultiInstance">
                     <i class="fa fa-exchange"></i>加签
                 </div>
-                <%}%>
                 <button :disabled="fromDataSubmit" @click="handleWritingSignature" class="btn btn-sm btn-warning"
                         type="button" v-if="extensionProperty.handwritingSignature">
                     <i class="fa fa-edit"></i>
                     <span v-if="flow.handWritingSignatureData==''">手写签字</span>
                     <span v-if="flow.handWritingSignatureData!==''">查看签字</span>
                 </button>
+                <%}%>
                 <button @click="handleClose" class="btn btn-sm btn-default" type="button">
                     <i class="fa fa-close"></i>关闭页面
                 </button>
@@ -156,6 +160,7 @@ layout("/layouts/blank.html",{title:data.title}){
 </div>
 <%}%>
 <script>
+    var intViewportHeight = window.innerHeight - 175;
     var signature, vm = new Vue({
         el: '#container',
         data: {
@@ -187,11 +192,12 @@ layout("/layouts/blank.html",{title:data.title}){
                 replyOpinion: false,
                 agreeButtonName: "同意",
                 refuseButtonName: "拒绝",
+                replyOpinionName: "批复意见",
                 dynamicFreeChoiceNextReviewerMode: false,
             },
             fromDataSubmit: false,
             initLoad: false,
-            boxMainHeight: 535,
+            boxMainHeight: intViewportHeight,
             status: '${data.status}',
             signatureInit: false,
         },
@@ -386,27 +392,31 @@ layout("/layouts/blank.html",{title:data.title}){
                 });
             },
             handleInit: function () {
-                $.post("${base}/general/flow/process/loadFormData", {flow: this.flow}, function (data) {
-                    if (data.ok) {
-                        form.formData = data.data;
-                    }
-                });
+                if (this.flow.businessId != undefined && this.flow.businessId.length > 0) {
+                    $.post("${base}/general/flow/process/loadFormData", {flow: this.flow}, function (data) {
+                        if (data.ok) {
+                            form.formData = data.data;
+                        }
+                    });
+                }
                 $.post("${base}/flowTask/getUserTaskExtension", {
                     taskDefKey: this.flow.taskDefKey,
                     procDefId: this.flow.procDefId
                 }, function (data) {
                     vm.extensionProperty = data;
-                    if (!vm.extensionProperty.replyOpinion || vm.status == 'EDIT') {
-                        //不允许填写意见
-                        vm.boxMainHeight = vm.boxMainHeight + 108;
+                    var showReplyOpinion = true;
+                    if (vm.extensionProperty.replyOpinion == false || vm.status == 'EDIT' || vm.status == 'VIEW') {
+                        //不允许填写意见 或者是 流程发起者步骤
+                        vm.boxMainHeight = vm.boxMainHeight + 75;
+                        showReplyOpinion = false;
                     }
-                    if (vm.status == 'VIEW') {
-                        $("#histoicFlowList").css({height: (vm.boxMainHeight - 40) + 'px'});
-                    } else {
-                        $("#histoicFlowList").css({height: vm.boxMainHeight + 'px'});
-                    }
+                    $("#histoicFlowList").css({height: vm.boxMainHeight + 'px'});
+                    $("#diagramTab").css({height: vm.boxMainHeight + 'px'});
                     $("#formBoxMain").css({height: vm.boxMainHeight + 'px'});
-                    $("#diagram").css({height: vm.boxMainHeight + 'px'});
+                    if (showReplyOpinion) {
+                        $("#histoicFlowList").css({height: (vm.boxMainHeight - 32) + 'px'});
+                        $("#diagramTab").css({height: (vm.boxMainHeight - 32) + 'px'});
+                    }
                 });
                 if (this.flow.businessId != "") {
                     var url = "${base}/flowTask/histoicFlow?procInsId=${data.flow.procInsId}&startAct=&endAct=&t=" + new Date().getTime();

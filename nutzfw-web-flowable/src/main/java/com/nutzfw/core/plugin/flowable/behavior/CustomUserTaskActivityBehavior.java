@@ -1,8 +1,10 @@
 package com.nutzfw.core.plugin.flowable.behavior;
 
+import com.nutzfw.core.plugin.flowable.assignment.FlowAssignment;
 import com.nutzfw.core.plugin.flowable.constant.FlowConstant;
 import com.nutzfw.core.plugin.flowable.dto.CandidateGroupsDTO;
 import com.nutzfw.core.plugin.flowable.dto.CandidateUsersDTO;
+import com.nutzfw.core.plugin.flowable.dto.FlowSubmitInfoDTO;
 import com.nutzfw.core.plugin.flowable.dto.UserTaskExtensionDTO;
 import com.nutzfw.core.plugin.flowable.enums.TaskReviewerScopeEnum;
 import com.nutzfw.core.plugin.flowable.util.FlowUtils;
@@ -15,6 +17,7 @@ import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.impl.bpmn.behavior.UserTaskActivityBehavior;
 import org.flowable.task.service.TaskService;
 import org.flowable.task.service.impl.persistence.entity.TaskEntity;
+import org.nutz.ioc.Ioc;
 import org.nutz.lang.Strings;
 
 import java.util.ArrayList;
@@ -25,15 +28,17 @@ import java.util.stream.Collectors;
  * @author huchuc@vip.qq.com
  * @date: 2019/7/3
  */
+@SuppressWarnings("all")
 public class CustomUserTaskActivityBehavior extends UserTaskActivityBehavior {
 
-    UserTaskExtensionDTO taskExtensionDTO;
-
+    UserTaskExtensionDTO    taskExtensionDTO;
     DepartmentLeaderService departmentLeaderService;
+    Ioc                     ioc;
 
-    public CustomUserTaskActivityBehavior(UserTask userTask, DepartmentLeaderService departmentLeaderService) {
+    public CustomUserTaskActivityBehavior(UserTask userTask, DepartmentLeaderService departmentLeaderService, Ioc ioc) {
         super(userTask);
         this.departmentLeaderService = departmentLeaderService;
+        this.ioc = ioc;
         taskExtensionDTO = FlowUtils.getUserTaskExtension(userTask);
         if (taskExtensionDTO != null) {
             userTask.setAssignee(null);
@@ -84,6 +89,12 @@ public class CustomUserTaskActivityBehavior extends UserTaskActivityBehavior {
                         candidateUsers = new ArrayList<>(0);
                     }
                     break;
+                case JAVA_BEAN_ASSIGNMENT:
+                    FlowAssignment flowAssignment = getFlowAssignment(taskExtensionDTO.getIocFlowAssignment(), new FlowSubmitInfoDTO(flowSubmitter, flowSubmitterDeptId), taskService, assignee, owner, candidateUsers, candidateGroups, task, execution);
+                    assignee = flowAssignment.getAssignee();
+                    candidateUsers = flowAssignment.getCandidateUsers();
+                    candidateGroups = flowAssignment.getCandidateGroups();
+                    break;
                 default:
                     break;
             }
@@ -95,7 +106,30 @@ public class CustomUserTaskActivityBehavior extends UserTaskActivityBehavior {
         super.handleAssignments(taskService, assignee, owner, candidateUsers, candidateGroups, task, expressionManager, execution);
     }
 
+    private FlowAssignment getFlowAssignment(String iocFlowAssignment, FlowSubmitInfoDTO flowSubmitInfoDTO, TaskService taskService, String assignee, String owner, List<String> candidateUsers, List<String> candidateGroups, TaskEntity task, DelegateExecution execution) {
+        FlowAssignment flowAssignment = getFlowAssignment(iocFlowAssignment);
+        flowAssignment.init(taskService, flowSubmitInfoDTO, assignee, owner, candidateUsers, candidateGroups, task, execution);
+        return flowAssignment;
+    }
+
+
+    public FlowAssignment getFlowAssignment(String iocFlowAssignment) {
+        FlowAssignment flowAssignment;
+        try {
+            if (iocFlowAssignment.startsWith("$ioc:")) {
+                flowAssignment = ioc.get(FlowAssignment.class, iocFlowAssignment.substring(5));
+            } else {
+                throw new RuntimeException("表达式错误！");
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("获取 [" + TaskReviewerScopeEnum.JAVA_BEAN_ASSIGNMENT.getValue() + "]失败！", e);
+        }
+        return flowAssignment;
+    }
+
     private String getExpressionValue(String expression, ExpressionManager expressionManager, DelegateExecution execution) {
         return expressionManager.createExpression("${" + expression + "}").getValue(execution).toString();
     }
+
+
 }

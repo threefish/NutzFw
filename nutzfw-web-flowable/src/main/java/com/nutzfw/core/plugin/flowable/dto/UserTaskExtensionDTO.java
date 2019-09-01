@@ -15,22 +15,32 @@ import java.util.List;
 @Builder
 public class UserTaskExtensionDTO {
     /**
+     * userTask 原始信息
+     */
+    String           userTaskFormKey;
+    String           userTaskName;
+    String           userTaskId;
+    String           userTaskDocumentation;
+    /**
      * 是否允许批复意见
      */
-    boolean replyOpinion;
+    boolean          replyOpinion;
     /**
      * 是否允许手写签字
      */
-    boolean handwritingSignature;
+    boolean          handwritingSignature;
     /**
      * 同意按钮文字显示
      */
-    String agreeButtonName;
+    String           agreeButtonName;
     /**
      * 拒绝按钮文字显示
      */
-    String refuseButtonName;
-
+    String           refuseButtonName;
+    /**
+     * 批复意见框提示文字
+     */
+    String           replyOpinionName;
     /**
      * 回退类型
      */
@@ -38,48 +48,56 @@ public class UserTaskExtensionDTO {
     /**
      * 可回退节点
      */
-    String callBackNodes;
-    String callBackNodesDesc;
+    String           callBackNodes;
+    String           callBackNodesDesc;
     /**
      * 是否是多实例节点
      */
-    boolean multiInstanceNode;
+    boolean          multiInstanceNode;
     /**
      * 是否允许加签
      */
-    boolean addMultiInstance;
+    boolean          addMultiInstance;
     /**
      * 是否允许减签
      */
-    boolean delMultiInstance;
+    boolean          delMultiInstance;
     /**
      * 减签后触发父实例完成判断
      */
-    boolean delMultiInstanceExecutionIsCompleted;
+    boolean          delMultiInstanceExecutionIsCompleted;
     /**
-     * 表单数据动态赋值（动态代码逻辑）-应该是一段动态js，或者动态是绑定策略。
+     * 创建当前任务之前，执行表单数据动态赋值（动态代码逻辑）-应该是一段动态js，或者动态是绑定策略。
      * 不能返回给前台
      */
-    String formDataDynamicAssignment;
-
+    String                   beforeCreateCurrentTaskFormDataDynamicAssignment;
+    /**
+     * 创建当前任务之后，执行表单数据动态赋值（动态代码逻辑）-应该是一段动态js，或者动态是绑定策略。
+     * 不能返回给前台
+     */
+    String                   afterCreateCurrentTaskFormDataDynamicAssignment;
+    /**
+     * 完成当前任务后立即执行表单数据动态赋值（动态代码逻辑）-应该是一段动态js，或者动态是绑定策略。
+     * 不能返回给前台
+     */
+    String                   formDataDynamicAssignment;
     /**
      * 指定当前用户步骤任务审核人范围
      */
-    TaskReviewerScopeEnum taskReviewerScope;
+    TaskReviewerScopeEnum    taskReviewerScope;
     /**
      * 自由选择下一步审核人(下一步流程要确保能通过流程条件正确跳转至用户任务节点)
      */
-    boolean dynamicFreeChoiceNextReviewerMode;
-
+    boolean                  dynamicFreeChoiceNextReviewerMode;
     /**
      * 指定的下一步审核人范围-用户可以在其中任选一个或多选
      */
-    List<CandidateUsersDTO> nextReviewerCandidateUsers;
+    List<CandidateUsersDTO>  nextReviewerCandidateUsers;
     /**
      * 分配给指定用户
      * TaskReviewerScopeEnum.SINGLE_USER 时生效
      */
-    String assignee;
+    String                   assignee;
     /**
      * 候选用户角色组
      * TaskReviewerScopeEnum.USER_ROLE_GROUPS 时生效
@@ -89,8 +107,11 @@ public class UserTaskExtensionDTO {
      * 多个候选用户
      * TaskReviewerScopeEnum.MULTIPLE_USERS 时生效
      */
-    List<CandidateUsersDTO> candidateUsers;
-
+    List<CandidateUsersDTO>  candidateUsers;
+    /**
+     * JavaIocBean人员选择器
+     */
+    String                   iocFlowAssignment;
 
     public static UserTaskExtensionDTO NEW() {
         return UserTaskExtensionDTO.builder().callBackType(CallBackTypeEnum.NONE).addMultiInstance(false).build();
