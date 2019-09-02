@@ -410,13 +410,12 @@ layout("/layouts/blank.html",{title:data.title}){
                         vm.boxMainHeight = vm.boxMainHeight + 75;
                         showReplyOpinion = false;
                     }
+                    if (showReplyOpinion) {
+                        vm.boxMainHeight = vm.boxMainHeight - 32;
+                    }
                     $("#histoicFlowList").css({height: vm.boxMainHeight + 'px'});
                     $("#diagramTab").css({height: vm.boxMainHeight + 'px'});
                     $("#formBoxMain").css({height: vm.boxMainHeight + 'px'});
-                    if (showReplyOpinion) {
-                        $("#histoicFlowList").css({height: (vm.boxMainHeight - 32) + 'px'});
-                        $("#diagramTab").css({height: (vm.boxMainHeight - 32) + 'px'});
-                    }
                 });
                 if (this.flow.businessId != "") {
                     var url = "${base}/flowTask/histoicFlow?procInsId=${data.flow.procInsId}&startAct=&endAct=&t=" + new Date().getTime();

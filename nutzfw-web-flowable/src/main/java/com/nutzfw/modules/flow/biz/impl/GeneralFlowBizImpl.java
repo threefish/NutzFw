@@ -217,6 +217,7 @@ public class GeneralFlowBizImpl implements GeneralFlowBiz {
     }
 
     /**
+     * 表单数据在审核后执行数据库更新前进行动态赋值
      * @param formData
      * @param flowTaskVO
      * @param dto
