@@ -12,9 +12,8 @@
         <module>nutzfw-common</module>
         <module>nutzfw-web-admin</module>
         <module>nutzfw-web-flowable</module>
-        <module>../NutzFw/nutzfw-web-recruitment</module>
-        <!--<module>nutzfw-web-user-front</module>-->
-        <!--<module>nutz-web-oa</module>-->
+        <module>nutzfw-web-user-front</module>
+        <module>nutz-web-oa</module>
         <module>test</module>
     </modules>
     <properties>
