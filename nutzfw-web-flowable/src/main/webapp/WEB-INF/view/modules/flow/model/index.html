@@ -258,9 +258,19 @@ layout("/layouts/blank.html",{title:title}){
                     }
                 });
             },
+            handleBlockUI: function () {
+                parent.App.blockUI({
+                    target: '#tab-content',
+                    boxed: true,
+                    message: '加载中......'
+                });
+            },
+            handleUnBlockUI: function () {
+                parent.App.unblockUI('#tab-content');
+            },
             handleEdit: function (data) {
                 //使用parent.layer.open调用可以全屏
-                loadIndex = layer.load(3);
+                this.handleBlockUI()
                 layer.open({
                     type: 2,
                     shadeClose: false,
@@ -269,9 +279,6 @@ layout("/layouts/blank.html",{title:title}){
                     area: ["100%", "100%"], // 宽高
                     content: base + "/flowable/design#/editor/" + data.id,
                     closeBtn: 0,
-                    success: function () {
-
-                    },
                     end: function () {
                         vm.handleSearchTable();
                     }
