@@ -11,6 +11,7 @@ import com.nutzfw.core.plugin.flowable.enums.TaskReviewerScopeEnum;
 import com.nutzfw.core.plugin.flowable.service.FlowCacheService;
 import com.nutzfw.core.plugin.flowable.service.FlowProcessDefinitionService;
 import com.nutzfw.core.plugin.flowable.service.FlowTaskService;
+import com.nutzfw.core.plugin.flowable.util.FlowUtils;
 import com.nutzfw.core.plugin.flowable.vo.FlowTaskVO;
 import com.nutzfw.modules.flow.biz.GeneralFlowBiz;
 import com.nutzfw.modules.flow.executor.ExternalFormExecutor;
@@ -123,8 +124,13 @@ public class GeneralFlowBizImpl implements GeneralFlowBiz {
     public String userAudit(Map formData, FlowTaskVO flowTaskVO, UserAccount sessionUserAccount) {
         // 设置当前流程任务办理人
         Authentication.setAuthenticatedUserId(sessionUserAccount.getUserName());
+        FlowUtils.setFlowTaskVo(flowTaskVO, flowTaskService.getTaskOrHistoryTask(flowTaskVO.getTaskId()));
         ExternalFormExecutor executor = getExternalFormExecutor(flowTaskVO.getProcDefId());
-        flowTaskVO.setComment((flowTaskVO.isPass() ? "[同意] " : "[拒绝] ") + flowTaskVO.getComment());
+        if (Strings.isNotBlank(flowTaskVO.getComment())) {
+            flowTaskVO.setComment((flowTaskVO.isPass() ? "[通过] " : "[拒绝] ") + flowTaskVO.getComment());
+        } else {
+            flowTaskVO.setComment(flowTaskVO.getBusinessComment());
+        }
         Map<String, Object> vars = Maps.newHashMap();
         vars.put(FlowConstant.AUDIT_PASS, flowTaskVO.isPass());
         vars.put(FlowConstant.FORM_DATA, formData);
@@ -218,6 +224,7 @@ public class GeneralFlowBizImpl implements GeneralFlowBiz {
 
     /**
      * 表单数据在审核后执行数据库更新前进行动态赋值
+     *
      * @param formData
      * @param flowTaskVO
      * @param dto

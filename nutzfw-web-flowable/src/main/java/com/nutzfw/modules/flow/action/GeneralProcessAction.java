@@ -213,7 +213,7 @@ public class GeneralProcessAction extends BaseAction {
      */
     @At("/loadFormData")
     @POST
-    @Ok("json:{dateFormat:'yyyy-MM-dd HH:mm',locked:'flow'}")
+    @Ok("json:{dateFormat:'yyyy-MM-dd HH:mm'}")
     public AjaxResult loadFormData(@Param("::flow") FlowTaskVO flowTaskVO, @Attr(Cons.SESSION_USER_KEY) UserAccount sessionUserAccount) {
         Object formData = generalFlowBiz.loadFormData(flowTaskVO, sessionUserAccount);
         if (formData == null) {
