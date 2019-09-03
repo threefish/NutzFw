@@ -48,7 +48,10 @@
                             <div class="form-group">
             			   		<label for="valueField">{{'PROPERTY.DATAPROPERTIES.VALUE' | translate}}</label>
             			   		<input id="valueField" class="form-control" type="text" ng-model="selectedProperty.dataproperty_value" placeholder="{{'PROPERTY.DATAPROPERTIES.VALUE.PLACEHOLDER' | translate }}" />
+                                <div>user：对应 UserAccount 用户基本信息 form:对应 formData 提交的表单数据</div>
+                                <div>如：${user.realName} 发起的流程</div>
             				</div>
+
                         </div>
                         <div ng-show="!selectedProperty" class="muted no-property-selected" translate>PROPERTY.DATAPROPERTIES.EMPTY</div>
                     </div>

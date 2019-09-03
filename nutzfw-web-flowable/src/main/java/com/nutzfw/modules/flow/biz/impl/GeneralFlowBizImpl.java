@@ -73,10 +73,9 @@ public class GeneralFlowBizImpl implements GeneralFlowBiz {
         Map<String, Object> variables = Maps.newHashMap();
         variables.put(FlowConstant.FORM_DATA, formData);
         variables.put(FlowConstant.AUDIT_PASS, flowTaskVO.isPass());
-        if (Strings.isBlank(formData.getOrDefault(FlowConstant.PRIMARY_KEY, "").toString())) {
+        flowTaskService.setValuedDataObject(variables,flowTaskVO.getProcDefId(), formData, sessionUserAccount);
+        if (Strings.isBlank(formData.getOrDefault(FlowConstant.PRIMARY_KEY, "").toString()) && Strings.isBlank(flowTaskVO.getTaskId())) {
             flowTaskVO.setComment("[发起任务]");
-            String title = flowTaskService.generateProcessTitle(flowTaskVO.getProcDefId(), formData, sessionUserAccount);
-            variables.put(FlowConstant.PROCESS_TITLE, title);
             formData = executor.start(formData, flowTaskVO, sessionUserAccount);
             //存储最新的formData
             variables.put(FlowConstant.FORM_DATA, formData);

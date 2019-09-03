@@ -13,6 +13,7 @@ import com.nutzfw.core.plugin.flowable.enums.TaskStatusEnum;
 import com.nutzfw.core.plugin.flowable.service.FlowCacheService;
 import com.nutzfw.core.plugin.flowable.service.FlowProcessDefinitionService;
 import com.nutzfw.core.plugin.flowable.service.FlowTaskService;
+import com.nutzfw.core.plugin.flowable.util.FlowUtils;
 import com.nutzfw.core.plugin.flowable.vo.FlowAttachmentVO;
 import com.nutzfw.core.plugin.flowable.vo.FlowCommentVO;
 import com.nutzfw.core.plugin.flowable.vo.FlowTaskHistoricVO;
@@ -91,14 +92,9 @@ public class FlowTaskServiceImpl implements FlowTaskService {
     @Override
     public LayuiTableDataListVO todoList(LayuiTableDataListVO layuiTableDataListVO, FlowTaskVO flowTaskVO, String userName, Set<String> roleCodes, boolean needFormData) {
         //  单人或用户组待签收/待办理
-        TaskQuery todoTaskQuery = buildQuery(flowTaskVO)
-                .or()
-                .taskAssignee(userName)
-                .taskCandidateUser(userName);
-        if (CollectionUtils.isNotEmpty(roleCodes)) {
-            todoTaskQuery.taskCandidateGroupIn(Lists.newArrayList(roleCodes));
-        }
-        todoTaskQuery.endOr().orderByTaskCreateTime().desc();
+        TaskQuery todoTaskQuery = buildQuery(flowTaskVO);
+        FlowUtils.buildTodoQuery(todoTaskQuery, userName, Lists.newArrayList(roleCodes));
+        todoTaskQuery.orderByTaskCreateTime().desc();
         layuiTableDataListVO.setCount(todoTaskQuery.count());
         List<Task> listPage = todoTaskQuery.listPage(layuiTableDataListVO.getFirstResult(), layuiTableDataListVO.getPageSize());
         layuiTableDataListVO.setData(taskQueryFlow(listPage, needFormData));
@@ -700,17 +696,18 @@ public class FlowTaskServiceImpl implements FlowTaskService {
     }
 
     @Override
-    public String generateProcessTitle(String processDefinitionId, Object form, UserAccount userAccount) {
+    public void setValuedDataObject(Map<String, Object> variables, String processDefinitionId, Object form, UserAccount userAccount) {
         List<ValuedDataObject> ValuedDataObjects = repositoryService.getBpmnModel(processDefinitionId).getMainProcess().getDataObjects();
-        ValuedDataObject valuedDataObject = ValuedDataObjects.stream().filter(va -> FlowConstant.PROCESS_TITLE.equals(va.getName())).findAny().orElse(null);
+        ValuedDataObject valuedDataObject = ValuedDataObjects.stream().filter(va -> FlowConstant.PROCESS_TITLE.equals(va.getId())).findAny().orElse(null);
         if (valuedDataObject == null) {
-            throw Lang.makeThrow("流程应该设置标题模版，ID为 %s", FlowConstant.PROCESS_TITLE);
+            throw Lang.makeThrow("流程应该设置标题模版数据对象，ID为 %s", FlowConstant.PROCESS_TITLE);
         }
-        return ElUtil.render(String.valueOf(valuedDataObject.getValue()), Lang.context().set("form", form).set("user", userAccount));
+        ValuedDataObjects.stream().forEach(valued -> variables.put(valued.getId(), ElUtil.render(String.valueOf(valued.getValue()), Lang.context().set("form", form).set("user", userAccount))));
     }
 
     @Override
     public UserTask getNextNode(Map formData, FlowTaskVO flowTaskVO) {
+        //TODO  逻辑有变化，此处应当修改
         UserTask userTask;
         try {
             Task task = taskService.createTaskQuery().taskId(flowTaskVO.getTaskId()).singleResult();

@@ -125,9 +125,9 @@ public class FlowDesignAction extends BaseAction {
             JsonNode jsonNode = objectMapper.readTree(json);
             BpmnModel bpmnModel = customBpmnJsonConverter.convertToBpmnModel(jsonNode);
             if (bpmnModel.getMainProcess() != null) {
-                ValuedDataObject valuedDataObject = bpmnModel.getMainProcess().getDataObjects().stream().filter(va -> FlowConstant.PROCESS_TITLE.equals(va.getName())).findAny().orElse(null);
+                ValuedDataObject valuedDataObject = bpmnModel.getMainProcess().getDataObjects().stream().filter(va -> FlowConstant.PROCESS_TITLE.equals(va.getId())).findAny().orElse(null);
                 if (valuedDataObject == null) {
-                    return AjaxResult.errorf("保存失败!流程应该设置标题模版，id,name为{0}", FlowConstant.PROCESS_TITLE);
+                    return AjaxResult.errorf("保存失败!流程应该设置标题模版，id为{0}", FlowConstant.PROCESS_TITLE);
                 }
             }
             ProcessValidator validator = new CustomProcessValidatorFactory().createDefaultProcessValidator();

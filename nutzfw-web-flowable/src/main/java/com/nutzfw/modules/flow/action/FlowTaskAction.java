@@ -150,20 +150,6 @@ public class FlowTaskAction extends BaseAction {
         return dto;
     }
 
-    /**
-     * 启动流程
-     *
-     * @param flowTaskVO FlowEntity
-     */
-    @At("/start")
-    @Ok("json")
-    @POST
-    @TryCatchMsg("启动流程失败!")
-    public AjaxResult start(FlowTaskVO flowTaskVO) {
-        Authentication.setAuthenticatedUserId(getSessionUserAccount().getUserName());
-        flowTaskService.startProcess(flowTaskVO.getProcDefKey(), flowTaskVO.getBusinessId(), getSessionUserAccount().getUserName(), getSessionUserAccount().getDeptId(), getSessionRoleCodes());
-        return AjaxResult.sucess();
-    }
 
     /**
      * 签收任务
@@ -235,20 +221,6 @@ public class FlowTaskAction extends BaseAction {
         return AjaxResult.sucess("委托成功");
     }
 
-    /**
-     * 完成任务
-     *
-     * @param flowTaskVO FlowEntity
-     */
-    @At("/complete")
-    @POST
-    @Ok("json")
-    public AjaxResult complete(FlowTaskVO flowTaskVO) {
-        // 设置当前流程任务办理人
-        Authentication.setAuthenticatedUserId(getSessionUserAccount().getUserName());
-        flowTaskService.complete(flowTaskVO, null);
-        return AjaxResult.sucess();
-    }
 
     /**
      * 删除任务

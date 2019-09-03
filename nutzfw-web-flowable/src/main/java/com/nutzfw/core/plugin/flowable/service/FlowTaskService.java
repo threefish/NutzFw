@@ -224,15 +224,16 @@ public interface FlowTaskService {
      */
     String backToStep(FlowTaskVO flowTaskVO, String userName);
 
+
     /**
-     * 生成流程标题
+     * 设置流程变量（不是步骤变量）
      *
-     * @param processDefinitionId 流程定义ID
-     * @param form                表单
-     * @param userAccount         当前操作人
-     * @return
+     * @param variables
+     * @param processDefinitionId
+     * @param form
+     * @param userAccount
      */
-    String generateProcessTitle(String processDefinitionId, Object form, UserAccount userAccount);
+    void setValuedDataObject(Map<String, Object> variables,String processDefinitionId, Object form, UserAccount userAccount);
 
     /**
      * 在流程完成时取得下一节点信息，在调用此方法前的所有事务都不生效

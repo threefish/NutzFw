@@ -7,6 +7,7 @@ import com.nutzfw.core.plugin.flowable.enums.TaskStatusEnum;
 import com.nutzfw.core.plugin.flowable.vo.FlowTaskVO;
 import com.nutzfw.modules.organize.entity.UserAccount;
 import com.nutzfw.modules.sys.entity.Role;
+import org.apache.commons.collections.CollectionUtils;
 import org.flowable.bpmn.model.ExtensionElement;
 import org.flowable.bpmn.model.UserTask;
 import org.flowable.editor.constants.ModelDataJsonConstants;
@@ -19,6 +20,7 @@ import org.flowable.idm.engine.impl.persistence.entity.UserEntity;
 import org.flowable.idm.engine.impl.persistence.entity.UserEntityImpl;
 import org.flowable.task.api.Task;
 import org.flowable.task.api.TaskInfo;
+import org.flowable.task.api.TaskQuery;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Strings;
@@ -143,5 +145,14 @@ public class FlowUtils {
         flowTaskVO.setProcInsId(task.getProcessInstanceId());
         flowTaskVO.setClaimTime(task.getClaimTime());
         flowTaskVO.setProcDefId(task.getProcessDefinitionId());
+    }
+
+
+    public static void buildTodoQuery(TaskQuery todoTaskQuery, String userName, List<String> roleCodes) {
+        todoTaskQuery.or().taskAssignee(userName).taskCandidateUser(userName);
+        if (CollectionUtils.isNotEmpty(roleCodes)) {
+            todoTaskQuery.taskCandidateGroupIn(roleCodes);
+        }
+        todoTaskQuery.endOr();
     }
 }
