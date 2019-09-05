@@ -16,4 +16,8 @@
 <!--必须的组件 结束-->
 <script>
     var base="${base}";
+    Vue.filter('dictDesc', function (value, vm, fieldName, sysCode, defaualtValueField, vm) {
+        return core.dictDesc(value, vm, fieldName, sysCode, defaualtValueField);
+    });
+
 </script>

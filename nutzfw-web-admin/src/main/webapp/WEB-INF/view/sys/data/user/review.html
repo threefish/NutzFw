@@ -70,7 +70,7 @@ layout("/layouts/blank.html",{title:title}){
     }
 </style>
 <%}%>
-<section class="content" id="container" v-if="initLoad">
+<section class="content" id="container" v-cloak>
     <div class="row">
         <div class="col-sm-2">
             <ul class="data-info">
@@ -204,7 +204,7 @@ layout("/layouts/blank.html",{title:title}){
         el: '#container',
         data: {
             fromData: {},
-            initLoad: false,
+
         },
         methods: {
             handleShowFile: function (strs) {
@@ -212,7 +212,7 @@ layout("/layouts/blank.html",{title:title}){
             }
         },
         created: function () {
-            this.initLoad = true;
+
         },
         updated: function () {
         },

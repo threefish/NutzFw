@@ -91,7 +91,7 @@
     </style>
 </head>
 <body>
-<div id="container" v-if="initLoad">
+<div id="container" v-cloak>
     <div class="col-sm-6" style="padding: 0;">
         <div class="layui-collapse" lay-accordion="">
             <div class="layui-colla-item">
@@ -122,7 +122,7 @@
             </div>
         </div>
     </div>
-    <div class="col-sm-6" v-if="initLoad">
+    <div class="col-sm-6" v-cloak>
         <div class="layui-card">
             <div class="layui-card-header">人员列表</div>
             <div class="layui-card-body clearfix">
@@ -167,7 +167,7 @@
     var deptTree, vm = new Vue({
         el: '#container',
         data: {
-            initLoad: false,
+
             searchKey: "",
             unSelectedUsers: [],
             selectedUsers: [],
@@ -250,7 +250,7 @@
             },
         },
         created: function () {
-            this.initLoad = true;
+
         },
         updated: function () {
         },

@@ -103,7 +103,7 @@ public class CheckDataThread implements Runnable {
         for (TableFields fields : tableFieldsList) {
             if (Strings.isNotBlank(fields.getDictSysCode())) {
                 //是字典
-                List<Dict> dictDetails = dictBiz.list(fields.getDictSysCode());
+                List<Dict> dictDetails = dictBiz.listCache(fields.getDictSysCode());
                 dictDetails.forEach(dictDetail -> lableAndIdDictsInfo.put(dictDetail.getLable().concat(DELIMITER).concat(String.valueOf(dictDetail.getId())), dictDetail));
                 dictDetails.forEach(dictDetail -> sysCodeAndLableDictsInfo.put(fields.getDictSysCode().concat(dictDetail.getLable()), dictDetail));
             }

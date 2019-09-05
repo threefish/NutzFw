@@ -11,7 +11,7 @@ layout("/layouts/blank.html",{title:title}){
         min-height: 700px;
     }
 </style>
-<section class="content" id="container" v-if="initLoad">
+<section class="content" id="container" v-cloak>
     <div class="layui-tab layui-tab-card">
         <ul class="layui-tab-title">
             <li class="layui-this">个人信息</li>
@@ -58,7 +58,7 @@ layout("/layouts/blank.html",{title:title}){
             fromDataSubmit: false,
             viewPersonalData: "${base}/manage/user/viewPersonalData?tableId=${data.tableId}&sourceId=${data.sourceId!}",
             editPersonalDataToReview: "${base}/manage/user/editPersonalDataToReview?tableId=${data.tableId}&sourceId=${data.sourceId!}",
-            initLoad: false,
+
             personalDataUrl: "",
             frameBoxHeight: "100%",
             personalLoadPendingReviewCount: 0,
@@ -99,7 +99,7 @@ layout("/layouts/blank.html",{title:title}){
             }
         },
         created: function () {
-            this.initLoad = true;
+
         },
         updated: function () {
         },

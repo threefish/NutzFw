@@ -10,7 +10,7 @@ layout("/layouts/blank.html",{title:title}){
         <small>控制面板</small>
     </h1>
 </section>
-<section class="content" id="container" v-if="initLoad">
+<section class="content" id="container" v-cloak>
     待开发-（暂不开放，此功能需要针对具体的短信服务提供商开发接口）
 </section>
 <script type="text/javascript">
@@ -22,13 +22,13 @@ layout("/layouts/blank.html",{title:title}){
             },
             fromDataSubmit: false,
             fromDataEdit: true,
-            initLoad: false,
+
         },
         methods: {
 
         },
         created: function () {
-            this.initLoad = true;
+
         },
         updated: function () {
         },

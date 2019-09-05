@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author 黄川 huchuc@vip.qq.com
@@ -41,7 +42,7 @@ public class DictAction extends BaseAction {
     @Inject
     TableFieldsService tableFieldsService;
     @Inject
-    DictBiz dictBiz;
+    DictBiz            dictBiz;
 
     @At("/manager")
     @Ok("btl:WEB-INF/view/sys/dict/manager.html")
@@ -131,24 +132,27 @@ public class DictAction extends BaseAction {
      * 取得字典名称
      *
      * @param sysCode
-     * @param ids     在多选情况下数据是数组节点ids[]，单选情况是ids
+     * @param values  在多选情况下数据是数组节点ids[]，单选情况是ids
      * @return
      */
     @Ok("json:{ignoreNull:false,locked:'createTime|updateTime'}")
     @POST
     @At("/getDictName")
-    public String getDictName(@Param("sysCode") String sysCode, @Param("ids") String[] ids, @Param("ids[]") String[] ids1) {
-        HashMap<Integer, String> hashMap = dictBiz.getDictEnums(sysCode);
-        List<String> names = new ArrayList<>();
-        List<String> idsArr = new ArrayList<>();
-        if (ids != null) {
-            idsArr.addAll(Arrays.asList(ids));
-        } else if (ids1 != null) {
-            idsArr.addAll(Arrays.asList(ids1));
+    public String getDictName(@Param("sysCode") String sysCode, @Param("ids") String[] values, @Param("ids[]") String[] values1, @Param("defaualtValueField") String defaualtValueField) {
+        if (Strings.isBlank(defaualtValueField)) {
+            defaualtValueField = "id";
         }
-        for (String id : idsArr) {
-            if (Strings.isNotBlank(id)) {
-                names.add(hashMap.get(Integer.parseInt(id)));
+        HashMap<String, String> hashMap = dictBiz.getDictEnumsByDefaualtValueField(sysCode, defaualtValueField);
+        List<String> names = new ArrayList<>();
+        List<String> vals = new ArrayList<>();
+        if (values != null) {
+            vals.addAll(Arrays.asList(values));
+        } else if (values1 != null) {
+            vals.addAll(Arrays.asList(values1));
+        }
+        for (String val : vals) {
+            if (Strings.isNotBlank(val)) {
+                names.add(hashMap.get(val));
             }
         }
         return Strings.join(",", names);
@@ -164,13 +168,8 @@ public class DictAction extends BaseAction {
     @POST
     @At("/tree")
     public List<DictVO> tree(@Param("sysCode") String sysCode) {
-        Cnd cnd = Cnd.NEW();
-        cnd.andEX("sysCode", "=", sysCode);
-        cnd.asc("shortNo");
-        List<Dict> dictDetails = dictService.query(cnd);
-        List<DictVO> voList = new ArrayList<>();
-        dictDetails.forEach(dict -> voList.add(DictVO.create(dict, dictBiz.hasChilds(dict))));
-        return voList;
+        List<Dict> dictDetails = dictService.listAllDictBylikeCode(Strings.sNull(sysCode));
+        return dictDetails.stream().map(dict -> DictVO.create(dict, dictBiz.hasChilds(dict))).collect(Collectors.toList());
     }
 
     /**
@@ -183,13 +182,11 @@ public class DictAction extends BaseAction {
     @POST
     @At("/asynTree")
     public List<DictVO> tree(@Param("id") int pid) {
-        List<DictVO> voList = new ArrayList<>();
         Cnd cnd = Cnd.NEW();
         cnd.and("pid", "=", pid);
         cnd.asc("shortNo");
         List<Dict> dictDetails = dictService.query(cnd);
-        dictDetails.forEach(dict -> voList.add(DictVO.create(dict, dictBiz.hasChilds(dict))));
-        return voList;
+        return dictDetails.stream().map(dict -> DictVO.create(dict, dictBiz.hasChilds(dict))).collect(Collectors.toList());
     }
 
     /**
@@ -201,10 +198,8 @@ public class DictAction extends BaseAction {
     @POST
     @At("/all")
     public List<DictVO> all() {
-        List<DictVO> voList = new ArrayList<>();
         List<Dict> dictDetails = dictService.query(Cnd.orderBy().asc("shortNo"));
-        dictDetails.forEach(dict -> voList.add(DictVO.create(dict, dictBiz.hasChilds(dict))));
-        return voList;
+        return dictDetails.stream().map(dict -> DictVO.create(dict, dictBiz.hasChilds(dict))).collect(Collectors.toList());
     }
 
     @Ok("json")
@@ -215,6 +210,5 @@ public class DictAction extends BaseAction {
     public AjaxResult sort(@Param("::") NutMap map) {
         dictService.sort(map);
         return AjaxResult.sucess("操作成功");
-
     }
 }

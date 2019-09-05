@@ -20,7 +20,7 @@ layout("/layouts/blank.html",{title:title}){
         cursor: pointer;
     }
 </style>
-<section class="content" id="container" v-if="initLoad">
+<section class="content" id="container" v-cloak>
     <table style="width: 100%">
         <tr>
             <td colspan="2">
@@ -168,7 +168,7 @@ layout("/layouts/blank.html",{title:title}){
             },
             fromDataSubmit: false,
             fromDataEdit: true,
-            initLoad: false,
+
         },
         methods: {
             /**
@@ -358,7 +358,7 @@ layout("/layouts/blank.html",{title:title}){
             }
         },
         created: function () {
-            this.initLoad = true;
+
         },
         updated: function () {
         },

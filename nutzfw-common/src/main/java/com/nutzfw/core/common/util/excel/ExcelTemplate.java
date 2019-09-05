@@ -27,16 +27,17 @@ import java.util.List;
  */
 public class ExcelTemplate {
 
-    static final Log log = Logs.get();
-    static final String NUTZ_TEMP_ROW_KEY = "nutz_temp_row_key";
-    private static final String LIST = "list";
-    private static final String DATA = "data";
+    static final         Log    log               = Logs.get();
+    static final         String NUTZ_TEMP_ROW_KEY = "nutz_temp_row_key";
+    private static final String LIST              = "list";
+    private static final String DATA              = "data";
+    private static final String IMG               = "img";
     /**
      * 输出文件
      */
     File outFile;
     private ByteArrayInputStream inputStream;
-    private Workbook wb;
+    private Workbook             wb;
 
     public ExcelTemplate(File template, File outFile) throws IOException {
         if (!outFile.exists() || !template.exists()) {
@@ -164,6 +165,14 @@ public class ExcelTemplate {
             } else {
                 cell.setCellType(CellType.STRING);
                 cell.setCellValue("");
+            }
+        } else if (IMG.equals(dto.getType())) {
+            File img = ctx.getAs(File.class, key);
+            if (img != null && dto.getImg() != null) {
+                dto.getImg().setImgFile(img);
+                cell.setCellType(CellType.STRING);
+                cell.setCellValue("");
+                ExcelUtils.insertImgage(sheet, dto.getImg());
             }
         }
         ExcelUtils.renderDimension(this.wb);

@@ -545,7 +545,7 @@ public class DataMaintainBizImpl implements DataMaintainBiz {
         HashMap<String, List<Dict>> dicts = new HashMap<>(0);
         Set<String> names = new HashSet<>(0);
         tableFieldsList.stream().filter(fields -> Strings.isNotBlank(fields.getDictSysCode())).forEach(fields -> {
-            List<Dict> dictDetails = dictBiz.list(fields.getDictSysCode());
+            List<Dict> dictDetails = dictBiz.listCache(fields.getDictSysCode());
             dicts.put(fields.getFieldName(), dictDetails);
             names.add(fields.getFieldName());
         });
@@ -569,7 +569,7 @@ public class DataMaintainBizImpl implements DataMaintainBiz {
         HashMap<String, List<Dict>> dicts = new HashMap<>(0);
         Set<String> names = new HashSet<>(0);
         tableFieldsList.stream().filter(fields -> Strings.isNotBlank(fields.getDictSysCode())).forEach(fields -> {
-            List<Dict> dictDetails = dictBiz.list(fields.getDictSysCode());
+            List<Dict> dictDetails = dictBiz.listCache(fields.getDictSysCode());
             dicts.put(fields.getFieldName(), dictDetails);
             names.add(fields.getFieldName());
         });
@@ -1277,7 +1277,7 @@ public class DataMaintainBizImpl implements DataMaintainBiz {
      * @return
      */
     private String[] corverExcleCell(String sysCode) {
-        List<Dict> dictDetails = dictBiz.list(sysCode);
+        List<Dict> dictDetails = dictBiz.listCache(sysCode);
         List<String> ss = new ArrayList<>();
         dictDetails.forEach(dict -> {
             //判断是否在当前枚举中存在重复

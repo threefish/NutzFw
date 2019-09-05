@@ -21,6 +21,7 @@ import com.nutzfw.modules.sys.quartz.job.AutoSendMailJob;
 import com.nutzfw.modules.sys.quartz.job.DataImportJob;
 import com.nutzfw.modules.sys.quartz.job.DatabaseBackupJob;
 import com.nutzfw.modules.sys.quartz.job.UserImportJob;
+import com.nutzfw.modules.sys.service.DictService;
 import com.nutzfw.modules.tabledata.entity.DataTableVersionHistory;
 import com.nutzfw.modules.tabledata.enums.FieldType;
 import com.nutzfw.modules.tabledata.enums.TableType;
@@ -93,6 +94,8 @@ public class MainSetup extends AbstractInitSetup implements Setup {
         this.addQuartzJob(quartzJobs);
         this.addTablesFilters(tablesFilters);
         this.addDictGroup(dictGroup);
+        this.updateDict(nutConfig);
+
         initSetups.forEach(setup -> {
             setup.addAttachType(attachType);
             setup.addDictGroup(dictGroup);
@@ -117,6 +120,17 @@ public class MainSetup extends AbstractInitSetup implements Setup {
         //循环获取一次所有IocBean 避免单个服务创建失败，导致服务不可用，错误不好定位
         this.fetchAllIocBean(ioc);
         BeetlViewMaker.updateBeetlGroupTemplate(ioc);
+    }
+
+    /**
+     * 数据字典做了较大更改
+     *
+     * @param nutConfig
+     */
+    private void updateDict(NutConfig nutConfig) {
+        DictService dictService = nutConfig.getIoc().getByType(DictService.class);
+        List<Dict> query = dictService.query();
+        query.forEach(dict -> dictService.insertOrUpdate(dict));
     }
 
     /**
@@ -283,8 +297,10 @@ public class MainSetup extends AbstractInitSetup implements Setup {
     private void checkAttachTypeDict(DictBiz dictBiz) {
         Dict parentDict = ifNotExistCreateDictGroup(dictBiz, FileAction.SYS_ATTACH_TYPE, "附件类型");
         attachType.forEach((name, value) -> {
-            if (dictBiz.getDict(parentDict.getSysCode(), value) == null) {
-                dictBiz.addDict(Dict.builder().sysCode(parentDict.getSysCode()).pid(parentDict.getId())
+            if (dictBiz.getCacheDict(parentDict.getSysCode(), value) == null) {
+                dictBiz.addDict(Dict.builder().sysCode(parentDict.getSysCode())
+                        .pid(parentDict.getId())
+                        .likeCode(parentDict.getSysCode() + "_" + parentDict.getSysCode())
                         .lable(name).val(value).showType(0).grouping(false)
                         .internal(true).shortNo(0).mark("").defaultVal(false)
                         .edit(false)
@@ -302,9 +318,9 @@ public class MainSetup extends AbstractInitSetup implements Setup {
      * @return
      */
     private Dict ifNotExistCreateDictGroup(DictBiz dictBiz, String sysCode, String lable) {
-        Dict dict = dictBiz.getDict(sysCode);
+        Dict dict = dictBiz.getCacheDict(sysCode);
         if (dict == null) {
-            dict = dictBiz.addDict(Dict.builder().lable(lable).grouping(true).internal(true).sysCode(sysCode).val("").edit(false).build());
+            dict = dictBiz.addDict(Dict.builder().lable(lable).grouping(true).internal(true).sysCode(sysCode).likeCode(sysCode).val("").edit(false).build());
         }
         return dict;
     }
@@ -457,7 +473,9 @@ public class MainSetup extends AbstractInitSetup implements Setup {
             String[] temp = s.split("=");
             Dict detail = Dict.builder()
                     .pid(parentDict.getId()).grouping(false).internal(true).defaultVal(false)
-                    .sysCode(parentDict.getSysCode()).lable(temp[0].trim()).val(temp[1].trim()).shortNo(i).mark("")
+                    .sysCode(parentDict.getSysCode())
+                    .likeCode(parentDict.getSysCode() + "_" + parentDict.getSysCode())
+                    .lable(temp[0].trim()).val(temp[1].trim()).shortNo(i).mark("")
                     .build();
             list.add(detail);
         }
@@ -477,7 +495,7 @@ public class MainSetup extends AbstractInitSetup implements Setup {
             int start = val.indexOf(DELIMITER);
             String name = val.substring(0, start).trim();
             val = val.substring(start + 2).trim();
-            Dict parentDict = Dict.builder().sysCode(key).pid(0).lable(name).val("").showType(0).grouping(true)
+            Dict parentDict = Dict.builder().sysCode(key).likeCode(key).pid(0).lable(name).val("").showType(0).grouping(true)
                     .internal(true).shortNo(0).mark("").defaultVal(false)
                     .build();
             dao.insert(parentDict);

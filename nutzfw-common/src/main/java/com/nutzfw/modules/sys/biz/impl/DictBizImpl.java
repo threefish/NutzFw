@@ -11,12 +11,15 @@ import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
+import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
+import org.nutz.lang.util.NutMap;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author 黄川 huchuc@vip.qq.com
@@ -37,7 +40,7 @@ public class DictBizImpl implements DictBiz {
      * @return
      */
     @Override
-    public Dict getDict(String sysCode) {
+    public Dict getCacheDict(String sysCode) {
         return dictService.fetch(Cnd.where("sysCode", "=", sysCode).and("grouping", "=", true));
     }
 
@@ -49,7 +52,7 @@ public class DictBizImpl implements DictBiz {
      */
     @Override
     public HashMap<Integer, String> getDictEnums(String sysCode) {
-        List<Dict> list = list(sysCode);
+        List<Dict> list = listCache(sysCode);
         HashMap data = new HashMap(list.size());
         list.forEach(dictDetail -> data.put(dictDetail.getId(), dictDetail.getLable()));
         return data;
@@ -57,29 +60,43 @@ public class DictBizImpl implements DictBiz {
 
     @Override
     public HashMap<String, String> getDictEnumsByValue(String sysCode) {
-        List<Dict> list = list(sysCode);
+        List<Dict> list = listCache(sysCode);
         HashMap data = new HashMap(list.size());
         list.forEach(dictDetail -> data.put(dictDetail.getVal(), dictDetail.getLable()));
         return data;
     }
 
+    @Override
+    public HashMap<String, String> getDictEnumsByDefaualtValueField(String sysCode, String defaualtValueField) {
+        List<Dict> list = listCache(sysCode);
+        List<NutMap> collect = list.stream().map(dict -> Lang.obj2map(dict, NutMap.class)).collect(Collectors.toList());
+        HashMap data = new HashMap(list.size());
+        collect.forEach(dictDetail -> data.put(dictDetail.getString(defaualtValueField), dictDetail.getString("lable")));
+        return data;
+    }
+
     /**
-     * 取得字典
+     * 通过ID取得字典
      *
      * @param dictId
      * @param sysCode
      * @return
      */
     @Override
-    public Dict getDict(int dictId, String sysCode) {
-        List<Dict> list = list(sysCode);
-        return list.stream().filter(d -> d.getId() == dictId).findFirst().orElse(null);
+    public Dict getCacheDict(int dictId, String sysCode) {
+        return listCache(sysCode).stream().filter(d -> d.getId() == dictId).findFirst().orElse(null);
     }
 
+    /**
+     * 通过val取得字典
+     *
+     * @param sysCode
+     * @param value
+     * @return
+     */
     @Override
-    public Dict getDict(String sysCode, String value) {
-        List<Dict> list = list(sysCode);
-        return list.stream().filter(d -> d.getVal().equals(value)).findFirst().orElse(null);
+    public Dict getCacheDict(String sysCode, String value) {
+        return listCache(sysCode).stream().filter(d -> d.getVal().equals(value)).findFirst().orElse(null);
     }
 
     /**
@@ -96,7 +113,7 @@ public class DictBizImpl implements DictBiz {
 
     @Override
     public String getDictLable(int dictId, String sysCode) {
-        return getDict(dictId, sysCode).getLable();
+        return getCacheDict(dictId, sysCode).getLable();
     }
 
 
@@ -155,7 +172,7 @@ public class DictBizImpl implements DictBiz {
      * @return
      */
     @Override
-    public List<Dict> list(String sysCode) {
+    public List<Dict> listCache(String sysCode) {
         return dictService.getCache(sysCode);
     }
 
@@ -165,7 +182,7 @@ public class DictBizImpl implements DictBiz {
         if (selectDictId == 0) {
             return list;
         }
-        Dict dict = getDict(selectDictId, sysCode);
+        Dict dict = getCacheDict(selectDictId, sysCode);
         for (TableFields fields : dictDependFieldIdList) {
             String val = "";
             if (fields.getDictDepend() == DictDepend.Name.getValue()) {
@@ -200,9 +217,7 @@ public class DictBizImpl implements DictBiz {
 
     @Override
     public Dict addDict(Dict dict) {
-        dict = dictService.insert(dict);
-        dictService.updateCache(dict.getSysCode());
-        return dict;
+        return dictService.insertOrUpdate(dict);
     }
 
     @Override

@@ -7,7 +7,7 @@ layout("/layouts/blank.html",{title:title}){
         color: red;
     }
 </style>
-<section class="content" id="container" v-if="initLoad">
+<section class="content" id="container" v-cloak>
     <div class="col-sm-2" style="min-width: 150px;">
         <div class="ztree" id="dbTree"></div>
     </div>
@@ -50,7 +50,7 @@ layout("/layouts/blank.html",{title:title}){
             fromData: {},
             selectNode: undefined,
             fromDataSubmit: false,
-            initLoad: false,
+
         },
         methods: {
             handleDel: function () {
@@ -126,7 +126,7 @@ layout("/layouts/blank.html",{title:title}){
             }
         },
         created: function () {
-            this.initLoad = true;
+
         },
         updated: function () {
         },

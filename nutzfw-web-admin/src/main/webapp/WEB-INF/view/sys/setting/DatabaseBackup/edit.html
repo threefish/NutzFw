@@ -41,7 +41,7 @@ layout("/layouts/blank.html",{title:title}){
         width: 100% !important;
     }
 </style>
-<section class="content" id="container" v-if="initLoad">
+<section class="content" id="container" v-cloak>
     <div role="form">
         <!-- text input -->
         <div class="form-group col-xs-6">
@@ -113,11 +113,11 @@ layout("/layouts/blank.html",{title:title}){
             },
             fromDataSubmit: false,
             fromDataEdit: readOnly,
-            initLoad: false,
+
         },
         methods: {
             init: function () {
-                this.initLoad = true;
+
                 if (this.fromData.uuid != '') {
                     $.post(base + "/DatabaseBackup/details", {uuid: this.fromData.uuid}, function (json) {
                         vm.fromData = json.data;
@@ -135,8 +135,8 @@ layout("/layouts/blank.html",{title:title}){
                 //字典变化，需要修改依赖值的内容
                 core.dictChange(fieldId, dictValFieldName, this)
             },
-            handleShowEnumTree: function (fieldName, sysCode, multipleDict) {
-                core.handleShowEnumTree(fieldName, sysCode, multipleDict, this);
+            handleShowEnumTree: function (fieldName, sysCode, multipleDict,defaualtValueField) {
+                core.handleShowEnumTree(this,fieldName, sysCode, multipleDict,defaualtValueField)
             },
         },
         created: function () {

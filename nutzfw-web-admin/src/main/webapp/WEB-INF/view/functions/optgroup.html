@@ -1,12 +1,14 @@
-<select ${attrs} class="${class} dict-select">
-    <option value="" key-val="">--请选择--</option>
+<%
+var dict = para0;
+%>
+<optgroup label="${dict.lable}">
     <%
     for(item in list){
-    if(item.pid==dict.id){
+    if(item.pid == dict.id){
     if(item.grouping){
     %>
-    ${optgroup(item)}
+    ${optgroup(item,list)}
     <%}else{%>
     <option value="${item[dto.defaualtValueField]}" key-val="${item.val}" id-val="${item.id}">${item.lable}</option>
     <%}}}%>
-</select>
+</optgroup>

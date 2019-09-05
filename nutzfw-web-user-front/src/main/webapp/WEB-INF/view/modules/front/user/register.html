@@ -11,7 +11,7 @@
 </head>
 <body style="text-align: center">
 <%if(so.isNotAuthenticated()){%>
-<div id="container" v-if="initLoad">
+<div id="container" v-cloak>
     <input placeholder="真实姓名" v-model="fromData.realName">
     <input placeholder="用户名" v-model="fromData.userName">
     <input placeholder="密码" v-model="fromData.userPass">
@@ -45,7 +45,7 @@
                 mail: "",
             },
             fromDataSubmit: false,
-            initLoad: false,
+
             imgCode: "",
             imgVerificationCode: "",
             imgVerificationCodeUrl: "${base!}/front/user/imgVerificationCode",
@@ -76,7 +76,7 @@
             },
         },
         created: function () {
-            this.initLoad = true;
+
             this.handleNext();
         },
         updated: function () {

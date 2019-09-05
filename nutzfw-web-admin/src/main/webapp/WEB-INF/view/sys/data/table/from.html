@@ -31,7 +31,7 @@ layout("/layouts/blank.html",{title:title}){
         resize: none;
     }
 </style>
-<section id="container" v-if="initLoad">
+<section id="container" v-cloak>
     <div class="layui-tab layui-tab-brief" lay-filter="tabChange">
         <ul class="layui-tab-title">
             <li class="layui-this">表单属性</li>
@@ -236,7 +236,7 @@ layout("/layouts/blank.html",{title:title}){
             },
             fromDataSubmit: false,
             fromDataEdit: true,
-            initLoad: false,
+
         },
         methods: {
             handleSave: function () {
@@ -396,7 +396,7 @@ layout("/layouts/blank.html",{title:title}){
             }
         },
         created: function () {
-            this.initLoad = true;
+
         },
         mounted: function () {
             var editField = JSON.parse('${fields!}');

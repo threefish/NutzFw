@@ -65,6 +65,9 @@
 <script type="text/javascript" src="${base!}/static/plugins/imageview/viewer1.0.js?_=${productVersion}"></script>
 <script>
     var base = "${base!}";
+    Vue.filter('dictDesc', function (value, vm, fieldName, sysCode, defaualtValueField, vm) {
+        return core.dictDesc(value, vm, fieldName, sysCode, defaualtValueField);
+    });
 
     function setiCheckAll() {
         $('body input[type="checkbox"].minimal, input[type="radio"].minimal').iCheck({
@@ -117,5 +120,8 @@
 <style type="text/css">
     html {
         overflow: hidden;
+    }
+    [v-cloak] {
+        display: none;
     }
 </style>

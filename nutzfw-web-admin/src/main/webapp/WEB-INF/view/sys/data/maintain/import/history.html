@@ -14,7 +14,7 @@ layout("/layouts/blank.html",{title:title}){
     </h1>
 </section>
 
-<section class="content" id="container" v-if="initLoad">
+<section class="content" id="container" v-cloak>
     <div style="background: #ffffff">
         <div id="listTable" lay-filter='listTable'></div>
     </div>
@@ -37,12 +37,12 @@ layout("/layouts/blank.html",{title:title}){
             fromData: {},
             fromDataSubmit: false,
             fromDataEdit: true,
-            initLoad: false,
+
             synchronizeType: 0,
         },
         methods: {},
         created: function () {
-            this.initLoad = true;
+
         },
         updated: function () {
 

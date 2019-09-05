@@ -51,11 +51,6 @@ var core = {
             core.singleUpload(opt);
         }
     },
-    reverEnumDesc: function (fieldName, sysCode, vm) {
-        var ids = new Function("vm", "return vm." + fieldName)(vm);
-        this.dictChange(0, fieldName, vm);
-        return core.postJSON("/sysDict/getDictName", {sysCode: sysCode, ids: ids});
-    },
     dictChange: function (fieldId, dictValFieldName, vm) {
         var selectDictId = new Function("vm", "return vm." + dictValFieldName)(vm);
         var fieldName = "";
@@ -80,12 +75,16 @@ var core = {
             }
         }, 'JSON');
     },
-    handleShowEnumTree: function (fieldName, sysCode, multipleDict, vm) {
+    handleShowEnumTree: function (vm, fieldName, sysCode, multipleDict, defaualtValueField) {
+        if (defaualtValueField == undefined) {
+            defaualtValueField == "id";
+        }
         core.showMenusSimpleTree({
             title: "请选择",
             url: "/sysDict/tree",
             data: {id: "id", pid: "pid", name: "lable"},
             otherParam: {sysCode: sysCode},
+            dataDefaultVal: defaualtValueField,
             chkboxType: {"Y": "s", "N": "ps"},
             isCheckbox: multipleDict,
             onOk: function (data) {
@@ -94,7 +93,7 @@ var core = {
                     for (var i in data) {
                         var item = data[i];
                         if (!item.grouping) {
-                            ids.push(item.id)
+                            ids.push(item[defaualtValueField])
                         }
                     }
                     var idsVal = ids.join(",");
@@ -102,7 +101,7 @@ var core = {
                     return true;
                 } else {
                     if (!data.grouping) {
-                        new Function("vm", "data", "vm." + fieldName + "=data.id;")(vm, data)
+                        new Function("vm", "val", "vm." + fieldName + "=val;")(vm, data[defaualtValueField])
                         return true;
                     }
                     core.error("请勿选择字典分组");
@@ -113,12 +112,12 @@ var core = {
                 if (multipleDict) {
                     var idsArr = new Function("vm", "return vm." + fieldName)(vm).split(",");
                     for (var i in idsArr) {
-                        var node = ztree.getNodesByParam('id', idsArr[i])[0];
+                        var node = ztree.getNodesByParam(defaualtValueField, idsArr[i])[0];
                         ztree.checkNode(node, true, false);
                     }
                 } else {
                     var val = new Function("vm", "return vm." + fieldName)(vm);
-                    var node = ztree.getNodesByParam('id', val)[0];
+                    var node = ztree.getNodesByParam(defaualtValueField, val)[0];
                     ztree.selectNode(node);
                 }
             }
@@ -237,6 +236,13 @@ var core = {
             }
         });
         return html;
+    },
+    postDownload: function (url, params) {
+        var $form = $('<form></form>').attr("action", base + url).attr("method", "post");
+        for (var key in params) {
+            $('<input type="text"/>').attr("name", key).val(params[key]).appendTo($form);
+        }
+        $($form).appendTo('body').submit().remove();
     },
     showMsg: function (msg, status) {
         if (status) {
@@ -849,6 +855,14 @@ var core = {
             }
         });
     },
+    dictDesc: function (value, vm, fieldName, sysCode, defaualtValueField) {
+        if (!value) return '';
+        return core.postJSON("/sysDict/getDictName", {
+            sysCode: sysCode,
+            ids: value,
+            defaualtValueField: defaualtValueField
+        });
+    }
 };
 
 

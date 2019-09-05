@@ -91,7 +91,7 @@ layout("/layouts/blank.html",{title:title}){
         float: left;
     }
 </style>
-<section class="content" id="container" v-if="initLoad">
+<section class="content" id="container" v-cloak>
     <div class="from-box">
         <form role="form" method="post" name="form1" id="form1">
             <div v-if="hasAnyDisplay">

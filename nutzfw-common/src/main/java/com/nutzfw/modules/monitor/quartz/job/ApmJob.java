@@ -305,7 +305,7 @@ public class ApmJob extends BaseJob {
     private void sendMail(String title, String msg, String mails) {
         //写入邮件
         MailBody mailBody = new MailBody();
-        mailBody.setBizType(dictBiz.getDict("sys_mail_type", "notice").getId());
+        mailBody.setBizType(dictBiz.getCacheDict("sys_mail_type", "notice").getId());
         mailBody.setTo(mails);
         mailBody.setHtmlMsg(MessageFormat.format("{0} 来自：【{1}】 ", msg, Cons.optionsCach.getProductLongName()));
         mailBody.setSubject(MessageFormat.format("服务器{0}【{1}】 ", title, Cons.optionsCach.getProductLongName()));

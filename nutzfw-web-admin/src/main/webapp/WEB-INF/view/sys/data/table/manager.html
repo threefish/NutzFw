@@ -28,7 +28,7 @@ layout("/layouts/blank.html",{title:title}){
     </h1>
 </section>
 
-<section class="content" id="container" v-if="initLoad">
+<section class="content" id="container" v-cloak>
     <%if(so.hasPermission("sysDataTable.manager")){%>
     <table class="searchBox">
         <tr>
@@ -113,7 +113,7 @@ layout("/layouts/blank.html",{title:title}){
             fromData: {},
             fromDataSubmit: false,
             fromDataEdit: true,
-            initLoad: false,
+
             synchronizeType: 0,
             searchData: {
                 tableType: "",
@@ -161,7 +161,7 @@ layout("/layouts/blank.html",{title:title}){
             }
         },
         created: function () {
-            this.initLoad = true;
+
         },
         updated: function () {
 

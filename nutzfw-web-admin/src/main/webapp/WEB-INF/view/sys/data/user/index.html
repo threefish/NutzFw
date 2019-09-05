@@ -6,11 +6,12 @@ layout("/layouts/blank.html",{title:title}){
     .required {
         color: red;
     }
-    .layui-layer-input{
+
+    .layui-layer-input {
         resize: none;
     }
 </style>
-<section class="content" id="container" v-if="initLoad">
+<section class="content" id="container" v-cloak>
     <div class="layui-tab  layui-tab-brief" lay-filter="layui-tab">
         <ul class="layui-tab-title">
             <li class="layui-this">待审核</li>
@@ -49,7 +50,7 @@ layout("/layouts/blank.html",{title:title}){
         el: '#container',
         data: {
             fromData: {},
-            initLoad: false,
+
             sourceUrl: "",
             reviewOpinion: "",
         },
@@ -72,16 +73,16 @@ layout("/layouts/blank.html",{title:title}){
                 return table.checkStatus('listTable').data;
             },
             handleBatchConsent: function () {
-                var data=this.getCheckData();
-                if(data.length==0){
+                var data = this.getCheckData();
+                if (data.length == 0) {
                     core.error("请选择记录")
                     return false;
                 }
-                var ids=new Array();
-                for(var i in data){
+                var ids = new Array();
+                for (var i in data) {
                     ids.push(data[i].uuid)
                 }
-                layer.prompt({title: '批量通过审核!请输入意见！', formType: 2}, function(text, index){
+                layer.prompt({title: '批量通过审核!请输入意见！', formType: 2}, function (text, index) {
                     var json = core.postJSON("/sysUserDataReview/review/agreeReview", {
                         ids: ids.join(","),
                         reviewOpinion: text
@@ -122,7 +123,7 @@ layout("/layouts/blank.html",{title:title}){
             }
         },
         created: function () {
-            this.initLoad = true;
+
         },
         updated: function () {
         },

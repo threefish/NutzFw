@@ -64,7 +64,7 @@ layout("/layouts/blank.html",{title:title}){
         text-overflow: ellipsis;
     }
 </style>
-<section id="container" v-if="initLoad">
+<section id="container" v-cloak>
     <div class="field-box">
         <%if(data.table.tableType!='SingleTable'){%>
         <div class="input-group">
@@ -200,8 +200,8 @@ layout("/layouts/blank.html",{title:title}){
                 //字典变化，需要修改依赖值的内容
                 core.dictChange(fieldId, dictValFieldName, this)
             },
-            handleShowEnumTree: function (fieldName, sysCode, multipleDict) {
-                core.handleShowEnumTree(fieldName, sysCode, multipleDict, this);
+            handleShowEnumTree: function (fieldName, sysCode, multipleDict,defaualtValueField) {
+                core.handleShowEnumTree(this,fieldName, sysCode, multipleDict,defaualtValueField)
             },
             renderDate: function () {
                 $("[d-format]").each(function () {
@@ -222,7 +222,7 @@ layout("/layouts/blank.html",{title:title}){
             }
         },
         created: function () {
-            this.initLoad = true;
+
         },
         updated: function () {
             this.renderDate();

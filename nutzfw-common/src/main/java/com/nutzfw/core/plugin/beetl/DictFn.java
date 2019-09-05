@@ -82,8 +82,9 @@ public class DictFn implements Function {
             dto.getHtmlClass().add("form-control");
         }
         Template template = context.gt.getTemplate(templeText, resourceLoader);
-        Map data = new HashMap(8);
+        Map data = new HashMap(9);
         data.put("dict", dto.getDictType());
+        data.put("dto", dto);
         data.put("list", dto.getDictVals());
         data.put("attrs", Strings.join(" ", dto.getHtmlAttrs()));
         data.put("class", Strings.join(" ", dto.getHtmlClass()));
@@ -110,7 +111,8 @@ public class DictFn implements Function {
         dto.setSysCode(Strings.sNull(obj[0]).trim());
         dto.setMultiple(false);
         dto.setDisabled(false);
-        dto.setDictType(dictBiz.getDict(dto.getSysCode()));
+        dto.setDictType(dictBiz.getCacheDict(dto.getSysCode()));
+        dto.setDefaualtValueField("id");
         if (dto.getDictType() == null) {
             throw new RuntimeException("[" + dto.getSysCode() + "]字典类型不存在，请检查！");
         }
@@ -124,10 +126,13 @@ public class DictFn implements Function {
         if (endStartIndex > 3) {
             dto.setVueModelFieldName(Strings.sNull(obj[3]).trim());
         }
+        if (endStartIndex > 4) {
+            dto.setDefaualtValueField(Strings.sNull(obj[4]).trim());
+        }
         if (Strings.isBlank(dto.getVueModelFieldName())) {
             dto.setVueModelFieldName(getVueModelFieldName(obj, endStartIndex));
         }
-        dto.setDictVals(dictBiz.list(dto.getSysCode()));
+        dto.setDictVals(dictBiz.listCache(dto.getSysCode()));
         AtomicBoolean end = new AtomicBoolean(false);
         Arrays.stream(obj).forEach(val -> {
             if ("END".equals(val)) {

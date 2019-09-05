@@ -20,45 +20,39 @@ import java.util.List;
 @IocBean(args = {"refer:dao"})
 public class DictServiceImpl extends BaseServiceImpl<Dict> implements DictService {
 
-    public static final String PREFIX = RedisHelpper.buildRediskey("dict.");
-    @Inject
-    RedisHelpper redisHelpper;
 
     public DictServiceImpl(Dao dao) {
         super(dao);
     }
 
-
     @Override
     public Dict insertOrUpdate(Dict detail) {
+        StringBuilder likeCode = new StringBuilder();
+        int pid = detail.getPid();
+        while (pid != 0) {
+            Dict dict = fetch(Cnd.where("id", "=", pid));
+            pid = dict.getPid();
+            likeCode.append(dict.getLikeCode()).append("_");
+        }
+        likeCode.append(detail.getSysCode());
+        detail.setLikeCode(likeCode.toString());
         Dict dictDetail = super.insertOrUpdate(detail);
-        updateCache(detail.getSysCode());
         return dictDetail;
     }
 
     @Override
     public int delete(Dict detail) {
-        int count = super.delete(detail);
-        updateCache(detail.getSysCode());
-        return count;
+        return super.delete(detail);
     }
 
-    @Override
-    public List<Dict> updateCache(String sysCode) {
-        List<Dict> details = this.query(Cnd.where("sysCode", "=", sysCode).and("grouping", "=", false).asc("shortNo"));
-        redisHelpper.setJsonString(PREFIX + sysCode, details, 60 * 60);
-        return details;
-    }
-
+    /**
+     * 准备更换为j2cache
+     * @param sysCode
+     * @return
+     */
     @Override
     public List<Dict> getCache(String sysCode) {
-        List<Dict> details;
-        if (redisHelpper.exists(PREFIX + sysCode)) {
-            details = Json.fromJsonAsList(Dict.class, redisHelpper.get(PREFIX + sysCode));
-        } else {
-            details = updateCache(sysCode);
-        }
-        return details;
+        return listAllDictBylikeCode(sysCode);
     }
 
     /**
@@ -71,5 +65,10 @@ public class DictServiceImpl extends BaseServiceImpl<Dict> implements DictServic
         List<Dict> depts = query(Cnd.where("id", IN, map.keySet()));
         depts.forEach(d -> d.setShortNo(map.getInt("" + d.getId())));
         this.update(depts);
+    }
+
+    @Override
+    public List<Dict> listAllDictBylikeCode(String sysCode) {
+        return query(Cnd.where("likeCode", "like", sysCode + "%").asc("shortNo"));
     }
 }

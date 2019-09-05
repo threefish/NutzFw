@@ -196,7 +196,7 @@ layout("/layouts/blank.html",{title:data.title}){
                 dynamicFreeChoiceNextReviewerMode: false,
             },
             fromDataSubmit: false,
-            initLoad: false,
+
             boxMainHeight: intViewportHeight,
             status: '${data.status}',
             signatureInit: false,
@@ -427,7 +427,7 @@ layout("/layouts/blank.html",{title:data.title}){
             },
         },
         created: function () {
-            this.initLoad = true;
+
         },
         mounted: function () {
             this.handleInit();

@@ -10,7 +10,7 @@ layout("/layouts/blank.html",{title:title}){
         <small>控制面板</small>
     </h1>
 </section>
-<section class="content" id="container" v-if="initLoad">
+<section class="content" id="container" v-cloak>
     <div class="from-box">
         <form class="form-horizontal" id="form1">
             <div class="box-body box box-warning">
@@ -200,7 +200,7 @@ layout("/layouts/blank.html",{title:title}){
             },
             fromDataSubmit: false,
             fromDataEdit: true,
-            initLoad: false,
+
         },
         methods: {
             handleEdit: function () {
@@ -271,7 +271,7 @@ layout("/layouts/blank.html",{title:title}){
             }
         },
         created: function () {
-            this.initLoad = true;
+
         },
         updated: function () {
         },

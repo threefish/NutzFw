@@ -64,7 +64,7 @@ layout("/layouts/blank.html",{title:title}){
         </div>
         <div id="deptTree" class="ztree" style="height: calc(100% - 136px);max-height:800px;overflow-y: auto"></div>
     </div>
-    <div class="col-sm-9" v-if="initLoad">
+    <div class="col-sm-9" v-cloak>
         <div style="margin: 5px">
             <%if(so.hasPermission("sysOrganize.department.importData")){%>
             <button class="btn btn-info btn-sm " @click="handleImport"><i class="fa fa-plus"></i>导入</button>
@@ -213,7 +213,7 @@ layout("/layouts/blank.html",{title:title}){
                 functions: "",
                 shortNo: "",
             },
-            initLoad: false,//是否初始化完成
+            //是否初始化完成
             selected: false,//是否选中了节点
             selectedId: null,
             saveOrUpdate: false,//提交保存按钮控制
@@ -460,7 +460,7 @@ layout("/layouts/blank.html",{title:title}){
             }
         },
         created: function () {
-            this.initLoad = true;
+
         },
         updated: function () {
         },

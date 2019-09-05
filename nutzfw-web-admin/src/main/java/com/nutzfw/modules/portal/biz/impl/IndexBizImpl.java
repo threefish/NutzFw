@@ -295,6 +295,6 @@ public class IndexBizImpl implements IndexBiz {
         if (dictId == 0) {
             return null;
         }
-        return dictBiz.getDict(dictId, sysCode);
+        return dictBiz.getCacheDict(dictId, sysCode);
     }
 }

@@ -362,7 +362,7 @@
         uploader, vm = new Vue({
             el: '#container',
             data: {
-                initLoad: false,
+
                 maxFileSize: "${data.maxFileSize}",
                 maxFileSizeMsg: "${data.maxFileSizeMsg}",
                 url: "${data.url}",
@@ -625,7 +625,7 @@
                 }
             },
             created: function () {
-                this.initLoad = true;
+
                 if (this.uploadedFile.ext != '') {
                     this.fileSuffix = "file-type-" + this.uploadedFile.ext.toLowerCase();
                 }

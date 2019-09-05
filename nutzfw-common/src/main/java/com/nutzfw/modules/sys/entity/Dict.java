@@ -36,6 +36,11 @@ public class Dict extends BaseEntity {
     private String sysCode;
 
     @Column
+    @Comment("通过likecode可以一次性查询出全部子节点")
+    @ColDefine(notNull = true, width = 500)
+    private String likeCode;
+
+    @Column
     @Comment("字典名称")
     @ColDefine(notNull = true)
     @Validations(required = true, errorMsg = "字典名称不能为空")

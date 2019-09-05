@@ -12,13 +12,14 @@ import java.util.List;
  * @date 2018年06月04日 15时09分41秒
  */
 public interface DictService extends BaseService<Dict> {
+
     Dict insertOrUpdate(Dict detail);
 
     int delete(Dict detail);
 
-    List<Dict> updateCache(String sysCode);
-
     List<Dict> getCache(String sysCode);
 
     void sort(NutMap map);
+
+    List<Dict> listAllDictBylikeCode(String sysCode);
 }

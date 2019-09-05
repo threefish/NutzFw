@@ -4,19 +4,21 @@ var vm = new Vue({
     data: {
         fromData: fromData,
         fromDataSubmit: false,
-        initLoad: false,
+
         hasAnyDisplay: hasAnyDisplay,
     },
     methods: {
-        reverEnumDesc: function (fieldName, sysCode) {
-            return core.reverEnumDesc(fieldName, sysCode, this);
+        reverEnumDesc: function (fieldName, sysCode, vm) {
+            var ids = new Function("vm", "return vm." + fieldName)(vm);
+            this.dictChange(0, fieldName, vm);
+            return core.postJSON("/sysDict/getDictName", {sysCode: sysCode, ids: ids});
         },
         dictChange: function (fieldId, dictValFieldName) {
             //字典变化，需要修改依赖值的内容
             core.dictChange(fieldId, dictValFieldName, this)
         },
-        handleShowEnumTree: function (fieldName, sysCode, multipleDict) {
-            core.handleShowEnumTree(fieldName, sysCode, multipleDict, this);
+        handleShowEnumTree: function (fieldName, sysCode, multipleDict, defaualtValueField) {
+            core.handleShowEnumTree(this, fieldName, sysCode, multipleDict, defaualtValueField)
         },
         handleAddAttach: function (fieldName, controlType, fieldType, attachSuffix, module) {
             //多附件
@@ -93,7 +95,7 @@ var vm = new Vue({
         }
     },
     created: function () {
-        this.initLoad = true;
+
     },
     updated: function () {
     },

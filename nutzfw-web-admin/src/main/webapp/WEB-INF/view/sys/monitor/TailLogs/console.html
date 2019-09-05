@@ -26,7 +26,7 @@ layout("/layouts/blank.html",{title:title}){
         padding: 5px;
     }
 </style>
-<section id="app" v-if="initLoad">
+<section id="app" v-cloak>
     <table>
         <tr>
             <td>编码：</td>
@@ -47,7 +47,7 @@ layout("/layouts/blank.html",{title:title}){
         el: '#app',
         data: {
             level: "${data.name}",
-            initLoad: false,
+
             lock: true,
             charSet: "${data.charSet}",
         },
@@ -86,7 +86,7 @@ layout("/layouts/blank.html",{title:title}){
             }
         },
         created: function () {
-            this.initLoad = true;
+
             window.WEB_SOCKET_FORCE_FLASH = window.location.host + base + "/static/plugins/web-socket-js/WebSocketMain.swf";
             this.load();
         },

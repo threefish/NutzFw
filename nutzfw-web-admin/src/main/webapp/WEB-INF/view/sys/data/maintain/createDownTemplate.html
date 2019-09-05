@@ -28,7 +28,7 @@ layout("/layouts/blank.html",{title:title}){
         box-shadow: 0 0 5px rgba(0, 0, 0, .1);
     }
 </style>
-<section id="container" v-if="initLoad">
+<section id="container" v-cloak>
     <div class="field-box">
         <form method="post" id="subform" target="_blank" action="${base}/sysDataMaintain/downTemplate">
             <input type='hidden' name='tableId' value='${data.tableId}'>
@@ -87,7 +87,7 @@ layout("/layouts/blank.html",{title:title}){
             }
         },
         created: function () {
-            this.initLoad = true;
+
         },
         updated: function () {
         },

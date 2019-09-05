@@ -17,7 +17,7 @@ layout("/layouts/blank.html",{title:title}){
         ${title}
     </h1>
 </section>
-<section class="content" id="container" v-if="initLoad">
+<section class="content" id="container" v-cloak>
     <div class="form-horizontal" v-if="type==''">
         <div class="box-body box box-warning">
             <div class="form-group">
@@ -113,7 +113,7 @@ layout("/layouts/blank.html",{title:title}){
             },
             fromDataSubmit: false,
             fromDataEdit: false,
-            initLoad: false,
+
             type: "${data.type}",
         },
         methods: {
@@ -137,7 +137,7 @@ layout("/layouts/blank.html",{title:title}){
             }
         },
         created: function () {
-            this.initLoad = true;
+
         },
         updated: function () {
         },

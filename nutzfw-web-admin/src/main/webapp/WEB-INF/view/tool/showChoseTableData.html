@@ -4,7 +4,7 @@ layout("/layouts/blank.html",{title:title}){
 %>
 <style type="text/css">
 </style>
-<section class="content" id="container" v-if="initLoad" style="padding:5px 5px 0px  5px;">
+<section class="content" id="container" v-cloak style="padding:5px 5px 0px  5px;">
     <div style="height: 40px" v-if="config.openSearch">
         <input :placeholder="config.placeholder" @keyup="handleSearchTable" type="text" v-model="config.keyword"
                class="form-control">
@@ -36,7 +36,7 @@ layout("/layouts/blank.html",{title:title}){
                 openSearch: true,
             },
             fromData: {},
-            initLoad: false,
+
             searchData: function () {
                 var param = this.config.param;
                 if (this.config.key != '' && this.config.key != null && this.config.key != undefined) {
@@ -139,7 +139,7 @@ layout("/layouts/blank.html",{title:title}){
             }
         },
         created: function () {
-            this.initLoad = true;
+
         },
         mounted: function () {
         }

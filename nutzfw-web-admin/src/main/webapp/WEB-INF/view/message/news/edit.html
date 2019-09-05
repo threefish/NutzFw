@@ -56,14 +56,14 @@ layout("/layouts/blank.html",{title:title}){
         font-size: 12px;
     }
 </style>
-<section class="content" id="container" v-if="initLoad">
+<section class="content" id="container" v-cloak>
     <div role="form">
         <!-- text input -->
         <div class="form-group col-xs-6">
             <label>
                 <span class="required">*</span>
                 新闻类别</label>
-            ${dict("sys_news_category",false,"END",'v-model=fromData.categoryId','class="form-control"',':disabled="!fromDataEdit"','placeholder="请输入..."')}
+            ${dict("sys_news_category",false,"","","lable","END",'v-model=fromData.categoryId','class="form-control"',':disabled="!fromDataEdit"','placeholder="请输入..."')}
         </div>
 
         <div class="form-group col-xs-6">
@@ -227,7 +227,6 @@ layout("/layouts/blank.html",{title:title}){
             },
             fromDataSubmit: false,
             fromDataEdit: readOnly,
-            initLoad: false,
             attachList: [],
         },
         computed: {
@@ -244,7 +243,6 @@ layout("/layouts/blank.html",{title:title}){
         },
         methods: {
             init: function () {
-                this.initLoad = true;
                 if (this.fromData.uuid != '') {
                     $.post(base + "/News/details", {uuid: this.fromData.uuid}, function (json) {
                         if (json.ok) {
@@ -253,6 +251,9 @@ layout("/layouts/blank.html",{title:title}){
                         }
                     });
                 }
+            },
+            handleShowEnumTree: function (fieldName, sysCode, multipleDict,defaualtValueField) {
+                core.handleShowEnumTree(this,fieldName, sysCode, multipleDict,defaualtValueField)
             },
             addToContent: function (attach) {
                 if ("jpg,png,jpeg,gif,ico,bmp,gif".indexOf(attach.ext) > -1) {

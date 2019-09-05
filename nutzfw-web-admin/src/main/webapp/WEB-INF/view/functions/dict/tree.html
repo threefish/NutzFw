@@ -1,6 +1,11 @@
-<div ${attrs} class="${class} dict-tree" style="background-color: #eeeeee;">{{ reverEnumDesc('${fieldName}','${dict.sysCode}') }}</div>
+<div ${attrs} class="${class} dict-tree"
+     style="background-color: #eeeeee;overflow: hidden;padding: 8px;cursor: default;"
+     :title="${fieldName} | dictDesc(this,'${fieldName}','${dict.sysCode}','${dto.defaualtValueField}')">
+    {{ ${fieldName} | dictDesc(this,'${fieldName}','${dict.sysCode}','${dto.defaualtValueField}') }}
+</div>
 <%if(!disabled){%>
-<span class="input-group-addon input-group-addon-right-icon" @click=handleShowEnumTree('${fieldName}','${dict.sysCode}',${isMultiple})>
+<span class="input-group-addon input-group-addon-right-icon"
+      @click=handleShowEnumTree('${fieldName}','${dict.sysCode}',${isMultiple},'${dto.defaualtValueField}')>
     <i class="fa fa-edit"></i>
 </span>
 <%}%>

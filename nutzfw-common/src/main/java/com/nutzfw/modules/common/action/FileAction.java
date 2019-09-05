@@ -50,15 +50,15 @@ import java.util.*;
 @Api("/File/")
 public class FileAction extends BaseAction {
 
-    public static final String SYS_ATTACH_TYPE = "sys_attach_type";
+    public static final String            SYS_ATTACH_TYPE = "sys_attach_type";
     @Inject
-    protected FileAttachService fileAttachService;
+    protected           FileAttachService fileAttachService;
     @Inject
-    DictBiz dictBiz;
+    DictBiz            dictBiz;
     @Inject
     UserAccountService userAccountService;
     @Inject("java:$conf.get('attach.upload.maxFileSize')")
-    private int maxFileSize;
+    private int    maxFileSize;
     @Inject("java:$conf.get('attach.extensions')")
     private String extensions;
     @Inject("java:$conf.get('attach.savePath')")
@@ -200,7 +200,7 @@ public class FileAction extends BaseAction {
     })
     @Aop(TransAop.READ_COMMITTED)
     public AjaxResult fileUploadact(@Param("file") TempFile tf, @Param("module") String module) {
-        if (dictBiz.getDict(SYS_ATTACH_TYPE, module) == null) {
+        if (dictBiz.getCacheDict(SYS_ATTACH_TYPE, module) == null) {
             return AjaxResult.error("附件类型不存在！");
         }
         String rootPath = getRootPath(Mvcs.getHttpSession());
@@ -236,7 +236,7 @@ public class FileAction extends BaseAction {
     @At("/Md5FileUploadact")
     @Aop(TransAop.READ_COMMITTED)
     public AjaxResult md5FileUploadact(@Param("module") String module, @Param("name") String name, @Param("md5") String md5) {
-        if (dictBiz.getDict(SYS_ATTACH_TYPE, module) == null) {
+        if (dictBiz.getCacheDict(SYS_ATTACH_TYPE, module) == null) {
             return AjaxResult.error("附件类型不存在！");
         }
         FileAttach referenceFileAttach = fileAttachService.fetchByMd5(md5);
@@ -302,7 +302,7 @@ public class FileAction extends BaseAction {
             return AjaxResult.error("空文件不允许上传");
         } else {
             try {
-                if (dictBiz.getDict(SYS_ATTACH_TYPE, module) == null) {
+                if (dictBiz.getCacheDict(SYS_ATTACH_TYPE, module) == null) {
                     return AjaxResult.error("附件类型不存在！");
                 }
                 String rootPath = getRootPath(Mvcs.getHttpSession());
@@ -501,6 +501,15 @@ public class FileAction extends BaseAction {
         } else {
             return this.getAvatar(null);
         }
+    }
+
+    public File getAvatarByUserId(String userId) {
+        UserAccount userAccount = userAccountService.fetch(userId);
+        FileAttach attach = null;
+        if (Strings.isNotBlank(userAccount.getAvatar())) {
+            attach = fileAttachService.fetch(userAccount.getAvatar());
+        }
+        return this.getAvatar(attach);
     }
 
     private File getAvatar(FileAttach attach) {

@@ -299,6 +299,7 @@ public class FileUtil {
         return path;
     }
 
+
     /**
      * 以当前程序目录为根目录写临时文件
      *
@@ -322,16 +323,29 @@ public class FileUtil {
     /**
      * 以当前程序目录为根目录写临时文件
      */
-    public static Path createTempFile() throws IOException {
+    public static Path createTempFile(String fileName) throws IOException {
         Path newFile;
+        int max = 20;
         do {
-            newFile = Paths.get(System.getProperty("java.io.tmpdir"), "NutzFw", R.UU16() + ".tmp");
+            if (max > 0) {
+                max--;
+            } else {
+                throw new RuntimeException("文件创建失败！！！");
+            }
+            newFile = Paths.get(System.getProperty("java.io.tmpdir"), "NutzFw", R.UU16(), fileName);
         } while (newFile.toFile().exists());
         if (!newFile.getParent().toFile().exists()) {
             Files.createDirectory(newFile.getParent());
         }
         Files.createFile(newFile);
         return newFile;
+    }
+
+    /**
+     * 以当前程序目录为根目录写临时文件
+     */
+    public static Path createTempFile() throws IOException {
+        return createTempFile(R.UU16() + ".tmp");
     }
 
     /**
@@ -953,6 +967,7 @@ public class FileUtil {
             throw new RuntimeException(e);
         }
     }
+
 
     /**
      * 从输入流中读取内容

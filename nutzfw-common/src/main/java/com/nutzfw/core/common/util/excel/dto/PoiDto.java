@@ -16,42 +16,43 @@ public class PoiDto {
     /**
      * 唯一key
      */
-    private String ctxKey = "";
-
+    private String       ctxKey               = "";
     /**
-     * 类型  list多行多列数据      data单个单元格数据
+     * 类型  list多行多列数据      data单个单元格数据 img是单图片
      */
-    private String type = "";
+    private String       type                 = "";
+    /**
+     * 图片兼容
+     */
+    private PoiImagesDTO img;
     /**
      * 默认时间格式
      */
-    private String dateFormat = DateUtil.YYYY_MM_DD_ZH;
+    private String       dateFormat           = DateUtil.YYYY_MM_DD_ZH;
     /**
      * 纵向扩展多少条数据
      */
-    private int X;
+    private int          X;
     /**
      * 横向排列数据
      */
-    private String[] Y;
+    private String[]     Y;
     /**
      * 自动插入行及样式
      */
-    private boolean autoInsertStyleRow = false;
+    private boolean      autoInsertStyleRow   = false;
     /**
      * 忽略合并单元格
      */
-    private boolean merged = true;
-
+    private boolean      merged               = true;
     /**
      * 横向相同合并
      */
-    private boolean horizontalLikeMerged = false;
-
+    private boolean      horizontalLikeMerged = false;
     /**
      * 纵向相同合并
      */
-    private boolean verticalLikeMerged = false;
+    private boolean      verticalLikeMerged   = false;
 
     public String[] getY() {
         if (this.Y == null) {
@@ -59,5 +60,6 @@ public class PoiDto {
         }
         return Y;
     }
+
 
 }

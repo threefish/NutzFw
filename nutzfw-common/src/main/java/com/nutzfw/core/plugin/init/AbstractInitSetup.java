@@ -2,6 +2,7 @@ package com.nutzfw.core.plugin.init;
 
 import com.nutzfw.core.common.entity.BaseEntity;
 import com.nutzfw.modules.sys.entity.QuartzJob;
+import org.nutz.mvc.NutConfig;
 
 import java.util.*;
 

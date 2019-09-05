@@ -11,7 +11,7 @@ layout("/layouts/blank.html",{title:title}){
     </h1>
 </section>
 
-<section class="content" id="container" v-if="initLoad">
+<section class="content" id="container" v-cloak>
     <div style="height: 40px">
         <form class="searchFrom">
             <div class="input-group">
@@ -80,7 +80,7 @@ layout("/layouts/blank.html",{title:title}){
             fromData: {},
             fromDataSubmit: false,
             fromDataEdit: true,
-            initLoad: false,
+
             synchronizeType: 0,
             searchData: {
                 key: ''
@@ -141,7 +141,7 @@ layout("/layouts/blank.html",{title:title}){
             }
         },
         created: function () {
-            this.initLoad = true;
+
         },
         mounted: function () {
             layui.use(['table'], function () {

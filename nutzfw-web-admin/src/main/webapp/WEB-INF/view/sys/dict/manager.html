@@ -18,7 +18,7 @@ layout("/layouts/blank.html",{title:title}){
         <small>控制面板</small>
     </h1>
 </section>
-<section class="content" id="container" v-if="initLoad" style="height: 95%;overflow: hidden">
+<section class="content" id="container" v-cloak style="height: 95%;overflow: hidden">
     <div class="col-md-4 col-sm-4" style="height: 100%;overflow: hidden">
         <div style="height: 35px;">
             <%if(so.hasPermission("sysDict.saveOrUpdate")){%>
@@ -235,7 +235,7 @@ layout("/layouts/blank.html",{title:title}){
             },
             fromDataSubmit: false,
             fromDataEdit: false,
-            initLoad: false,
+
             dictTree: false,
             canAdd: true,
             canEdit: true,
@@ -399,7 +399,7 @@ layout("/layouts/blank.html",{title:title}){
             }
         },
         created: function () {
-            this.initLoad = true;
+
         },
         mounted: function () {
             this.loadTree();
