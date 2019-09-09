@@ -17,55 +17,59 @@ public class UserTaskExtensionDTO {
     /**
      * userTask 原始信息
      */
-    String           userTaskFormKey;
-    String           userTaskName;
-    String           userTaskId;
-    String           userTaskDocumentation;
+    String                   userTaskFormKey;
+    String                   userTaskName;
+    String                   userTaskId;
+    String                   userTaskDocumentation;
     /**
      * 是否允许批复意见
      */
-    boolean          replyOpinion;
+    boolean                  replyOpinion;
     /**
      * 是否允许手写签字
      */
-    boolean          handwritingSignature;
+    boolean                  handwritingSignature;
     /**
      * 同意按钮文字显示
      */
-    String           agreeButtonName;
+    String                   agreeButtonName;
     /**
      * 拒绝按钮文字显示
      */
-    String           refuseButtonName;
+    String                   refuseButtonName;
     /**
      * 批复意见框提示文字
      */
-    String           replyOpinionName;
+    String                   replyOpinionName;
+    /**
+     * 连线回退（驳回）
+     */
+    boolean                  connectionCallBack;
     /**
      * 回退类型
      */
-    CallBackTypeEnum callBackType;
+    CallBackTypeEnum         callBackType;
     /**
      * 可回退节点
      */
-    String           callBackNodes;
-    String           callBackNodesDesc;
+    String                   callBackNodes;
+    String                   callBackNodesDesc;
     /**
      * 是否是多实例节点
      */
-    boolean          multiInstanceNode;
+    boolean                  multiInstanceNode;
     /**
      * 是否允许加签
      */
-    boolean          addMultiInstance;
+    boolean                  addMultiInstance;
     /**
      * 是否允许减签
      */
-    boolean          delMultiInstance;
+    boolean                  delMultiInstance;
     /**
      * 减签后触发父实例完成判断
      */
-    boolean          delMultiInstanceExecutionIsCompleted;
+    boolean                  delMultiInstanceExecutionIsCompleted;
     /**
      * 创建当前任务之前，执行表单数据动态赋值（动态代码逻辑）-应该是一段动态js，或者动态是绑定策略。
      * 不能返回给前台

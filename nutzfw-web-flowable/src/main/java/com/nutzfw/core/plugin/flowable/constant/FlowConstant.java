@@ -28,8 +28,14 @@ public class FlowConstant {
     public static final String PROCESS_TITLE                          = "processTitle";
     /**
      * 流程审核状态-同意\拒绝
+     * 变量
      */
     public static final String AUDIT_PASS                             = "auditPass";
+    /**
+     * 流程审核状态-驳回
+     * 变量
+     */
+    public static final String TURN_DOWN                              = "turnDown";
     /**
      * 手写签字文件名
      */

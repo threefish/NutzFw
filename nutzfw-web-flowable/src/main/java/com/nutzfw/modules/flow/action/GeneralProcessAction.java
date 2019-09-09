@@ -188,6 +188,9 @@ public class GeneralProcessAction extends BaseAction {
     @Aop(TransAop.READ_COMMITTED)
     public AjaxResult saveAudit(@Param("::form") Map formData, @Param("::flow") FlowTaskVO flowTaskVO, @Attr(Cons.SESSION_USER_KEY) UserAccount sessionUserAccount) {
         if (formData != null && flowTaskVO != null) {
+            if (flowTaskVO.getTurnDown() == true && Strings.isBlank(flowTaskVO.getComment())) {
+                return AjaxResult.error("驳回意见不能为空！");
+            }
             if (Strings.isNotBlank(flowTaskVO.getBusinessId())) {
                 String message = generalFlowBiz.userAudit(formData, flowTaskVO, sessionUserAccount);
                 if (message != null) {

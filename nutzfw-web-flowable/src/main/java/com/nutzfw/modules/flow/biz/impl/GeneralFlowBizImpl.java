@@ -73,7 +73,7 @@ public class GeneralFlowBizImpl implements GeneralFlowBiz {
         Map<String, Object> variables = Maps.newHashMap();
         variables.put(FlowConstant.FORM_DATA, formData);
         variables.put(FlowConstant.AUDIT_PASS, flowTaskVO.isPass());
-        flowTaskService.setValuedDataObject(variables,flowTaskVO.getProcDefId(), formData, sessionUserAccount);
+        flowTaskService.setValuedDataObject(variables, flowTaskVO.getProcDefId(), formData, sessionUserAccount);
         if (Strings.isBlank(formData.getOrDefault(FlowConstant.PRIMARY_KEY, "").toString()) && Strings.isBlank(flowTaskVO.getTaskId())) {
             flowTaskVO.setComment("[发起任务]");
             formData = executor.start(formData, flowTaskVO, sessionUserAccount);
@@ -125,15 +125,22 @@ public class GeneralFlowBizImpl implements GeneralFlowBiz {
         Authentication.setAuthenticatedUserId(sessionUserAccount.getUserName());
         FlowUtils.setFlowTaskVo(flowTaskVO, flowTaskService.getTaskOrHistoryTask(flowTaskVO.getTaskId()));
         ExternalFormExecutor executor = getExternalFormExecutor(flowTaskVO.getProcDefId());
+        UserTaskExtensionDTO dto = flowProcessDefinitionService.getUserTaskExtension(flowTaskVO.getTaskDefKey(), flowTaskVO.getProcDefId());
         if (Strings.isNotBlank(flowTaskVO.getComment())) {
-            flowTaskVO.setComment((flowTaskVO.isPass() ? "[通过] " : "[拒绝] ") + flowTaskVO.getComment());
+            String prefix = flowTaskVO.isPass() ? "[通过] " : "[拒绝] ";
+            if (dto.isConnectionCallBack() && flowTaskVO.getTurnDown() == true) {
+                prefix = "[驳回] ";
+            }
+            flowTaskVO.setComment(prefix + flowTaskVO.getComment());
         } else {
             flowTaskVO.setComment(flowTaskVO.getBusinessComment());
         }
         Map<String, Object> vars = Maps.newHashMap();
         vars.put(FlowConstant.AUDIT_PASS, flowTaskVO.isPass());
         vars.put(FlowConstant.FORM_DATA, formData);
-        UserTaskExtensionDTO dto = flowProcessDefinitionService.getUserTaskExtension(flowTaskVO.getTaskDefKey(), flowTaskVO.getProcDefId());
+        if (dto.isConnectionCallBack()) {
+            vars.put(FlowConstant.TURN_DOWN, flowTaskVO.getTurnDown());
+        }
         if (dto.isDynamicFreeChoiceNextReviewerMode() && flowTaskVO.getDelegateStatus() == null) {
             boolean needCheckFlowNextReviewerAssignee = false;
             try {
@@ -153,6 +160,7 @@ public class GeneralFlowBizImpl implements GeneralFlowBiz {
                 vars.put(FlowConstant.NEXT_REVIEWER, flowTaskVO.getFlowNextReviewerAssignee());
             }
         }
+
         formData = evalJavaScriptByModifyForm(formData, flowTaskVO, dto);
         String errorMsg = executor.userAudit(formData, flowTaskVO, sessionUserAccount);
         if (errorMsg != null) {

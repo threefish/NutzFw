@@ -140,7 +140,7 @@ public class FlowTaskAction extends BaseAction {
      * @param procDefId  流程定义ID
      */
     @At("/getUserTaskExtension")
-    @Ok("json:{locked:'formDataDynamicAssignment',nullAsEmtry:true,nullBooleanAsFalse:true}")
+    @Ok("json:{locked:'formDataDynamicAssignment|beforeCreateCurrentTaskFormDataDynamicAssignment|afterCreateCurrentTaskFormDataDynamicAssignment',nullAsEmtry:true,nullBooleanAsFalse:true}")
     public UserTaskExtensionDTO getUserTaskExtension(String taskDefKey, String procDefId) {
         //节点流程信息
         UserTaskExtensionDTO dto = flowProcessDefinitionService.getUserTaskExtension(taskDefKey, procDefId);

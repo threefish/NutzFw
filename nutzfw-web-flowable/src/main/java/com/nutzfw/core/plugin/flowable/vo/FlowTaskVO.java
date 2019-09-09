@@ -121,6 +121,10 @@ public class FlowTaskVO {
      */
     Boolean         pass;
     /**
+     * 连线驳回
+     */
+    Boolean         turnDown;
+    /**
      * 开始查询日期
      */
     Date            beginDate;

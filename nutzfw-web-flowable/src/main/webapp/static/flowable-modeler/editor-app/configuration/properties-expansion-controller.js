@@ -50,6 +50,7 @@ angular.module('flowableModeler').controller('FlowableExpansionPopupCtrl',
             $scope.expansionProperties = angular.copy($scope.property.value.expansionProperties);
             setDefaualtValue("replyOpinionName", "批复意见");
             setDefaualtValue("replyOpinion", false);
+            setDefaualtValue("connectionCallBack", false);
             setDefaualtValue("agreeButtonName", "同意");
             setDefaualtValue("refuseButtonName", "拒绝");
             setDefaualtValue("formDataDynamicAssignment", "");
@@ -64,6 +65,7 @@ angular.module('flowableModeler').controller('FlowableExpansionPopupCtrl',
                 replyOpinion: false,//是否允许批复意见
                 handwritingSignature: false,//是否允许手写签字
                 callBackType: 'NONE',//回退类型
+                connectionCallBack: false,//连线回退
                 callBackNodes: "",//可回退节点
                 callBackNodesDesc: "",//可回退节点
                 addMultiInstance: false,//是否允许加签

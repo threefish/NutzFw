@@ -126,6 +126,12 @@ layout("/layouts/blank.html",{title:data.title}){
                      v-if="extensionProperty.multiInstanceNode && extensionProperty.addMultiInstance">
                     <i class="fa fa-exchange"></i>加签
                 </div>
+                <div :disabled="fromDataSubmit" @click="handleConnectionCallBackSave(false)"
+                     class="btn btn-sm btn-warning"
+                     v-if="extensionProperty.connectionCallBack">
+                    <i class="fa fa-exchange"></i>驳回
+                    <!--  连线驳回  -->
+                </div>
                 <button :disabled="fromDataSubmit" @click="handleWritingSignature" class="btn btn-sm btn-warning"
                         type="button" v-if="extensionProperty.handwritingSignature">
                     <i class="fa fa-edit"></i>
@@ -179,11 +185,13 @@ layout("/layouts/blank.html",{title:data.title}){
                 flowNextReviewerAssignee: '',
                 handWritingSignatureData: '',
                 pass: true,
+                turnDown: false,
             },
             extensionProperty: {
                 callBackType: "NONE",
                 callBackNodes: "",
                 callBackNodesDesc: "",
+                connectionCallBack: false,
                 multiInstanceNode: false,
                 addMultiInstance: false,
                 delMultiInstance: false,
@@ -293,12 +301,28 @@ layout("/layouts/blank.html",{title:data.title}){
             handleSave: function (pass) {
                 core.confirmAndTitle("确认提交并完成流程任务吗？", "流程提示", function () {
                     vm.flow.pass = pass;
+                    vm.flow.turnDown = false;
                     if (vm.fromDataSubmit == false) {
                         if (vm.extensionProperty.dynamicFreeChoiceNextReviewerMode && vm.flow.delegateStatus == '') {
                             vm.handleChoiceNextReviewerUser();
                         } else {
                             vm.handleDoSaveAudit();
                         }
+                    } else {
+                        core.msg("数据正在提交，请稍候...")
+                    }
+                });
+            },
+            handleConnectionCallBackSave: function (pass) {
+                if (vm.flow.comment.length == 0) {
+                    core.error("请输入" + this.extensionProperty.replyOpinionName)
+                    return false;
+                }
+                core.confirmAndTitle("确认驳回吗？", "流程提示", function () {
+                    vm.flow.pass = pass;
+                    vm.flow.turnDown = true;
+                    if (vm.fromDataSubmit == false) {
+                        vm.handleDoSaveAudit();
                     } else {
                         core.msg("数据正在提交，请稍候...")
                     }
@@ -392,6 +416,7 @@ layout("/layouts/blank.html",{title:data.title}){
                 });
             },
             handleInit: function () {
+                vm = this;
                 if (this.flow.businessId != undefined && this.flow.businessId.length > 0) {
                     $.post("${base}/general/flow/process/loadFormData", {flow: this.flow}, function (data) {
                         if (data.ok) {
