@@ -80,7 +80,6 @@
             <version>${lombok_version}</version>
             <scope>provided</scope>
         </dependency>
-
         <dependency>
             <groupId>com.ibeetl</groupId>
             <artifactId>beetl</artifactId>

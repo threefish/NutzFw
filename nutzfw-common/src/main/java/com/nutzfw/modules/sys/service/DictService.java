@@ -1,8 +1,9 @@
 package com.nutzfw.modules.sys.service;
 
 
-import com.nutzfw.core.common.service.BaseService;
 import com.nutzfw.modules.sys.entity.Dict;
+import org.nutz.dao.Cnd;
+import org.nutz.dao.Condition;
 import org.nutz.lang.util.NutMap;
 
 import java.util.List;
@@ -11,7 +12,7 @@ import java.util.List;
  * @author 黄川 huchuc@vip.qq.com
  * @date 2018年06月04日 15时09分41秒
  */
-public interface DictService extends BaseService<Dict> {
+public interface DictService {
 
     Dict insertOrUpdate(Dict detail);
 
@@ -22,4 +23,16 @@ public interface DictService extends BaseService<Dict> {
     void sort(NutMap map);
 
     List<Dict> listAllDictBylikeCode(String sysCode);
+
+    Dict fetch(Cnd and);
+
+    int count(Cnd pid);
+
+    List<Dict> query();
+
+    List<Dict> query(Condition shortNo);
+
+    void delete(int id);
+
+    Dict fetch(int id);
 }

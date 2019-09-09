@@ -38,11 +38,14 @@ layout("/layouts/blank.html",{title:title}){
     <a class="layui-btn layui-btn-xs layui-btn-danger" lay-event="edit">修改</a>
     <a class="layui-btn layui-btn-xs layui-btn-danger" lay-event="del">删除</a>
 </script>
+<script id="topToolbar" type="text/html">
+    <div class="btn toptoolbar layui-btn-primary layui-btn-sm" lay-event="handleDel">批量删除</div>
+</script>
 <script src="${base}/static/plugins/jsoneditor/jsoneditor.js?_=${productVersion}" type="text/javascript"
         charset="utf-8"></script>
 <link rel="stylesheet" type="text/css" href="${base!}/static/plugins/jsoneditor/jsoneditor.css?_=${productVersion}">
 <script type="text/javascript">
-    var listTable, editor, vm = new Vue({
+    var table, listTable, editor, vm = new Vue({
         el: '#container',
         data: {
             searchData: {
@@ -94,9 +97,26 @@ layout("/layouts/blank.html",{title:title}){
                     core.warn("二进制数据不支持编辑！");
                 }
             },
+            handleBatchDel: function () {
+                var checkStatus = table.checkStatus('listTable')
+                if (checkStatus.data.length > 0) {
+                    core.confirm("确认删除？", function () {
+                        var keys = [];
+                        for (var i in  checkStatus.data) {
+                            keys.push(checkStatus.data[i].key);
+                        }
+                        var json = core.postJSON('/sysRedis/del', {keys: keys.join(",")});
+                        if (json.ok) {
+                            listTable.reload();
+                        }
+                    })
+                } else {
+                    core.error("请选择一条记录");
+                }
+            },
             handleDel: function (data) {
                 core.confirm("确定删除【" + data.key + "】？", function () {
-                    var json = core.postJSON('/sysRedis/del', data);
+                    var json = core.postJSON('/sysRedis/del', {keys: data.key});
                     core.msg(json)
                     if (json.ok) {
                         vm.handleSearchTable();
@@ -112,7 +132,7 @@ layout("/layouts/blank.html",{title:title}){
             },
             layuiInit: function () {
                 layui.use(['table', 'element', 'laytpl',], function () {
-                    var table = layui.table;
+                    table = layui.table;
                     listTable = table.render({
                         id: 'listTable',
                         elem: '#listTable',
@@ -125,12 +145,21 @@ layout("/layouts/blank.html",{title:title}){
                         defaultToolbar: ['filter'],
                         cols: [[
                             {title: '序号', type: 'numbers', width: 50},
+                            {title: '序号', type: 'checkbox', width: 50},
                             {field: 'key', title: '键', width: 250},
                             {field: 'value', title: '缓存值'},
                             {field: 'ttl', title: '过期时间(秒)', width: 120, align: 'center'},
                             {title: '操作', align: 'center', width: 180, fixed: 'right', toolbar: '#toolBarFixed'},
                         ]],
                     });
+                    table.on("toolbar(listTable)", function (obj) {
+                        var layEvent = obj.event;
+                        switch (layEvent) {
+                            case "handleDel":
+                                vm.handleBatchDel();
+                                break;
+                        }
+                    })
                     table.on("tool(listTable)", function (obj) {
                         var data = obj.data, ac = obj.event;
                         if (ac == "view") {

@@ -168,7 +168,7 @@ public class DictAction extends BaseAction {
     @POST
     @At("/tree")
     public List<DictVO> tree(@Param("sysCode") String sysCode) {
-        List<Dict> dictDetails = dictService.listAllDictBylikeCode(Strings.sNull(sysCode));
+        List<Dict> dictDetails = dictService.getCache(Strings.sNull(sysCode));
         return dictDetails.stream().map(dict -> DictVO.create(dict, dictBiz.hasChilds(dict))).collect(Collectors.toList());
     }
 

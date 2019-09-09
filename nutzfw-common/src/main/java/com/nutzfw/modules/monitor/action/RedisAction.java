@@ -98,8 +98,8 @@ public class RedisAction extends BaseAction {
     @Ok("json")
     @RequiresPermissions("sysRedis.del")
     @AutoCreateMenuAuth(name = "redis缓存删除", type = AutoCreateMenuAuth.RESOURCE, icon = "fa-eye", parentPermission = "sysRedis.index")
-    public AjaxResult del(@Param("::") RedisVO redisVO) {
-        redisService.del(redisVO.getKey());
+    public AjaxResult del(@Param("keys") String[] keys) {
+        redisService.del(keys);
         return AjaxResult.sucessMsg("删除成功");
     }
 }
