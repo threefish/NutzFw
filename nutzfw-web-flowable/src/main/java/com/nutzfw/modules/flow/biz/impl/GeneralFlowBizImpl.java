@@ -86,9 +86,10 @@ public class GeneralFlowBizImpl implements GeneralFlowBiz {
             String procIns = flowTaskService.startProcess(flowTaskVO.getProcDefKey(), primaryKeyId, variables, sessionUserAccount.getUserName(), sessionUserAccount.getDeptId(), roleCodes);
             return "流程已启动！流水号：" + procIns;
         } else {
-            flowTaskVO.setComment(flowTaskVO.isPass() ? "[重申] " : "[销毁] " + flowTaskVO.getComment());
+            //重申
+            flowTaskVO.setReaffirm(true);
             // 完成流程任务
-            flowTaskService.complete(flowTaskVO, variables);
+            this.userAudit(formData, flowTaskVO, sessionUserAccount);
             return MessageFormat.format("流程已[0]", (flowTaskVO.isPass() ? "[重申] " : "[销毁] "));
         }
     }
@@ -128,6 +129,9 @@ public class GeneralFlowBizImpl implements GeneralFlowBiz {
         UserTaskExtensionDTO dto = flowProcessDefinitionService.getUserTaskExtension(flowTaskVO.getTaskDefKey(), flowTaskVO.getProcDefId());
         if (Strings.isNotBlank(flowTaskVO.getComment())) {
             String prefix = flowTaskVO.isPass() ? "[通过] " : "[拒绝] ";
+            if (flowTaskVO.getReaffirm()) {
+                prefix = flowTaskVO.isPass() ? "[重申] " : "[销毁] ";
+            }
             if (dto.isConnectionCallBack() && flowTaskVO.getTurnDown() == true) {
                 prefix = "[驳回] ";
             }
@@ -140,6 +144,9 @@ public class GeneralFlowBizImpl implements GeneralFlowBiz {
         vars.put(FlowConstant.FORM_DATA, formData);
         if (dto.isConnectionCallBack()) {
             vars.put(FlowConstant.TURN_DOWN, flowTaskVO.getTurnDown());
+        } else {
+            //恢复驳回变量状态，避免流程陷入循环
+            //vars.put(FlowConstant.TURN_DOWN, false);
         }
         if (dto.isDynamicFreeChoiceNextReviewerMode() && flowTaskVO.getDelegateStatus() == null) {
             boolean needCheckFlowNextReviewerAssignee = false;
@@ -160,7 +167,6 @@ public class GeneralFlowBizImpl implements GeneralFlowBiz {
                 vars.put(FlowConstant.NEXT_REVIEWER, flowTaskVO.getFlowNextReviewerAssignee());
             }
         }
-
         formData = evalJavaScriptByModifyForm(formData, flowTaskVO, dto);
         String errorMsg = executor.userAudit(formData, flowTaskVO, sessionUserAccount);
         if (errorMsg != null) {

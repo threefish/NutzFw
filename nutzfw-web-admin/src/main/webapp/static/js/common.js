@@ -1,6 +1,7 @@
 /**
  * Created by 30695 on 2016/11/20 0020.
  */
+window.NutzFwDictCache = new Object();
 var core = {
     noData: "<div class='tree-nodata'>暂无数据</div>",
     cutimg: function (module, success, ratio) {
@@ -270,6 +271,9 @@ var core = {
         layer.confirm(msg, {icon: 7, title: '操作提示', btn: ['关闭']}, function (index) {
             layer.close(index);
         });
+    },
+    error2: function (msg) {
+        layer.msg(msg, {icon: 7});
     },
     tips: function (dom, msg) {
         layer.tips(msg, dom);
@@ -855,13 +859,25 @@ var core = {
             }
         });
     },
-    dictDesc: function (value, vm, fieldName, sysCode, defaualtValueField) {
-        if (!value) return '';
+    doGetDictDesc: function (value, vm, fieldName, sysCode, defaualtValueField) {
         return core.postJSON("/sysDict/getDictName", {
             sysCode: sysCode,
             ids: value,
             defaualtValueField: defaualtValueField
         });
+    },
+    dictDesc: function (value, vm, fieldName, sysCode, defaualtValueField) {
+        if (!value) return '';
+        //缓存防止重复请求后台
+        var cacheObject = window.NutzFwDictCache[fieldName + ''];
+        if (cacheObject == undefined || cacheObject.value != value) {
+            cacheObject = {
+                value: value,
+                desc: this.doGetDictDesc(value, vm, fieldName, sysCode, defaualtValueField)
+            }
+        }
+        window.NutzFwDictCache[fieldName + ''] = cacheObject;
+        return cacheObject.desc;
     }
 };
 

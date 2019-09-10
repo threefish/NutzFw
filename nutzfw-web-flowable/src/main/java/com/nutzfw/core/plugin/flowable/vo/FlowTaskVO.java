@@ -152,6 +152,11 @@ public class FlowTaskVO {
      * 列表显示时使用
      */
     Object          formData;
+    /**
+     * 是否重申
+     * 流程驳回后用户使用start接口重新申请流程使用
+     */
+    Boolean reaffirm;
 
     public void setHisActInsDuTime(Long duTime) {
         if (duTime == null) {
@@ -165,6 +170,13 @@ public class FlowTaskVO {
         return pass == null ? false : pass;
     }
 
+    public boolean getReaffirm() {
+        return reaffirm == null ? false : reaffirm;
+    }
+
+    public boolean getTurnDown() {
+        return turnDown == null ? false : turnDown;
+    }
 
     /**
      * 是否是一个待办任务

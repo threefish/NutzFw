@@ -65,7 +65,7 @@
 <script type="text/javascript" src="${base!}/static/plugins/imageview/viewer1.0.js?_=${productVersion}"></script>
 <script>
     var base = "${base!}";
-    Vue.filter('dictDesc', function (value, vm, fieldName, sysCode, defaualtValueField, vm) {
+    Vue.filter('dictDesc', function (value, vm, fieldName, sysCode, defaualtValueField) {
         return core.dictDesc(value, vm, fieldName, sysCode, defaualtValueField);
     });
 

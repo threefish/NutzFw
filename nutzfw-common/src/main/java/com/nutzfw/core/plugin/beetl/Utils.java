@@ -17,7 +17,7 @@ import java.util.List;
 public class Utils {
 
     /**
-     * 用法 ${fn.match('2','a,b,c')}返回 c
+     * 用法 ${fn.match(2,'a,b,c')}返回 c
      *
      * @param key
      * @param vals
@@ -30,7 +30,18 @@ public class Utils {
 
 
     /**
-     * 用法 ${fn.match('2','a,b,c')}返回 c
+     * 用法 ${fn.match('a','a,b,c')} 返回 true
+     *
+     * @param key
+     * @param vals
+     * @return
+     */
+    public static boolean match(String key, String vals) {
+        return Arrays.asList(vals.split(",")).contains(key);
+    }
+
+
+    /**
      * 女=0||男=1
      *
      * @param defaualtvalue
