@@ -94,8 +94,9 @@ public class MainSetup extends AbstractInitSetup implements Setup {
         this.addQuartzJob(quartzJobs);
         this.addTablesFilters(tablesFilters);
         this.addDictGroup(dictGroup);
-        this.updateDict(nutConfig);
-
+        if (!initSystem) {
+            this.updateDict(nutConfig);
+        }
         initSetups.forEach(setup -> {
             setup.addAttachType(attachType);
             setup.addDictGroup(dictGroup);
