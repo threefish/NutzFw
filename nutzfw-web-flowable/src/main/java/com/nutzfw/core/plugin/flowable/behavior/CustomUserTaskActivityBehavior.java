@@ -90,10 +90,10 @@ public class CustomUserTaskActivityBehavior extends UserTaskActivityBehavior {
                     }
                     break;
                 case JAVA_BEAN_ASSIGNMENT:
-                    FlowAssignment flowAssignment = getFlowAssignment(taskExtensionDTO.getIocFlowAssignment(), new FlowSubmitInfoDTO(flowSubmitter, flowSubmitterDeptId), taskService, assignee, owner, candidateUsers, candidateGroups, task, execution);
-                    assignee = flowAssignment.getAssignee();
-                    candidateUsers = flowAssignment.getCandidateUsers();
-                    candidateGroups = flowAssignment.getCandidateGroups();
+                    FlowAssignment flowAssignment = getFlowAssignment(taskExtensionDTO.getIocFlowAssignment());
+                    assignee = flowAssignment.getAssignee(taskService, new FlowSubmitInfoDTO(flowSubmitter, flowSubmitterDeptId), assignee, owner, candidateUsers, candidateGroups, task, execution);
+                    candidateUsers = flowAssignment.getCandidateUsers(taskService, new FlowSubmitInfoDTO(flowSubmitter, flowSubmitterDeptId), assignee, owner, candidateUsers, candidateGroups, task, execution);
+                    candidateGroups = flowAssignment.getCandidateGroups(taskService, new FlowSubmitInfoDTO(flowSubmitter, flowSubmitterDeptId), assignee, owner, candidateUsers, candidateGroups, task, execution);
                     break;
                 default:
                     break;
@@ -104,12 +104,6 @@ public class CustomUserTaskActivityBehavior extends UserTaskActivityBehavior {
             }
         }
         super.handleAssignments(taskService, assignee, owner, candidateUsers, candidateGroups, task, expressionManager, execution);
-    }
-
-    private FlowAssignment getFlowAssignment(String iocFlowAssignment, FlowSubmitInfoDTO flowSubmitInfoDTO, TaskService taskService, String assignee, String owner, List<String> candidateUsers, List<String> candidateGroups, TaskEntity task, DelegateExecution execution) {
-        FlowAssignment flowAssignment = getFlowAssignment(iocFlowAssignment);
-        flowAssignment.init(taskService, flowSubmitInfoDTO, assignee, owner, candidateUsers, candidateGroups, task, execution);
-        return flowAssignment;
     }
 
 

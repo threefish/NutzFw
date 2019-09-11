@@ -23,14 +23,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * 创建人：黄川
  * 创建时间: 2018/1/17  17:30
  * <p>
- * 第一位参数必填,之后的参数按照顺序总共4位，自定义属性前必须添加END字符参数
+ * 第一位参数必填,之后的参数按照顺序总共5位，自定义属性前必须添加END字符参数
  * <p>
- * ${dict("holiday_types",false,"form-control","leave.leaveType")}
- * ${dict("holiday_types")}
+ * ${dict("holiday_types",false,"form-control","leave.leaveType","id")}
  * <p>
  * 如果还需要设置自定义HTML属性需要设置END字符参数隔开，例子参考
  * <p>
- * ${dict("holiday_types",false,"form-control","leave.leaveType","END","v-model='test.xxx'")}
+ * ${dict("holiday_types",false,"form-control","leave.leaveType","id","END","v-model='test.xxx'")}
  * ${dict("holiday_types","END","v-model='test.xxx'")}
  * <p>
  * 不能为单例模式，否则会出现问题

@@ -117,6 +117,14 @@ public interface DictBiz {
      * @return
      */
     String getDictByValueEnumsJson(String sysCode);
+    /**
+     * 取得字典 defaualtValueField  -> json
+     *
+     * @param sysCode
+     * @param defaualtValueField - 可以是ID,VAL,extra1....extra10
+     * @return
+     */
+    String getDictEnumsByDefaualtValueFieldJson(String sysCode, String defaualtValueField);
 
     /**
      * 取得字典缓存
@@ -150,4 +158,6 @@ public interface DictBiz {
      * @return
      */
     boolean hasChilds(Dict dict);
+
+
 }

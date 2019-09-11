@@ -165,6 +165,11 @@ public class DictBizImpl implements DictBiz {
         return Json.toJson(getDictEnumsByValue(sysCode), JsonFormat.compact());
     }
 
+    @Override
+    public String getDictEnumsByDefaualtValueFieldJson(String sysCode, String defaualtValueField) {
+        return Json.toJson(getDictEnumsByDefaualtValueField(sysCode, defaualtValueField), JsonFormat.compact());
+    }
+
     /**
      * 取得字典列表
      *

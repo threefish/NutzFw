@@ -13,7 +13,6 @@ import java.util.List;
  */
 public interface FlowAssignment {
     /**
-     * 初始化流程相关变量
      *
      * @param taskService
      * @param flowSubmitInfoDTO
@@ -23,12 +22,35 @@ public interface FlowAssignment {
      * @param candidateGroups
      * @param task
      * @param execution
+     * @return
      */
-    void init(TaskService taskService, FlowSubmitInfoDTO flowSubmitInfoDTO, String assignee, String owner, List<String> candidateUsers, List<String> candidateGroups, TaskEntity task, DelegateExecution execution);
+    String getAssignee(TaskService taskService, FlowSubmitInfoDTO flowSubmitInfoDTO, String assignee, String owner, List<String> candidateUsers, List<String> candidateGroups, TaskEntity task, DelegateExecution execution);
 
-    String getAssignee();
+    /**
+     *
+     * @param taskService
+     * @param flowSubmitInfoDTO
+     * @param assignee
+     * @param owner
+     * @param candidateUsers
+     * @param candidateGroups
+     * @param task
+     * @param execution
+     * @return
+     */
+    List<String> getCandidateUsers(TaskService taskService, FlowSubmitInfoDTO flowSubmitInfoDTO, String assignee, String owner, List<String> candidateUsers, List<String> candidateGroups, TaskEntity task, DelegateExecution execution);
 
-    List<String> getCandidateUsers();
-
-    List<String> getCandidateGroups();
+    /**
+     *
+     * @param taskService
+     * @param flowSubmitInfoDTO
+     * @param assignee
+     * @param owner
+     * @param candidateUsers
+     * @param candidateGroups
+     * @param task
+     * @param execution
+     * @return
+     */
+    List<String> getCandidateGroups(TaskService taskService, FlowSubmitInfoDTO flowSubmitInfoDTO, String assignee, String owner, List<String> candidateUsers, List<String> candidateGroups, TaskEntity task, DelegateExecution execution);
 }

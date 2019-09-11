@@ -869,14 +869,15 @@ var core = {
     dictDesc: function (value, vm, fieldName, sysCode, defaualtValueField) {
         if (!value) return '';
         //缓存防止重复请求后台
-        var cacheObject = window.NutzFwDictCache[fieldName + ''];
+        var cacheName = vm.$options.el + "_" + fieldName;
+        var cacheObject = window.NutzFwDictCache[cacheName];
         if (cacheObject == undefined || cacheObject.value != value) {
             cacheObject = {
                 value: value,
                 desc: this.doGetDictDesc(value, vm, fieldName, sysCode, defaualtValueField)
             }
         }
-        window.NutzFwDictCache[fieldName + ''] = cacheObject;
+        window.NutzFwDictCache[cacheName] = cacheObject;
         return cacheObject.desc;
     }
 };
