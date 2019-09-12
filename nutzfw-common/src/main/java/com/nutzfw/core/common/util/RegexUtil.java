@@ -63,7 +63,7 @@ public class RegexUtil {
     }
 
     /**
-     * 判断是否是正整数
+     * 判断是否是整数
      *
      * @param str
      * @return

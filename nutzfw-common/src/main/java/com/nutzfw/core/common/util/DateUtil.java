@@ -9,26 +9,26 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class DateUtil {
-    public static final String ENG_DATE_FROMAT = "EEE, d MMM yyyy HH:mm:ss z";
-    public static final String YYYY_MM_DD_HH_MM_SS = "yyyy-MM-dd HH:mm:ss";
-    public static final String YYYY_MM_DD_HH_MM_SS2 = "yyyy-MM-dd HH-mm-ss";
+    public static final String ENG_DATE_FROMAT        = "EEE, d MMM yyyy HH:mm:ss z";
+    public static final String YYYY_MM_DD_HH_MM_SS    = "yyyy-MM-dd HH:mm:ss";
+    public static final String YYYY_MM_DD_HH_MM_SS2   = "yyyy-MM-dd HH-mm-ss";
     public static final String YYYY_MM_DD_HH_MM_SS_ZH = "yyyy年MM月dd日 HH时mm分ss秒";
-    public static final String YYYY_MM_DD_HH_MM = "yyyy-MM-dd HH:mm";
-    public static final String YYYY_MM_DD = "yyyy-MM-dd";
-    public static final String YYYYMMDD = "yyyyMMdd";
-    public static final String YYYY_MM_DD_ZH = "yyyy年MM月dd日";
-    public static final String YYYY_MM = "yyyy-MM";
-    public static final String YYYY_MM_ZH = "yyyy年MM月";
-    public static final String MM_DD = "MM-dd";
-    public static final String MM_DD_ZH = "MM月dd日";
-    public static final String YYYY = "yyyy";
-    public static final String HH_MM_SS = "HH:mm:ss";
-    public static final String HH_MM_SS_ZH = "HH时mm分ss秒";
-    public static final String MM = "MM";
-    public static final String DD = "dd";
-    public static final String YYYY_MM_DD_HH_MM_ZH = "yyyy年MM月dd日  HH:mm";
-    public static final String YYYY_MM_DD_HH_MM_ZH2 = "yyyyMMddHHmmss";
-    public static final long DAYTIME = 1000 * 60 * 60 * 24;
+    public static final String YYYY_MM_DD_HH_MM       = "yyyy-MM-dd HH:mm";
+    public static final String YYYY_MM_DD             = "yyyy-MM-dd";
+    public static final String YYYYMMDD               = "yyyyMMdd";
+    public static final String YYYY_MM_DD_ZH          = "yyyy年MM月dd日";
+    public static final String YYYY_MM                = "yyyy-MM";
+    public static final String YYYY_MM_ZH             = "yyyy年MM月";
+    public static final String MM_DD                  = "MM-dd";
+    public static final String MM_DD_ZH               = "MM月dd日";
+    public static final String YYYY                   = "yyyy";
+    public static final String HH_MM_SS               = "HH:mm:ss";
+    public static final String HH_MM_SS_ZH            = "HH时mm分ss秒";
+    public static final String MM                     = "MM";
+    public static final String DD                     = "dd";
+    public static final String YYYY_MM_DD_HH_MM_ZH    = "yyyy年MM月dd日  HH:mm";
+    public static final String YYYY_MM_DD_HH_MM_ZH2   = "yyyyMMddHHmmss";
+    public static final long   DAYTIME                = 1000 * 60 * 60 * 24;
 
     /**
      * 拆分前台传递的日期分段
@@ -610,16 +610,16 @@ public class DateUtil {
         long min = ((time / (60 * 1000)) - day * 24 * 60 - hour * 60);
         long sec = (time / 1000 - day * 24 * 60 * 60 - hour * 60 * 60 - min * 60);
         StringBuilder sb = new StringBuilder();
-        if (day > 0){
+        if (day > 0) {
             sb.append(day).append("天");
         }
-        if (hour > 0){
+        if (hour > 0) {
             sb.append(hour).append("时");
         }
-        if (min > 0){
+        if (min > 0) {
             sb.append(min).append("分");
         }
-        if (sec > 0){
+        if (sec > 0) {
             sb.append(sec).append("秒");
         }
         return sb.toString();
@@ -1089,6 +1089,20 @@ public class DateUtil {
             dates[0] = now.getTime();
         }
         return dates;
+    }
+
+    /**
+     * 指定日期加num天
+     *
+     * @param date
+     * @param num
+     * @return
+     */
+    public static Date addDay(Date date, int num) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.add(Calendar.DAY_OF_MONTH, num);
+        return calendar.getTime();
     }
 
     /**

@@ -39,7 +39,7 @@ layout("/layouts/blank.html",{title:title}){
         <div id='ztree_searchbox' style='position: relative;display: block;height: 35px'>
             <div class='ztree_searchbox'
                  style='padding: 2px;background:#fff;display: block;height: 35px;overflow: hidden;width: 100%'>
-                <input type=text class=form-control placeholder='模糊查询快速定位' v-model="searchKey"
+                <input type=text class=form-control placeholder='模糊查询快速定位' v-model.trim="searchKey"
                        style='display: inline-block;width: 55%;height: 33px;'>
                 <input @click="fn_searchDeptNode" type='button' value='快速定位'
                        id='ztree_search_btn_1'
@@ -57,67 +57,67 @@ layout("/layouts/blank.html",{title:title}){
                 <div class="box-body box box-warning">
                     <div class="form-grou" v-if="fromData.pid!=0">
                         <label>上级：</label>
-                        <input type="text" v-model="fromData.pLable" class="form-control input-sm" readonly>
+                        <input type="text" v-model.trim="fromData.pLable" class="form-control input-sm" readonly>
                     </div>
                     <div class="form-grou">
                         <label>字典名称：<span class="required">*</span></label>
-                        <input type="text" v-model="fromData.lable" class="form-control input-sm"
+                        <input type="text" v-model.trim="fromData.lable" class="form-control input-sm"
                                :disabled="!fromDataEdit" placeholder="字典名称-中文">
                     </div>
                     <div class="form-grou" style="margin: 10px 0px 10px 0px">
                         <label>字典分组（虚拟节点）：<span class="required">*</span></label>
                         <div style="display: inline-block;padding-right: 20px">
                             <input type="radio" class="magic-radio" id="grouping0" :disabled="!fromDataEdit"
-                                   v-model="fromData.grouping"
+                                   v-model.trim="fromData.grouping"
                                    value="true">
                             <label for="grouping0">是</label>
                         </div>
                         <div style="display: inline-block">
                             <input type="radio" class="magic-radio" id="grouping1" :disabled="!fromDataEdit"
-                                   v-model="fromData.grouping"
+                                   v-model.trim="fromData.grouping"
                                    value="false">
                             <label for="grouping1">否</label>
                         </div>
                     </div>
                     <div class="form-grou" v-if="fromData.grouping=='true'">
                         <label>系统唯一编码：<span class="required">*</span></label>
-                        <input type="text" v-model="fromData.sysCode" :disabled="!fromDataEdit"
+                        <input type="text" v-model.trim="fromData.sysCode" :disabled="!fromDataEdit"
                                class="form-control input-sm"
                                placeholder="字典唯一CODE 英文、下划线、数字">
                     </div>
                     <div class="form-grou" v-if="fromData.grouping=='false'">
                         <label>字典键值：<span class="required">*</span></label>
-                        <input type="text" v-model="fromData.val" class="form-control input-sm"
+                        <input type="text" v-model.trim="fromData.val" class="form-control input-sm"
                                :disabled="!fromDataEdit" placeholder="">
                     </div>
                     <div class="form-grou">
                         <label>字典排序：<span class="required">*</span></label>
-                        <input type="text" v-model="fromData.shortNo" class="form-control input-sm"
+                        <input type="text" v-model.trim="fromData.shortNo" class="form-control input-sm"
                                :disabled="!fromDataEdit" placeholder="字典名称-中文">
                     </div>
                     <div class="form-grou" style="margin: 10px 0px 10px 0px" v-if="fromData.grouping=='true'">
                         <label>展示方式：</label>
                         <div style="display: inline-block;padding-right: 20px">
                             <input type="radio" class="magic-radio" id="showType0" :disabled="!fromDataEdit"
-                                   v-model="fromData.showType"
+                                   v-model.trim="fromData.showType"
                                    value="0">
                             <label for="showType0">下拉框</label>
                         </div>
                         <div style="display: inline-block">
                             <input type="radio" class="magic-radio" id="showType3" :disabled="!fromDataEdit"
-                                   v-model="fromData.showType"
+                                   v-model.trim="fromData.showType"
                                    value="3">
                             <label for="showType3">树形字典</label>
                         </div>
                         <div style="display: inline-block">
                             <input type="radio" class="magic-radio" id="showType1" :disabled="!fromDataEdit"
-                                   v-model="fromData.showType"
+                                   v-model.trim="fromData.showType"
                                    value="1">
                             <label for="showType1">单选框</label>
                         </div>
                         <div style="display: inline-block">
                             <input type="radio" class="magic-radio" id="showType2" :disabled="!fromDataEdit"
-                                   v-model="fromData.showType"
+                                   v-model.trim="fromData.showType"
                                    value="2">
                             <label for="showType2">复选框</label>
                         </div>
@@ -128,19 +128,19 @@ layout("/layouts/blank.html",{title:title}){
                     </div>
                     <div class="form-grou">
                         <label>字典描述：</label>
-                        <textarea v-model="fromData.mark" class="form-control input-sm" :disabled="!fromDataEdit"
+                        <textarea v-model.trim="fromData.mark" class="form-control input-sm" :disabled="!fromDataEdit"
                                   placeholder="描述" style="resize: vertical"></textarea>
                     </div>
                     <div v-if="fromData.grouping=='false'">
                         <div class="form-grou">
                             <label>附加值1：</label>
                             <input type="text" class="form-control input-sm"
-                                   :disabled="!fromDataEdit" v-model="fromData.extra1">
+                                   :disabled="!fromDataEdit" v-model.trim="fromData.extra1">
                         </div>
                         <div class="form-grou" v-if="fromData.grouping=='false'">
                             <label>附加值2：</label>
                             <input type="text" class="form-control input-sm"
-                                   :disabled="!fromDataEdit" v-model="fromData.extra2">
+                                   :disabled="!fromDataEdit" v-model.trim="fromData.extra2">
                         </div>
                         <div class="form-grou" v-if="fromData.grouping=='false'" style="padding: 10px 0px;">
                             <div v-if="!showExtra" class="layui-btn layui-btn-sm layui-btn-normal"
@@ -155,42 +155,42 @@ layout("/layouts/blank.html",{title:title}){
                         <div class="form-grou" v-if="fromData.grouping=='false'">
                             <label>附加值3：</label>
                             <input type="text" class="form-control input-sm"
-                                   :disabled="!fromDataEdit" v-model="fromData.extra3">
+                                   :disabled="!fromDataEdit" v-model.trim="fromData.extra3">
                         </div>
                         <div class="form-grou" v-if="fromData.grouping=='false'">
                             <label>附加值4：</label>
                             <input type="text" class="form-control input-sm"
-                                   :disabled="!fromDataEdit" v-model="fromData.extra4">
+                                   :disabled="!fromDataEdit" v-model.trim="fromData.extra4">
                         </div>
                         <div class="form-grou" v-if="fromData.grouping=='false'">
                             <label>附加值5：</label>
                             <input type="text" class="form-control input-sm"
-                                   :disabled="!fromDataEdit" v-model="fromData.extra5">
+                                   :disabled="!fromDataEdit" v-model.trim="fromData.extra5">
                         </div>
                         <div class="form-grou" v-if="fromData.grouping=='false'">
                             <label>附加值6：</label>
                             <input type="text" class="form-control input-sm"
-                                   :disabled="!fromDataEdit" v-model="fromData.extra6">
+                                   :disabled="!fromDataEdit" v-model.trim="fromData.extra6">
                         </div>
                         <div class="form-grou" v-if="fromData.grouping=='false'">
                             <label>附加值7：</label>
                             <input type="text" class="form-control input-sm"
-                                   :disabled="!fromDataEdit" v-model="fromData.extra7">
+                                   :disabled="!fromDataEdit" v-model.trim="fromData.extra7">
                         </div>
                         <div class="form-grou" v-if="fromData.grouping=='false'">
                             <label>附加值8：</label>
                             <input type="text" class="form-control input-sm"
-                                   :disabled="!fromDataEdit" v-model="fromData.extra8">
+                                   :disabled="!fromDataEdit" v-model.trim="fromData.extra8">
                         </div>
                         <div class="form-grou" v-if="fromData.grouping=='false'">
                             <label>附加值9：</label>
                             <input type="text" class="form-control input-sm"
-                                   :disabled="!fromDataEdit" v-model="fromData.extra9">
+                                   :disabled="!fromDataEdit" v-model.trim="fromData.extra9">
                         </div>
                         <div class="form-grou" v-if="fromData.grouping=='false'">
                             <label>附加值10：</label>
                             <input type="text" class="form-control input-sm"
-                                   :disabled="!fromDataEdit" v-model="fromData.extra10">
+                                   :disabled="!fromDataEdit" v-model.trim="fromData.extra10">
                         </div>
                     </div>
                     <div class="form-group" style="text-align: center;padding: 10px 0px; ">
