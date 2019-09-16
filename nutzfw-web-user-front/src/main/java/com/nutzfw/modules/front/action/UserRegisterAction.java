@@ -97,7 +97,7 @@ public class UserRegisterAction extends BaseAction {
             redisHelpper.setString(codeKey, verificationCode, 60 * 30);
             //下面逻辑可以更换为保存短信验证码信息
             mailBodyService.insert(MailBody.builder()
-                    .bizType(dictBiz.getDict("sys_mail_type", "register").getId())
+                    .bizType(dictBiz.getCacheDict("sys_mail_type", "register").getId())
                     .subject(subject)
                     .htmlMsg(ElUtil.render(htmlTemplate, Lang.context().set("code", verificationCode)))
                     .to(mail)
