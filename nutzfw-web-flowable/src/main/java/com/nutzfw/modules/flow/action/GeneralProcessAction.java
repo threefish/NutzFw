@@ -39,24 +39,22 @@ import java.util.Map;
 public class GeneralProcessAction extends BaseAction {
 
     @Inject
-    GeneralFlowBiz generalFlowBiz;
-
+    GeneralFlowBiz               generalFlowBiz;
     @Inject
     FlowProcessDefinitionService flowProcessDefinitionService;
     @Inject
     FlowCustomQueryService       flowCustomQueryService;
     @Inject
     FlowTaskService              flowTaskService;
-
     @Inject
-    RepositoryService repositoryService;
+    RepositoryService            repositoryService;
 
     @At("/form")
     @GET
     @Ok("btl:WEB-INF/view/modules/flow/general/flowAudit.html")
     public NutMap form(@Param("::flow.") FlowTaskVO flowTaskVO, @Attr(Cons.SESSION_USER_KEY) UserAccount sessionUserAccount) {
         if (Strings.isNotBlank(flowTaskVO.getTaskId())) {
-            FlowUtils.setFlowTaskVo(flowTaskVO, flowTaskService.getTaskOrHistoryTask(flowTaskVO.getTaskId()));
+            FlowUtils.setFlowTaskVo(flowTaskVO, flowTaskService.getTaskOrHistoryTask(flowTaskVO.getTaskId()),sessionUserAccount.getUserName());
             if (flowTaskVO.getProcInsId() != null) {
                 // 设置业务表ID
                 flowTaskVO.setBusinessId(flowProcessDefinitionService.getBusinessKeyId(flowTaskVO.getProcInsId()));
@@ -216,7 +214,7 @@ public class GeneralProcessAction extends BaseAction {
      */
     @At("/loadFormData")
     @POST
-    @Ok("json:{dateFormat:'yyyy-MM-dd HH:mm'}")
+    @Ok("json:{dateFormat:'yyyy-MM-dd HH:mm',nullListAsEmpty:true}")
     public AjaxResult loadFormData(@Param("::flow") FlowTaskVO flowTaskVO, @Attr(Cons.SESSION_USER_KEY) UserAccount sessionUserAccount) {
         Object formData = generalFlowBiz.loadFormData(flowTaskVO, sessionUserAccount);
         if (formData == null) {

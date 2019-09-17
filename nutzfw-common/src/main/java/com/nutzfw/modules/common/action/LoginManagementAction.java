@@ -130,6 +130,7 @@ public class LoginManagementAction extends BaseAction {
                     return AjaxResult.error("验证码不能为空！");
                 }
                 if (!sessionCaptcha.equals(captcha)) {
+                    Mvcs.getHttpSession().removeAttribute(Cons.CAPTCHA_KEY);
                     return AjaxResult.error("验证码错误！");
                 }
             }

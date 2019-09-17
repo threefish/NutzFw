@@ -204,7 +204,6 @@ layout("/layouts/blank.html",{title:data.title}){
                 dynamicFreeChoiceNextReviewerMode: false,
             },
             fromDataSubmit: false,
-
             boxMainHeight: intViewportHeight,
             status: '${data.status}',
             signatureInit: false,
@@ -418,11 +417,10 @@ layout("/layouts/blank.html",{title:data.title}){
             handleInit: function () {
                 vm = this;
                 if (this.flow.businessId != undefined && this.flow.businessId.length > 0) {
-                    $.post("${base}/general/flow/process/loadFormData", {flow: this.flow}, function (data) {
-                        if (data.ok) {
-                            form.formData = data.data;
-                        }
-                    });
+                    var data = core.postJSON("/general/flow/process/loadFormData", {flow: this.flow});
+                    if (data.ok) {
+                        form.formData = data.data;
+                    }
                 }
                 $.post("${base}/flowTask/getUserTaskExtension", {
                     taskDefKey: this.flow.taskDefKey,
@@ -442,12 +440,12 @@ layout("/layouts/blank.html",{title:data.title}){
                     $("#diagramTab").css({height: vm.boxMainHeight + 'px'});
                     $("#formBoxMain").css({height: vm.boxMainHeight + 'px'});
                 });
+                if (form.handleInitAfter != undefined) {
+                    form.handleInitAfter();
+                }
                 if (this.flow.businessId != "") {
                     var url = "${base}/flowTask/histoicFlow?procInsId=${data.flow.procInsId}&startAct=&endAct=&t=" + new Date().getTime();
                     $("#histoicFlowList").attr("src", url);
-                }
-                if (form.handleInitAfter != undefined) {
-                    form.handleInitAfter();
                 }
             },
         },

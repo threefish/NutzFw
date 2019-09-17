@@ -124,7 +124,7 @@ public class GeneralFlowBizImpl implements GeneralFlowBiz {
     public String userAudit(Map formData, FlowTaskVO flowTaskVO, UserAccount sessionUserAccount) {
         // 设置当前流程任务办理人
         Authentication.setAuthenticatedUserId(sessionUserAccount.getUserName());
-        FlowUtils.setFlowTaskVo(flowTaskVO, flowTaskService.getTaskOrHistoryTask(flowTaskVO.getTaskId()));
+        FlowUtils.setFlowTaskVo(flowTaskVO, flowTaskService.getTaskOrHistoryTask(flowTaskVO.getTaskId()),sessionUserAccount.getUserName());
         ExternalFormExecutor executor = getExternalFormExecutor(flowTaskVO.getProcDefId());
         UserTaskExtensionDTO dto = flowProcessDefinitionService.getUserTaskExtension(flowTaskVO.getTaskDefKey(), flowTaskVO.getProcDefId());
         if (Strings.isNotBlank(flowTaskVO.getComment())) {

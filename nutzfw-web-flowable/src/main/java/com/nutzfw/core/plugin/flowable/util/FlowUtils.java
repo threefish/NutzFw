@@ -28,6 +28,7 @@ import org.nutz.lang.util.NutMap;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author 黄川 huchuc@vip.qq.com
@@ -128,11 +129,20 @@ public class FlowUtils {
         return dto;
     }
 
-    public static void setFlowTaskVo(FlowTaskVO flowTaskVO, TaskInfo task) {
+    /**
+     * @param flowTaskVO
+     * @param task
+     * @param currentAssigneeUserName 当前处理人
+     */
+    public static void setFlowTaskVo(FlowTaskVO flowTaskVO, TaskInfo task, String currentAssigneeUserName) {
         if (task instanceof Task) {
             flowTaskVO.setDelegateStatus(((Task) task).getDelegationState());
             flowTaskVO.setStatus(Strings.isNotBlank(task.getAssignee()) ? TaskStatusEnum.TODO : TaskStatusEnum.CLAIM);
         } else {
+            flowTaskVO.setStatus(TaskStatusEnum.FINISH);
+        }
+        if (!Objects.equals(task.getAssignee(), currentAssigneeUserName)) {
+            //自己不是当前处理，那么只能进行查看
             flowTaskVO.setStatus(TaskStatusEnum.FINISH);
         }
         flowTaskVO.setCategory(task.getCategory());
