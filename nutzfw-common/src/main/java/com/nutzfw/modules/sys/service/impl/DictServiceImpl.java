@@ -67,7 +67,7 @@ public class DictServiceImpl implements DictService {
     }
 
     @Override
-    @CacheRemove("dict-Cache:${arg[0].sysCode}")
+    @CacheRemove("dict-Cache:*")
     public int delete(Dict detail) {
         return dao.delete(detail);
     }

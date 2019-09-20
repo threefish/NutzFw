@@ -2,6 +2,7 @@ package com.nutzfw.core;
 
 import com.github.threefish.nutz.sqltpl.BeetlSqlTemplteEngineImpl;
 import com.nutzfw.core.common.cons.Cons;
+import com.nutzfw.core.common.el.function.DateFormat;
 import com.nutzfw.core.common.entity.BaseEntity;
 import com.nutzfw.core.mvc.PreventDuplicateSubmitProcessor;
 import com.nutzfw.core.plugin.beetl.GenMySqlFieldTypeFn;
@@ -33,6 +34,7 @@ import org.nutz.dao.Sqls;
 import org.nutz.dao.entity.annotation.Table;
 import org.nutz.dao.sql.Sql;
 import org.nutz.dao.util.Daos;
+import org.nutz.el.opt.custom.CustomMake;
 import org.nutz.integration.jedis.RedisService;
 import org.nutz.integration.shiro.NutShiro;
 import org.nutz.ioc.Ioc;
@@ -77,6 +79,8 @@ public class MainSetup extends AbstractInitSetup implements Setup {
             log.error("这个项目必须运行在UTF-8环境下, 请添加 -Dfile.encoding=UTF-8 至 JAVA_OPTS");
             throw new RuntimeException("This project must be run in UTF-8 environment, please add -Dfile.encoding=UTF-8 to JAVA_OPTS");
         }
+        //注册el函数
+        CustomMake.me().register("df", new DateFormat());
         Ioc ioc = nutConfig.getIoc();
         DictBiz dictBiz = ioc.get(DictBiz.class);
         Dao dao = ioc.get(Dao.class, "dao");

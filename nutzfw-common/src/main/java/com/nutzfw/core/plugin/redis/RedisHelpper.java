@@ -17,9 +17,9 @@ import java.util.Set;
 @IocBean
 public class RedisHelpper {
     /**
-     * 默认缓存有效期12小时
+     * 默认缓存有效期1小时
      */
-    public static final int DEFAULT_SECOND = 60 * 60 * 12;
+    public static final int DEFAULT_SECOND = 60 * 60 * 1;
 
     @Inject
     RedisService redisService;

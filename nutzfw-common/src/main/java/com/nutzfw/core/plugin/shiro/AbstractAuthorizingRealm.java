@@ -38,9 +38,9 @@ public abstract class AbstractAuthorizingRealm extends AuthorizingRealm {
     protected static final Log log = Logs.get();
 
     protected UserAccountService userAccountService;
-    protected MenuService menuService;
-    protected RoleService roleService;
-    protected RoleBiz roleBiz;
+    protected MenuService        menuService;
+    protected RoleService        roleService;
+    protected RoleBiz            roleBiz;
 
     public void initServices() {
         getUserAccountService();
@@ -136,6 +136,13 @@ public abstract class AbstractAuthorizingRealm extends AuthorizingRealm {
             Subject subject = SecurityUtils.getSubject();
             Session session = subject.getSession(false);
             session = (session == null ? subject.getSession(true) : session);
+            //登录用户可能在未退出的情况下再次登录其他账号，导致权限错乱，所以需要移除权限相关session
+            session.removeAttribute(Cons.SESSION_ROLES_KEY);
+            session.removeAttribute(Cons.SHIRO_AUTHORIZATION_INFO);
+            session.removeAttribute(Cons.SESSION_MENUS);
+            session.removeAttribute(Cons.SESSION_USER_ROLE);
+            session.removeAttribute(Cons.SESSION_USER_ROLE_CODE);
+            //设置登录成功的用户信息
             session.setAttribute(Cons.SESSION_USER_KEY, userAccount);
             session.setAttribute(Cons.SESSION_MANAGER_USER_NAMES_KEY, roleBiz.queryManagerUserNames(userAccount.getId()));
         } catch (Exception e) {

@@ -67,6 +67,15 @@ public interface DictBiz {
     Dict getCacheDict(String sysCode, String value);
 
     /**
+     * 通过lable取得字典
+     *
+     * @param sysCode
+     * @param lable
+     * @return
+     */
+    Dict getCacheDictByLable(String sysCode, String lable);
+
+    /**
      * 通过字典ids取得显示文字
      *
      * @param dictIds

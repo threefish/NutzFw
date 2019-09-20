@@ -11,6 +11,7 @@ var ioc = {
             smtpPort: {java: "$conf.get('mail.SmtpPort')"},
             authenticator: {refer: "emailAuthenticator0"},
             SSLOnConnect: {java: "$conf.get('mail.SSLOnConnect')"},
+            startTlsEnabled: {java: "$conf.get('mail.startTlsEnabled')"},
             from: {java: "$conf.get('mail.From0')"}
         }
     },
@@ -26,6 +27,7 @@ var ioc = {
             smtpPort: {java: "$conf.get('mail.SmtpPort')"},
             authenticator: {refer: "emailAuthenticator1"},
             SSLOnConnect: {java: "$conf.get('mail.SSLOnConnect')"},
+            startTlsEnabled: {java: "$conf.get('mail.startTlsEnabled')"},
             from: {java: "$conf.get('mail.From1')"}
         }
     },
@@ -41,6 +43,7 @@ var ioc = {
             smtpPort: {java: "$conf.get('mail.SmtpPort')"},
             authenticator: {refer: "emailAuthenticator2"},
             SSLOnConnect: {java: "$conf.get('mail.SSLOnConnect')"},
+            startTlsEnabled: {java: "$conf.get('mail.startTlsEnabled')"},
             from: {java: "$conf.get('mail.From2')"}
         }
     }

@@ -99,6 +99,11 @@ public class DictBizImpl implements DictBiz {
         return listCache(sysCode).stream().filter(d -> d.getVal().equals(value)).findFirst().orElse(null);
     }
 
+    @Override
+    public Dict getCacheDictByLable(String sysCode, String lable) {
+        return listCache(sysCode).stream().filter(d -> d.getLable().equals(lable)).findFirst().orElse(null);
+    }
+
     /**
      * 取得字典名称
      *

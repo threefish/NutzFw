@@ -228,7 +228,20 @@ public class ExcelTemplate {
                     String key = NUTZ_TEMP_ROW_KEY.concat(".").concat(cols[j]);
                     try {
                         Object objVal = new El(key).eval(ctx);
-                        cell.setCellValue(Strings.sNull(DateUtil.renderStrDate(objVal, dateFormat)));
+                        if (objVal instanceof Integer || objVal instanceof Double || objVal instanceof Float) {
+                            cell.setCellType(CellType.NUMERIC);
+                            if (objVal instanceof Integer) {
+                                cell.setCellValue(((Integer) objVal));
+                            }
+                            if (objVal instanceof Double) {
+                                cell.setCellValue(((Double) objVal));
+                            }
+                            if (objVal instanceof Float) {
+                                cell.setCellValue(((Float) objVal));
+                            }
+                        } else {
+                            cell.setCellValue(Strings.sNull(DateUtil.renderStrDate(objVal, dateFormat)));
+                        }
                     } catch (Exception e) {
                         cell.setCellValue("函数执行异常：" + e.getMessage());
                         log.error(e);

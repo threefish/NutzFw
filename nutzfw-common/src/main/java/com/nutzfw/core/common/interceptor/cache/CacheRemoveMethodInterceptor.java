@@ -7,6 +7,7 @@ import org.nutz.aop.InterceptorChain;
 import org.nutz.lang.Strings;
 
 import java.lang.reflect.Method;
+import java.util.Set;
 
 /**
  * @author huchuc@vip.qq.com
@@ -32,9 +33,9 @@ public class CacheRemoveMethodInterceptor extends AbstractCacheMethodInterceptor
                 if (Strings.isBlank(cacheName)) {
                     throw new RuntimeException("缓存名称不能为空");
                 }
-                if (redisHelpper.exists(cacheName)) {
-                    //缓存存在,直接移除
-                    redisHelpper.del(cacheName);
+                Set<String> keys = redisHelpper.keys(cacheName);
+                if (keys.size() > 0) {
+                    redisHelpper.del(keys.toArray(new String[0]));
                 }
                 chain.doChain();
             }
