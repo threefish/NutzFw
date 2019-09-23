@@ -239,10 +239,22 @@ var core = {
         return html;
     },
     postDownload: function (url, params) {
-        var $form = $('<form></form>').attr("action", base + url).attr("method", "post");
-        for (var key in params) {
-            $('<input type="text"/>').attr("name", key).val(params[key]).appendTo($form);
+        function setInput(k, p) {
+            for (var key in p) {
+                var val = p[key];
+                if (typeof val == "object") {
+                    setInput(key, val);
+                } else {
+                    var name = key;
+                    if (k != "") {
+                        name = k + "." + key;
+                    }
+                    $('<input type="text"/>').attr("name", name).val(p[key]).appendTo($form);
+                }
+            }
         }
+        var $form = $('<form></form>').attr("action", base + url).attr("method", "post");
+        setInput("", params);
         $($form).appendTo('body').submit().remove();
     },
     showMsg: function (msg, status) {

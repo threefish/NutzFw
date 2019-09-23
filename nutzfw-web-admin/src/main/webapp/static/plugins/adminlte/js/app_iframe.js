@@ -2574,7 +2574,7 @@ $(function () {
                         item.urlType = item.urlType ? item.urlType : 'relative';
                         var href = 'addTabs({id:\'' + item.id + '\',title: \'' + item.text + '\',close: true,url: \'' + item.url + '\',urlType: \'' + item.urlType + '\'});';
                         $a.attr('onclick', href);
-                        $a.attr('tabs-id', item.url.replace(/\//g, "_"));
+                        $a.attr('tabs-id', (App.getbasePath() + item.url).replace(/\//g, "_"));
                     } else if (item.targetType != null && item.targetType === "iframe") { //代表单iframe页面
                         $a.attr("href", item.url);
                         $a.addClass("iframeOpen");

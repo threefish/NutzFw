@@ -37,7 +37,7 @@
     }
 
     $(function () {
-        var menus = ${session.sessionMenus!};
+        var menus = JSON.parse('${session.sessionMenus!}');
         $('.sidebar-menu').sidebarMenu({data: menus});
         $("#personalInfo").click(function () {
             addTabs({
