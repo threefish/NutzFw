@@ -9,8 +9,11 @@ import org.nutz.dao.Condition;
 import org.nutz.dao.Dao;
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
+import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -24,29 +27,30 @@ public class DictServiceImpl implements DictService {
     Dao dao;
 
     @Override
-    @CacheRemove("dict-Cache:${arg[0].sysCode}")
+    @CacheRemove("dict-Cache:${arg[0].likeCode}")
     public Dict insertOrUpdate(Dict detail) {
-        StringBuilder likeCode = new StringBuilder();
         int pid = detail.getPid();
+        List<String> codes = new ArrayList<>();
+        codes.add(detail.getSysCode());
         while (pid != 0) {
             Dict dict = fetch(pid);
             pid = dict.getPid();
-            likeCode.append(dict.getLikeCode()).append("_");
+            codes.add(dict.getSysCode());
         }
-        likeCode.append(detail.getSysCode());
-        detail.setLikeCode(likeCode.toString());
+        Collections.reverse(codes);
+        detail.setLikeCode(Strings.join("_", codes));
         return dao.insertOrUpdate(detail);
     }
 
 
     /**
-     * @param sysCode
+     * @param likeCode
      * @return
      */
     @Override
     @CachePut("dict-Cache:${arg[0]}")
-    public List<Dict> getCache(String sysCode) {
-        return listAllDictBylikeCode(sysCode);
+    public List<Dict> getCache(String likeCode) {
+        return listAllDictBylikeCode(likeCode);
     }
 
     /**
@@ -62,8 +66,8 @@ public class DictServiceImpl implements DictService {
     }
 
     @Override
-    public List<Dict> listAllDictBylikeCode(String sysCode) {
-        return dao.query(Dict.class, Cnd.where("likeCode", "like", sysCode + "%").asc("shortNo"));
+    public List<Dict> listAllDictBylikeCode(String likeCode) {
+        return dao.query(Dict.class, Cnd.where("likeCode", "like", likeCode + "%").asc("shortNo"));
     }
 
     @Override

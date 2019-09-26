@@ -7,7 +7,7 @@
                 <h2>{{'PROPERTY.PROPERTY.EDIT.TITLE' | translate}} "{{property.title | translate}}"</h2>
             </div>
             <div class="modal-body">
-            
+
                 <div class="row row-no-gutter">
                     <div class="col-xs-6">
                         <div ng-if="translationsRetrieved" class="kis-listener-grid" ui-grid="gridOptions" ui-grid-selection></div>
@@ -22,21 +22,21 @@
                             </div>
                         </div>
                     </div>
-            
+
                     <div class="col-xs-6">
                         <div ng-show="selectedProperty">
-            
+
                             <div class="form-group">
-            			   		<label for="idField">{{'PROPERTY.DATAPROPERTIES.ID' | translate}}</label>
-            			   		<input id="idField" class="form-control" type="text" ng-model="selectedProperty.dataproperty_id" placeholder="{{'PROPERTY.DATAPROPERTIES.ID.PLACEHOLDER' | translate }}" />
-            				</div>
-            				<div class="form-group">
-            			   		<label for="nameField">{{'PROPERTY.DATAPROPERTIES.NAME' | translate}}</label>
-            			   		<input id="nameField" class="form-control" type="text" ng-model="selectedProperty.dataproperty_name" placeholder="{{'PROPERTY.DATAPROPERTIES.NAME.PLACEHOLDER' | translate }}" />
-            				</div>
-            				<div class="form-group">
-            			   		<label for="typeField">{{'PROPERTY.DATAPROPERTIES.TYPE' | translate}}</label>
-            			   		<select id="typeField" class="form-control" ng-model="selectedProperty.dataproperty_type" ng-change="propertyTypeChanged()">
+                                <label for="idField">{{'PROPERTY.DATAPROPERTIES.ID' | translate}}</label>
+                                <input id="idField" class="form-control" type="text" ng-model="selectedProperty.dataproperty_id" placeholder="{{'PROPERTY.DATAPROPERTIES.ID.PLACEHOLDER' | translate }}" />
+                            </div>
+                            <div class="form-group">
+                                <label for="nameField">{{'PROPERTY.DATAPROPERTIES.NAME' | translate}}</label>
+                                <input id="nameField" class="form-control" type="text" ng-model="selectedProperty.dataproperty_name" placeholder="{{'PROPERTY.DATAPROPERTIES.NAME.PLACEHOLDER' | translate }}" />
+                            </div>
+                            <div class="form-group">
+                                <label for="typeField">{{'PROPERTY.DATAPROPERTIES.TYPE' | translate}}</label>
+                                <select id="typeField" class="form-control" ng-model="selectedProperty.dataproperty_type" ng-change="propertyTypeChanged()">
                                     <option selected>string</option>
                                     <option>boolean</option>
                                     <option>datetime</option>
@@ -44,19 +44,23 @@
                                     <option>int</option>
                                     <option>long</option>
                                 </select>
-            				</div>
+                            </div>
                             <div class="form-group">
-            			   		<label for="valueField">{{'PROPERTY.DATAPROPERTIES.VALUE' | translate}}</label>
-            			   		<input id="valueField" class="form-control" type="text" ng-model="selectedProperty.dataproperty_value" placeholder="{{'PROPERTY.DATAPROPERTIES.VALUE.PLACEHOLDER' | translate }}" />
+                                <label for="valueField">{{'PROPERTY.DATAPROPERTIES.VALUE' | translate}}</label>
+                                <input id="valueField" class="form-control" type="text" ng-model="selectedProperty.dataproperty_value" placeholder="{{'PROPERTY.DATAPROPERTIES.VALUE.PLACEHOLDER' | translate }}" />
+                            </div>
+                            <div class="form-group">
+                                <label for="expression">表达式</label>
+                                <input id="expression" class="form-control" type="text" ng-model="selectedProperty.dataproperty_expression" placeholder="表达式" />
                                 <div>user：对应 UserAccount 用户基本信息 form:对应 formData 提交的表单数据</div>
                                 <div>如：${user.realName} 发起的流程</div>
-            				</div>
+                            </div>
 
                         </div>
                         <div ng-show="!selectedProperty" class="muted no-property-selected" translate>PROPERTY.DATAPROPERTIES.EMPTY</div>
                     </div>
                 </div>
-            
+
             </div>
             <div class="modal-footer">
                 <button ng-click="cancel()" class="btn btn-primary" translate>ACTION.CANCEL</button>

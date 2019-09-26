@@ -2,9 +2,12 @@ package com.nutzfw.core.plugin.flowable.converter;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.nutzfw.core.plugin.flowable.util.FlowUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.flowable.bpmn.model.BpmnModel;
 import org.flowable.bpmn.model.ExtensionElement;
 import org.flowable.bpmn.model.Process;
+import org.flowable.bpmn.model.ValuedDataObject;
 import org.flowable.editor.language.json.converter.BpmnJsonConverter;
 import org.flowable.editor.language.json.model.ModelInfo;
 
@@ -18,7 +21,7 @@ import java.util.Map;
 public class CustomBpmnJsonConverter extends BpmnJsonConverter {
 
     public static final String EXTERNAL_FORM_EXECUTOR = "externalformexecutor";
-
+    public static final String DATA_OBJECTS_EXPRESSION = "expression";
     private static final String[] PROPERTY_KEYS = new String[]{EXTERNAL_FORM_EXECUTOR};
 
     static {
@@ -44,6 +47,7 @@ public class CustomBpmnJsonConverter extends BpmnJsonConverter {
     @Override
     public BpmnModel convertToBpmnModel(JsonNode modelNode, Map<String, String> formKeyMap, Map<String, String> decisionTableKeyMap) {
         BpmnModel bpmnModel = super.convertToBpmnModel(modelNode, formKeyMap, decisionTableKeyMap);
+        bpmnModel = this.handleConvertDataObjectsToBpmnModel(bpmnModel, modelNode);
         return this.handleConvertExpansionToBpmnModel(bpmnModel, modelNode);
     }
 
@@ -56,6 +60,7 @@ public class CustomBpmnJsonConverter extends BpmnJsonConverter {
     @Override
     public ObjectNode convertToJson(BpmnModel model, Map<String, ModelInfo> formKeyMap, Map<String, ModelInfo> decisionTableKeyMap) {
         ObjectNode objectNode = super.convertToJson(model, formKeyMap, decisionTableKeyMap);
+        objectNode = this.handleConvertDataObjectsToJson(model.getMainProcess(), objectNode);
         return this.handleConvertExpansionToJson(model, objectNode);
     }
 
@@ -84,5 +89,61 @@ public class CustomBpmnJsonConverter extends BpmnJsonConverter {
             }
         }
         return bpmnModel;
+    }
+
+    /**
+     * 自定义数据对象表达式----json转xml
+     *
+     * @param bpmnModel
+     * @param modelNode
+     * @return
+     */
+    public BpmnModel handleConvertDataObjectsToBpmnModel(BpmnModel bpmnModel, JsonNode modelNode) {
+        JsonNode itemsArrayNode = modelNode.get(EDITOR_SHAPE_PROPERTIES).get(PROPERTY_DATA_PROPERTIES).get(EDITOR_PROPERTIES_GENERAL_ITEMS);
+        Process process = bpmnModel.getMainProcess();
+        if (itemsArrayNode != null) {
+            List<ValuedDataObject> dataObjects = process.getDataObjects();
+            for (JsonNode dataNode : itemsArrayNode) {
+                JsonNode dataIdNode = dataNode.get(PROPERTY_DATA_ID);
+                if (dataIdNode != null && StringUtils.isNotEmpty(dataIdNode.asText())) {
+                    String nodeId = dataIdNode.asText();
+                    dataObjects.stream().filter(valuedDataObject -> valuedDataObject.getId().equals(nodeId)).forEach(valuedDataObject -> {
+                        JsonNode expressionNode = dataNode.get("dataproperty_expression");
+                        if (expressionNode != null && StringUtils.isNotEmpty(expressionNode.asText())) {
+                            valuedDataObject.addExtensionElement(FlowUtils.buildExtensionElement(DATA_OBJECTS_EXPRESSION, expressionNode.asText()));
+                        }
+                    });
+                }
+            }
+        }
+        return bpmnModel;
+    }
+
+    /**
+     * 自定义数据对象表达式----xml转json
+     *
+     * @param process
+     * @param modelNode
+     * @return
+     */
+    public ObjectNode handleConvertDataObjectsToJson(Process process, ObjectNode modelNode) {
+        JsonNode itemsArrayNode = modelNode.get(EDITOR_SHAPE_PROPERTIES).get(PROPERTY_DATA_PROPERTIES).get(EDITOR_PROPERTIES_GENERAL_ITEMS);
+        if (itemsArrayNode != null) {
+            List<ValuedDataObject> dataObjects = process.getDataObjects();
+            for (JsonNode dataNode : itemsArrayNode) {
+                if (dataNode instanceof ObjectNode) {
+                    ObjectNode objectNode = (ObjectNode) dataNode;
+                    JsonNode dataIdNode = dataNode.get(PROPERTY_DATA_ID);
+                    if (dataIdNode != null && StringUtils.isNotEmpty(dataIdNode.asText())) {
+                        String nodeId = dataIdNode.asText();
+                        dataObjects.stream().filter(valuedDataObject -> valuedDataObject.getId().equals(nodeId)).forEach(valuedDataObject -> {
+                            List<ExtensionElement> extensionElements = valuedDataObject.getExtensionElements().get(DATA_OBJECTS_EXPRESSION);
+                            extensionElements.forEach(element -> objectNode.put("dataproperty_expression", element.getElementText()));
+                        });
+                    }
+                }
+            }
+        }
+        return modelNode;
     }
 }

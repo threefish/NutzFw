@@ -1,6 +1,10 @@
 /**
  * Created by 30695 on 2016/11/20 0020.
  */
+/**
+ * 字典缓存
+ * @type {Object}
+ */
 window.NutzFwDictCache = new Object();
 var core = {
     noData: "<div class='tree-nodata'>暂无数据</div>",
@@ -100,13 +104,16 @@ var core = {
                     var idsVal = ids.join(",");
                     new Function("vm", "idsVal", "vm." + fieldName + "=idsVal;")(vm, idsVal)
                     return true;
-                } else {
+                } else if (data != undefined) {
                     if (!data.grouping) {
                         new Function("vm", "val", "vm." + fieldName + "=val;")(vm, data[defaualtValueField])
                         return true;
                     }
                     core.error("请勿选择字典分组");
                     return false;
+                } else {
+                    new Function("vm", "val", "vm." + fieldName + "=val;")(vm, '')
+                    return true;
                 }
             },
             onSuccess: function (ztree) {
@@ -253,6 +260,7 @@ var core = {
                 }
             }
         }
+
         var $form = $('<form></form>').attr("action", base + url).attr("method", "post");
         setInput("", params);
         $($form).appendTo('body').submit().remove();

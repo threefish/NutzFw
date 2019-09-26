@@ -131,7 +131,7 @@ public class DictFn implements Function {
         if (Strings.isBlank(dto.getVueModelFieldName())) {
             dto.setVueModelFieldName(getVueModelFieldName(obj, endStartIndex));
         }
-        dto.setDictVals(dictBiz.listCache(dto.getSysCode()));
+        dto.setDictVals(dictBiz.listCache(dto.getDictType().getLikeCode()));
         AtomicBoolean end = new AtomicBoolean(false);
         Arrays.stream(obj).forEach(val -> {
             if ("END".equals(val)) {

@@ -3,10 +3,10 @@ package com.nutzfw.core.plugin.flowable.service.impl;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.nutzfw.core.common.util.DateUtil;
-import com.nutzfw.core.common.util.ElUtil;
 import com.nutzfw.core.common.vo.LayuiTableDataListVO;
 import com.nutzfw.core.plugin.flowable.cmd.FindNextUserTaskNodeCmd;
 import com.nutzfw.core.plugin.flowable.constant.FlowConstant;
+import com.nutzfw.core.plugin.flowable.converter.CustomBpmnJsonConverter;
 import com.nutzfw.core.plugin.flowable.dto.UserTaskExtensionDTO;
 import com.nutzfw.core.plugin.flowable.enums.CallBackTypeEnum;
 import com.nutzfw.core.plugin.flowable.enums.TaskStatusEnum;
@@ -23,9 +23,7 @@ import com.nutzfw.modules.organize.entity.UserAccount;
 import com.nutzfw.modules.organize.service.UserAccountService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
-import org.flowable.bpmn.model.BpmnModel;
-import org.flowable.bpmn.model.UserTask;
-import org.flowable.bpmn.model.ValuedDataObject;
+import org.flowable.bpmn.model.*;
 import org.flowable.common.engine.impl.identity.Authentication;
 import org.flowable.engine.*;
 import org.flowable.engine.history.HistoricActivityInstance;
@@ -44,6 +42,7 @@ import org.flowable.task.api.TaskQuery;
 import org.flowable.task.api.history.HistoricTaskInstance;
 import org.flowable.task.api.history.HistoricTaskInstanceQuery;
 import org.flowable.variable.api.history.HistoricVariableInstance;
+import org.nutz.el.El;
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.lang.Lang;
@@ -698,11 +697,30 @@ public class FlowTaskServiceImpl implements FlowTaskService {
     @Override
     public void setValuedDataObject(Map<String, Object> variables, String processDefinitionId, Object form, UserAccount userAccount) {
         List<ValuedDataObject> ValuedDataObjects = repositoryService.getBpmnModel(processDefinitionId).getMainProcess().getDataObjects();
-        ValuedDataObject valuedDataObject = ValuedDataObjects.stream().filter(va -> FlowConstant.PROCESS_TITLE.equals(va.getId())).findAny().orElse(null);
-        if (valuedDataObject == null) {
+        if (!ValuedDataObjects.stream().filter(va -> FlowConstant.PROCESS_TITLE.equals(va.getId())).findAny().isPresent()) {
             throw Lang.makeThrow("流程应该设置标题模版数据对象，ID为 %s", FlowConstant.PROCESS_TITLE);
         }
-        ValuedDataObjects.stream().forEach(valued -> variables.put(valued.getId(), ElUtil.render(String.valueOf(valued.getValue()), Lang.context().set("form", form).set("user", userAccount))));
+        ValuedDataObjects.stream().forEach(valued -> {
+            List<ExtensionElement> extensionElements = valued.getExtensionElements().get(CustomBpmnJsonConverter.DATA_OBJECTS_EXPRESSION);
+            if (CollectionUtils.isNotEmpty(extensionElements)) {
+                Object val = null;
+                String valStr = El.render(String.valueOf(extensionElements.get(0).getElementText()), Lang.context().set("form", form).set("user", userAccount));
+                if (valued instanceof StringDataObject) {
+                    val = valStr;
+                } else if (valued instanceof IntegerDataObject) {
+                    val = Integer.parseInt(valStr);
+                } else if (valued instanceof LongDataObject) {
+                    val = Long.parseLong(valStr);
+                } else if (valued instanceof DoubleDataObject) {
+                    val = Double.parseDouble(valStr);
+                } else if (valued instanceof BooleanDataObject) {
+                    val = Boolean.parseBoolean(valStr);
+                } else if (valued instanceof DateDataObject) {
+                    val = DateUtil.string2date(valStr, DateUtil.YYYY_MM_DD_HH_MM_SS);
+                }
+                variables.put(valued.getId(), val);
+            }
+        });
     }
 
     @Override

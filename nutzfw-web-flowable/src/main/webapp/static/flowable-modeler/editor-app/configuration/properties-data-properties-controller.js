@@ -38,24 +38,24 @@ angular.module('flowableModeler').controller('FlowableDataPropertiesPopupCtrl',
             // Note that we clone the json object rather then setting it directly,
             // this to cope with the fact that the user can click the cancel button and no changes should have happened
             $scope.dataProperties = angular.copy($scope.property.value.items);
-            
+
             for (var i = 0; i < $scope.dataProperties.length; i++) {
-			    var dataProperty = $scope.dataProperties[i];
-			    if (dataProperty.enumValues && dataProperty.enumValues.length > 0) {
-				    for (var j = 0; j < dataProperty.enumValues.length; j++) {
-					    var enumValue = dataProperty.enumValues[j];
-					    if (!enumValue.id && !enumValue.name && enumValue.value) {
-						    enumValue.id = enumValue.value;
-						    enumValue.name = enumValue.value;
-					    }
-				    }
-			    }
-			}
-            
+                var dataProperty = $scope.dataProperties[i];
+                if (dataProperty.enumValues && dataProperty.enumValues.length > 0) {
+                    for (var j = 0; j < dataProperty.enumValues.length; j++) {
+                        var enumValue = dataProperty.enumValues[j];
+                        if (!enumValue.id && !enumValue.name && enumValue.value) {
+                            enumValue.id = enumValue.value;
+                            enumValue.name = enumValue.value;
+                        }
+                    }
+                }
+            }
+
         } else {
             $scope.dataProperties = [];
         }
-        
+
         $scope.enumValues = [];
 
         $scope.translationsRetrieved = false;
@@ -67,11 +67,12 @@ angular.module('flowableModeler').controller('FlowableDataPropertiesPopupCtrl',
         var typePromise = $translate('PROPERTY.DATAPROPERTIES.TYPE');
         var valuePromise = $translate('PROPERTY.DATAPROPERTIES.VALUE');
 
-        $q.all([idPromise, namePromise, typePromise, valuePromise]).then(function (results) {
+        $q.all([idPromise, namePromise, typePromise, valuePromise, '表达式']).then(function (results) {
             $scope.labels.idLabel = results[0];
             $scope.labels.nameLabel = results[1];
             $scope.labels.typeLabel = results[2];
             $scope.labels.valueLabel = results[3];
+            $scope.labels.expressionLabel = results[4];
             $scope.translationsRetrieved = true;
 
             // Config for grid
@@ -85,14 +86,17 @@ angular.module('flowableModeler').controller('FlowableDataPropertiesPopupCtrl',
                 enableHorizontalScrollbar: 0,
                 enableColumnMenus: false,
                 enableSorting: false,
-                columnDefs: [{field: 'dataproperty_id', displayName: $scope.labels.idLabel},
+                columnDefs: [
+                    {field: 'dataproperty_id', displayName: $scope.labels.idLabel},
                     {field: 'dataproperty_name', displayName: $scope.labels.nameLabel},
                     {field: 'dataproperty_type', displayName: $scope.labels.typeLabel},
-                    {field: 'dataproperty_value', displayName: $scope.labels.valueLabel}]
+                    {field: 'dataproperty_value', displayName: $scope.labels.valueLabel},
+                    {field: 'dataproperty_expression', displayName: $scope.labels.expressionLabel},
+                ]
             };
-            
+
             $scope.enumGridOptions = {
-    		    data: $scope.enumValues,
+                data: $scope.enumValues,
                 headerRowHeight: 28,
                 enableRowSelection: true,
                 enableRowHeaderSelection: false,
@@ -101,8 +105,10 @@ angular.module('flowableModeler').controller('FlowableDataPropertiesPopupCtrl',
                 enableHorizontalScrollbar: 0,
                 enableColumnMenus: false,
                 enableSorting: false,
-                columnDefs: [{ field: 'id', displayName: $scope.labels.idLabel },
-                { field: 'name', displayName: $scope.labels.nameLabel}]
+                columnDefs: [
+                    {field: 'id', displayName: $scope.labels.idLabel},
+                    {field: 'name', displayName: $scope.labels.nameLabel}
+                ]
             }
 
             $scope.gridOptions.onRegisterApi = function (gridApi) {
@@ -119,7 +125,7 @@ angular.module('flowableModeler').controller('FlowableDataPropertiesPopupCtrl',
                     }
                 });
             };
-            
+
             $scope.enumGridOptions.onRegisterApi = function (gridApi) {
                 //set gridApi on scope
                 $scope.enumGridApi = gridApi;
@@ -141,12 +147,12 @@ angular.module('flowableModeler').controller('FlowableDataPropertiesPopupCtrl',
 
             // Check enum. If enum, show list of options
             if ($scope.selectedProperty.type === 'enum') {
-                $scope.selectedProperty.enumValues = [ {id: 'value1', name: 'Value 1'}, {id: 'value2', name: 'Value 2'}];
+                $scope.selectedProperty.enumValues = [{id: 'value1', name: 'Value 1'}, {id: 'value2', name: 'Value 2'}];
                 $scope.enumValues.length = 0;
                 for (var i = 0; i < $scope.selectedProperty.enumValues.length; i++) {
                     $scope.enumValues.push($scope.selectedProperty.enumValues[i]);
                 }
-                
+
             } else {
                 delete $scope.selectedProperty.enumValues;
                 $scope.enumValues.length = 0;
@@ -160,6 +166,7 @@ angular.module('flowableModeler').controller('FlowableDataPropertiesPopupCtrl',
                 dataproperty_id: 'new_data_object_' + propertyIndex++,
                 dataproperty_name: '',
                 dataproperty_type: 'string',
+                dataproperty_expression: '',
                 readable: true,
                 writable: true
             };
@@ -183,7 +190,7 @@ angular.module('flowableModeler').controller('FlowableDataPropertiesPopupCtrl',
                     $scope.selectedProperty = undefined;
                 }
 
-                $timeout(function() {
+                $timeout(function () {
                     if ($scope.dataProperties.length > 0) {
                         $scope.gridApi.selection.toggleRowSelection($scope.dataProperties[0]);
                     }
@@ -199,9 +206,9 @@ angular.module('flowableModeler').controller('FlowableDataPropertiesPopupCtrl',
                 if (index != 0) { // If it's the first, no moving up of course
                     var temp = $scope.dataProperties[index];
                     $scope.dataProperties.splice(index, 1);
-                    $timeout(function(){
+                    $timeout(function () {
                         $scope.dataProperties.splice(index + -1, 0, temp);
-                        $timeout(function() {
+                        $timeout(function () {
                             $scope.gridApi.selection.toggleRowSelection(temp);
                         });
                     });
@@ -217,30 +224,30 @@ angular.module('flowableModeler').controller('FlowableDataPropertiesPopupCtrl',
                 if (index != $scope.dataProperties.length - 1) { // If it's the last element, no moving down of course
                     var temp = $scope.dataProperties[index];
                     $scope.dataProperties.splice(index, 1);
-                    $timeout(function(){
+                    $timeout(function () {
                         $scope.dataProperties.splice(index + 1, 0, temp);
-                        $timeout(function() {
+                        $timeout(function () {
                             $scope.gridApi.selection.toggleRowSelection(temp);
                         });
                     });
                 }
             }
         };
-        
-        $scope.addNewEnumValue = function() {
+
+        $scope.addNewEnumValue = function () {
             if ($scope.selectedProperty) {
-        	    var newEnumValue = { id : '', name : ''};
-        	    $scope.selectedProperty.enumValues.push(newEnumValue);
-        	    $scope.enumValues.push(newEnumValue);
-    	       
-    	        $timeout(function () {
+                var newEnumValue = {id: '', name: ''};
+                $scope.selectedProperty.enumValues.push(newEnumValue);
+                $scope.enumValues.push(newEnumValue);
+
+                $timeout(function () {
                     $scope.enumGridApi.selection.toggleRowSelection(newEnumValue);
                 });
-        	}
+            }
         };
 
         // Click handler for remove button
-        $scope.removeEnumValue = function() {
+        $scope.removeEnumValue = function () {
             var selectedItems = $scope.enumGridApi.selection.getSelectedRows();
             if (selectedItems && selectedItems.length > 0) {
                 var index = $scope.enumValues.indexOf(selectedItems[0]);
@@ -260,9 +267,9 @@ angular.module('flowableModeler').controller('FlowableDataPropertiesPopupCtrl',
                 });
             }
         };
-    
+
         // Click handler for up button
-        $scope.moveEnumValueUp = function() {
+        $scope.moveEnumValueUp = function () {
             var selectedItems = $scope.enumGridApi.selection.getSelectedRows();
             if (selectedItems && selectedItems.length > 0) {
                 var index = $scope.enumValues.indexOf(selectedItems[0]);
@@ -280,9 +287,9 @@ angular.module('flowableModeler').controller('FlowableDataPropertiesPopupCtrl',
                 }
             }
         };
-    
+
         // Click handler for down button
-        $scope.moveEnumValueDown = function() {
+        $scope.moveEnumValueDown = function () {
             var selectedItems = $scope.enumGridApi.selection.getSelectedRows();
             if (selectedItems && selectedItems.length > 0) {
                 var index = $scope.enumValues.indexOf(selectedItems[0]);
