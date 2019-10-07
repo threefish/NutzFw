@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2019- 2019 threefish(https://gitee.com/threefish https://github.com/threefish) All Rights Reserved.
+ * 本项目完全开源，商用完全免费。但请勿侵犯作者合法权益，如申请软著等。
+ * 最后修改时间：2019/10/07 18:32:07
+ * 源 码 地 址：https://gitee.com/threefish/NutzFw
+ */
+
 package com.nutzfw.core.common.interceptor.log;
 
 import com.nutzfw.core.common.annotation.SysLog;
@@ -20,13 +27,13 @@ import java.util.Map;
  */
 public class SysLogMethodInterceptor implements MethodInterceptor {
     protected SysOperateLogService sysOperateLogService;
-    protected Ioc ioc;
-    protected String source;
-    protected String tag;
-    protected CharSegment seg;
-    protected Map<String, El> els;
-    protected boolean param;
-    protected boolean result;
+    protected Ioc                  ioc;
+    protected String               source;
+    protected String               tag;
+    protected CharSegment          seg;
+    protected Map<String, El>      els;
+    protected boolean              param;
+    protected boolean              result;
 
     public SysLogMethodInterceptor(SysLog sysLog, Method method, Ioc ioc) {
         this.seg = new CharSegment(sysLog.template());

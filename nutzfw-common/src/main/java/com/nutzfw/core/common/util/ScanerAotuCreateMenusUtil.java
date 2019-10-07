@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2019- 2019 threefish(https://gitee.com/threefish https://github.com/threefish) All Rights Reserved.
+ * 本项目完全开源，商用完全免费。但请勿侵犯作者合法权益，如申请软著等。
+ * 最后修改时间：2019/10/07 18:32:07
+ * 源 码 地 址：https://gitee.com/threefish/NutzFw
+ */
+
 package com.nutzfw.core.common.util;
 
 import com.nutzfw.core.MainModule;
@@ -29,7 +36,7 @@ public class ScanerAotuCreateMenusUtil {
 
 
     private final static Comparator CHINA_COMPARE = Collator.getInstance(java.util.Locale.CHINA);
-    private List<Menu> menuList = new ArrayList<>();
+    private              List<Menu> menuList      = new ArrayList<>();
 
     private List<Menu> scanPackage() {
         for (String scanPackage : MainModule.class.getAnnotation(Modules.class).packages()) {

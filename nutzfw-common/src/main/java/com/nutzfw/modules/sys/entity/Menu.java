@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2019- 2019 threefish(https://gitee.com/threefish https://github.com/threefish) All Rights Reserved.
+ * 本项目完全开源，商用完全免费。但请勿侵犯作者合法权益，如申请软著等。
+ * 最后修改时间：2019/10/07 18:32:07
+ * 源 码 地 址：https://gitee.com/threefish/NutzFw
+ */
+
 package com.nutzfw.modules.sys.entity;
 
 
@@ -30,55 +37,55 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = false)
 public class Menu extends BaseEntity implements Serializable, Comparator<Menu> {
 
-    private static final long serialVersionUID = 1L;
-    public boolean chkDisabled = false;
+    private static final long       serialVersionUID = 1L;
+    public               boolean    chkDisabled      = false;
     @Name
     @PrevInsert(uu32 = true)
     @ColDefine(width = 32, notNull = true)
     @Comment("主键")
     @Column("id")
-    private String id;
+    private              String     id;
     @Column
-    private String pid;
+    private              String     pid;
     @Column("menu_name")
-    private String menuName;
+    private              String     menuName;
     @Column("menu_target")
     @Default("")
-    private String menuTarget;
+    private              String     menuTarget;
     /**
      * 权限标识
      */
     @Column("permission")
     @ColDefine(notNull = true)
-    private String permission;
+    private              String     permission;
     @Column("menu_icon")
-    private String menuIcon;
+    private              String     menuIcon;
     /**
      * 权限类型 0 菜单  1数据
      */
     @Column("menu_type")
-    private int menuType;
+    private              int        menuType;
     @Column("locked")
-    private boolean locked;
+    private              boolean    locked;
     @Column("can_delect")
-    private boolean canDelect;
+    private              boolean    canDelect;
     @Column("description")
-    private String description;
+    private              String     description;
     @Column("short_no")
-    private int shortNo;
+    private              int        shortNo;
     @Column("ct")
-    private Timestamp createTime;
+    private              Timestamp  createTime;
     @Column("ut")
-    private Timestamp updateTime;
-    private List<Menu> children;
+    private              Timestamp  updateTime;
+    private              List<Menu> children;
     /**
      * 通过权限表示自动判断子父节点
      */
-    private String parentPermission;
+    private              String     parentPermission;
     /**
      * ztree支持
      **/
-    private String iconSkin;
+    private              String     iconSkin;
 
     public void setMenuIcon(String menuIcon) {
         this.menuIcon = menuIcon;

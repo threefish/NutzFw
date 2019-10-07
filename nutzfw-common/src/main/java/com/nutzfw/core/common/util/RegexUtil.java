@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2019- 2019 threefish(https://gitee.com/threefish https://github.com/threefish) All Rights Reserved.
+ * 本项目完全开源，商用完全免费。但请勿侵犯作者合法权益，如申请软著等。
+ * 最后修改时间：2019/10/07 18:32:07
+ * 源 码 地 址：https://gitee.com/threefish/NutzFw
+ */
+
 package com.nutzfw.core.common.util;
 
 import org.nutz.lang.segment.CharSegment;
@@ -11,9 +18,9 @@ import java.util.regex.Pattern;
 public class RegexUtil {
 
 
-    public static final String PHONE_REG_STR = "^((13[0-9])|(14[0-9])|(15[0-9])|(16[0-9])|(17[0-9])|(18[0-9]))\\d{8}$";
-    static final Pattern ACCOUN_PATTERN = Pattern.compile("^[a-zA-Z0-9_]+", Pattern.MULTILINE + Pattern.DOTALL);
-    static final Pattern PHONE_REG = Pattern.compile(PHONE_REG_STR);
+    public static final String  PHONE_REG_STR  = "^((13[0-9])|(14[0-9])|(15[0-9])|(16[0-9])|(17[0-9])|(18[0-9]))\\d{8}$";
+    static final        Pattern ACCOUN_PATTERN = Pattern.compile("^[a-zA-Z0-9_]+", Pattern.MULTILINE + Pattern.DOTALL);
+    static final        Pattern PHONE_REG      = Pattern.compile(PHONE_REG_STR);
 
     /**
      * 判断是否是邮政编码

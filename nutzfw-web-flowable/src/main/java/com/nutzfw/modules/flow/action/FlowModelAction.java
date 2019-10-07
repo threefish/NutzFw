@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2019- 2019 threefish(https://gitee.com/threefish https://github.com/threefish) All Rights Reserved.
+ * 本项目完全开源，商用完全免费。但请勿侵犯作者合法权益，如申请软著等。
+ * 最后修改时间：2019/10/07 18:32:07
+ * 源 码 地 址：https://gitee.com/threefish/NutzFw
+ */
+
 package com.nutzfw.modules.flow.action;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -67,7 +74,7 @@ public class FlowModelAction extends BaseAction {
     FlowCacheService flowCacheService;
 
     CustomBpmnJsonConverter bpmnJsonConverter = new CustomBpmnJsonConverter();
-    BpmnXMLConverter bpmnXmlConverter = new BpmnXMLConverter();
+    BpmnXMLConverter        bpmnXmlConverter  = new BpmnXMLConverter();
 
     @GET
     @At("/design")
@@ -160,6 +167,7 @@ public class FlowModelAction extends BaseAction {
             return AjaxResult.errorf("修改失败！{0}", e.getMessage());
         }
     }
+
     /**
      * 如果将项目部署至中文目录下，部署流程时会报错的
      * @param modelId

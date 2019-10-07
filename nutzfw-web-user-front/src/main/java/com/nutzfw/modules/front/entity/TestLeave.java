@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2019- 2019 threefish(https://gitee.com/threefish https://github.com/threefish) All Rights Reserved.
+ * 本项目完全开源，商用完全免费。但请勿侵犯作者合法权益，如申请软著等。
+ * 最后修改时间：2019/10/07 18:32:07
+ * 源 码 地 址：https://gitee.com/threefish/NutzFw
+ */
+
 package com.nutzfw.modules.front.entity;
 
 import com.nutzfw.core.common.annotation.NutzFw;
@@ -48,20 +55,20 @@ public class TestLeave extends BaseEntity {
      */
     @Column
     @Comment("请假开始日期")
-    private Date startTime;
+    private Date   startTime;
     /**
      * 请假结束日期
      */
     @Column
     @Comment("请假结束日期")
-    private Date endTime;
+    private Date   endTime;
     /**
      * 假期类别
      */
     @Column
     @Comment("假期类别")
     @NutzFw(required = true, placeholder = "xxxxx", maxLength = 1000, dictCode = "holiday_types")
-    private int leaveType;
+    private int    leaveType;
     @Column
     @Comment("证明文件")
     @NutzFw(required = true, attachment = true, attachmentAllIsImg = true, attachmentMultiple = true, attachSuffix = "png,jpg")

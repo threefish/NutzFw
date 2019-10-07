@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2019- 2019 threefish(https://gitee.com/threefish https://github.com/threefish) All Rights Reserved.
+ * 本项目完全开源，商用完全免费。但请勿侵犯作者合法权益，如申请软著等。
+ * 最后修改时间：2019/10/07 18:32:07
+ * 源 码 地 址：https://gitee.com/threefish/NutzFw
+ */
+
 package com.nutzfw.modules.front.action;
 
 import com.nutzfw.core.common.util.ElUtil;
@@ -41,15 +48,15 @@ public class UserRegisterAction extends BaseAction {
     @Inject
     UserAccountService userAccountService;
     @Inject
-    RedisHelpper redisHelpper;
+    RedisHelpper       redisHelpper;
     @Inject
-    MailBodyService mailBodyService;
+    MailBodyService    mailBodyService;
     @Inject("java:$conf.get('email.subject')")
-    String subject;
+    String             subject;
     @Inject("java:$conf.get('email.htmlTemplate')")
-    String htmlTemplate;
+    String             htmlTemplate;
     @Inject
-    DictBiz dictBiz;
+    DictBiz            dictBiz;
 
     @At("register")
     @Ok("btl:WEB-INF/view/modules/front/user/register.html")

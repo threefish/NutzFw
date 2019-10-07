@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2019- 2019 threefish(https://gitee.com/threefish https://github.com/threefish) All Rights Reserved.
+ * 本项目完全开源，商用完全免费。但请勿侵犯作者合法权益，如申请软著等。
+ * 最后修改时间：2019/10/07 18:32:07
+ * 源 码 地 址：https://gitee.com/threefish/NutzFw
+ */
+
 package com.nutzfw.core.common.vo;
 
 import org.nutz.lang.Strings;
@@ -20,36 +27,36 @@ public class LayuiTableDataListVO<T> {
     /**
      * 防止前台传递大查询量请求，造成数据库效率减慢
      */
-    public static final int PAGE_SIZE_MAX = 1000;
-    private static final Log log = Logs.get();
+    public static final  int     PAGE_SIZE_MAX = 1000;
+    private static final Log     log           = Logs.get();
     /**
      * 成功的状态码，默认：0
      **/
-    private int code = 0;
+    private              int     code          = 0;
     /**
      * 错误消息
      **/
-    private String msg = "";
+    private              String  msg           = "";
     /***
      * 返回结果数
      */
-    private int count = 0;
+    private              int     count         = 0;
     /**
      * 返回数据
      */
-    private List<T> data;
+    private              List<T> data;
     /**
      * 自定义状态（不是插件必须的）
      **/
-    private int status = 0;
+    private              int     status        = 0;
     /**
      * 起始页
      **/
-    private int pageNumber = 0;
+    private              int     pageNumber    = 0;
     /**
      * 每页查询数量
      **/
-    private int pageSize = 10;
+    private              int     pageSize      = 10;
 
 
     public LayuiTableDataListVO(Integer pageNumber, int pageSize, int recordCount, List<T> list) {

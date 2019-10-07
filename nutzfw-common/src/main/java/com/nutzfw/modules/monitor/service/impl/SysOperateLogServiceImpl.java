@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2019- 2019 threefish(https://gitee.com/threefish https://github.com/threefish) All Rights Reserved.
+ * 本项目完全开源，商用完全免费。但请勿侵犯作者合法权益，如申请软著等。
+ * 最后修改时间：2019/10/07 18:32:07
+ * 源 码 地 址：https://gitee.com/threefish/NutzFw
+ */
+
 package com.nutzfw.modules.monitor.service.impl;
 
 import com.nutzfw.core.common.cons.Cons;
@@ -40,19 +47,19 @@ import java.util.concurrent.TimeUnit;
 @IocBean(name = "sysOperateLogService", args = {"refer:dao"}, create = "init", depose = "depose")
 public class SysOperateLogServiceImpl extends BaseServiceImpl<SysOperateLog> implements SysOperateLogService {
 
-    protected static final Log log = Logs.get();
+    protected static final Log                                log    = Logs.get();
     /**
      * 按月分表的dao实例
      */
-    protected Map<String, Dao> ymDaos = new HashMap<>();
+    protected              Map<String, Dao>                   ymDaos = new HashMap<>();
     /**
      * 线程池
      */
-    private ScheduledThreadPoolExecutor executorService;
+    private                ScheduledThreadPoolExecutor        executorService;
     /**
      * 消息队列
      */
-    private LinkedBlockingQueue<SysOperateLog> queue = new LinkedBlockingQueue();
+    private                LinkedBlockingQueue<SysOperateLog> queue  = new LinkedBlockingQueue();
 
     public SysOperateLogServiceImpl(Dao dao) {
         super(dao);

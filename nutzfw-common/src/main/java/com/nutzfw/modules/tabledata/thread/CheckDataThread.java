@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2019- 2019 threefish(https://gitee.com/threefish https://github.com/threefish) All Rights Reserved.
+ * 本项目完全开源，商用完全免费。但请勿侵犯作者合法权益，如申请软著等。
+ * 最后修改时间：2019/10/07 18:32:07
+ * 源 码 地 址：https://gitee.com/threefish/NutzFw
+ */
+
 package com.nutzfw.modules.tabledata.thread;
 
 import com.nutzfw.core.common.util.DateUtil;
@@ -45,17 +52,17 @@ public class CheckDataThread implements Runnable {
      * 字典分隔符
      */
     static final String DELIMITER = DataMaintainBiz.DELIMITER;
-    DataTableService tableService;
-    TableFieldsService fieldsService;
-    DataMaintainBiz dataMaintainBiz;
+    DataTableService         tableService;
+    TableFieldsService       fieldsService;
+    DataMaintainBiz          dataMaintainBiz;
     DataImportHistoryService importHistoryService;
-    FileAttachService fileAttachService;
-    DictBiz dictBiz;
-    UserAccountService accountService;
-    UserAccount userAccount;
-    long startTime;
-    DataTable dataTable;
-    List<NutMap> listData = new ArrayList<>();
+    FileAttachService        fileAttachService;
+    DictBiz                  dictBiz;
+    UserAccountService       accountService;
+    UserAccount              userAccount;
+    long                     startTime;
+    DataTable                dataTable;
+    List<NutMap>             listData = new ArrayList<>();
     private Log log = Logs.get();
 
     private DataImportHistory history;

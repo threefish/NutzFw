@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2019- 2019 threefish(https://gitee.com/threefish https://github.com/threefish) All Rights Reserved.
+ * 本项目完全开源，商用完全免费。但请勿侵犯作者合法权益，如申请软著等。
+ * 最后修改时间：2019/10/07 18:32:07
+ * 源 码 地 址：https://gitee.com/threefish/NutzFw
+ */
+
 package com.nutzfw.core.common.util;
 
 import org.apache.commons.codec.DecoderException;
@@ -35,26 +42,26 @@ public class RsaUtils {
     /**
      * 算法名称
      */
-    private static final String ALGORITHOM = "RSA";
+    private static final String   ALGORITHOM        = "RSA";
     /**
      * 保存生成的密钥对的文件名称。
      */
-    private static final String RSA_PAIR_FILENAME = "__RSA_PAIR.txt";
+    private static final String   RSA_PAIR_FILENAME = "__RSA_PAIR.txt";
     /**
      * 密钥大小
      */
-    private static final int KEY_SIZE = 1024;
+    private static final int      KEY_SIZE          = 1024;
     /**
      * 默认的安全服务提供者
      */
-    private static final Provider DEFAULT_PROVIDER = new BouncyCastleProvider();
+    private static final Provider DEFAULT_PROVIDER  = new BouncyCastleProvider();
 
     private static KeyPairGenerator keyPairGen = null;
-    private static KeyFactory keyFactory = null;
+    private static KeyFactory       keyFactory = null;
     /**
      * 缓存的密钥对。
      */
-    private static KeyPair oneKeyPair = null;
+    private static KeyPair          oneKeyPair = null;
 
     private static File rsaPairFile = null;
 

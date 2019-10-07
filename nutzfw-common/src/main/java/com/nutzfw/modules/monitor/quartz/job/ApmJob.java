@@ -1,19 +1,26 @@
+/*
+ * Copyright (c) 2019- 2019 threefish(https://gitee.com/threefish https://github.com/threefish) All Rights Reserved.
+ * 本项目完全开源，商用完全免费。但请勿侵犯作者合法权益，如申请软著等。
+ * 最后修改时间：2019/10/07 18:32:07
+ * 源 码 地 址：https://gitee.com/threefish/NutzFw
+ */
+
 package com.nutzfw.modules.monitor.quartz.job;
 
 import com.nutzfw.core.common.cons.Cons;
 import com.nutzfw.core.common.util.DateUtil;
 import com.nutzfw.core.common.util.NumbersUtil;
+import com.nutzfw.core.plugin.quartz.BaseJob;
 import com.nutzfw.modules.monitor.entity.APMAlarm;
 import com.nutzfw.modules.monitor.entity.AlarmOption;
 import com.nutzfw.modules.monitor.service.APMAlarmService;
 import com.nutzfw.modules.monitor.service.AlarmOptionService;
+import com.nutzfw.modules.monitor.websocket.ApmDashboardWs;
 import com.nutzfw.modules.organize.entity.UserAccount;
 import com.nutzfw.modules.organize.service.UserAccountService;
 import com.nutzfw.modules.sys.biz.DictBiz;
 import com.nutzfw.modules.sys.entity.MailBody;
 import com.nutzfw.modules.sys.service.MailBodyService;
-import com.nutzfw.core.plugin.quartz.BaseJob;
-import com.nutzfw.modules.monitor.websocket.ApmDashboardWs;
 import org.nutz.dao.Cnd;
 import org.nutz.dao.util.cri.SqlExpressionGroup;
 import org.nutz.ioc.Ioc;
@@ -56,51 +63,51 @@ public class ApmJob extends BaseJob {
 
     @Inject
     MailBodyService bodyService;
-    SystemInfo systemInfo = new SystemInfo();
-    HardwareAbstractionLayer hardwar = systemInfo.getHardware();
-    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm:ss");
-    MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
+    SystemInfo               systemInfo       = new SystemInfo();
+    HardwareAbstractionLayer hardwar          = systemInfo.getHardware();
+    SimpleDateFormat         simpleDateFormat = new SimpleDateFormat("HH:mm:ss");
+    MemoryMXBean             memoryMXBean     = ManagementFactory.getMemoryMXBean();
     @Inject
     ApmDashboardWs ws;
     @Inject
-    DictBiz dictBiz;
-    private DecimalFormat decimalFormat = new DecimalFormat("#.##");
+    DictBiz        dictBiz;
+    private DecimalFormat     decimalFormat  = new DecimalFormat("#.##");
     /**
      * 时间点
      */
-    private List<Date> timePoints = new ArrayList();
+    private List<Date>        timePoints     = new ArrayList();
     /**
      * cpu使用情况
      */
-    private List<Double> cpuUsages = new ArrayList();
+    private List<Double>      cpuUsages      = new ArrayList();
     /**
      * ram使用情况
      */
-    private List<Double> ramUsages = new ArrayList();
+    private List<Double>      ramUsages      = new ArrayList();
     /**
      * jvm使用情况
      */
-    private List<Double> jvmUsages = new ArrayList();
+    private List<Double>      jvmUsages      = new ArrayList();
     /**
      * swap使用情况
      */
-    private List<Double> swapUsages = new ArrayList();
+    private List<Double>      swapUsages     = new ArrayList();
     /**
      * 监听项目
      */
-    private List<AlarmOption> alarmOptions = new ArrayList();
+    private List<AlarmOption> alarmOptions   = new ArrayList();
     /**
      * 是否开启监听
      */
-    private boolean listenerStatus = true;
+    private boolean           listenerStatus = true;
     /**
      * 缓存监控多少个最近使用情况
      */
-    private int monitorCount = 500;
+    private int               monitorCount   = 500;
     /**
      * 缓存最近的一个状态
      */
-    private HashMap usaGes = new HashMap();
+    private HashMap           usaGes         = new HashMap();
 
     public ApmJob(Ioc ioc) {
         super(ioc);

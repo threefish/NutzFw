@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2019- 2019 threefish(https://gitee.com/threefish https://github.com/threefish) All Rights Reserved.
+ * 本项目完全开源，商用完全免费。但请勿侵犯作者合法权益，如申请软著等。
+ * 最后修改时间：2019/10/07 18:32:07
+ * 源 码 地 址：https://gitee.com/threefish/NutzFw
+ */
+
 package com.nutzfw.modules.tabledata.biz.impl;
 
 import com.nutzfw.core.common.cons.Cons;
@@ -36,23 +43,23 @@ public class DataQueryBizImpl implements DataQueryBiz {
      */
     static final String RID = "RID_";
     List<DataQueryDTO> dataQueryDTOS;
-    int selectTable;
-    DataTableService tableService;
+    int                selectTable;
+    DataTableService   tableService;
     TableFieldsService fieldsService;
-    DataMaintainBiz dataMaintainBiz;
+    DataMaintainBiz    dataMaintainBiz;
     /**
      * 所有字段
      */
-    List<TableFields> fields;
-    String sql;
+    List<TableFields>  fields;
+    String             sql;
     /**
      * 管理人员范围
      */
-    Set<String> sessionManagerUserNames;
+    Set<String>        sessionManagerUserNames;
     /**
      * 查询类型
      */
-    TableType tableType;
+    TableType          tableType;
 
     public DataQueryBizImpl(List<DataQueryDTO> dataQueryDTOS, Integer selectTable, DataTableService tableService, TableFieldsService fieldsService, DataMaintainBiz dataMaintainBiz, TableType tableType, Set<String> sessionManagerUserNames) {
         this.dataQueryDTOS = dataQueryDTOS;

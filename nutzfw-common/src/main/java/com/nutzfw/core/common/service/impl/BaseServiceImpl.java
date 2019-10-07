@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2019- 2019 threefish(https://gitee.com/threefish https://github.com/threefish) All Rights Reserved.
+ * 本项目完全开源，商用完全免费。但请勿侵犯作者合法权益，如申请软著等。
+ * 最后修改时间：2019/10/07 18:32:07
+ * 源 码 地 址：https://gitee.com/threefish/NutzFw
+ */
+
 package com.nutzfw.core.common.service.impl;
 
 import com.github.threefish.nutz.dto.PageDataDTO;
@@ -27,13 +34,13 @@ import java.util.Map;
  * 描述此类：
  */
 public class BaseServiceImpl<T> extends EntityService<T> implements BaseService<T> {
-    private static int DEFAULT_PAGE_NUMBER = 10;
-    protected final String IN = "in";
-    protected final String EQ = "=";
-    protected final String NEQ = "!=";
-    protected final String BIG_THAN = ">";
-    protected final String LESS_THAN = "<";
-    protected Dao dao;
+    private static  int    DEFAULT_PAGE_NUMBER = 10;
+    protected final String IN                  = "in";
+    protected final String EQ                  = "=";
+    protected final String NEQ                 = "!=";
+    protected final String BIG_THAN            = ">";
+    protected final String LESS_THAN           = "<";
+    protected       Dao    dao;
 
     public BaseServiceImpl(Dao dao) {
         super(dao);

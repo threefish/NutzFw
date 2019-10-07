@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2019- 2019 threefish(https://gitee.com/threefish https://github.com/threefish) All Rights Reserved.
+ * 本项目完全开源，商用完全免费。但请勿侵犯作者合法权益，如申请软著等。
+ * 最后修改时间：2019/10/07 18:26:07
+ * 源 码 地 址：https://gitee.com/threefish/NutzFw
+ */
+
 package com.nutzfw.core.plugin.flowable.assignment;
 
 import com.nutzfw.core.plugin.flowable.dto.FlowSubmitInfoDTO;
@@ -13,7 +20,6 @@ import java.util.List;
  */
 public interface FlowAssignment {
     /**
-     *
      * @param taskService
      * @param flowSubmitInfoDTO
      * @param assignee
@@ -27,7 +33,6 @@ public interface FlowAssignment {
     String getAssignee(TaskService taskService, FlowSubmitInfoDTO flowSubmitInfoDTO, String assignee, String owner, List<String> candidateUsers, List<String> candidateGroups, TaskEntity task, DelegateExecution execution);
 
     /**
-     *
      * @param taskService
      * @param flowSubmitInfoDTO
      * @param assignee
@@ -41,7 +46,6 @@ public interface FlowAssignment {
     List<String> getCandidateUsers(TaskService taskService, FlowSubmitInfoDTO flowSubmitInfoDTO, String assignee, String owner, List<String> candidateUsers, List<String> candidateGroups, TaskEntity task, DelegateExecution execution);
 
     /**
-     *
      * @param taskService
      * @param flowSubmitInfoDTO
      * @param assignee

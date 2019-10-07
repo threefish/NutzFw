@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2019- 2019 threefish(https://gitee.com/threefish https://github.com/threefish) All Rights Reserved.
+ * 本项目完全开源，商用完全免费。但请勿侵犯作者合法权益，如申请软著等。
+ * 最后修改时间：2019/10/07 18:32:07
+ * 源 码 地 址：https://gitee.com/threefish/NutzFw
+ */
+
 package com.nutzfw.modules.tabledata.biz.impl;
 
 import com.nutzfw.core.common.cons.Cons;
@@ -59,17 +66,17 @@ public class DataMaintainBizImpl implements DataMaintainBiz {
 
 
     @Inject
-    UserAccountService accountService;
+    UserAccountService           accountService;
     @Inject
-    DataTableService tableService;
+    DataTableService             tableService;
     @Inject
-    TableFieldsService fieldsService;
+    TableFieldsService           fieldsService;
     @Inject
-    DataImportHistoryService importHistoryService;
+    DataImportHistoryService     importHistoryService;
     @Inject
-    DictBiz dictBiz;
+    DictBiz                      dictBiz;
     @Inject
-    FileAttachService fileAttachService;
+    FileAttachService            fileAttachService;
     @Inject
     UserDataChangeHistoryService userDataChangeHistoryService;
 

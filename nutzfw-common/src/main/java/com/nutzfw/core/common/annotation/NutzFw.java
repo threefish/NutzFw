@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2019- 2019 threefish(https://gitee.com/threefish https://github.com/threefish) All Rights Reserved.
+ * 本项目完全开源，商用完全免费。但请勿侵犯作者合法权益，如申请软著等。
+ * 最后修改时间：2019/10/07 18:32:07
+ * 源 码 地 址：https://gitee.com/threefish/NutzFw
+ */
+
 package com.nutzfw.core.common.annotation;
 
 import java.lang.annotation.*;
@@ -15,7 +22,7 @@ public @interface NutzFw {
     /**
      * 输入框
      */
-    int TEXT_INPUT = 2;
+    int TEXT_INPUT    = 2;
     /**
      * 多行文本框
      */
@@ -23,7 +30,7 @@ public @interface NutzFw {
     /**
      * 富文本框 百度UE
      */
-    int TEXT_RICH = 4;
+    int TEXT_RICH     = 4;
 
     /**
      * 必填必选字段

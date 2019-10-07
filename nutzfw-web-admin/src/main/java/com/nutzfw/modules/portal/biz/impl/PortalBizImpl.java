@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2019- 2019 threefish(https://gitee.com/threefish https://github.com/threefish) All Rights Reserved.
+ * 本项目完全开源，商用完全免费。但请勿侵犯作者合法权益，如申请软著等。
+ * 最后修改时间：2019/10/07 18:32:07
+ * 源 码 地 址：https://gitee.com/threefish/NutzFw
+ */
+
 package com.nutzfw.modules.portal.biz.impl;
 
 import com.nutzfw.core.common.vo.AjaxResult;
@@ -35,17 +42,17 @@ public class PortalBizImpl implements PortalBiz {
     @Inject
     StatisticsConfigureService statisticsConfigureService;
     @Inject
-    MsgNoticeService msgNoticeService;
+    MsgNoticeService           msgNoticeService;
     @Inject
-    QuickLinkService quickLinkService;
+    QuickLinkService           quickLinkService;
     @Inject
-    PortalFunctionService portalFunctionService;
+    PortalFunctionService      portalFunctionService;
     @Inject
-    DepartmentService departmentService;
+    DepartmentService          departmentService;
     @Inject
-    UserAccountService userAccountService;
+    UserAccountService         userAccountService;
     @Inject
-    PortalUserService portalUserService;
+    PortalUserService          portalUserService;
 
     /**
      * 获取首页可以选择的功能tree

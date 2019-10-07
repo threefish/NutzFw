@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2019- 2019 threefish(https://gitee.com/threefish https://github.com/threefish) All Rights Reserved.
+ * 本项目完全开源，商用完全免费。但请勿侵犯作者合法权益，如申请软著等。
+ * 最后修改时间：2019/10/07 18:32:07
+ * 源 码 地 址：https://gitee.com/threefish/NutzFw
+ */
+
 package com.nutzfw.modules.portal.biz.impl;
 
 import com.nutzfw.core.common.util.DateUtil;
@@ -32,23 +39,23 @@ import java.util.List;
 @IocBean
 public class IndexBizImpl implements IndexBiz {
     @Inject
-    MsgNoticeService msgNoticeService;
+    MsgNoticeService           msgNoticeService;
     @Inject
     StatisticsConfigureService statisticsConfigureService;
     @Inject
-    PortalFunctionService portalFunctionService;
+    PortalFunctionService      portalFunctionService;
     @Inject
-    PortalUserService portalUserService;
+    PortalUserService          portalUserService;
     @Inject
-    QuickLinkService quickLinkService;
+    QuickLinkService           quickLinkService;
     @Inject
-    DepartmentService departmentService;
+    DepartmentService          departmentService;
     @Inject
-    UserAccountService userAccountService;
+    UserAccountService         userAccountService;
     @Inject
-    JobService jobService;
+    JobService                 jobService;
     @Inject
-    DictBiz dictBiz;
+    DictBiz                    dictBiz;
 
     /**
      * 获取当前用户信息

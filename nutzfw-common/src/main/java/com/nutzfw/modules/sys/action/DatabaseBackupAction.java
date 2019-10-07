@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2019- 2019 threefish(https://gitee.com/threefish https://github.com/threefish) All Rights Reserved.
+ * 本项目完全开源，商用完全免费。但请勿侵犯作者合法权益，如申请软著等。
+ * 最后修改时间：2019/10/07 18:32:07
+ * 源 码 地 址：https://gitee.com/threefish/NutzFw
+ */
+
 package com.nutzfw.modules.sys.action;
 
 import com.alibaba.druid.filter.config.ConfigTools;
@@ -32,8 +39,8 @@ import org.nutz.plugins.validation.Errors;
 @Filters(@By(type = CheckRoleAndSession.class, args = {Cons.SESSION_USER_KEY, Cons.SESSION_USER_ROLE}))
 public class DatabaseBackupAction {
 
-    public static final String PUBLIC_KEY = "MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAI+ZK8I6WYpAnF0VeX0GdDwnwePt77b5pPhqRRz9zLkL4Ayu+7HFBnuJ6EH7hLWYjCnvBgJCeBZOcEuB3n7NeX8CAwEAAQ==";
-    final static Log log = Logs.get();
+    public static final  String PUBLIC_KEY  = "MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAI+ZK8I6WYpAnF0VeX0GdDwnwePt77b5pPhqRRz9zLkL4Ayu+7HFBnuJ6EH7hLWYjCnvBgJCeBZOcEuB3n7NeX8CAwEAAQ==";
+    final static         Log    log         = Logs.get();
     private static final String PRIVATE_KEY = "MIIBVAIBADANBgkqhkiG9w0BAQEFAASCAT4wggE6AgEAAkEAj5krwjpZikCcXRV5fQZ0PCfB4+3vtvmk+GpFHP3MuQvgDK77scUGe4noQfuEtZiMKe8GAkJ4Fk5wS4Hefs15fwIDAQABAkAOab9cpWKrX8TSCv/Ars8n4o2xhQZUhUYrsO7y8/6CbCkFDHjLY+EAy/u3Mu9sFqt4o+Rn+GP7pSH/j0ZrmlthAiEA9hij7M4Gyw5+y4aMxiw+ZWz29Mdlef9XHekrQwR6cccCIQCVYJC1Erq22KavU+LtlkTrYHKd9hqP36jgt8B2yIS6iQIhAIEAdZ2Cekki9hBWHaEcPDEKp4G0rFsBIHeLbKQaytytAiBaY7GM8IVtaVIL2/4AeKLBr34L2cUe9F8zg92BwzqVyQIgJO6lI++s3mSl3Lr6i/69axD47wUfQI0TCIWhUSYRLBM=";
     @Inject
     DatabaseBackupService databaseBackupService;

@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2019- 2019 threefish(https://gitee.com/threefish https://github.com/threefish) All Rights Reserved.
+ * 本项目完全开源，商用完全免费。但请勿侵犯作者合法权益，如申请软著等。
+ * 最后修改时间：2019/10/07 18:32:07
+ * 源 码 地 址：https://gitee.com/threefish/NutzFw
+ */
+
 package com.nutzfw.core.common.util.excel;
 
 import com.nutzfw.core.common.util.DateUtil;
@@ -36,18 +43,18 @@ import java.util.Objects;
  */
 public class PoiExcelUtil {
 
-    public static int rowAccessWindowSize = 1000;
-    private static String LIST = "list";
-    private static String DATA = "data";
+    public static  int          rowAccessWindowSize = 1000;
+    private static String       LIST                = "list";
+    private static String       DATA                = "data";
     /**
      * 默认版本
      */
-    public int version = 0;
-    public String suffix = ".xlsx";
-    private Log log = Logs.get();
-    private Workbook wb;
-    private OutputStream out;
-    private String filePath;
+    public         int          version             = 0;
+    public         String       suffix              = ".xlsx";
+    private        Log          log                 = Logs.get();
+    private        Workbook     wb;
+    private        OutputStream out;
+    private        String       filePath;
 
     /**
      * 支持百万级数据导出

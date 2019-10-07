@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2019- 2019 threefish(https://gitee.com/threefish https://github.com/threefish) All Rights Reserved.
+ * 本项目完全开源，商用完全免费。但请勿侵犯作者合法权益，如申请软著等。
+ * 最后修改时间：2019/10/07 18:32:07
+ * 源 码 地 址：https://gitee.com/threefish/NutzFw
+ */
+
 package com.nutzfw.modules.monitor.action;
 
 import com.nutzfw.core.common.annotation.AutoCreateMenuAuth;
@@ -45,15 +52,15 @@ public class ApmAction extends BaseAction {
     @Inject
     UserLoginHistoryService userLoginHistoryService;
     @Inject
-    DataTableService dataTableService;
+    DataTableService        dataTableService;
     @Inject
-    UserAccountService userAccountService;
+    UserAccountService      userAccountService;
     @Inject
-    DepartmentService departmentService;
+    DepartmentService       departmentService;
     @Inject
-    RoleService roleService;
+    RoleService             roleService;
     @Inject
-    ApmJob apmJob;
+    ApmJob                  apmJob;
 
     /**
      * 用户设备访问情况

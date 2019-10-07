@@ -1,7 +1,14 @@
+/*
+ * Copyright (c) 2019- 2019 threefish(https://gitee.com/threefish https://github.com/threefish) All Rights Reserved.
+ * 本项目完全开源，商用完全免费。但请勿侵犯作者合法权益，如申请软著等。
+ * 最后修改时间：2019/10/07 18:32:07
+ * 源 码 地 址：https://gitee.com/threefish/NutzFw
+ */
+
 package com.nutzfw.modules.monitor.websocket.handler;
 
-import com.nutzfw.modules.monitor.websocket.LogsWsSessionsEndpoint;
 import com.nutzfw.core.common.vo.SocketMsgVO;
+import com.nutzfw.modules.monitor.websocket.LogsWsSessionsEndpoint;
 import org.nutz.lang.Encoding;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
@@ -20,12 +27,12 @@ import java.io.InputStreamReader;
  */
 public class TailLogsWsHandler extends SimpleWsHandler {
 
-    private static final String UTF8 = Encoding.UTF8;
-    private static final Log log = Logs.get();
-    private Process process = null;
-    private String command;
-    private String level;
-    private String charSet = UTF8;
+    private static final String  UTF8    = Encoding.UTF8;
+    private static final Log     log     = Logs.get();
+    private              Process process = null;
+    private              String  command;
+    private              String  level;
+    private              String  charSet = UTF8;
 
     public TailLogsWsHandler(String command, String level) {
         this.command = command;

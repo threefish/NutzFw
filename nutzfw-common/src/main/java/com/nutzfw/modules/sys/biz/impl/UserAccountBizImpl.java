@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2019- 2019 threefish(https://gitee.com/threefish https://github.com/threefish) All Rights Reserved.
+ * 本项目完全开源，商用完全免费。但请勿侵犯作者合法权益，如申请软著等。
+ * 最后修改时间：2019/10/07 18:32:07
+ * 源 码 地 址：https://gitee.com/threefish/NutzFw
+ */
+
 package com.nutzfw.modules.sys.biz.impl;
 
 import com.github.threefish.nutz.sqltpl.ISqlDaoExecuteService;
@@ -46,28 +53,28 @@ import java.util.List;
 @IocBean(name = "userAccountBiz")
 @SqlsXml("UserAccountBizImpl.xml")
 public class UserAccountBizImpl implements UserAccountBiz, ISqlDaoExecuteService {
-    private static final Log log = Logs.get();
+    private static final Log                log = Logs.get();
     @Inject
-    protected UserAccountService userAccountService;
+    protected            UserAccountService userAccountService;
 
     @Inject
     Dao dao;
 
     @Inject
-    JobService jobService;
+    JobService             jobService;
     @Inject
-    QuartzJobAction quartzJobAction;
+    QuartzJobAction        quartzJobAction;
     @Inject
     UserAccountRoleService userAccountRoleService;
     @Inject
-    DepartmentJobService departmentJobService;
+    DepartmentJobService   departmentJobService;
     @Inject
-    private DepartmentService departmentService;
+    private DepartmentService        departmentService;
     @Inject
     private UserImportHistoryService userImportHistoryService;
     @Inject
-    private QuartzJobService quartzJobService;
-    private SqlsTplHolder sqlsTplHolder;
+    private QuartzJobService         quartzJobService;
+    private SqlsTplHolder            sqlsTplHolder;
 
     /**
      * 用户管理-接收岗位

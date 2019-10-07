@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2019- 2019 threefish(https://gitee.com/threefish https://github.com/threefish) All Rights Reserved.
+ * 本项目完全开源，商用完全免费。但请勿侵犯作者合法权益，如申请软著等。
+ * 最后修改时间：2019/10/07 18:32:07
+ * 源 码 地 址：https://gitee.com/threefish/NutzFw
+ */
+
 package com.nutzfw.modules.tabledata.enums;
 
 import lombok.AllArgsConstructor;
@@ -23,7 +30,7 @@ public enum FormValidationRulesType {
     UNIQUE(0, "唯一效验"),
     NONE(-1, "无");
 
-    private int value;
+    private int    value;
     private String lable;
 
     public static FormValidationRulesType valueOf(int value) {

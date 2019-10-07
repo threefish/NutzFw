@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2019- 2019 threefish(https://gitee.com/threefish https://github.com/threefish) All Rights Reserved.
+ * 本项目完全开源，商用完全免费。但请勿侵犯作者合法权益，如申请软著等。
+ * 最后修改时间：2019/10/07 18:30:07
+ * 源 码 地 址：https://gitee.com/threefish/NutzFw
+ */
+
 package com.nutzfw.modules.tabledata.action;
 
 import com.nutzfw.core.common.annotation.AutoCreateMenuAuth;
@@ -13,6 +20,7 @@ import com.nutzfw.modules.sys.action.QuartzJobAction;
 import com.nutzfw.modules.sys.entity.DataTable;
 import com.nutzfw.modules.sys.entity.QuartzJob;
 import com.nutzfw.modules.sys.entity.TableFields;
+import com.nutzfw.modules.sys.quartz.job.DataImportJob;
 import com.nutzfw.modules.sys.service.DataTableService;
 import com.nutzfw.modules.sys.service.QuartzJobService;
 import com.nutzfw.modules.sys.service.TableFieldsService;
@@ -23,7 +31,6 @@ import com.nutzfw.modules.tabledata.enums.DictDepend;
 import com.nutzfw.modules.tabledata.enums.FieldType;
 import com.nutzfw.modules.tabledata.service.DataImportHistoryService;
 import com.nutzfw.modules.tabledata.vo.SingeDataMaintainQueryVO;
-import com.nutzfw.modules.sys.quartz.job.DataImportJob;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.nutz.dao.Cnd;
 import org.nutz.ioc.loader.annotation.Inject;

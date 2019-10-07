@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2019- 2019 threefish(https://gitee.com/threefish https://github.com/threefish) All Rights Reserved.
+ * 本项目完全开源，商用完全免费。但请勿侵犯作者合法权益，如申请软著等。
+ * 最后修改时间：2019/10/07 18:32:07
+ * 源 码 地 址：https://gitee.com/threefish/NutzFw
+ */
+
 package com.nutzfw.module;
 
 import com.nutzfw.modules.organize.entity.UserAccount;
@@ -27,7 +34,7 @@ public class MvcTest {
     Dao dao;
 
     @Inject
-    EmailBiz emailBiz;
+    EmailBiz           emailBiz;
     @Inject
     UserAccountService userAccountService;
     String html = "<div id=\"content\" style=\"padding: 15px\"><h1 id=\"-\"><strong>后台管理系统</strong></h1>\n" +
@@ -116,7 +123,6 @@ public class MvcTest {
             "</li>\n" +
             "</ul>\n" +
             "</div>";
-
 
 
     /**

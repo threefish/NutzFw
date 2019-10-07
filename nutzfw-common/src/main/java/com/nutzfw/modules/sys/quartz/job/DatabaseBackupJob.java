@@ -1,12 +1,19 @@
+/*
+ * Copyright (c) 2019- 2019 threefish(https://gitee.com/threefish https://github.com/threefish) All Rights Reserved.
+ * 本项目完全开源，商用完全免费。但请勿侵犯作者合法权益，如申请软著等。
+ * 最后修改时间：2019/10/07 18:30:07
+ * 源 码 地 址：https://gitee.com/threefish/NutzFw
+ */
+
 package com.nutzfw.modules.sys.quartz.job;
 
 import com.alibaba.druid.filter.config.ConfigTools;
 import com.nutzfw.core.common.util.DateUtil;
 import com.nutzfw.core.common.util.MysqlBackUpUtil;
+import com.nutzfw.core.plugin.quartz.BaseJob;
 import com.nutzfw.modules.sys.action.DatabaseBackupAction;
 import com.nutzfw.modules.sys.entity.DatabaseBackup;
 import com.nutzfw.modules.sys.service.DatabaseBackupService;
-import com.nutzfw.core.plugin.quartz.BaseJob;
 import org.nutz.ioc.Ioc;
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
