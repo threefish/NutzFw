@@ -15,7 +15,6 @@ import com.nutzfw.core.common.vo.LayuiTableDataListVO;
 import com.nutzfw.modules.common.action.BaseAction;
 import com.nutzfw.modules.monitor.vo.RedisVO;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
-import org.apache.shiro.session.mgt.eis.CachingSessionDAO;
 import org.nutz.integration.jedis.RedisService;
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
@@ -26,6 +25,7 @@ import redis.clients.jedis.JedisPool;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -56,25 +56,21 @@ public class RedisAction extends BaseAction {
     @At("/list")
     @RequiresPermissions("sysRedis.index")
     public LayuiTableDataListVO list(HttpServletRequest request, @Param("key") String key) {
-        key = Strings.sNull(key);
-        Jedis jedis = null;
-        try {
-            jedis = pool.getResource();
-            List<RedisVO> redisVos = new ArrayList<>();
-            if (!"*".equals(key)) {
-                key = "*" + key + "*";
+        try (Jedis jedis = pool.getResource()) {
+            key = Strings.sNull(key);
+            if (Strings.isBlank(key)) {
+                key = "*";
             }
-            for (String s : jedis.keys(key)) {
-                if (!s.startsWith(CachingSessionDAO.ACTIVE_SESSION_CACHE_NAME)) {
-                    redisVos.add(new RedisVO(s, jedis.get(s), jedis.ttl(s)));
+            List<RedisVO> redisVos = new ArrayList<>();
+            List<String> binaryDataList = Arrays.asList("dict-Cache");
+            for (String redisKey : jedis.keys(Cons.REDIS_KEY_PREFIX.concat(key))) {
+                if (binaryDataList.stream().anyMatch(s -> redisKey.indexOf(s) > -1)) {
+                    redisVos.add(new RedisVO(redisKey, "二进制数据，不提供查看", jedis.ttl(redisKey)));
+                } else {
+                    redisVos.add(new RedisVO(redisKey, jedis.get(redisKey), jedis.ttl(redisKey)));
                 }
             }
             return LayuiTableDataListVO.pageByData(request, redisVos, redisVos.size());
-        } finally {
-            if (null != jedis) {
-                // 释放资源还给连接池
-                jedis.close();
-            }
         }
     }
 

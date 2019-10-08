@@ -14,6 +14,7 @@ import org.nutz.aop.InterceptorChain;
 import org.nutz.lang.Strings;
 
 import java.lang.reflect.Method;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * @author huchuc@vip.qq.com
@@ -45,7 +46,8 @@ public class CachePutMethodInterceptor extends AbstractCacheMethodInterceptor {
                 } else {
                     //不存在,执行源方法,取得返回值并存入缓存
                     chain.doChain();
-                    redisHelpper.setNXSerializable(cacheName, chain.getReturn(), RedisHelpper.DEFAULT_SECOND);
+                    //缓存增加随机失效时间
+                    redisHelpper.setNXSerializable(cacheName, chain.getReturn(), RedisHelpper.DEFAULT_SECOND + ThreadLocalRandom.current().nextInt(500));
                 }
             }
         } catch (Exception e) {

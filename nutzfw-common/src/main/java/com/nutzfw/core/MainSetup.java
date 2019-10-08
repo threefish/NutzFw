@@ -105,7 +105,11 @@ public class MainSetup extends AbstractInitSetup implements Setup {
         this.addQuartzJob(quartzJobs);
         this.addTablesFilters(tablesFilters);
         this.addDictGroup(dictGroup);
-        if (!initSystem) {
+        //初始化表单
+        if (initSystem) {
+            this.initTable(dao, true);
+        } else {
+            this.initTable(dao, false);
             this.updateDict(nutConfig);
         }
         initSetups.forEach(setup -> {
@@ -114,8 +118,10 @@ public class MainSetup extends AbstractInitSetup implements Setup {
             setup.addQuartzJob(quartzJobs);
             setup.addTablesFilters(tablesFilters);
         });
-        //初始化系统 数据表
-        this.initSystemTableAndData(initSystem, dao, enumsConf);
+        //初始化系统数据
+        if (initSystem) {
+            this.initSystemInfo(dao, enumsConf);
+        }
         //缓存系统信息
         this.cacheSystemInformation(dao);
         //创建附件类型
@@ -217,23 +223,6 @@ public class MainSetup extends AbstractInitSetup implements Setup {
     private void checkDictGroup(DictBiz dictBiz) {
         dictGroup.forEach((key, val) -> this.ifNotExistCreateDictGroup(dictBiz, key, val));
     }
-
-    /**
-     * 初始化系统 数据表
-     *
-     * @param initSystem
-     * @param dao
-     * @param enumsConf
-     */
-    private void initSystemTableAndData(boolean initSystem, Dao dao, PropertiesProxy enumsConf) {
-        if (initSystem) {
-            initTable(dao, true);
-            initSystemInfo(dao, enumsConf);
-        } else {
-            initTable(dao, false);
-        }
-    }
-
 
     /**
      * 自动创建表
