@@ -98,7 +98,7 @@ public class MysqlBackUpUtil {
                     if (isWin) {
                         sb.append("cmd /c " + MYSQL_DUMP_EXE);
                     } else {
-                        sb.append(Paths.get(Mvcs.getServletContext().getRealPath(""), "WEB-INF", "lib", "mysqldump").toString());
+                        sb.append(Paths.get(Mvcs.getServletContext().getRealPath("/"), "WEB-INF", "lib", "mysqldump").toString());
                     }
                     sb.append(" -h" + dbip);
                     sb.append(" -P" + dbport);
@@ -135,10 +135,10 @@ public class MysqlBackUpUtil {
                 File file = path.toFile();
                 if (!file.exists()) {
                     file.getParentFile().mkdirs();
-                    Files.copy(Paths.get(Mvcs.getServletContext().getRealPath(""), "WEB-INF", "lib", "mysqldump.exe"), path);
+                    Files.copy(Paths.get(Mvcs.getServletContext().getRealPath("/"), "WEB-INF", "lib", "mysqldump.exe"), path);
                 }
             } else {
-                String[] chmod = {"/bin/sh", "-c", "chmod +x " + Paths.get(Mvcs.getServletContext().getRealPath(""), "WEB-INF", "lib", "mysqldump").toString()};
+                String[] chmod = {"/bin/sh", "-c", "chmod +x " + Paths.get(Mvcs.getServletContext().getRealPath("/"), "WEB-INF", "lib", "mysqldump").toString()};
                 Runtime.getRuntime().exec(chmod);
             }
         } catch (Exception e) {

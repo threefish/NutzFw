@@ -111,7 +111,7 @@ public class RsaUtils {
                 e.printStackTrace();
             }
         } else {
-            rsaPairFilePath = Paths.get(Mvcs.getServletContext().getRealPath("WEB-INF"), "RSA", RSA_PAIR_FILENAME).toString();
+            rsaPairFilePath = Paths.get(Mvcs.getServletContext().getRealPath("/"), "WEB-INF", "RSA", RSA_PAIR_FILENAME).toString();
         }
         return rsaPairFilePath;
     }
