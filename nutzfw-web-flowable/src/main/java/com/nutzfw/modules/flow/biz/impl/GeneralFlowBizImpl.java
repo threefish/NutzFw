@@ -80,7 +80,7 @@ public class GeneralFlowBizImpl implements GeneralFlowBiz {
         Map<String, Object> variables = Maps.newHashMap();
         variables.put(FlowConstant.FORM_DATA, formData);
         variables.put(FlowConstant.AUDIT_PASS, flowTaskVO.isPass());
-        flowTaskService.setValuedDataObject(variables, flowTaskVO.getProcDefId(), formData, sessionUserAccount);
+        flowTaskService.setValuedDataObject(variables, flowTaskVO.getProcDefId(), formData, sessionUserAccount, false);
         if (Strings.isBlank(formData.getOrDefault(FlowConstant.PRIMARY_KEY, "").toString()) && Strings.isBlank(flowTaskVO.getTaskId())) {
             flowTaskVO.setComment("[发起任务]");
             formData = executor.start(formData, flowTaskVO, sessionUserAccount);
@@ -149,17 +149,15 @@ public class GeneralFlowBizImpl implements GeneralFlowBiz {
         Map<String, Object> vars = Maps.newHashMap();
         vars.put(FlowConstant.AUDIT_PASS, flowTaskVO.isPass());
         vars.put(FlowConstant.FORM_DATA, formData);
+        flowTaskService.setValuedDataObject(vars, flowTaskVO.getProcDefId(), formData, sessionUserAccount, true);
         if (dto.isConnectionCallBack()) {
             vars.put(FlowConstant.TURN_DOWN, flowTaskVO.getTurnDown());
-        } else {
-            //恢复驳回变量状态，避免流程陷入循环
-            //vars.put(FlowConstant.TURN_DOWN, false);
         }
         if (dto.isDynamicFreeChoiceNextReviewerMode() && flowTaskVO.getDelegateStatus() == null) {
             boolean needCheckFlowNextReviewerAssignee = false;
             try {
                 //此方法前不要操作数据库，该方法会回滚数据库的
-                UserTask userTask = flowTaskService.getNextNode(formData, flowTaskVO);
+                UserTask userTask = flowTaskService.getNextNode(formData, flowTaskVO, sessionUserAccount);
                 if (userTask != null) {
                     //下一节点存在，需要选择审核人
                     needCheckFlowNextReviewerAssignee = true;

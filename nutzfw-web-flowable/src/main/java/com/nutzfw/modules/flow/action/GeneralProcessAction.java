@@ -105,7 +105,7 @@ public class GeneralProcessAction extends BaseAction {
     @Ok("json")
     public AjaxResult getNextNode(@Param("::form") Map formData, @Param("::flow") FlowTaskVO flowTaskVO) {
         try {
-            UserTask userTask = flowTaskService.previewNextNode(formData, flowTaskVO);
+            UserTask userTask = flowTaskService.previewNextNode(formData, flowTaskVO, getSessionUserAccount());
             if (userTask != null) {
                 return AjaxResult.sucess(userTask.getId());
             }

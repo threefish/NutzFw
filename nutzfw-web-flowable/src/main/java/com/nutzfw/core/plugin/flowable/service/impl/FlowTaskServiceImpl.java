@@ -702,7 +702,7 @@ public class FlowTaskServiceImpl implements FlowTaskService {
     }
 
     @Override
-    public void setValuedDataObject(Map<String, Object> variables, String processDefinitionId, Object form, UserAccount userAccount) {
+    public void setValuedDataObject(Map<String, Object> variables, String processDefinitionId, Object form, UserAccount userAccount, boolean update) {
         List<ValuedDataObject> ValuedDataObjects = repositoryService.getBpmnModel(processDefinitionId).getMainProcess().getDataObjects();
         if (!ValuedDataObjects.stream().filter(va -> FlowConstant.PROCESS_TITLE.equals(va.getId())).findAny().isPresent()) {
             throw Lang.makeThrow("流程应该设置标题模版数据对象，ID为 %s", FlowConstant.PROCESS_TITLE);
@@ -710,29 +710,54 @@ public class FlowTaskServiceImpl implements FlowTaskService {
         ValuedDataObjects.stream().forEach(valued -> {
             List<ExtensionElement> extensionElements = valued.getExtensionElements().get(CustomBpmnJsonConverter.DATA_OBJECTS_EXPRESSION);
             if (CollectionUtils.isNotEmpty(extensionElements)) {
-                Object val = null;
-                String valStr = El.render(String.valueOf(extensionElements.get(0).getElementText()), Lang.context().set("form", form).set("user", userAccount));
-                if (valued instanceof StringDataObject) {
-                    val = valStr;
-                } else if (valued instanceof IntegerDataObject) {
-                    val = Integer.parseInt(valStr);
-                } else if (valued instanceof LongDataObject) {
-                    val = Long.parseLong(valStr);
-                } else if (valued instanceof DoubleDataObject) {
-                    val = Double.parseDouble(valStr);
-                } else if (valued instanceof BooleanDataObject) {
-                    val = Boolean.parseBoolean(valStr);
-                } else if (valued instanceof DateDataObject) {
-                    val = DateUtil.string2date(valStr, DateUtil.YYYY_MM_DD_HH_MM_SS);
+                String expression = Strings.sNull(extensionElements.get(0).getElementText());
+                if (update) {
+                    //更新变量时，只有值不为空时才更新，因为可能存在提交的表单数据不完整的情况
+                    try {
+                        String valStr = El.render(expression, Lang.context().set("form", form).set("user", userAccount));
+                        if (Strings.isNotBlank(valStr)) {
+                            variables.put(valued.getId(), getVal(valued, valStr));
+                        }
+                    } catch (Exception e) {
+                        //忽略异常，需要注意：数据不完整的情况下，可能导致变量数据不能及时更新
+                    }
+                } else {
+                    //新增变量时，如变量无法按照规则产出，则需要抛出异常
+                    variables.put(valued.getId(), getVal(valued, El.render(expression, Lang.context().set("form", form).set("user", userAccount))));
                 }
-                variables.put(valued.getId(), val);
             }
         });
     }
 
+    private Object getVal(ValuedDataObject valued, String valStr) {
+        Object val = null;
+        if (valued instanceof StringDataObject) {
+            val = valStr;
+        } else if (valued instanceof IntegerDataObject) {
+            val = Integer.parseInt(valStr);
+        } else if (valued instanceof LongDataObject) {
+            val = Long.parseLong(valStr);
+        } else if (valued instanceof DoubleDataObject) {
+            val = Double.parseDouble(valStr);
+        } else if (valued instanceof BooleanDataObject) {
+            val = Boolean.parseBoolean(valStr);
+        } else if (valued instanceof DateDataObject) {
+            val = DateUtil.string2date(valStr, DateUtil.YYYY_MM_DD_HH_MM_SS);
+        }
+        return val;
+    }
+
+    /**
+     * 未经过足够的测试，谨慎使用
+     *
+     * @param formData
+     * @param flowTaskVO
+     * @param sessionUserAccount
+     * @return
+     * @date 2019-10-09
+     */
     @Override
-    public UserTask getNextNode(Map formData, FlowTaskVO flowTaskVO) {
-        //TODO  逻辑有变化，此处应当修改
+    public UserTask getNextNode(Map formData, FlowTaskVO flowTaskVO, UserAccount sessionUserAccount) {
         UserTask userTask;
         try {
             Task task = taskService.createTaskQuery().taskId(flowTaskVO.getTaskId()).singleResult();
@@ -742,6 +767,7 @@ public class FlowTaskServiceImpl implements FlowTaskService {
             Map<String, Object> vars = Maps.newHashMap();
             vars.put(FlowConstant.AUDIT_PASS, flowTaskVO.isPass());
             vars.put(FlowConstant.FORM_DATA, formData);
+            setValuedDataObject(vars, flowTaskVO.getProcDefId(), formData, sessionUserAccount, true);
             userTask = managementService.executeCommand(new FindNextUserTaskNodeCmd(execution, bpmnModel, vars));
             //将寻找下一节点执行产生的的数据进行回滚
             Trans.rollback();
@@ -751,8 +777,17 @@ public class FlowTaskServiceImpl implements FlowTaskService {
         return userTask;
     }
 
+    /**
+     * 未经过足够的测试，谨慎使用
+     *
+     * @param formData
+     * @param flowTaskVO
+     * @param sessionUserAccount
+     * @return
+     * @date 2019-10-09
+     */
     @Override
-    public UserTask previewNextNode(Map formData, FlowTaskVO flowTaskVO) throws Exception {
+    public UserTask previewNextNode(Map formData, FlowTaskVO flowTaskVO, UserAccount sessionUserAccount) throws Exception {
         try {
             Task task = taskService.createTaskQuery().taskId(flowTaskVO.getTaskId()).singleResult();
             String executionId = task.getExecutionId();
@@ -762,6 +797,7 @@ public class FlowTaskServiceImpl implements FlowTaskService {
             vars.put(FlowConstant.AUDIT_PASS, flowTaskVO.isPass());
             vars.put(FlowConstant.FORM_DATA, formData);
             Trans.begin();
+            setValuedDataObject(vars, flowTaskVO.getProcDefId(), formData, sessionUserAccount, true);
             return managementService.executeCommand(new FindNextUserTaskNodeCmd(execution, bpmnModel, vars));
         } finally {
             Trans.clear(true);

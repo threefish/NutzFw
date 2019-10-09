@@ -239,8 +239,9 @@ public interface FlowTaskService {
      * @param processDefinitionId
      * @param form
      * @param userAccount
+     * @param update
      */
-    void setValuedDataObject(Map<String, Object> variables, String processDefinitionId, Object form, UserAccount userAccount);
+    void setValuedDataObject(Map<String, Object> variables, String processDefinitionId, Object form, UserAccount userAccount, boolean update);
 
     /**
      * 在流程完成时取得下一节点信息，在调用此方法前的所有事务都不生效
@@ -250,16 +251,17 @@ public interface FlowTaskService {
      * @return
      * @throws Exception
      */
-    UserTask getNextNode(Map formData, FlowTaskVO flowTaskVO) throws Exception;
+    UserTask getNextNode(Map formData, FlowTaskVO flowTaskVO, UserAccount sessionUserAccount) throws Exception;
 
     /**
      * 预览下一步流程节点，会执行事务回滚保证数据安全
      *
      * @param formData
      * @param flowTaskVO
+     * @param sessionUserAccount
      * @return
      * @throws Exception
      */
-    UserTask previewNextNode(Map formData, FlowTaskVO flowTaskVO) throws Exception;
+    UserTask previewNextNode(Map formData, FlowTaskVO flowTaskVO, UserAccount sessionUserAccount) throws Exception;
 
 }
