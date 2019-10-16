@@ -21,6 +21,7 @@ import org.flowable.editor.language.json.model.ModelInfo;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author huchuc@vip.qq.com
@@ -93,7 +94,9 @@ public class CustomBpmnJsonConverter extends BpmnJsonConverter {
         Process process = bpmnModel.getMainProcess();
         for (String propertyKey : PROPERTY_KEYS) {
             if (!process.getExtensionElements().containsKey(propertyKey)) {
-                process.addExtensionElement(buildExtensionElement(propertyKey, properties.get(propertyKey).asText()));
+                if (Objects.nonNull(properties.get(propertyKey))) {
+                    process.addExtensionElement(buildExtensionElement(propertyKey, properties.get(propertyKey).asText()));
+                }
             }
         }
         return bpmnModel;

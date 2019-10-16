@@ -107,7 +107,7 @@ public class ApmAction extends BaseAction {
         String[] names = new String[list.size()];
         List<NutMap> mapList = new ArrayList<>();
         for (int i = list.size() - 1; i >= 0; i--) {
-            String name = list.get(i).getString("browser", "未知设备");
+            String name = list.get(i).getString("browserName", "未知设备");
             names[i] = name;
             String value = list.get(i).getString("count");
             mapList.add(NutMap.NEW().addv("value", value).addv("name", name));
