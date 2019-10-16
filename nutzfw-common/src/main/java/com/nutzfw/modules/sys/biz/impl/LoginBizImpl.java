@@ -17,6 +17,7 @@ import com.nutzfw.modules.sys.service.UserLoginHistoryService;
 import eu.bitwalker.useragentutils.UserAgent;
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
+import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
@@ -61,6 +62,7 @@ public class LoginBizImpl implements LoginBiz {
                 UserAgent userAgent = UserAgent.parseUserAgentString(Mvcs.getReq().getHeader("User-Agent"));
                 userLoginHistory.setOs(userAgent.getOperatingSystem().getName());
                 userLoginHistory.setBrowser(userAgent.getBrowser().getName());
+                userLoginHistory.setBrowserName(Strings.splitIgnoreBlank(userLoginHistory.getBrowser(), " ")[0]);
             } catch (Exception e) {
                 log.error("UserAgent:", e);
             }

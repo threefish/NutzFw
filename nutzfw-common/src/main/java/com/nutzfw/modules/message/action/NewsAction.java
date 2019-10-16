@@ -170,7 +170,6 @@ public class NewsAction extends BaseAction {
     @At("/lookMore")
     @Ok("btl:WEB-INF/view/message/news/lookMore.html")
     @RequiresPermissions("News.index")
-    @AutoCreateMenuAuth(name = "新闻管理", icon = "fa-cogs")
     public NutMap lookMore() {
         NutMap data = NutMap.NEW();
         data.put("sys_news_category", dictBiz.getDictEnumsJson("sys_news_category"));

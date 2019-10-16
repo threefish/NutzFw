@@ -51,6 +51,10 @@ public class UserLoginHistory extends BaseEntity {
     @Column("browser")
     private String browser;
 
+    @Comment("浏览器")
+    @Column("browserName")
+    private String browserName;
+
     @Comment("操作系统")
     @Column("os")
     private String os;

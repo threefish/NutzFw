@@ -100,7 +100,7 @@ public class ApmAction extends BaseAction {
     @RequiresPermissions("sysMonitor.showUserBrowserPie")
     @AutoCreateMenuAuth(name = "用户使用浏览器情况", icon = "fa-eye", type = AutoCreateMenuAuth.RESOURCE, parentPermission = "sysMonitor.index")
     public AjaxResult showUserBrowserPie() {
-        Sql sql = Sqls.create("SELECT browser,count(*) AS count FROM sys_user_login_history WHERE type='web' GROUP BY browser ORDER BY count DESC");
+        Sql sql = Sqls.create("SELECT browserName,count(*) AS count FROM sys_user_login_history WHERE type='web' GROUP BY browser ORDER BY count DESC");
         sql.setCallback(Sqls.callback.maps());
         userLoginHistoryService.execute(sql);
         List<NutMap> list = sql.getList(NutMap.class);

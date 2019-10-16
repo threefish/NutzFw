@@ -15,6 +15,7 @@ import org.flowable.bpmn.model.BpmnModel;
 import org.flowable.bpmn.model.ExtensionElement;
 import org.flowable.bpmn.model.Process;
 import org.flowable.bpmn.model.ValuedDataObject;
+import org.flowable.common.engine.impl.util.CollectionUtil;
 import org.flowable.editor.language.json.converter.BpmnJsonConverter;
 import org.flowable.editor.language.json.model.ModelInfo;
 
@@ -145,7 +146,9 @@ public class CustomBpmnJsonConverter extends BpmnJsonConverter {
                         String nodeId = dataIdNode.asText();
                         dataObjects.stream().filter(valuedDataObject -> valuedDataObject.getId().equals(nodeId)).forEach(valuedDataObject -> {
                             List<ExtensionElement> extensionElements = valuedDataObject.getExtensionElements().get(DATA_OBJECTS_EXPRESSION);
-                            extensionElements.forEach(element -> objectNode.put("dataproperty_expression", element.getElementText()));
+                            if (CollectionUtil.isNotEmpty(extensionElements)) {
+                                extensionElements.forEach(element -> objectNode.put("dataproperty_expression", element.getElementText()));
+                            }
                         });
                     }
                 }
