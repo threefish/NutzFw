@@ -399,6 +399,7 @@ public class UserAction extends BaseAction {
             if (!sha.toHex().equals(account.getUserPass())) {
                 return AjaxResult.error("密码错误！");
             }
+            chanPass = true;
         }
         if (Strings.isNotBlank(avatar)) {
             account.setAvatar(avatar);

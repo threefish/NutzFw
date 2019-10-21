@@ -104,16 +104,26 @@ public class ApmAction extends BaseAction {
         sql.setCallback(Sqls.callback.maps());
         userLoginHistoryService.execute(sql);
         List<NutMap> list = sql.getList(NutMap.class);
-        String[] names = new String[list.size()];
+        HashMap<String, Integer> datas = new HashMap<>();
         List<NutMap> mapList = new ArrayList<>();
         for (int i = list.size() - 1; i >= 0; i--) {
             String name = list.get(i).getString("browserName", "未知设备");
-            names[i] = name;
-            String value = list.get(i).getString("count");
-            mapList.add(NutMap.NEW().addv("value", value).addv("name", name));
+            int value = list.get(i).getInt("count", 0);
+            if (datas.containsKey(name)) {
+                datas.put(name, (datas.get(name) + value));
+            } else {
+                datas.put(name, value);
+            }
+        }
+        Iterator<Map.Entry<String, Integer>> iterator = datas.entrySet().iterator();
+        List<String> names = new ArrayList<>();
+        while (iterator.hasNext()) {
+            Map.Entry<String, Integer> next = iterator.next();
+            names.add(next.getKey());
+            mapList.add(NutMap.NEW().addv("value", next.getValue()).addv("name", next.getKey()));
         }
         NutMap nutMap = new NutMap();
-        nutMap.put("names", names);
+        nutMap.put("names", names.toArray(new String[0]));
         nutMap.put("list", mapList);
         return AjaxResult.sucess(nutMap);
     }
