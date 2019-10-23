@@ -11,6 +11,7 @@ import com.nutzfw.core.plugin.quartz.BaseJob;
 import com.nutzfw.modules.organize.entity.UserImportHistory;
 import com.nutzfw.modules.organize.service.UserImportHistoryService;
 import com.nutzfw.modules.organize.thread.CheckUserDataThread;
+import com.zaxxer.hikari.util.DefaultThreadFactory;
 import org.nutz.dao.Cnd;
 import org.nutz.ioc.Ioc;
 import org.nutz.ioc.loader.annotation.Inject;
@@ -19,6 +20,10 @@ import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobDataMap;
 
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author 叶世游
@@ -28,6 +33,9 @@ import java.util.List;
 @IocBean(args = {"refer:$ioc"})
 @DisallowConcurrentExecution
 public class UserImportJob extends BaseJob {
+
+    ExecutorService executorService = new ThreadPoolExecutor(1, 1, 0, TimeUnit.SECONDS, new LinkedBlockingDeque<>());
+
     @Inject
     UserImportHistoryService userImportHistoryService;
 
@@ -46,9 +54,7 @@ public class UserImportJob extends BaseJob {
         List<UserImportHistory> histories = userImportHistoryService.query(Cnd.where("staus", "=", 0));
         if (histories.size() > 0) {
             histories.forEach(h -> {
-                CheckUserDataThread checkDataThread = new CheckUserDataThread(ioc, h);
-                Thread thread = new Thread(checkDataThread);
-                thread.start();
+                executorService.submit(new CheckUserDataThread(ioc, h));
                 h.setStaus(1);
                 userImportHistoryService.update(h);
             });

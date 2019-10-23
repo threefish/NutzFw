@@ -11,12 +11,18 @@ import com.nutzfw.core.plugin.quartz.BaseJob;
 import com.nutzfw.modules.tabledata.entity.DataImportHistory;
 import com.nutzfw.modules.tabledata.service.DataImportHistoryService;
 import com.nutzfw.modules.tabledata.thread.CheckDataThread;
+import com.zaxxer.hikari.util.DefaultThreadFactory;
 import org.nutz.dao.Cnd;
 import org.nutz.ioc.Ioc;
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobDataMap;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author 黄川 huchuc@vip.qq.com
@@ -27,6 +33,7 @@ import org.quartz.JobDataMap;
 @DisallowConcurrentExecution
 public class DataImportJob extends BaseJob {
 
+    ExecutorService executorService = new ThreadPoolExecutor(1, 1, 0, TimeUnit.SECONDS, new LinkedBlockingDeque<>());
     @Inject
     DataImportHistoryService dataImportHistoryService;
 
@@ -39,9 +46,7 @@ public class DataImportJob extends BaseJob {
         if (canStartRunCheckOrImport()) {
             DataImportHistory dataImportHistory = getDataImportHistory();
             if (dataImportHistory != null) {
-                CheckDataThread checkDataThread = new CheckDataThread(ioc, dataImportHistory);
-                Thread thread = new Thread(checkDataThread);
-                thread.start();
+                executorService.submit(new CheckDataThread(ioc, dataImportHistory));
             }
         }
     }
