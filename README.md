@@ -164,6 +164,8 @@ Nutz 社区支持 [https://nutz.cn](https://nutz.cn) 及 Nutz 使用手册 [http
 | nutzfw-web-flowable|工作流深度订制|  |
 | nutzfw-web-oa|oa工作流| 基于nutzfw-web-flowable模块 |
 | test|测试包||
+### NutzFw模块依赖结构
+![NutzFw模块依赖结构](doc/imgae/NutzFw模块依赖结构.jpg)
 
 #### 效果图
 
