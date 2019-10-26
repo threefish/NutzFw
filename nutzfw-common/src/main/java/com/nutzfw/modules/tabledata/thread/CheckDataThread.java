@@ -160,6 +160,36 @@ public class CheckDataThread implements Runnable {
 
     @Override
     public void run() {
+        if (canStartRunCheckOrImport()) {
+            DataImportHistory dataImportHistory = getDataImportHistory();
+            if (dataImportHistory != null) {
+                excute();
+            }
+        }
+    }
+
+
+    /**
+     * 取得一个待检查数据
+     */
+    private DataImportHistory getDataImportHistory() {
+        return importHistoryService.fetch(Cnd.where("staus", "=", 0));
+    }
+
+
+    /**
+     * 检查是否能够可以开始检查或导入
+     */
+    private synchronized boolean canStartRunCheckOrImport() {
+        //检查是否有检查中或导入中的数据
+        return importHistoryService.count(
+                Cnd.where("staus", "=", 1)
+                        .or("staus", "=", 3)
+        ) == 0;
+    }
+
+
+    public void excute() {
         startTime = System.currentTimeMillis();
         Path attachPath = fileAttachService.getPath(history.getAttachId());
         DataImportPoiUtil util = null;

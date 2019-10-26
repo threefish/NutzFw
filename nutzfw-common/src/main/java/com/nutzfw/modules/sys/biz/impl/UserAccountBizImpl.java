@@ -19,10 +19,9 @@ import com.nutzfw.modules.organize.entity.UserAccount;
 import com.nutzfw.modules.organize.entity.UserAccountRole;
 import com.nutzfw.modules.organize.entity.UserImportHistory;
 import com.nutzfw.modules.organize.service.*;
+import com.nutzfw.modules.organize.thread.CheckUserDataThread;
 import com.nutzfw.modules.sys.action.QuartzJobAction;
 import com.nutzfw.modules.sys.biz.UserAccountBiz;
-import com.nutzfw.modules.sys.entity.QuartzJob;
-import com.nutzfw.modules.sys.quartz.job.UserImportJob;
 import com.nutzfw.modules.sys.service.QuartzJobService;
 import org.nutz.dao.Cnd;
 import org.nutz.dao.Dao;
@@ -32,6 +31,7 @@ import org.nutz.dao.entity.Record;
 import org.nutz.dao.pager.Pager;
 import org.nutz.dao.sql.Sql;
 import org.nutz.dao.util.Daos;
+import org.nutz.ioc.Ioc;
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.lang.Strings;
@@ -45,6 +45,10 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author panchuang
@@ -68,6 +72,9 @@ public class UserAccountBizImpl implements UserAccountBiz, ISqlDaoExecuteService
     UserAccountRoleService userAccountRoleService;
     @Inject
     DepartmentJobService   departmentJobService;
+    @Inject("refer:$ioc")
+    Ioc                    ioc;
+    ExecutorService executorService = new ThreadPoolExecutor(1, 1, 0, TimeUnit.SECONDS, new LinkedBlockingDeque<>());
     @Inject
     private DepartmentService        departmentService;
     @Inject
@@ -193,9 +200,7 @@ public class UserAccountBizImpl implements UserAccountBiz, ISqlDaoExecuteService
         history.setUserDesc(userAccount.getRealName());
         history.setUserid(userAccount.getUserid());
         userImportHistoryService.insert(history);
-        //取得任务立即执行一次
-        QuartzJob quartzJob = quartzJobService.fetch(Cnd.where("job_klass", "=", UserImportJob.class.getName()));
-        quartzJobAction.atOnceJob(quartzJob.getUuid());
+        executorService.submit(new CheckUserDataThread(ioc, history));
         return AjaxResult.sucess("数据开始效验中，效验完成后自动进行导入，详情进入【用户导入历史】中查看，请稍候....");
     }
 

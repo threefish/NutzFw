@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2019- 2019 threefish(https://gitee.com/threefish https://github.com/threefish) All Rights Reserved.
  * 本项目完全开源，商用完全免费。但请勿侵犯作者合法权益，如申请软著等。
- * 最后修改时间：2019/10/07 18:30:07
+ * 最后修改时间：2019/10/26 11:50:26
  * 源 码 地 址：https://gitee.com/threefish/NutzFw
  */
 
@@ -15,24 +15,20 @@ import com.nutzfw.core.common.util.ViewUtil;
 import com.nutzfw.core.common.vo.AjaxResult;
 import com.nutzfw.core.common.vo.LayuiTableDataListVO;
 import com.nutzfw.modules.common.action.BaseAction;
-import com.nutzfw.modules.organize.service.UserAccountService;
-import com.nutzfw.modules.sys.action.QuartzJobAction;
 import com.nutzfw.modules.sys.entity.DataTable;
-import com.nutzfw.modules.sys.entity.QuartzJob;
 import com.nutzfw.modules.sys.entity.TableFields;
-import com.nutzfw.modules.sys.quartz.job.DataImportJob;
 import com.nutzfw.modules.sys.service.DataTableService;
-import com.nutzfw.modules.sys.service.QuartzJobService;
-import com.nutzfw.modules.sys.service.TableFieldsService;
 import com.nutzfw.modules.tabledata.biz.DataMaintainBiz;
 import com.nutzfw.modules.tabledata.entity.DataImportHistory;
 import com.nutzfw.modules.tabledata.enums.ControlType;
 import com.nutzfw.modules.tabledata.enums.DictDepend;
 import com.nutzfw.modules.tabledata.enums.FieldType;
 import com.nutzfw.modules.tabledata.service.DataImportHistoryService;
+import com.nutzfw.modules.tabledata.thread.CheckDataThread;
 import com.nutzfw.modules.tabledata.vo.SingeDataMaintainQueryVO;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.nutz.dao.Cnd;
+import org.nutz.ioc.Ioc;
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.json.Json;
@@ -48,6 +44,10 @@ import java.net.URLEncoder;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author 黄川 huchuc@vip.qq.com
@@ -60,32 +60,21 @@ import java.util.List;
 public class DataMaintainAction extends BaseAction {
 
     @Inject
-    UserAccountService accountService;
-
+    DataTableService         tableService;
     @Inject
-    DataTableService tableService;
-
-    @Inject
-    TableFieldsService fieldsService;
-
-    @Inject
-    DataMaintainBiz dataMaintainBiz;
-
+    DataMaintainBiz          dataMaintainBiz;
     @Inject
     DataImportHistoryService importHistoryService;
-
-    @Inject
-    QuartzJobService quartzJobService;
-
-    @Inject
-    QuartzJobAction quartzJobAction;
-
+    /**
+     * 数据导入线程
+     */
+    ExecutorService executorService = new ThreadPoolExecutor(1, 1, 0, TimeUnit.SECONDS, new LinkedBlockingDeque<>());
+    @Inject("refer:$ioc")
+    Ioc ioc;
     @Inject("java:$conf.get('attach.extensions')")
     private String extensions;
-
     @Inject("java:$conf.get('attach.extensions.imgs')")
     private String imgsExtensions;
-
 
     @GET
     @At("/index")
@@ -153,7 +142,6 @@ public class DataMaintainAction extends BaseAction {
         ).forEach(tableFields -> list.add(tableFields));
         return NutMap.NEW().setv("fields", list).setv("tableId", tableId);
     }
-
 
     /**
      * 生成导入模版
@@ -278,15 +266,12 @@ public class DataMaintainAction extends BaseAction {
                     .staus(0)
                     .build();
             importHistoryService.insert(importHistory);
-            //取得任务立即执行一次
-            QuartzJob quartzJob = quartzJobService.fetch(Cnd.where("job_klass", "=", DataImportJob.class.getName()));
-            quartzJobAction.atOnceJob(quartzJob.getUuid());
+            executorService.submit(new CheckDataThread(ioc, importHistory));
             return AjaxResult.sucess(importHistory.getId(), "数据开始效验中，效验完成后自动进行导入，详情进入【数据导入历史】中查看，请稍候....");
         } catch (Exception e) {
             return AjaxResult.error(e.getLocalizedMessage());
         }
     }
-
 
     /**
      * 取得导入历史信息

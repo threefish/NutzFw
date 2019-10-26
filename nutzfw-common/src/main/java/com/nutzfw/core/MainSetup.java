@@ -26,9 +26,7 @@ import com.nutzfw.modules.organize.entity.UserAccount;
 import com.nutzfw.modules.sys.biz.DictBiz;
 import com.nutzfw.modules.sys.entity.*;
 import com.nutzfw.modules.sys.quartz.job.AutoSendMailJob;
-import com.nutzfw.modules.sys.quartz.job.DataImportJob;
 import com.nutzfw.modules.sys.quartz.job.DatabaseBackupJob;
-import com.nutzfw.modules.sys.quartz.job.UserImportJob;
 import com.nutzfw.modules.sys.service.DictService;
 import com.nutzfw.modules.tabledata.entity.DataTableVersionHistory;
 import com.nutzfw.modules.tabledata.enums.FieldType;
@@ -210,8 +208,6 @@ public class MainSetup extends AbstractInitSetup implements Setup {
     public void addQuartzJob(List<QuartzJob> quartzJobs) {
         quartzJobs.add(buildeQuartJob(ApmJob.class, "*/15 * * * * ?", "服务器状态监控服务", "服务器状态监控服务", false, null));
         quartzJobs.add(buildeQuartJob(AutoSendMailJob.class, "*/15 * * * * ?", "自动发送邮件定时任务", "自动发送邮件定时任务", false, null));
-        quartzJobs.add(buildeQuartJob(DataImportJob.class, "*/15 * * * * ?", "数据导入任务", "自动检查是否有数据导入，有就自动执行导入", true, null));
-        quartzJobs.add(buildeQuartJob(UserImportJob.class, "*/15 * * * * ?", "用户导入任务", "自动检查是否有用户导入，有就自动执行导入", true, null));
         quartzJobs.add(buildeQuartJob(DatabaseBackupJob.class, "0 0 0 3 * ? ", "数据库定时备份任务", "数据库定时备份任务", true, null));
     }
 

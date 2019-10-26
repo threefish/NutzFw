@@ -72,6 +72,8 @@ public class CheckUserDataThread implements Runnable {
     private void checkUserData() {
         startTime = System.currentTimeMillis();
         try {
+            userImportHistory.setStaus(1);
+            userImportHistoryService.update(userImportHistory);
             Path attachPath = fileAttachService.getPath(userImportHistory.getAttachId());
             PoiExcelUtil poiExcelUtil = new PoiExcelUtil(attachPath.toFile());
             errstyle = poiExcelUtil.getCellErrorStyle(poiExcelUtil.getWb(), 2);
@@ -85,7 +87,6 @@ public class CheckUserDataThread implements Runnable {
             }
             String userName = "";
             boolean canImport = true;
-
             List<DepartmentJob> djs = departmentJobService.query(Cnd.where("delFlag", "=", 0));
             Map<String, List<String>> dmap = new HashMap<>(1);
             djs.forEach(d -> {
