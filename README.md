@@ -140,6 +140,8 @@ Nutz 社区支持 [https://nutz.cn](https://nutz.cn) 及 Nutz 使用手册 [http
     | webuploader |文件上传|
     | MUI | HBuilder WEB APP打包可以产出IOS、android APP |
 
+### NutzFw架构图
+![NutzFw模块依赖结构](doc/imgae/NutzFw架构图.jpg)
 
 #### 运行环境
 
