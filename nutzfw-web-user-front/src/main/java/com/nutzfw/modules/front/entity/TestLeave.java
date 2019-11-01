@@ -67,7 +67,7 @@ public class TestLeave extends BaseEntity {
      */
     @Column
     @Comment("假期类别")
-    @NutzFw(required = true, placeholder = "xxxxx", maxLength = 1000, dictCode = "holiday_types")
+    @NutzFw(required = true, placeholder = "xxxxx", maxLength = 1000, dictCode = "holiday_type")
     private int    leaveType;
     @Column
     @Comment("证明文件")
