@@ -12,13 +12,14 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.text.MessageFormat;
+import java.util.HashMap;
 
 /**
  * Created with IntelliJ IDEA.
  *
  * @author 黄川
  * Date Time: 2016/4/2313:32
- * To change this template use File | Settings | File Templates.
+ *
  */
 @Data
 @Builder
@@ -34,11 +35,15 @@ public class AjaxResult<T> {
      * 错误消息提示
      */
     @Builder.Default
-    private String msg = "";
+    private String  msg = "";
     /**
      * 返回的数据内容
      */
-    private T      data;
+    private T       data;
+    /**
+     * 方便的返回map数据
+     */
+    private HashMap value;
 
     public AjaxResult(boolean ok, String msg) {
         this.msg = msg;
@@ -53,6 +58,29 @@ public class AjaxResult<T> {
 
     public static AjaxResult sucess() {
         return new AjaxResult(true, "操作成功");
+    }
+
+    /**
+     * 快速返回数据而不需要新建Map
+     *
+     * @return
+     */
+    public static AjaxResult sucessMap() {
+        AjaxResult result = new AjaxResult(true, "操作成功");
+        result.setValue(new HashMap(6));
+        return result;
+    }
+
+    /**
+     * 链式调用 AjaxResult.sucessMap().setv("","").setv("","");
+     *
+     * @param key
+     * @param val
+     * @return
+     */
+    public AjaxResult setv(String key, Object val) {
+        this.value.put(key, val);
+        return this;
     }
 
     public static AjaxResult sucess(Object data) {
