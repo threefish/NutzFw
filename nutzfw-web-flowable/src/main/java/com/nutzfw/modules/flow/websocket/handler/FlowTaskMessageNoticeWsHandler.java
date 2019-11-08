@@ -18,6 +18,7 @@ import org.flowable.engine.TaskService;
 import org.flowable.task.api.DelegationState;
 import org.flowable.task.api.Task;
 import org.flowable.task.api.TaskQuery;
+import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.plugins.mvc.websocket.handler.AbstractWsHandler;
 
@@ -95,7 +96,7 @@ public class FlowTaskMessageNoticeWsHandler extends AbstractWsHandler implements
         list.forEach(task -> {
             taskNotices.add(TaskNoticeVO.builder()
                     .title(task.getName())
-                    .content(task.getProcessVariables().getOrDefault(FlowConstant.PROCESS_TITLE, "").toString())
+                    .content(Strings.sNull(task.getProcessVariables().get(FlowConstant.PROCESS_TITLE)))
                     .assignee(task.getAssignee())
                     .todo(task.getAssignee() != null)
                     .claim(task.getAssignee() == null)

@@ -131,7 +131,7 @@ public class FlowTaskServiceImpl implements FlowTaskService {
             if (!FlowConstant.DEFAULT_CATEGORY.equals(task.getCategory())) {
                 categoryName = flowTypeService.fetch(task.getCategory()).getName();
             }
-            String flowTitle = task.getProcessVariables().getOrDefault(FlowConstant.PROCESS_TITLE, "").toString();
+            String flowTitle = Strings.sNull(task.getProcessVariables().get(FlowConstant.PROCESS_TITLE));
             ProcessDefinition pd = flowCacheService.getProcessDefinitionCache(task.getProcessDefinitionId());
             FlowTaskVO flow = FlowTaskVO.builder()
                     .categoryName(categoryName)
@@ -228,7 +228,7 @@ public class FlowTaskServiceImpl implements FlowTaskService {
         List<FlowTaskVO> actList = Lists.newArrayList();
         for (HistoricTaskInstance histTask : histList) {
             String categoryName = "未分类";
-            String flowTitle = histTask.getProcessVariables().getOrDefault(FlowConstant.PROCESS_TITLE, "").toString();
+            String flowTitle = Strings.sNull(histTask.getProcessVariables().get(FlowConstant.PROCESS_TITLE));
             ProcessDefinition pd = flowCacheService.getProcessDefinitionCache(histTask.getProcessDefinitionId());
             String category;
             if (Strings.isBlank(histTask.getCategory())) {
