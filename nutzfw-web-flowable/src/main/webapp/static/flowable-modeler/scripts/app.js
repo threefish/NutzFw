@@ -161,7 +161,7 @@ flowableModeler
         function ($rootScope, $timeout, $modal, $translate, $location, $http, $window, appResourceRoot) {
 
             // set angular translate fallback language
-            $translate.fallbackLanguage(['en']);
+            $translate.fallbackLanguage(['zh-CN']);
 
             // setting Moment-JS (global) locale
             if (FLOWABLE.CONFIG.datesLocalization) {
