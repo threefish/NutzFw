@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2019- 2019 threefish(https://gitee.com/threefish https://github.com/threefish) All Rights Reserved.
  * 本项目完全开源，商用完全免费。但请勿侵犯作者合法权益，如申请软著等。
- * 最后修改时间：2019/10/07 18:26:07
+ * 最后修改时间：2019/11/24 12:10:07
  * 源 码 地 址：https://gitee.com/threefish/NutzFw
  */
 
@@ -11,14 +11,12 @@ import com.nutzfw.core.plugin.flowable.config.listener.NutzFwProcessEngineLifecy
 import com.nutzfw.core.plugin.flowable.factory.CustomDefaultActivityBehaviorFactory;
 import com.nutzfw.core.plugin.flowable.interceptor.CustomCreateUserTaskInterceptor;
 import com.nutzfw.core.plugin.flowable.listener.ProxyFlowableEventListener;
-import com.nutzfw.core.plugin.flowable.listener.handle.TaskMessageNoticeHandle;
 import com.nutzfw.core.plugin.flowable.listener.handle.TastCreateSetCategoryHandle;
 import com.nutzfw.core.plugin.flowable.transaction.NutzTransactionFactory;
 import com.nutzfw.core.plugin.flowable.util.FlowStrongUuidGenerator;
 import com.nutzfw.modules.organize.service.DepartmentLeaderService;
 import org.flowable.common.engine.api.delegate.event.FlowableEngineEventType;
 import org.flowable.common.engine.api.delegate.event.FlowableEventListener;
-import org.flowable.common.engine.impl.cfg.TransactionState;
 import org.flowable.common.engine.impl.history.HistoryLevel;
 import org.flowable.engine.ProcessEngine;
 import org.flowable.engine.ProcessEngineConfiguration;
@@ -46,8 +44,8 @@ public class NutzFwProcessEngineConfiguration extends StandaloneProcessEngineCon
     DataSource                      dataSource;
     @Inject
     TastCreateSetCategoryHandle     tastCreateSetCategoryHandle;
-    @Inject
-    TaskMessageNoticeHandle         taskMessageNoticeHandle;
+    //    @Inject
+//    TaskMessageNoticeHandle         taskMessageNoticeHandle;
     @Inject
     DepartmentLeaderService         departmentLeaderService;
     @Inject
@@ -96,9 +94,9 @@ public class NutzFwProcessEngineConfiguration extends StandaloneProcessEngineCon
     private List<FlowableEventListener> getGlobalFlowableEventListener() {
         List<FlowableEventListener> list = new ArrayList<>();
         list.add(new ProxyFlowableEventListener(FlowableEngineEventType.TASK_CREATED, Arrays.asList(tastCreateSetCategoryHandle)));
-        list.add(new ProxyFlowableEventListener(FlowableEngineEventType.TASK_ASSIGNED, TransactionState.COMMITTED, Arrays.asList(taskMessageNoticeHandle)));
-        list.add(new ProxyFlowableEventListener(FlowableEngineEventType.TASK_COMPLETED, TransactionState.COMMITTED, Arrays.asList(taskMessageNoticeHandle)));
-        list.add(new ProxyFlowableEventListener(FlowableEngineEventType.TASK_OWNER_CHANGED, TransactionState.COMMITTED, Arrays.asList(taskMessageNoticeHandle)));
+//        list.add(new ProxyFlowableEventListener(FlowableEngineEventType.TASK_ASSIGNED, TransactionState.COMMITTED, Arrays.asList(taskMessageNoticeHandle)));
+//        list.add(new ProxyFlowableEventListener(FlowableEngineEventType.TASK_COMPLETED, TransactionState.COMMITTED, Arrays.asList(taskMessageNoticeHandle)));
+//        list.add(new ProxyFlowableEventListener(FlowableEngineEventType.TASK_OWNER_CHANGED, TransactionState.COMMITTED, Arrays.asList(taskMessageNoticeHandle)));
         return list;
     }
 
