@@ -81,15 +81,14 @@ public class RSAUtil {
         }
         return null;
     }
-
-    public static void main(String[] args) throws Exception {
-        String privateKeyPath = "D:/TEMP/RSA/privateKey.key";
-        String publicKeyPath = "D:/TEMP/RSA/publicKey.key";
-        KeyPair keyPair = RSAUtil.generateKeyPair(4096);
-        PrivateKey privateKey = keyPair.getPrivate();
-        PublicKey publicKey = keyPair.getPublic();
-        FileUtil.writeFileToByte(privateKeyPath, SerializeUtil.serizlize(privateKey));
-        FileUtil.writeFileToByte(publicKeyPath, SerializeUtil.serizlize(publicKey));
-        System.out.println("生成成功");
-    }
+//    public static void main(String[] args) throws Exception {
+//        String privateKeyPath = "D:/TEMP/RSA/privateKey.key";
+//        String publicKeyPath = "D:/TEMP/RSA/publicKey.key";
+//        KeyPair keyPair = RSAUtil.generateKeyPair(4096);
+//        PrivateKey privateKey = keyPair.getPrivate();
+//        PublicKey publicKey = keyPair.getPublic();
+//        FileUtil.writeFileToByte(privateKeyPath, SerializeUtil.serizlize(privateKey));
+//        FileUtil.writeFileToByte(publicKeyPath, SerializeUtil.serizlize(publicKey));
+//        System.out.println("生成成功");
+//    }
 }

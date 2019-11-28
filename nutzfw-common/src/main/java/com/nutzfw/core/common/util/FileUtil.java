@@ -8,6 +8,7 @@
 package com.nutzfw.core.common.util;
 
 import com.nutzfw.modules.sys.dto.FileZipDTO;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.tools.ant.Project;
@@ -396,33 +397,6 @@ public class FileUtil {
         return prefix;
     }
 
-    /**
-     * 读文件到字节数组中
-     *
-     * @param file
-     * @throws Exception
-     */
-    public static byte[] fileToByte(File file) {
-        FileInputStream is = null;
-        try {
-            byte[] dist = null;
-            if (file.exists()) {
-                is = new FileInputStream(file);
-                dist = new byte[is.available()];
-                is.read(dist);
-            }
-            return dist;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new byte[0];
-        } finally {
-            try {
-                is.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
 
     public static void createNewFile(File file) {
         try {
@@ -466,23 +440,14 @@ public class FileUtil {
      * @return
      */
     public static boolean writeFileToByte(File file, String filePath) {
-        FileOutputStream out = null;
-        try {
-            byte[] bytes = fileToByte1(filePath);
-            out = new FileOutputStream(file);
+        try (FileOutputStream out = new FileOutputStream(file)) {
+            byte[] bytes = fileToByte(filePath);
             out.write(bytes);
             out.flush();
-            out.close();
             return true;
         } catch (Exception e) {
             e.printStackTrace();
             return false;
-        } finally {
-            try {
-                out.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
     }
 
@@ -492,7 +457,7 @@ public class FileUtil {
      * @param filePath
      * @throws Exception
      */
-    public static byte[] fileToByte1(String filePath) {
+    public static byte[] fileToByte(String filePath) {
         FileInputStream is = null;
         try {
             File file = new File(filePath);
@@ -504,13 +469,14 @@ public class FileUtil {
             }
             return dist;
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("IO异常", e);
             return new byte[0];
         } finally {
             try {
-                is.close();
+                if (is != null) {
+                    is.close();
+                }
             } catch (IOException e) {
-                e.printStackTrace();
             }
         }
 
@@ -532,7 +498,6 @@ public class FileUtil {
                         zipStream.write(buf, 0, len);
                     }
                     zipStream.closeEntry();
-                    in.close();
                 }
             }
             zipStream.close();
@@ -558,17 +523,17 @@ public class FileUtil {
             // 支持中文
             zipStream.setEncoding("GBK");
             for (File file : srcfile) {
-                FileInputStream in = new FileInputStream(file);
-                // 压缩条目不是具体独立的文件，而是压缩包文件列表中的列表项，称为条目，就像索引一样
-                ZipEntry zipEntry = new ZipEntry(file.getName());
-                // 定位到该压缩条目位置，开始写入文件到压缩包中
-                zipStream.putNextEntry(zipEntry);
-                int len;
-                while ((len = in.read(buf)) > 0) {
-                    zipStream.write(buf, 0, len);
+                try (FileInputStream in = new FileInputStream(file)) {
+                    // 压缩条目不是具体独立的文件，而是压缩包文件列表中的列表项，称为条目，就像索引一样
+                    ZipEntry zipEntry = new ZipEntry(file.getName());
+                    // 定位到该压缩条目位置，开始写入文件到压缩包中
+                    zipStream.putNextEntry(zipEntry);
+                    int len;
+                    while ((len = in.read(buf)) > 0) {
+                        zipStream.write(buf, 0, len);
+                    }
+                    zipStream.closeEntry();
                 }
-                zipStream.closeEntry();
-                in.close();
             }
             zipStream.close();
             return true;
@@ -585,16 +550,11 @@ public class FileUtil {
      * @param ouputStream
      */
     private static void zipFile(File inputFile, ZipOutputStream ouputStream) {
-        try {
-            if (inputFile.exists()) {
-                /**
-                 * 如果是目录的话这里是不采取操作的， 至于目录的打包正在研究中
-                 */
-                if (inputFile.isFile()) {
-                    FileInputStream in = new FileInputStream(inputFile);
-                    BufferedInputStream bins = new BufferedInputStream(in, 512);
-                    // org.apache.tools.zip.ZipEntry
-                    System.out.println("需要打包文件inputFile：[" + inputFile.getName() + " ] ");
+        if (inputFile.exists()) {
+            //如果是目录的话这里是不采取操作的， 至于目录的打包正在研究中
+            if (inputFile.isFile()) {
+                try (FileInputStream in = new FileInputStream(inputFile);
+                     BufferedInputStream bins = new BufferedInputStream(in, 512)) {
                     ZipEntry entry = new ZipEntry(inputFile.getName());
                     ouputStream.putNextEntry(entry);
                     // 向压缩文件中输出数据
@@ -603,22 +563,15 @@ public class FileUtil {
                     while ((nNumber = bins.read(buffer)) != -1) {
                         ouputStream.write(buffer, 0, nNumber);
                     }
-                    // 关闭创建的流对象
-                    bins.close();
-                    in.close();
-                } else {
-                    try {
-                        File[] files = inputFile.listFiles();
-                        for (int i = 0; i < files.length; i++) {
-                            zipFile(files[i], ouputStream);
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+                } catch (IOException e) {
+                    log.error("IO异常", e);
+                }
+            } else {
+                File[] files = inputFile.listFiles();
+                for (int i = 0; i < files.length; i++) {
+                    zipFile(files[i], ouputStream);
                 }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 
@@ -669,7 +622,8 @@ public class FileUtil {
      * @return
      * @throws Exception
      */
-    public static String generateZip(String path, String returnPath, String zipName, Boolean isDrop) throws Exception {
+    public static String generateZip(String path, String returnPath, String zipName, Boolean isDrop) throws
+            Exception {
         List<File> files = new ArrayList<>();
         File file = new File(path);
         if (!file.exists()) {
@@ -951,18 +905,22 @@ public class FileUtil {
      * @param file 文件
      * @return
      */
-    public static File inputstreamtofile(InputStream ins, File file) {
-        try {
-            OutputStream os = new FileOutputStream(file);
+    public static File inputstreamtofile(@NonNull InputStream ins, File file) {
+        try (OutputStream os = new FileOutputStream(file)) {
             int bytesRead;
             byte[] buffer = new byte[8192];
             while ((bytesRead = ins.read(buffer, 0, 8192)) != -1) {
                 os.write(buffer, 0, bytesRead);
             }
-            os.close();
-            ins.close();
+
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("IO异常", e);
+        } finally {
+            try {
+                ins.close();
+            } catch (IOException e) {
+
+            }
         }
         return file;
     }

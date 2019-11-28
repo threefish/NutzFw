@@ -170,6 +170,7 @@ public class IndexBizImpl implements IndexBiz {
                                     break;
                                 case "job_user":
                                     maps = jobService.statisticsJobUser(c.getCustomizedParams());
+                                    break;
                                 default: {
                                     break;
                                 }

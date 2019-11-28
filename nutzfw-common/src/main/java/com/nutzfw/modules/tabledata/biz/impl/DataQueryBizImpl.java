@@ -258,7 +258,7 @@ public class DataQueryBizImpl implements DataQueryBiz {
                 return field.getTableName();
             }
         }
-        return null;
+        throw new RuntimeException("主表不能为空");
     }
 
     /**

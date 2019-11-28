@@ -40,16 +40,16 @@ import java.util.*;
  * @description 用户导入校验
  */
 public class CheckUserDataThread implements Runnable {
-    private Ioc                      ioc;
-    private UserImportHistory        userImportHistory;
-    private UserAccountService       userAccountService;
-    private FileAttachService        fileAttachService;
+    private Ioc ioc;
+    private UserImportHistory userImportHistory;
+    private UserAccountService userAccountService;
+    private FileAttachService fileAttachService;
     private UserImportHistoryService userImportHistoryService;
-    private DepartmentJobService     departmentJobService;
-    private UserAccountJobService    userAccountJobService;
-    private long                     startTime;
-    private Sheet                    sheet;
-    private CellStyle                errstyle;
+    private DepartmentJobService departmentJobService;
+    private UserAccountJobService userAccountJobService;
+    private long startTime;
+    private Sheet sheet;
+    private CellStyle errstyle;
 
     public CheckUserDataThread(Ioc ioc, UserImportHistory userImportHistory) {
         this.ioc = ioc;
@@ -109,7 +109,7 @@ public class CheckUserDataThread implements Runnable {
                 }
                 //验证用户名重复
                 userName = strings[0];
-                if(!RegexUtil.isAccount(userName)){
+                if (!RegexUtil.isAccount(userName)) {
                     poiExcelUtil.setErrorMsg(sheet, i, 0, "用户名不符合规范", errstyle);
                     canImport = false;
                 }
@@ -126,21 +126,20 @@ public class CheckUserDataThread implements Runnable {
                     canImport = false;
                     poiExcelUtil.setErrorMsg(sheet, i, 3, "部门下没有该岗位", errstyle);
                 }
-//            //验证手机号
+                //验证手机号
                 if (!StringUtil.isBlank(strings[4]) && !RegexUtil.isPhone(strings[4])) {
                     poiExcelUtil.setErrorMsg(sheet, i, 4, "手机号格式错误", errstyle);
                     canImport = false;
                 }
-//            //验证邮箱
+                //验证邮箱
                 if (!RegexUtil.isEmail(strings[5]) && !StringUtil.isBlank(strings[5])) {
                     poiExcelUtil.setErrorMsg(sheet, i, 5, "邮箱格式错误", errstyle);
                     canImport = false;
                 }
-//            //验证密码
+                //验证密码
                 if (StringUtil.isBlank(strings[6])) {
                     strings[6] = Cons.DEFAULT_PASSWORD;
                 }
-
                 if (canImport) {
                     UserAccount userAccount = new UserAccount();
                     userAccount.setLocked(false);
@@ -190,8 +189,8 @@ public class CheckUserDataThread implements Runnable {
             }
         } catch (Throwable t) {
             userImportHistory.setStaus(5);
-            userImportHistory.setErrMsg("系统错误:" + Strings.cutStr(120,t.getMessage(),"..."));
-            userImportHistory.setErrMsgInfo(Strings.cutStr(10000,StringUtil.throwableToString(t),"..."));
+            userImportHistory.setErrMsg("系统错误:" + Strings.cutStr(120, t.getMessage(), "..."));
+            userImportHistory.setErrMsgInfo(Strings.cutStr(10000, StringUtil.throwableToString(t), "..."));
             Logs.get().error(t);
         } finally {
             long endTime = System.currentTimeMillis();

@@ -82,7 +82,7 @@ public class Cons {
     /**
      * 系统默认密码
      */
-    public static       String  DEFAULT_PASSWORD        = "666666";
+    public static String DEFAULT_PASSWORD;
     /**
      * 缓存系统配置信息
      */

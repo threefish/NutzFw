@@ -63,51 +63,51 @@ public class ApmJob extends BaseJob {
 
     @Inject
     MailBodyService bodyService;
-    SystemInfo               systemInfo       = new SystemInfo();
-    HardwareAbstractionLayer hardwar          = systemInfo.getHardware();
-    SimpleDateFormat         simpleDateFormat = new SimpleDateFormat("HH:mm:ss");
-    MemoryMXBean             memoryMXBean     = ManagementFactory.getMemoryMXBean();
+    SystemInfo systemInfo = new SystemInfo();
+    HardwareAbstractionLayer hardwar = systemInfo.getHardware();
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm:ss");
+    MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
     @Inject
     ApmDashboardWs ws;
     @Inject
-    DictBiz        dictBiz;
-    private DecimalFormat     decimalFormat  = new DecimalFormat("#.##");
+    DictBiz dictBiz;
+    private DecimalFormat decimalFormat = new DecimalFormat("#.##");
     /**
      * 时间点
      */
-    private List<Date>        timePoints     = new ArrayList();
+    private List<Date> timePoints = new ArrayList();
     /**
      * cpu使用情况
      */
-    private List<Double>      cpuUsages      = new ArrayList();
+    private List<Double> cpuUsages = new ArrayList();
     /**
      * ram使用情况
      */
-    private List<Double>      ramUsages      = new ArrayList();
+    private List<Double> ramUsages = new ArrayList();
     /**
      * jvm使用情况
      */
-    private List<Double>      jvmUsages      = new ArrayList();
+    private List<Double> jvmUsages = new ArrayList();
     /**
      * swap使用情况
      */
-    private List<Double>      swapUsages     = new ArrayList();
+    private List<Double> swapUsages = new ArrayList();
     /**
      * 监听项目
      */
-    private List<AlarmOption> alarmOptions   = new ArrayList();
+    private List<AlarmOption> alarmOptions = new ArrayList();
     /**
      * 是否开启监听
      */
-    private boolean           listenerStatus = true;
+    private boolean listenerStatus = true;
     /**
      * 缓存监控多少个最近使用情况
      */
-    private int               monitorCount   = 500;
+    private int monitorCount = 500;
     /**
      * 缓存最近的一个状态
      */
-    private HashMap           usaGes         = new HashMap();
+    private HashMap usaGes = new HashMap();
 
     public ApmJob(Ioc ioc) {
         super(ioc);
@@ -149,13 +149,13 @@ public class ApmJob extends BaseJob {
                             break;
                         case "DISK":
                             OSFileStore[] fsArray = systemInfo.getOperatingSystem().getFileSystem().getFileStores();
-                            long total = 0L;
-                            long usable = 0L;
+                            long total = 1L;
+                            long usable = 1L;
                             for (OSFileStore fs : fsArray) {
                                 usable += fs.getUsableSpace();
                                 total += fs.getTotalSpace();
                             }
-                            diskPercent = 100 - (100d * usable / total);
+                            diskPercent = 100 - (100d * (usable - 1L) / (total - 1L));
                             alarm("DISK", "磁盘告警", "DISK", diskPercent, option.getPercent());
                             break;
                         default:

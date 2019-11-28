@@ -9,6 +9,7 @@ package com.nutzfw.core.common.util;
 
 import org.apache.commons.lang3.time.DateFormatUtils;
 
+import javax.annotation.Nonnull;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -151,16 +152,6 @@ public class DateUtil {
     }
 
     /**
-     * @param tt
-     * @描述 —— Timestamp格式化日期对象
-     */
-    public static String timestamp2String(Timestamp tt, String formatStr) {
-        SimpleDateFormat sdf = new SimpleDateFormat(formatStr);
-        String str = sdf.format(tt);
-        return str;
-    }
-
-    /**
      * @param date
      * @描述 —— 时间对象转换成字符串
      */
@@ -178,10 +169,7 @@ public class DateUtil {
      * @描述 —— sql时间对象转换成字符串
      */
     public static String timestamp2string(Timestamp timestamp, String formatStr) {
-        String strDate = "";
-        SimpleDateFormat sdf = new SimpleDateFormat(formatStr);
-        strDate = sdf.format(timestamp);
-        return strDate;
+        return new SimpleDateFormat(formatStr).format(timestamp);
     }
 
     /**
@@ -1119,7 +1107,7 @@ public class DateUtil {
      * @param endDate
      * @return
      */
-    public static List<Date> getStartToEnd(Date beginDate, Date endDate) {
+    public static List<Date> getStartToEnd(@Nonnull Date beginDate, @Nonnull Date endDate) {
         beginDate = DateUtil.date2date(beginDate, DateUtil.YYYY_MM);
         endDate = DateUtil.date2date(endDate, DateUtil.YYYY_MM);
         List<Date> dates = new ArrayList<>();

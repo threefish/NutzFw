@@ -51,7 +51,7 @@ public class FlowTypeAction {
 
     @At("/tree")
     @Ok("json")
-    public List<? extends BaseTreeEntity> flowTypes() {
+    public List<BaseTreeEntity> flowTypes() {
         List<FlowType> types = flowTypeService.query(Cnd.orderBy().asc("shortNo"));
         FlowType root = FlowType.builder().name("根节点").virtualNode(true).build();
         root.setId("0");

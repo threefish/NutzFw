@@ -344,7 +344,7 @@ public class RsaUtils {
         byte[] data = plaintext.getBytes();
         KeyPair keyPair = getKeyPair();
         try {
-            byte[] en_data = encrypt((RSAPublicKey) keyPair.getPublic(), data);
+            byte[] en_data = encrypt(keyPair.getPublic(), data);
             return new String(Hex.encodeHex(en_data));
         } catch (NullPointerException ex) {
             log.error("keyPair cannot be null.");

@@ -92,6 +92,7 @@ public class MainSetup extends AbstractInitSetup implements Setup {
         PropertiesProxy conf = ioc.get(PropertiesProxy.class, "conf");
         PropertiesProxy enumsConf = ioc.get(PropertiesProxy.class, "enumsConf");
         boolean initSystem = conf.getBoolean("initSystem", false);
+        Cons.DEFAULT_PASSWORD = conf.get("defaultPassword");
         //取得执行子模块的Setup
         this.initSubModuleSetup(nutConfig);
         //通过配置文件设置常量

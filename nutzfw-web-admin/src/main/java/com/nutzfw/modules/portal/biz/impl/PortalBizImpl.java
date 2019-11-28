@@ -133,6 +133,7 @@ public class PortalBizImpl implements PortalBiz {
                         break;
                     case 2:
                         portalFunction.setType(MsgNotice.FUN_TYPE);
+                        break;
                     default:
                         break;
                 }

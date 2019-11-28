@@ -62,8 +62,7 @@ public class NumbersUtil {
      * @return double 如果数值较大，则使用科学计数法表示
      */
     public static double keepPrecision(double number, int precision) {
-        BigDecimal bg = new BigDecimal(number);
-        return bg.setScale(precision, RoundingMode.HALF_UP).doubleValue();
+        return BigDecimal.valueOf(number).setScale(precision, RoundingMode.HALF_UP).doubleValue();
     }
 
     /**
@@ -76,8 +75,7 @@ public class NumbersUtil {
      * @return float 如果数值较大，则使用科学计数法表示
      */
     public static float keepPrecision(float number, int precision) {
-        BigDecimal bg = new BigDecimal(number);
-        return bg.setScale(precision, RoundingMode.HALF_UP).floatValue();
+        return BigDecimal.valueOf(number).setScale(precision, RoundingMode.HALF_UP).floatValue();
     }
 
     /**

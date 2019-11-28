@@ -167,17 +167,16 @@ public class Base64Tool {
         byte[] data = new byte[0];
         File file = new File(filePath);
         if (file.exists()) {
-            FileInputStream in = new FileInputStream(file);
-            ByteArrayOutputStream out = new ByteArrayOutputStream(2048);
-            byte[] cache = new byte[CACHE_SIZE];
-            int nRead = 0;
-            while ((nRead = in.read(cache)) != -1) {
-                out.write(cache, 0, nRead);
-                out.flush();
+            try (FileInputStream in = new FileInputStream(file);
+                 ByteArrayOutputStream out = new ByteArrayOutputStream(2048)) {
+                byte[] cache = new byte[CACHE_SIZE];
+                int nRead = 0;
+                while ((nRead = in.read(cache)) != -1) {
+                    out.write(cache, 0, nRead);
+                    out.flush();
+                }
+                data = out.toByteArray();
             }
-            out.close();
-            in.close();
-            data = out.toByteArray();
         }
         return data;
     }
@@ -194,7 +193,7 @@ public class Base64Tool {
     public static byte[] fileToByte(InputStream in) throws Exception {
         ByteArrayOutputStream out = new ByteArrayOutputStream(2048);
         byte[] cache = new byte[CACHE_SIZE];
-        int nRead = 0;
+        int nRead;
         while ((nRead = in.read(cache)) != -1) {
             out.write(cache, 0, nRead);
             out.flush();

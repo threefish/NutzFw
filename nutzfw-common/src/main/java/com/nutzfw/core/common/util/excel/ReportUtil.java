@@ -11,7 +11,6 @@ import com.nutzfw.core.common.util.excel.dto.PoiDto;
 import org.nutz.dao.entity.Record;
 import org.nutz.el.El;
 import org.nutz.json.Json;
-import org.nutz.json.JsonFormat;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.segment.CharSegment;
@@ -33,11 +32,7 @@ import java.util.Map;
  */
 public class ReportUtil {
 
-    /**
-     * 查询结果列别名前缀
-     */
-    public static final String ALIAS = "alias_";
-    private static      Log    log   = Logs.get();
+    private static Log log = Logs.get();
 
     public static PoiDto format(String viewtemplatetext) {
         String[] ss = viewtemplatetext.split("\\|");
@@ -91,79 +86,6 @@ public class ReportUtil {
 
 
     /**
-     * 重新赋予列名
-     *
-     * @param num
-     * @return
-     */
-    public static String randomColumn(int num) {
-        if (num == 0) {
-            throw new RuntimeException("num必须大于0");
-        }
-        return excelColIndexToStr(num);
-    }
-
-
-    /**
-     * 创建可以导出的json数据
-     *
-     * @return
-     */
-    public static String create2010ExcelJsonDate(String excleJson) {
-        NutMap data = new NutMap();
-        NutMap spread = Json.fromJson(NutMap.class, renderExcleJson(excleJson));
-        data.setv("spread", spread);
-        data.setv("exportFileType", "xlsx");
-        data.setv("exportFileName", "exportXlsx");
-        data.setv("excel", new NutMap().setv("saveFlags", 0).setv("password", ""));
-        return Json.toJson(data, JsonFormat.compact());
-    }
-
-
-    /**
-     * 去除不符合spreadJs的Format格式
-     *
-     * @param excleJson
-     * @return
-     */
-    public static String renderExcleJson(String excleJson) {
-        NutMap json = Json.fromJson(NutMap.class, excleJson);
-        return Json.toJson(renderExcleJson(json), JsonFormat.compact());
-    }
-
-    /**
-     * 去除不符合spreadJs的Format格式
-     *
-     * @param spread
-     * @return
-     */
-    public static NutMap renderExcleJson(NutMap spread) {
-        List<NutMap> namedStyles = spread.getList("namedStyles", NutMap.class);
-        if (namedStyles != null) {
-            spread.put("namedStyles", removeFormatNamedStyles(namedStyles));
-        }
-        return spread;
-    }
-
-    /**
-     * 去除不符合spreadJs的Format格式防止报错
-     *
-     * @param namedStyles
-     * @return
-     */
-    public static List<NutMap> removeFormatNamedStyles(List<NutMap> namedStyles) {
-        for (int i = 0; i < namedStyles.size(); i++) {
-            NutMap namedStyle = namedStyles.get(i);
-            String formatter = namedStyle.getString("formatter", "");
-            if (Strings.isNotBlank(formatter)) {
-                namedStyle.put("formatter", "");
-                namedStyles.set(i, namedStyle);
-            }
-        }
-        return namedStyles;
-    }
-
-    /**
      * 格式化结果
      *
      * @param viewData
@@ -171,7 +93,7 @@ public class ReportUtil {
      * @return
      */
     public static String getCellValue(Map<String, String> viewData, String templatetext) {
-        StringBuffer sb = new StringBuffer("");
+        StringBuffer sb = new StringBuffer();
         if (Strings.isEmpty(templatetext)) {
             for (Map.Entry<String, String> entry : viewData.entrySet()) {
                 sb.append(entry.getValue());
@@ -275,11 +197,8 @@ public class ReportUtil {
         List<T> object = null;
         try (FileInputStream in = new FileInputStream(path.toFile()); ObjectInputStream objIn = new ObjectInputStream(in)) {
             object = (List<T>) objIn.readObject();
-            objIn.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            log.error(e);
         }
         return object;
     }

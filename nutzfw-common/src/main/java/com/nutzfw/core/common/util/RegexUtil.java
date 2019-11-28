@@ -18,9 +18,13 @@ import java.util.regex.Pattern;
 public class RegexUtil {
 
 
-    public static final String  PHONE_REG_STR  = "^((13[0-9])|(14[0-9])|(15[0-9])|(16[0-9])|(17[0-9])|(18[0-9]))\\d{8}$";
-    static final        Pattern ACCOUN_PATTERN = Pattern.compile("^[a-zA-Z0-9_]+", Pattern.MULTILINE + Pattern.DOTALL);
-    static final        Pattern PHONE_REG      = Pattern.compile(PHONE_REG_STR);
+    public static final String PHONE_REG_STR = "^((13[0-9])|(14[0-9])|(15[0-9])|(16[0-9])|(17[0-9])|(18[0-9]))\\d{8}$";
+    static final Pattern ACCOUN_PATTERN = Pattern.compile("^[a-zA-Z0-9_]+", Pattern.MULTILINE + Pattern.DOTALL);
+    static final Pattern PHONE_REG = Pattern.compile(PHONE_REG_STR);
+    static final Pattern IS_A_Z_PATTERN = Pattern.compile("^[A-Za-z]+$");
+    static final Pattern IS_A_Z_PATTERN2 = Pattern.compile("^[a-z]+$");
+    static final Pattern IS_A_Z_PATTERN3 = Pattern.compile("^[A-Z]+$");
+    static final Pattern IS_EMPTY_PATTERN = Pattern.compile("^\\S+$");
 
     /**
      * 判断是否是邮政编码
@@ -258,11 +262,8 @@ public class RegexUtil {
      * @param str
      * @return
      */
-    public static boolean isA_z(String str) {
-        String regEx = "^[A-Za-z]+$";
-        Pattern pattern = Pattern.compile(regEx);
-        Matcher matcher = pattern.matcher(str);
-        return matcher.matches();
+    public static boolean isAz(String str) {
+        return IS_A_Z_PATTERN.matcher(str).matches();
     }
 
     /**
@@ -271,11 +272,8 @@ public class RegexUtil {
      * @param str
      * @return
      */
-    public static boolean isa_z(String str) {
-        String regEx = "^[a-z]+$";
-        Pattern pattern = Pattern.compile(regEx);
-        Matcher matcher = pattern.matcher(str);
-        return matcher.matches();
+    public static boolean isaz(String str) {
+        return IS_A_Z_PATTERN2.matcher(str).matches();
     }
 
     /**
@@ -284,11 +282,8 @@ public class RegexUtil {
      * @param str
      * @return
      */
-    public static boolean isA_Z(String str) {
-        String regEx = "^[A-Z]+$";
-        Pattern pattern = Pattern.compile(regEx);
-        Matcher matcher = pattern.matcher(str);
-        return matcher.matches();
+    public static boolean isAZ(String str) {
+        return IS_A_Z_PATTERN3.matcher(str).matches();
     }
 
     /**
@@ -298,10 +293,7 @@ public class RegexUtil {
      * @return
      */
     public static boolean isEmpty(String str) {
-        String regEx = "^\\S+$";
-        Pattern pattern = Pattern.compile(regEx);
-        Matcher matcher = pattern.matcher(str);
-        return matcher.matches();
+        return IS_EMPTY_PATTERN.matcher(str).matches();
     }
 
     /**

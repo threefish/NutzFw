@@ -930,7 +930,7 @@ public class DataMaintainBizImpl implements DataMaintainBiz {
                 break;
             case LETTER:
                 //字母
-                if (!RegexUtil.isA_z(val)) {
+                if (!RegexUtil.isAz(val)) {
                     msg = MessageFormat.format("{0}字段请输入字母!当前值：({1})", lableName, val);
                 }
                 break;

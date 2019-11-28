@@ -28,8 +28,7 @@ public class AjaxResult<T> {
     /**
      * 是否成功
      */
-    @Builder.Default
-    private boolean ok = false;
+    private boolean ok;
 
     /**
      * 错误消息提示

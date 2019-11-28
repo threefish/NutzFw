@@ -32,7 +32,7 @@ public class NashornJs {
 
     private static NashornScriptEngine engine;
 
-    public NashornJs() {
+    static {
         engine = (NashornScriptEngine) factory.getScriptEngine(new String[]{"-scripting",
                 "-nse",
         }, ccl, (s -> false));

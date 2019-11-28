@@ -27,7 +27,7 @@ public class TreeUtil {
      * @param parentId
      * @return
      */
-    public static List<? extends BaseTreeEntity> createTree(List<? extends BaseTreeEntity> entities, String parentId) {
+    public static List<BaseTreeEntity> createTree(List<? extends BaseTreeEntity> entities, String parentId) {
         List<BaseTreeEntity> childList = new ArrayList<>();
         for (BaseTreeEntity c : entities) {
             String id = c.getId();
@@ -48,7 +48,7 @@ public class TreeUtil {
      * @param entities
      * @return
      */
-    public static List<? extends BaseTreeEntity> shortTree(List<? extends BaseTreeEntity> entities) {
+    public static List<BaseTreeEntity> shortTree(List<? extends BaseTreeEntity> entities) {
         List<BaseTreeEntity> shortMenu = new ArrayList<>();
         for (BaseTreeEntity c : entities) {
             if (c.getChildren() != null && c.getChildren().size() > 0) {
