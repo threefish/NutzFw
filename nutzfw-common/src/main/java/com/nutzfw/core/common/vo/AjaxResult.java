@@ -55,6 +55,13 @@ public class AjaxResult<T> {
         this.data = data;
     }
 
+    public AjaxResult(boolean ok, String msg, T data,HashMap value) {
+        this.ok = ok;
+        this.msg = msg;
+        this.data = data;
+        this.value = value;
+    }
+
     public static AjaxResult sucess() {
         return new AjaxResult(true, "操作成功");
     }
