@@ -35,7 +35,6 @@ public class XssSqlFilterProcessor extends AbstractProcessor {
 
     private static final Log log = Logs.get();
 
-    private String errorPage = Cons.ERROR_PAGE;
 
     private List<String> whitelist;
 
@@ -67,7 +66,7 @@ public class XssSqlFilterProcessor extends AbstractProcessor {
                     ac.getResponse().addHeader("loginStatus", "paramsDenied");
                     NutShiro.rendAjaxResp(ac.getRequest(), ac.getResponse(), AjaxResult.error("表单数据存在：XSS关键字或SQL关键字。为防止攻击，当前表单数据未能提交，请检查后再提交。"));
                 } else {
-                    new ForwardView(errorPage).render(ac.getRequest(), ac.getResponse(), "表单数据存在：XSS关键字或SQL关键字。为防止攻击，当前表单数据未能提交，请检查后再提交。");
+                    new ForwardView(Cons.ERROR_PAGE).render(ac.getRequest(), ac.getResponse(), "表单数据存在：XSS关键字或SQL关键字。为防止攻击，当前表单数据未能提交，请检查后再提交。");
                 }
                 return;
             }

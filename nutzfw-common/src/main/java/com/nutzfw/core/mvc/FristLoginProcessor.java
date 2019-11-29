@@ -7,8 +7,6 @@
 
 package com.nutzfw.core.mvc;
 
-import org.nutz.log.Log;
-import org.nutz.log.Logs;
 import org.nutz.mvc.ActionContext;
 import org.nutz.mvc.Mvcs;
 import org.nutz.mvc.impl.processor.AbstractProcessor;
@@ -36,8 +34,6 @@ public class FristLoginProcessor extends AbstractProcessor {
      * 白名单
      */
     final static List<String> WHITELIST = Arrays.asList(FRIST_LOGIN_PATH, "/management/logout", "/management/login");
-
-    private static final Log log = Logs.get();
 
     @Override
     public void process(ActionContext ac) throws Throwable {

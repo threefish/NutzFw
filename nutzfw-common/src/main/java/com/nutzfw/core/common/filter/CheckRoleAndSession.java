@@ -72,6 +72,7 @@ public class CheckRoleAndSession implements ActionFilter {
         boolean isNotLogin = session == null || null == session.getAttribute(sessionKey);
         boolean isAjax = NutShiro.isAjax(context.getRequest());
         boolean isNutzFwFront = Strings.isNotBlank(context.getRequest().getHeader("NutzFwFront"));
+        String requestURI = context.getRequest().getRequestURI();
         if (isNotLogin) {
             Logs.get().debugf("session key [%s] is not found :[%s]", sessionKey, context.getPath());
             if (isAjax) {
@@ -79,7 +80,7 @@ public class CheckRoleAndSession implements ActionFilter {
             } else if (isNutzFwFront) {
                 //需要重新登录
                 return new HttpStatusView(401);
-            } else {
+            } else if (!loginPageUrl.equals(requestURI)) {
                 return new ServerRedirectView(loginPageUrl);
             }
         } else {
