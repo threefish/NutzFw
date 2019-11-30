@@ -15,10 +15,9 @@ import java.text.MessageFormat;
 import java.util.HashMap;
 
 /**
- * Created with IntelliJ IDEA.
  *
- * @author 黄川
- * Date Time: 2016/4/2313:32
+ * @author 黄川 huchuc@vip.qq.com
+ * @date 2016/4/2313:32
  */
 @Data
 @Builder
