@@ -346,8 +346,6 @@ public class RsaUtils {
             KeyPair keyPair = getKeyPair();
             byte[] en_data = encrypt(keyPair.getPublic(), data);
             return new String(Hex.encodeHex(en_data));
-        } catch (NullPointerException ex) {
-            log.error("keyPair cannot be null.");
         } catch (Exception ex) {
             log.error(ex.getCause().getMessage());
         }
@@ -396,8 +394,6 @@ public class RsaUtils {
             byte[] en_data = Hex.decodeHex(encrypttext.toCharArray());
             byte[] data = decrypt(keyPair.getPrivate(), en_data);
             return new String(data);
-        } catch (NullPointerException ex) {
-            log.error("keyPair cannot be null.");
         } catch (Exception ex) {
             log.error(String.format("\"%s\" Decryption failed. Cause: %s", encrypttext, ex.getMessage()));
         }
