@@ -191,16 +191,18 @@ public class Base64Tool {
      * @throws Exception
      */
     public static byte[] fileToByte(InputStream in) throws Exception {
-        ByteArrayOutputStream out = new ByteArrayOutputStream(2048);
-        byte[] cache = new byte[CACHE_SIZE];
-        int nRead;
-        while ((nRead = in.read(cache)) != -1) {
-            out.write(cache, 0, nRead);
-            out.flush();
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream(2048);) {
+            byte[] cache = new byte[CACHE_SIZE];
+            int nRead;
+            while ((nRead = in.read(cache)) != -1) {
+                out.write(cache, 0, nRead);
+                out.flush();
+            }
+            return out.toByteArray();
+        } finally {
+            in.close();
         }
-        out.close();
-        in.close();
-        return out.toByteArray();
+
     }
 
     /**
@@ -212,17 +214,17 @@ public class Base64Tool {
      * @param filePath 文件生成目录
      */
     public static void byteArrayToFile(byte[] bytes, String filePath) throws Exception {
-        InputStream in = new ByteArrayInputStream(bytes);
         File destFile = new File(filePath);
         destFile.createNewFile();
-        OutputStream out = new FileOutputStream(destFile);
-        byte[] cache = new byte[CACHE_SIZE];
-        int nRead = 0;
-        while ((nRead = in.read(cache)) != -1) {
-            out.write(cache, 0, nRead);
-            out.flush();
+        try (InputStream in = new ByteArrayInputStream(bytes);
+             OutputStream out = new FileOutputStream(destFile);) {
+            byte[] cache = new byte[CACHE_SIZE];
+            int nRead;
+            while ((nRead = in.read(cache)) != -1) {
+                out.write(cache, 0, nRead);
+                out.flush();
+            }
         }
-        out.close();
-        in.close();
+
     }
-}  
+}

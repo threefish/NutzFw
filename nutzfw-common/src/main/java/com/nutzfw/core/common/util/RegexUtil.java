@@ -262,7 +262,7 @@ public class RegexUtil {
      * @param str
      * @return
      */
-    public static boolean isAz(String str) {
+    public static boolean isLetter(String str) {
         return IS_A_Z_PATTERN.matcher(str).matches();
     }
 
@@ -272,7 +272,7 @@ public class RegexUtil {
      * @param str
      * @return
      */
-    public static boolean isaz(String str) {
+    public static boolean isLowerCaseLetters(String str) {
         return IS_A_Z_PATTERN2.matcher(str).matches();
     }
 
@@ -282,7 +282,7 @@ public class RegexUtil {
      * @param str
      * @return
      */
-    public static boolean isAZ(String str) {
+    public static boolean isUpperCaseLetter(String str) {
         return IS_A_Z_PATTERN3.matcher(str).matches();
     }
 

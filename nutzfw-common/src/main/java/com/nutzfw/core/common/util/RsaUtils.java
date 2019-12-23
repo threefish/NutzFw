@@ -342,8 +342,8 @@ public class RsaUtils {
             return null;
         }
         byte[] data = plaintext.getBytes();
-        KeyPair keyPair = getKeyPair();
         try {
+            KeyPair keyPair = getKeyPair();
             byte[] en_data = encrypt(keyPair.getPublic(), data);
             return new String(Hex.encodeHex(en_data));
         } catch (NullPointerException ex) {
@@ -391,8 +391,8 @@ public class RsaUtils {
         if (StringUtils.isBlank(encrypttext)) {
             return null;
         }
-        KeyPair keyPair = getKeyPair();
         try {
+            KeyPair keyPair = getKeyPair();
             byte[] en_data = Hex.decodeHex(encrypttext.toCharArray());
             byte[] data = decrypt(keyPair.getPrivate(), en_data);
             return new String(data);
