@@ -143,7 +143,7 @@ Nutz 社区支持 [https://nutz.cn](https://nutz.cn) 及 Nutz 使用手册 [http
 ### NutzFw架构图
 ![NutzFw模块依赖结构](doc/imgae/NutzFw架构图.jpg)
 
-#### 注意：除核心模块外，其他所有模块都是完整的可以独立部署的模块，并且包含其继承的模块，所以不要同时部署多个模块
+
 
 #### 运行环境
 
@@ -170,6 +170,9 @@ Nutz 社区支持 [https://nutz.cn](https://nutz.cn) 及 Nutz 使用手册 [http
 | test|测试包||
 ### NutzFw模块依赖结构
 ![NutzFw模块依赖结构](doc/imgae/NutzFw模块依赖结构.jpg)
+
+#### 注意：除核心模块外，其他所有模块都是完整的可以独立部署的模块，并且包含其继承的模块，所以不要同时部署多个模块
+
 
 #### 效果图
 
