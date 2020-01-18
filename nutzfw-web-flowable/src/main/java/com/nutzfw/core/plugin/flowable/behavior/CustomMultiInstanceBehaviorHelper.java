@@ -86,7 +86,7 @@ public class CustomMultiInstanceBehaviorHelper {
                 throw new RuntimeException("[" + userTask.getName() + "]未设置审批人员");
             }
             //指定多实例审核人
-            multiInstanceRootExecution.setTransientVariable(FlowConstant.MULTIINSTANCE_ASSIGNEES_COLLECTION, assigneesCollection);
+            multiInstanceRootExecution.setVariable(FlowConstant.MULTIINSTANCE_ASSIGNEES_COLLECTION, assigneesCollection);
         }
     }
 

@@ -188,7 +188,7 @@ public class FlowTaskServiceImpl implements FlowTaskService {
             HistoricVariableInstance historicVariableInstance = historyService.createHistoricVariableInstanceQuery().processInstanceId(hisprocIns.getId()).variableName(FlowConstant.PROCESS_TITLE).singleResult();
             flow.setCreateTime(hisprocIns.getStartTime());
             flow.setEndTime(hisprocIns.getEndTime());
-            flow.setTaskTitle(historicVariableInstance.getValue().toString());
+            flow.setTaskTitle(Objects.nonNull(historicVariableInstance.getValue()) ? historicVariableInstance.getValue().toString() : null);
             flow.setBusinessId(hisprocIns.getBusinessKey());
             flow.setHisActInsActName(hisprocIns.getName());
             flow.setProcInsId(hisprocIns.getId());
