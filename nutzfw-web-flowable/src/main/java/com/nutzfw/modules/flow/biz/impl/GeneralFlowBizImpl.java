@@ -52,19 +52,19 @@ import java.util.stream.Collectors;
 public class GeneralFlowBizImpl implements GeneralFlowBiz {
 
     @Inject("refer:$ioc")
-    Ioc                          ioc;
+    Ioc ioc;
     @Inject
-    FlowTaskService              flowTaskService;
+    FlowTaskService flowTaskService;
     @Inject
-    FlowCacheService             flowCacheService;
+    FlowCacheService flowCacheService;
     @Inject
     FlowProcessDefinitionService flowProcessDefinitionService;
     @Inject
-    DepartmentLeaderService      departmentLeaderService;
+    DepartmentLeaderService departmentLeaderService;
     @Inject
-    UserAccountBiz               userAccountBiz;
+    UserAccountBiz userAccountBiz;
     @Inject
-    FlowCustomQueryService       flowCustomQueryService;
+    FlowCustomQueryService flowCustomQueryService;
 
     @Override
     public String getFormPage(FlowTaskVO flowTaskVO) {
@@ -131,7 +131,7 @@ public class GeneralFlowBizImpl implements GeneralFlowBiz {
     public String userAudit(Map formData, FlowTaskVO flowTaskVO, UserAccount sessionUserAccount) {
         // 设置当前流程任务办理人
         Authentication.setAuthenticatedUserId(sessionUserAccount.getUserName());
-        FlowUtils.setFlowTaskVo(flowTaskVO, flowTaskService.getTaskOrHistoryTask(flowTaskVO.getTaskId()),sessionUserAccount.getUserName());
+        FlowUtils.setFlowTaskVo(flowTaskVO, flowTaskService.getTaskOrHistoryTask(flowTaskVO.getTaskId()), sessionUserAccount.getUserName());
         ExternalFormExecutor executor = getExternalFormExecutor(flowTaskVO.getProcDefId());
         UserTaskExtensionDTO dto = flowProcessDefinitionService.getUserTaskExtension(flowTaskVO.getTaskDefKey(), flowTaskVO.getProcDefId());
         if (Strings.isNotBlank(flowTaskVO.getComment())) {

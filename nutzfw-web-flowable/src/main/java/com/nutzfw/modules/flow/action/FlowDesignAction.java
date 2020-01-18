@@ -66,11 +66,11 @@ import java.util.List;
 public class FlowDesignAction extends BaseAction {
 
     @Inject
-    RepositoryService  repositoryService;
+    RepositoryService repositoryService;
     @Inject
     UserAccountService userAccountService;
     @Inject
-    RoleService        roleService;
+    RoleService roleService;
 
     @Inject
     FlowDiagramUtils flowDiagramUtils;

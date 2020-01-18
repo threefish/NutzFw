@@ -49,19 +49,19 @@ import java.util.concurrent.atomic.AtomicReference;
 public class FlowProcessDefinitionServiceImpl implements FlowProcessDefinitionService {
 
     @Inject
-    FlowTypeService                  flowTypeService;
+    FlowTypeService flowTypeService;
     @Inject
     NutzFwProcessEngineConfiguration nutzFwProcessEngineConfiguration;
     @Inject
-    FlowTaskService                  flowTaskService;
+    FlowTaskService flowTaskService;
     @Inject
-    FlowCacheService                 flowCacheService;
+    FlowCacheService flowCacheService;
     @Inject
-    RepositoryService                repositoryService;
+    RepositoryService repositoryService;
     @Inject
-    RuntimeService                   runtimeService;
+    RuntimeService runtimeService;
     @Inject("refer:$ioc")
-    Ioc                              ioc;
+    Ioc ioc;
 
     /**
      * 流程定义列表

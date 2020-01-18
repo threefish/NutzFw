@@ -45,7 +45,7 @@ public class FlowTypeAction {
     final static Log log = Logs.get();
 
     @Inject
-    FlowTypeService   flowTypeService;
+    FlowTypeService flowTypeService;
     @Inject
     RepositoryService repositoryService;
 

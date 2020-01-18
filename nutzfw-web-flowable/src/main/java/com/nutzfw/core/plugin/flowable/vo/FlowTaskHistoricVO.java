@@ -26,13 +26,13 @@ import java.util.List;
 @NoArgsConstructor
 public class FlowTaskHistoricVO {
 
-    String              activityName;
-    String              activityType;
-    Date                startTime;
-    Date                endTime;
-    String              timeConsuming;
-    String              assignee;
-    String              assigneeName;
+    String activityName;
+    String activityType;
+    Date startTime;
+    Date endTime;
+    String timeConsuming;
+    String assignee;
+    String assigneeName;
     List<FlowCommentVO> flowComments;
 
 }

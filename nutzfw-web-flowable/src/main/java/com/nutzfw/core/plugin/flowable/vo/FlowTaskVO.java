@@ -30,127 +30,127 @@ public class FlowTaskVO {
     /**
      * 任务编号
      */
-    String          taskId;
+    String taskId;
     /**
      * 任务名称
      */
-    String          taskName;
+    String taskName;
     /**
      * 任务标题
      */
-    String          taskTitle;
+    String taskTitle;
     /**
      * 任务定义Key（任务环节标识）
      */
-    String          taskDefKey;
+    String taskDefKey;
     /**
      * 任务执行人编号
      */
-    String          assignee;
+    String assignee;
     /**
      * 任务执行人名称
      */
-    String          assigneeName;
+    String assigneeName;
     /**
      * 签收时间
      */
-    Date            claimTime;
+    Date claimTime;
     /**
      * 流程分类ID
      */
-    String          category;
+    String category;
     /**
      * 流程分类名称
      */
-    String          categoryName;
-    Date            createTime;
-    Date            endTime;
+    String categoryName;
+    Date createTime;
+    Date endTime;
     /**
      * 执行ID
      */
-    String          executionId;
+    String executionId;
     /**
      * 流程实例ID
      */
-    String          procInsId;
+    String procInsId;
     /**
      * 已办任务流程实例ID 查看流程图会用到
      */
-    String          hisProcInsId;
+    String hisProcInsId;
     /**
      * 流程实例是否结束(true:结束，false:未结束)
      */
-    Boolean         processFinished;
+    Boolean processFinished;
     /**
      * 自由回退节点key
      */
-    String          backToTaskDefKey;
+    String backToTaskDefKey;
     /**
      * 选择的加签给谁
      */
-    String          addMultiInstanceAssignee;
+    String addMultiInstanceAssignee;
     /**
      * ProcessDefinition
      * 流程定义ID
      * processDefinitionId
      */
-    String          procDefId;
-    String          procDefKey;
-    String          procDefname;
-    Integer         procDefversion;
-    String          proceDefDesc;
+    String procDefId;
+    String procDefKey;
+    String procDefname;
+    Integer procDefversion;
+    String proceDefDesc;
     /**
      * HistoricActivityInstance
      */
-    String          hisActInsActName;
+    String hisActInsActName;
     /**
      * 历史活动耗时
      */
-    String          hisActInsDuTime;
+    String hisActInsDuTime;
     /**
      * 业务绑定ID
      */
-    String          businessId;
+    String businessId;
     /**
      * 任务状态 todo/claim/finish
      */
-    TaskStatusEnum  status;
+    TaskStatusEnum status;
     /**
      * 任务意见
      */
-    String          comment;
+    String comment;
     /**
      * 用户业务意见-不同于常见的  同意，拒绝
      */
-    String          businessComment;
+    String businessComment;
     /**
      * 意见状态
      */
-    Boolean         pass;
+    Boolean pass;
     /**
      * 连线驳回
      */
-    Boolean         turnDown;
+    Boolean turnDown;
     /**
      * 开始查询日期
      */
-    Date            beginDate;
+    Date beginDate;
     /**
      * 结束查询日期
      */
-    Date            endDate;
+    Date endDate;
     /**
      * 自定义选择的下一步流程审核人
      */
-    String          flowNextReviewerAssignee;
+    String flowNextReviewerAssignee;
     /**
      * 手写签字数据
      */
-    String          handWritingSignatureData;
+    String handWritingSignatureData;
     /**
      * 委托人
      */
-    String          delegateUserName;
+    String delegateUserName;
     /**
      * 委托状态
      */
@@ -158,12 +158,12 @@ public class FlowTaskVO {
     /**
      * 列表显示时使用
      */
-    Object          formData;
+    Object formData;
     /**
      * 是否重申
      * 流程驳回后用户使用start接口重新申请流程使用
      */
-    Boolean         reaffirm;
+    Boolean reaffirm;
 
     public void setHisActInsDuTime(Long duTime) {
         if (duTime == null) {

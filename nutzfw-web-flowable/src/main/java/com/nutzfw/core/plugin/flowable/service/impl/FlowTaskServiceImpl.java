@@ -70,25 +70,25 @@ import java.util.*;
 @Slf4j
 public class FlowTaskServiceImpl implements FlowTaskService {
     @Inject
-    UserAccountService           userAccountService;
+    UserAccountService userAccountService;
     @Inject
-    FlowTypeService              flowTypeService;
+    FlowTypeService flowTypeService;
     @Inject
     FlowProcessDefinitionService flowProcessDefinitionService;
     @Inject
-    FlowCacheService             flowCacheService;
+    FlowCacheService flowCacheService;
     @Inject
-    RuntimeService               runtimeService;
+    RuntimeService runtimeService;
     @Inject
-    TaskService                  taskService;
+    TaskService taskService;
     @Inject
-    FormService                  formService;
+    FormService formService;
     @Inject
-    HistoryService               historyService;
+    HistoryService historyService;
     @Inject
-    RepositoryService            repositoryService;
+    RepositoryService repositoryService;
     @Inject
-    ManagementService            managementService;
+    ManagementService managementService;
 
     /**
      * 获取待办\待簽收列表

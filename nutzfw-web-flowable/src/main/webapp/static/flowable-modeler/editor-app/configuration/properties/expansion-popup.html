@@ -365,6 +365,48 @@
                             <div ng-show='activeTab==3'>
                                 <div class="form-group clearfix">
                                     <div class="form-group">
+                                        <label class="ng-binding">通过类型</label>
+                                        <select class="form-control ng-pristine ng-untouched ng-valid"
+                                                ng-model="expansionProperties.signType">
+                                            <option value="SCALE">比例通过制度</option>
+                                            <option value="ONE_VOTE_ADOPT">一票通过制</option>
+                                            <option value="ONE_VOTE_VETO">一票否决制</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group clearfix" ng-if="expansionProperties.signType=='SCALE'">
+                                    <div class="form-group">
+                                        <label class="ng-binding">同意通过比例</label>
+                                        <input class="form-control ng-pristine ng-untouched ng-valid"
+                                               ng-model="expansionProperties.signScale"
+                                               placeholder="同意通过比例%"
+                                               type="text">
+                                    </div>
+                                </div>
+
+                                <div class="form-group clearfix">
+                                    <div class="form-group">
+                                        <label class="ng-binding">通过类型</label>
+                                        <input class="form-control ng-pristine ng-untouched ng-valid"
+                                               ng-model="expansionProperties.signNrOfInstances"
+                                               placeholder="总实例数量"
+                                               type="text">
+                                    </div>
+                                </div>
+
+                                <div class="form-group clearfix">
+                                    <div class="form-group">
+                                        <label class="ng-binding">会签人全部参与处理</label>
+                                        <select class="form-control ng-pristine ng-untouched ng-valid"
+                                                ng-model="expansionProperties.signAll">
+                                            <option value="false">否</option>
+                                            <option value="true">是</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-group clearfix">
+                                    <div class="form-group">
                                         <label class="ng-binding">加签</label>
                                         <select class="form-control ng-pristine ng-untouched ng-valid"
                                                 ng-model="expansionProperties.addMultiInstance">

@@ -13,6 +13,7 @@ import com.nutzfw.core.plugin.flowable.dto.CandidateGroupsDTO;
 import com.nutzfw.core.plugin.flowable.dto.CandidateUsersDTO;
 import com.nutzfw.core.plugin.flowable.dto.FlowSubmitInfoDTO;
 import com.nutzfw.core.plugin.flowable.dto.UserTaskExtensionDTO;
+import com.nutzfw.core.plugin.flowable.enums.MultiInstanceLoopCharacteristicsType;
 import com.nutzfw.core.plugin.flowable.enums.TaskReviewerScopeEnum;
 import com.nutzfw.core.plugin.flowable.util.FlowUtils;
 import com.nutzfw.modules.organize.enums.LeaderTypeEnum;
@@ -38,9 +39,9 @@ import java.util.stream.Collectors;
 @SuppressWarnings("all")
 public class CustomUserTaskActivityBehavior extends UserTaskActivityBehavior {
 
-    UserTaskExtensionDTO    taskExtensionDTO;
+    UserTaskExtensionDTO taskExtensionDTO;
     DepartmentLeaderService departmentLeaderService;
-    Ioc                     ioc;
+    Ioc ioc;
 
     public CustomUserTaskActivityBehavior(UserTask userTask, DepartmentLeaderService departmentLeaderService, Ioc ioc) {
         super(userTask);
@@ -49,7 +50,14 @@ public class CustomUserTaskActivityBehavior extends UserTaskActivityBehavior {
         taskExtensionDTO = FlowUtils.getUserTaskExtension(userTask);
         if (taskExtensionDTO != null) {
             userTask.setAssignee(null);
+            //会签节点设置变量
+            if (taskExtensionDTO.getMultiInstanceLoopCharacteristics() != MultiInstanceLoopCharacteristicsType.None) {
+                userTask.setAssignee("${" + FlowConstant.MULTIINSTANCE_ASSIGNEES_VAR + "}");
+                //添加完成多实例事件监听器
+                FlowUtils.addCompleteMultiInstanceTaskListener(userTask.getTaskListeners());
+            }
         }
+
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})

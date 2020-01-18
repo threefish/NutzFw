@@ -31,13 +31,13 @@ import java.util.Map;
  */
 public class FindNextUserTaskNodeCmd implements Command<UserTask> {
 
-    private final ExecutionEntity     execution;
-    private final BpmnModel           bpmnModel;
-    private       Map<String, Object> vars;
+    private final ExecutionEntity execution;
+    private final BpmnModel bpmnModel;
+    private Map<String, Object> vars;
     /**
      * 返回下一用户节点
      */
-    private       UserTask            nextUserTask;
+    private UserTask nextUserTask;
 
     /**
      * @param execution 当前执行实例

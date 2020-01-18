@@ -22,17 +22,17 @@ public class ProcessDefinitionEntitVO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    String  id;
-    String  name;
-    String  key;
-    String  category;
-    String  categoryName;
+    String id;
+    String name;
+    String key;
+    String category;
+    String categoryName;
     Integer version;
-    String  deploymentId;
-    String  resourceName;
-    String  diagramResourceName;
+    String deploymentId;
+    String resourceName;
+    String diagramResourceName;
     Integer suspensionState;
-    Date    deploymentTime;
+    Date deploymentTime;
 
 
     public ProcessDefinitionEntitVO(ProcessDefinitionEntityImpl procDef) {

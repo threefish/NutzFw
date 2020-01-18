@@ -25,10 +25,10 @@ import java.sql.SQLException;
 public class NutzTransaction implements Transaction {
 
 
-    private DataSource                dataSource;
+    private DataSource dataSource;
     private TransactionIsolationLevel level;
-    private Connection                connection;
-    private boolean                   autoCommmit;
+    private Connection connection;
+    private boolean autoCommmit;
 
     public NutzTransaction(Connection connection) {
         this.connection = connection;

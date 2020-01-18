@@ -74,7 +74,7 @@ public class FlowModelAction extends BaseAction {
     FlowCacheService flowCacheService;
 
     CustomBpmnJsonConverter bpmnJsonConverter = new CustomBpmnJsonConverter();
-    BpmnXMLConverter        bpmnXmlConverter  = new BpmnXMLConverter();
+    BpmnXMLConverter bpmnXmlConverter = new BpmnXMLConverter();
 
     @GET
     @At("/design")
@@ -170,6 +170,7 @@ public class FlowModelAction extends BaseAction {
 
     /**
      * 如果将项目部署至中文目录下，部署流程时会报错的
+     *
      * @param modelId
      * @return
      */

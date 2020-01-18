@@ -16,6 +16,7 @@ import com.nutzfw.modules.organize.entity.UserAccount;
 import com.nutzfw.modules.sys.entity.Role;
 import org.apache.commons.collections.CollectionUtils;
 import org.flowable.bpmn.model.ExtensionElement;
+import org.flowable.bpmn.model.FlowableListener;
 import org.flowable.bpmn.model.UserTask;
 import org.flowable.editor.constants.ModelDataJsonConstants;
 import org.flowable.editor.language.json.converter.BpmnJsonConverter;
@@ -28,6 +29,7 @@ import org.flowable.idm.engine.impl.persistence.entity.UserEntityImpl;
 import org.flowable.task.api.Task;
 import org.flowable.task.api.TaskInfo;
 import org.flowable.task.api.TaskQuery;
+import org.flowable.task.service.delegate.BaseTaskListener;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Strings;
@@ -171,5 +173,18 @@ public class FlowUtils {
             todoTaskQuery.taskCandidateGroupIn(roleCodes);
         }
         todoTaskQuery.endOr();
+    }
+
+    /**
+     * 多实例添加自定义事件监听
+     *
+     * @param taskListeners
+     */
+    public static void addCompleteMultiInstanceTaskListener(List<FlowableListener> taskListeners) {
+        FlowableListener listener = new FlowableListener();
+        listener.setEvent(BaseTaskListener.EVENTNAME_COMPLETE);
+        listener.setImplementationType("delegateExpression");
+        listener.setImplementation("${multiInstanceCompleteTaskListener}");
+        taskListeners.add(listener);
     }
 }

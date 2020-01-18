@@ -7,21 +7,12 @@
 
 package com.nutzfw.core.plugin.flowable.factory;
 
-import com.nutzfw.core.plugin.flowable.behavior.CustomNoneEndEventActivityBehavior;
-import com.nutzfw.core.plugin.flowable.behavior.CustomNoneStartEventActivityBehavior;
-import com.nutzfw.core.plugin.flowable.behavior.CustomUserTaskActivityBehavior;
-import com.nutzfw.core.plugin.flowable.service.FlowProcessDefinitionService;
-import com.nutzfw.core.plugin.flowable.service.FlowTaskService;
+import com.nutzfw.core.plugin.flowable.behavior.*;
 import com.nutzfw.modules.organize.service.DepartmentLeaderService;
 import org.flowable.bpmn.model.*;
-import org.flowable.engine.delegate.DelegateExecution;
-import org.flowable.engine.impl.bpmn.behavior.ExclusiveGatewayActivityBehavior;
-import org.flowable.engine.impl.bpmn.behavior.NoneEndEventActivityBehavior;
-import org.flowable.engine.impl.bpmn.behavior.NoneStartEventActivityBehavior;
-import org.flowable.engine.impl.bpmn.behavior.UserTaskActivityBehavior;
+import org.flowable.engine.impl.bpmn.behavior.*;
 import org.flowable.engine.impl.bpmn.helper.ClassDelegate;
 import org.flowable.engine.impl.bpmn.parser.factory.DefaultActivityBehaviorFactory;
-import org.flowable.engine.runtime.ProcessInstance;
 import org.nutz.ioc.Ioc;
 
 /**
@@ -72,6 +63,16 @@ public class CustomDefaultActivityBehaviorFactory extends DefaultActivityBehavio
         return new CustomNoneEndEventActivityBehavior();
     }
 
+    @Override
+    public SequentialMultiInstanceBehavior createSequentialMultiInstanceBehavior(Activity activity, AbstractBpmnActivityBehavior innerActivityBehavior) {
+        return new CustomSequentialMultiInstanceBehavior(activity, innerActivityBehavior);
+    }
+
+    @Override
+    public ParallelMultiInstanceBehavior createParallelMultiInstanceBehavior(Activity activity, AbstractBpmnActivityBehavior innerActivityBehavior) {
+        return new CustomParallelMultiInstanceBehavior(activity, innerActivityBehavior);
+    }
+
 
     @Override
     public ClassDelegate createClassDelegateServiceTask(ServiceTask serviceTask) {
@@ -80,24 +81,4 @@ public class CustomDefaultActivityBehaviorFactory extends DefaultActivityBehavio
                 serviceTask.isTriggerable(),
                 getSkipExpressionFromServiceTask(serviceTask), serviceTask.getMapExceptions());
     }
-
-    @Override
-    public ExclusiveGatewayActivityBehavior createExclusiveGatewayActivityBehavior(ExclusiveGateway exclusiveGateway) {
-        return new ExclusiveGatewayActivityBehavior() {
-            @Override
-            public void leave(DelegateExecution execution) {
-                super.leave(execution);
-                FlowTaskService flowTaskService = ioc.getByType(FlowTaskService.class);
-                FlowProcessDefinitionService flowProcessDefinitionService = ioc.getByType(FlowProcessDefinitionService.class);
-                ProcessInstance procIns = flowTaskService.getProcIns(execution.getProcessInstanceId());
-                System.out.println(execution.getCurrentFlowElement());
-                System.out.println(execution.getProcessInstanceBusinessKey());
-//                ExternalFormExecutor externalFormExecutor = flowProcessDefinitionService.getExternalFormExecutor(execution.getProcessInstanceId());
-//                UserTaskExtensionDTO dto = flowProcessDefinitionService.getUserTaskExtension(procIns.getProcessDefinitionKey(), execution.getProcessInstanceId());
-//                System.out.println(dto);
-            }
-        };
-    }
-
-
 }

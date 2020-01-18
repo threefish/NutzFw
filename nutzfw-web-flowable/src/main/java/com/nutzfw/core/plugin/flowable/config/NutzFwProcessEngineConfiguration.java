@@ -8,6 +8,7 @@
 package com.nutzfw.core.plugin.flowable.config;
 
 import com.nutzfw.core.plugin.flowable.config.listener.NutzFwProcessEngineLifecycleListener;
+import com.nutzfw.core.plugin.flowable.elbeans.IocElBeans;
 import com.nutzfw.core.plugin.flowable.factory.CustomDefaultActivityBehaviorFactory;
 import com.nutzfw.core.plugin.flowable.interceptor.CustomCreateUserTaskInterceptor;
 import com.nutzfw.core.plugin.flowable.listener.ProxyFlowableEventListener;
@@ -27,9 +28,7 @@ import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.lang.Encoding;
 
 import javax.sql.DataSource;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author huchuc@vip.qq.com
@@ -39,15 +38,13 @@ import java.util.List;
 public class NutzFwProcessEngineConfiguration extends StandaloneProcessEngineConfiguration {
 
     @Inject("refer:$ioc")
-    Ioc                             ioc;
+    Ioc ioc;
     @Inject
-    DataSource                      dataSource;
+    DataSource dataSource;
     @Inject
-    TastCreateSetCategoryHandle     tastCreateSetCategoryHandle;
-    //    @Inject
-//    TaskMessageNoticeHandle         taskMessageNoticeHandle;
+    TastCreateSetCategoryHandle tastCreateSetCategoryHandle;
     @Inject
-    DepartmentLeaderService         departmentLeaderService;
+    DepartmentLeaderService departmentLeaderService;
     @Inject
     CustomCreateUserTaskInterceptor customCreateUserTaskInterceptor;
 
@@ -83,6 +80,7 @@ public class NutzFwProcessEngineConfiguration extends StandaloneProcessEngineCon
         //自定义行为类工厂
         this.activityBehaviorFactory = new CustomDefaultActivityBehaviorFactory(departmentLeaderService, ioc);
         this.setCreateUserTaskInterceptor(customCreateUserTaskInterceptor);
+        this.initElBeans();
         return super.buildProcessEngine();
     }
 
@@ -92,13 +90,22 @@ public class NutzFwProcessEngineConfiguration extends StandaloneProcessEngineCon
      * @return
      */
     private List<FlowableEventListener> getGlobalFlowableEventListener() {
-        List<FlowableEventListener> list = new ArrayList<>();
-        list.add(new ProxyFlowableEventListener(FlowableEngineEventType.TASK_CREATED, Arrays.asList(tastCreateSetCategoryHandle)));
-//        list.add(new ProxyFlowableEventListener(FlowableEngineEventType.TASK_ASSIGNED, TransactionState.COMMITTED, Arrays.asList(taskMessageNoticeHandle)));
-//        list.add(new ProxyFlowableEventListener(FlowableEngineEventType.TASK_COMPLETED, TransactionState.COMMITTED, Arrays.asList(taskMessageNoticeHandle)));
-//        list.add(new ProxyFlowableEventListener(FlowableEngineEventType.TASK_OWNER_CHANGED, TransactionState.COMMITTED, Arrays.asList(taskMessageNoticeHandle)));
-        return list;
+        return Arrays.asList(new ProxyFlowableEventListener(FlowableEngineEventType.TASK_CREATED, Arrays.asList(tastCreateSetCategoryHandle)));
     }
 
+
+    /**
+     * 注册 flowable el bean
+     */
+    public void initElBeans() {
+        String[] namesByType = ioc.getNamesByType(IocElBeans.class);
+        if (Objects.nonNull(namesByType) && namesByType.length > 0) {
+            Map beansMap = new HashMap();
+            for (String name : namesByType) {
+                beansMap.put(name, ioc.get(IocElBeans.class, name));
+            }
+            this.setBeans(beansMap);
+        }
+    }
 
 }

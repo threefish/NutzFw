@@ -40,11 +40,11 @@ public class FlowDiagramUtils {
     @Inject
     RepositoryService repositoryService;
     @Inject
-    RuntimeService    runtimeService;
+    RuntimeService runtimeService;
     @Inject
-    HistoryService    historyService;
-    List<String>            eventElementTypes = new ArrayList<>();
-    Map<String, InfoMapper> propertyMappers   = new HashMap<>();
+    HistoryService historyService;
+    List<String> eventElementTypes = new ArrayList<>();
+    Map<String, InfoMapper> propertyMappers = new HashMap<>();
 
     public FlowDiagramUtils() {
         eventElementTypes.add("StartEvent");

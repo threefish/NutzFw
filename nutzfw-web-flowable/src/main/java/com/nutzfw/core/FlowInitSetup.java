@@ -23,7 +23,7 @@ import java.util.Set;
  * @date: 2019/3/22
  */
 @IocBean
-public class FlowInitSetup  implements InitSetup {
+public class FlowInitSetup implements InitSetup {
 
 
     @Override

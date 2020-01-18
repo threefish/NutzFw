@@ -25,10 +25,10 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class FlowCommentVO {
-    String                 userId;
-    String                 userDesc;
-    String                 fullMessage;
-    Date                   time;
-    FlowAttachmentVO       handWritingSignatureAttachment;
+    String userId;
+    String userDesc;
+    String fullMessage;
+    Date time;
+    FlowAttachmentVO handWritingSignatureAttachment;
     List<FlowAttachmentVO> flowAttachments;
 }

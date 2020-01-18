@@ -38,6 +38,7 @@ angular.module('flowableModeler').controller('FlowableExpansionPopupCtrl',
                 });
             }
         }
+        console.log(selectShape.properties)
         //是否是多实例节点
         $scope.multiInstanceNode = false;
         if (selectShape != undefined && selectShape.properties.multiinstance_type != 'None') {
@@ -60,6 +61,7 @@ angular.module('flowableModeler').controller('FlowableExpansionPopupCtrl',
             setDefaualtValue("iocFlowAssignment", "");
             setDefaualtValue("candidateUsers", []);
             setDefaualtValue("candidateGroups", []);
+            setDefaualtValue("multiInstanceLoopCharacteristics", 'None');
         } else {
             $scope.expansionProperties = {
                 replyOpinion: false,//是否允许批复意见
@@ -82,8 +84,14 @@ angular.module('flowableModeler').controller('FlowableExpansionPopupCtrl',
                 candidateGroups: [],//候选用户角色组
                 iocFlowAssignment: '',//JavaIocBean人员选择器
                 dynamicFreeChoiceNextReviewerMode: false,//自由选择下一步审核人(下一步流程要确保能通过流程条件正确跳转至用户任务节点)
+                signType: false,//通过类型
+                signScale: 0,//同意通过比例
+                signNrOfInstances: 0,//总实例数量
+                signAll: 0,//会签人全部参与处理
+                multiInstanceLoopCharacteristics: "None",//会签类型
             };
         }
+        $scope.expansionProperties.multiInstanceLoopCharacteristics = selectShape.properties.multiinstance_type;
         let callBackNodes = $scope.expansionProperties.callBackNodes.split(",");
         callBackNodes.forEach(id => {
             for (let i in $scope.callBackNodes) {

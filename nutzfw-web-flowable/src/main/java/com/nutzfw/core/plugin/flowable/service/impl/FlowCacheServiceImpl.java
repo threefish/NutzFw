@@ -30,7 +30,7 @@ public class FlowCacheServiceImpl implements FlowCacheService {
 
     static final String FLOW_ABLE_CACHE = "FLOW_ABLE_CACHE:";
     @Inject
-    RedisHelpper      redisHelpper;
+    RedisHelpper redisHelpper;
     @Inject
     RepositoryService repositoryService;
 

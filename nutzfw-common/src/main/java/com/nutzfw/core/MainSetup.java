@@ -105,10 +105,8 @@ public class MainSetup extends AbstractInitSetup implements Setup {
         this.addTablesFilters(tablesFilters);
         this.addDictGroup(dictGroup);
         //初始化表单
+        this.initTable(dao, initSystem);
         if (initSystem) {
-            this.initTable(dao, true);
-        } else {
-            this.initTable(dao, false);
             this.updateDict(nutConfig);
         }
         initSetups.forEach(setup -> {

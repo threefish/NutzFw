@@ -44,10 +44,10 @@ public class CustomCreateUserTaskInterceptor implements CreateUserTaskIntercepto
      *
      * @see com.nutzfw.core.plugin.flowable.listener.EventListenerHandle
      */
-    FlowCacheService             flowCacheService;
-    FlowTaskService              flowTaskService;
+    FlowCacheService flowCacheService;
+    FlowTaskService flowTaskService;
     FlowProcessDefinitionService flowProcessDefinitionService;
-    boolean                      inited = false;
+    boolean inited = false;
 
     public void create() {
         if (inited == false) {
@@ -152,13 +152,13 @@ public class CustomCreateUserTaskInterceptor implements CreateUserTaskIntercepto
     @AllArgsConstructor
     @NoArgsConstructor
     class Context {
-        String            processDefinitionId;
-        String            taskDefinitionKey;
-        String            processInstanceBusinessKey;
-        UserTask          userTask;
+        String processDefinitionId;
+        String taskDefinitionKey;
+        String processInstanceBusinessKey;
+        UserTask userTask;
         DelegateExecution execution;
-        boolean           before;
-        boolean           after;
-        TaskEntity        taskEntity;
+        boolean before;
+        boolean after;
+        TaskEntity taskEntity;
     }
 }

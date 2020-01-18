@@ -40,7 +40,7 @@ public class FlowTaskMessageNoticeWsHandler extends AbstractWsHandler implements
      *
      * @return
      */
-    private String       userName;
+    private String userName;
     /**
      * 用户拥有的角色
      *
