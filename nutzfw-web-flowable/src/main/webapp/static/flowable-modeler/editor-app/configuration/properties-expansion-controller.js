@@ -84,7 +84,7 @@ angular.module('flowableModeler').controller('FlowableExpansionPopupCtrl',
                 candidateGroups: [],//候选用户角色组
                 iocFlowAssignment: '',//JavaIocBean人员选择器
                 dynamicFreeChoiceNextReviewerMode: false,//自由选择下一步审核人(下一步流程要确保能通过流程条件正确跳转至用户任务节点)
-                signType: false,//通过类型
+                signType: 'SCALE',//通过类型
                 signScale: 0,//同意通过比例
                 signNrOfInstances: 0,//总实例数量
                 signAll: 0,//会签人全部参与处理

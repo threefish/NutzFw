@@ -148,19 +148,6 @@
       ]
     },
     {
-      "name": "process_potentialstartergrouppackage",
-      "properties": [
-        {
-          "id": "process_potentialstartergroup",
-          "type": "String",
-          "title": "流程启动者组",
-          "value": "",
-          "description": "哪个组，可以启动流程?",
-          "popular": true
-        }
-      ]
-    },
-    {
       "name": "process_namespacepackage",
       "properties": [
         {
@@ -286,45 +273,6 @@
           "title": "事件监听器",
           "value": "",
           "description": "监听Flowable引擎的任何发生的事件. 同样可能是任何抛出的信号、信息、出错的事件。",
-          "popular": true
-        }
-      ]
-    },
-    {
-      "name": "usertaskassignmentpackage",
-      "properties": [
-        {
-          "id": "usertaskassignment",
-          "type": "Complex",
-          "title": "任务派遣(分配用户)",
-          "value": "",
-          "description": "分配任务给用户",
-          "popular": true
-        }
-      ]
-    },
-    {
-      "name": "formpropertiespackage",
-      "properties": [
-        {
-          "id": "formproperties",
-          "type": "Complex",
-          "title": "动态表单属性",
-          "value": "",
-          "description": "定义带有属性列表的表单",
-          "popular": true
-        }
-      ]
-    },
-    {
-      "name": "formfieldvalidationpackage",
-      "properties": [
-        {
-          "id": "formfieldvalidation",
-          "type": "String",
-          "title": "验证表单字段",
-          "value": "true",
-          "description": "验证表单提交上的表单字段。(允许的值是“true”、“false”或表达式)",
           "popular": true
         }
       ]
@@ -1557,19 +1505,6 @@
           "description": "标识子流程作为事务类型",
           "popular": true,
           "refToView": "border"
-        }
-      ]
-    },
-    {
-      "name": "formreferencepackage",
-      "properties": [
-        {
-          "id": "formreference",
-          "type": "Complex",
-          "title": "BPMN-编辑器.属性.表单-关联.标题",
-          "value": "",
-          "description": "BPMN-编辑器.属性.表单-关联.描述",
-          "popular": true
         }
       ]
     },

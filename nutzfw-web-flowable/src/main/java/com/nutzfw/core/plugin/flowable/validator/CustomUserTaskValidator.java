@@ -50,7 +50,7 @@ public class CustomUserTaskValidator extends UserTaskValidator {
                     try {
                         checkTaskReviewerScope(errors, process, userTask, Json.fromJson(UserTaskExtensionDTO.class, elementTextValue));
                     } catch (Exception e) {
-                        addError(errors, Problems.USER_TASK_LISTENER_IMPLEMENTATION_MISSING, process, userTask, "自定义扩展属性数据非法");
+                        addError(errors, Problems.USER_TASK_LISTENER_IMPLEMENTATION_MISSING, process, userTask, e.getLocalizedMessage());
                     }
                 }
             }
