@@ -24,7 +24,7 @@ layout("/layouts/blank.html",{title:title}){
         data: {},
         methods: {
             handleView: function (data) {
-                parent.core.openUrl('/general/flow/process/form?flow.procInsId=' + data.procInsId + '&flow.procDefId=' + data.procDefId+'&flow.status=FINISH', "查看【"+data.taskTitle+"】", "80%", "80%");
+                parent.core.openUrl('/general/flow/process/form?flow.procInsId=' + data.procInsId + '&flow.businessId=' + data.businessId+'&flow.procDefId=' + data.procDefId+'&flow.status=FINISH', "查看【"+data.taskTitle+"】", "80%", "80%");
             },
             handleDiagramViewer: function (data) {
                 if (data.processFinished) {
