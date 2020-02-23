@@ -176,6 +176,12 @@ Nutz 社区支持 [https://nutz.cn](https://nutz.cn) 及 Nutz 使用手册 [http
 
 #### 注意：除核心模块外，其他所有模块都是完整的可以独立部署的模块，并且包含其继承的模块，所以不要同时部署多个模块
 
+### maven打包
+
+```
+mvn clean install
+```
+
 
 #### 效果图
 

@@ -26,6 +26,7 @@ import com.nutzfw.modules.tabledata.enums.FieldType;
 import com.nutzfw.modules.tabledata.service.DataImportHistoryService;
 import com.nutzfw.modules.tabledata.thread.CheckDataThread;
 import com.nutzfw.modules.tabledata.vo.SingeDataMaintainQueryVO;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.nutz.dao.Cnd;
 import org.nutz.ioc.Ioc;
@@ -44,6 +45,7 @@ import java.net.URLEncoder;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -185,7 +187,11 @@ public class DataMaintainAction extends BaseAction {
                                          @Param("deptIds") String[] deptIds,
                                          @Param("::fields") List<SingeDataMaintainQueryVO> list
     ) {
-        return dataMaintainBiz.listPage(pageNum, pageSize, tableid, userNameOrRealName, deptIds, list, getSessionManagerUserNames());
+        Set<String> sessionManagerUserNames = getSessionManagerUserNames();
+        if (CollectionUtils.isEmpty(sessionManagerUserNames)) {
+            return LayuiTableDataListVO.noData();
+        }
+        return dataMaintainBiz.listPage(pageNum, pageSize, tableid, userNameOrRealName, deptIds, list, sessionManagerUserNames);
     }
 
     /**

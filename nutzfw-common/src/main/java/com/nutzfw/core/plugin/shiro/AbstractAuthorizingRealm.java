@@ -45,9 +45,9 @@ public abstract class AbstractAuthorizingRealm extends AuthorizingRealm {
     protected static final Log log = Logs.get();
 
     protected UserAccountService userAccountService;
-    protected MenuService        menuService;
-    protected RoleService        roleService;
-    protected RoleBiz            roleBiz;
+    protected MenuService menuService;
+    protected RoleService roleService;
+    protected RoleBiz roleBiz;
 
     public void initServices() {
         getUserAccountService();
@@ -151,7 +151,12 @@ public abstract class AbstractAuthorizingRealm extends AuthorizingRealm {
             session.removeAttribute(Cons.SESSION_USER_ROLE_CODE);
             //设置登录成功的用户信息
             session.setAttribute(Cons.SESSION_USER_KEY, userAccount);
-            session.setAttribute(Cons.SESSION_MANAGER_USER_NAMES_KEY, roleBiz.queryManagerUserNames(userAccount.getId()));
+            Set<String> userNames = roleBiz.queryManagerUserNames(userAccount.getId());
+            if (log.isDebugEnabled()) {
+                log.debugf("%s 可以管理的人员有: %s", userNames);
+                log.debug("如果你发现设置了管理部门但是还是没有可以管理的人员，那么你应该设置岗位，并将岗位赋予人员。");
+            }
+            session.setAttribute(Cons.SESSION_MANAGER_USER_NAMES_KEY, userNames);
         } catch (Exception e) {
             log.error("查询用户管理信息失败！", e);
             throw new AccountException("系统错误！");

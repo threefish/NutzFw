@@ -9,10 +9,9 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>nutzfw-web-admin</artifactId>
     <packaging>war</packaging>
-    <name>nutzfw-web-admin Maven Webapp</name>
-    <url>http://maven.apache.org</url>
+    <name>${project.artifactId}</name>
     <build>
-        <finalName>nutzfw-web-admin</finalName>
+        <finalName>${project.artifactId}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -23,15 +22,11 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
                 <configuration>
-                    <overlays>
-                        <overlay>
-                            <!-- empty groupId/artifactId is detected as the current build -->
-                            <!-- 代表当前WAR项目，默认情况下当前WAR项目是先被拷贝的，如果要控制其顺序，则使用空的overlay -->
-                            <!-- any other overlay will be applied after the current build since they have not been configured in the overlays element -->
-                        </overlay>
-                    </overlays>
+                    <!--将class打包jar作为附件-->
                     <attachClasses>true</attachClasses>
-                    <dependentWarIncludes>WEB-INF/view/**</dependentWarIncludes>
+                    <failOnMissingWebXml>false</failOnMissingWebXml>
+                    <includes>*</includes>
+                    <dependentWarIncludes>*</dependentWarIncludes>
                 </configuration>
             </plugin>
         </plugins>

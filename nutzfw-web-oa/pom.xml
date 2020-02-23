@@ -8,9 +8,9 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>nutzfw-web-oa</artifactId>
     <packaging>war</packaging>
-    <name>nutzfw-web-oa</name>
+    <name>${project.artifactId}</name>
     <build>
-        <finalName>nutzfw-web-oa</finalName>
+        <finalName>${project.artifactId}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -24,6 +24,10 @@
                     <overlays>
                         <overlay>
                             <groupId>com.nutzfw</groupId>
+                            <artifactId>nutzfw-web-admin</artifactId>
+                        </overlay>
+                        <overlay>
+                            <groupId>com.nutzfw</groupId>
                             <artifactId>nutzfw-web-flowable</artifactId>
                         </overlay>
                         <overlay>
@@ -32,14 +36,22 @@
                             <!-- any other overlay will be applied after the current build since they have not been configured in the overlays element -->
                         </overlay>
                     </overlays>
+                    <!--将class打包jar作为附件-->
                     <attachClasses>true</attachClasses>
-                    <dependentWarIncludes>WEB-INF/view/**</dependentWarIncludes>
+                    <failOnMissingWebXml>false</failOnMissingWebXml>
+                    <!-- 逗号分隔的列表，在进行WAR覆盖时要排除。-->
+                    <dependentWarExcludes>WEB-INF/view/modules/business/general/leave/**</dependentWarExcludes>
+                    <!-- 复制warSourceDirectory的内容时要包括的以逗号分隔的令牌列表-->
+                    <warSourceIncludes>**</warSourceIncludes>
                 </configuration>
             </plugin>
         </plugins>
         <resources>
             <resource>
                 <directory>../nutzfw-web-admin/src/main/resources</directory>
+            </resource>
+            <resource>
+                <directory>../nutzfw-web-flowable/src/main/resources</directory>
             </resource>
             <resource>
                 <directory>src/main/resources</directory>
@@ -88,9 +100,23 @@
         </dependency>
         <dependency>
             <groupId>com.nutzfw</groupId>
+            <artifactId>nutzfw-web-admin</artifactId>
+            <version>${project.version}</version>
+            <type>war</type>
+        </dependency>
+        <dependency>
+            <groupId>com.nutzfw</groupId>
             <artifactId>nutzfw-web-flowable</artifactId>
             <version>${project.version}</version>
             <type>war</type>
+        </dependency>
+        <dependency>
+            <groupId>com.nutzfw</groupId>
+            <artifactId>nutzfw-web-flowable</artifactId>
+            <version>${project.version}</version>
+            <type>jar</type>
+            <classifier>classes</classifier>
+            <scope>provided</scope>
         </dependency>
         <!--以下是第三方库-->
         <!-- https://mvnrepository.com/artifact/org.flowable/flowable-engine -->

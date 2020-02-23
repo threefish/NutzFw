@@ -164,6 +164,9 @@ public class LoginManagementAction extends BaseAction {
             }
             Sha256Hash sha = new Sha256Hash(password, userAccount.getSalt());
             if (!sha.toHex().equals(userAccount.getUserPass())) {
+                if(log.isDebugEnabled()){
+                    log.debug("密码错误！登录失败！");
+                }
                 return AjaxResult.error("登录失败！");
             }
             LoginTypeEnum loginType = isApp ? LoginTypeEnum.app : LoginTypeEnum.web;

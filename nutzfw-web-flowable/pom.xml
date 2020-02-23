@@ -8,10 +8,9 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>nutzfw-web-flowable</artifactId>
     <packaging>war</packaging>
-    <name>nutzfw-web-flowable Maven Webapp</name>
-    <url>http://maven.apache.org</url>
+    <name>${project.artifactId}</name>
     <build>
-        <finalName>nutzfw-web-flowable</finalName>
+        <finalName>${project.artifactId}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -28,6 +27,13 @@
                             <artifactId>nutzfw-web-admin</artifactId>
                         </overlay>
                     </overlays>
+                    <!--将class打包jar作为附件-->
+                    <attachClasses>true</attachClasses>
+                    <failOnMissingWebXml>false</failOnMissingWebXml>
+                    <!-- 逗号分隔的列表，在进行WAR覆盖时要排除。-->
+                    <dependentWarExcludes>WEB-INF/view/modules/flow/**</dependentWarExcludes>
+                    <!-- 复制warSourceDirectory的内容时要包括的以逗号分隔的令牌列表-->
+                    <warSourceIncludes>**</warSourceIncludes>
                 </configuration>
             </plugin>
         </plugins>

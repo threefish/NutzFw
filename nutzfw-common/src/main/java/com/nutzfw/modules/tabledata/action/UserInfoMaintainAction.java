@@ -18,12 +18,15 @@ import com.nutzfw.modules.organize.service.UserAccountService;
 import com.nutzfw.modules.sys.service.DataTableService;
 import com.nutzfw.modules.sys.service.TableFieldsService;
 import com.nutzfw.modules.tabledata.biz.DataMaintainBiz;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.nutz.dao.Cnd;
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.lang.Strings;
 import org.nutz.mvc.annotation.*;
+
+import java.util.Set;
 
 /**
  * @author 黄川 huchuc@vip.qq.com
@@ -71,7 +74,11 @@ public class UserInfoMaintainAction extends BaseAction {
     @Ok("json")
     @RequiresPermissions("sysDynamicFrom.edit")
     public LayuiTableDataListVO listPage(@Param("pageNum") int pageNum, @Param("pageSize") int pageSize) {
-        return accountService.listPage(pageNum, pageSize, Cnd.where("delFlag", "=", 0).and("userName","in", Strings.join(",",getSessionManagerUserNames())));
+        Set<String> sessionManagerUserNames = getSessionManagerUserNames();
+        if (CollectionUtils.isEmpty(sessionManagerUserNames)) {
+            return LayuiTableDataListVO.noData();
+        }
+        return accountService.listPage(pageNum, pageSize, Cnd.where("delFlag", "=", 0).and("userName", "in", Strings.join(",", sessionManagerUserNames)));
     }
 
     /**
@@ -93,7 +100,11 @@ public class UserInfoMaintainAction extends BaseAction {
     @Ok("json:{locked:'opat|opby|userpass|locked|salt'}")
     @RequiresPermissions("sysDynamicFrom.edit")
     public LayuiTableDataListVO queryUserDatalistPage(@Param("pageNum") int pageNum, @Param("pageSize") int pageSize, @Param("tableid") int tableid, @Param("userid") String userid) {
-        return userInfoMaintainBiz.listUserDataPage(pageNum, pageSize, tableid, userid,getSessionManagerUserNames());
+        Set<String> sessionManagerUserNames = getSessionManagerUserNames();
+        if (CollectionUtils.isEmpty(sessionManagerUserNames)) {
+            return LayuiTableDataListVO.noData();
+        }
+        return userInfoMaintainBiz.listUserDataPage(pageNum, pageSize, tableid, userid, sessionManagerUserNames);
     }
 
 }

@@ -10,7 +10,9 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>nutzfw-common</artifactId>
     <version>2.0</version>
+    <name>${project.artifactId}</name>
     <build>
+        <finalName>${project.artifactId}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

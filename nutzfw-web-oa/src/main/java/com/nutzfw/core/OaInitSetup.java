@@ -26,7 +26,6 @@ public class OaInitSetup implements InitSetup {
 
     @Override
     public void init(NutConfig nutConfig) {
-        System.out.println(FlowInitSetup.IOCNAME);
     }
 
     @Override

@@ -1,0 +1,7 @@
+UPDATE `sys_user_account` 
+SET 
+`userName` = 'admin',
+`userPass` = '6d667a68b88b60ce4d5ded9443bd019a6ce86f9a176e2eae3f22575ad92a1038',
+`salt` = 'a971efe19c664d978f9c9a9c80f89217'
+WHERE
+	`userName` = 'admin'
