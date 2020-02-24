@@ -13,8 +13,8 @@
         <module>nutzfw-web-admin</module>
         <module>nutzfw-web-flowable</module>
         <module>nutzfw-web-user-front</module>
-        <module>nutz-web-oa</module>
-        <module>test</module>
+        <module>nutzfw-web-oa</module>
+<!--        <module>test</module>-->
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -35,7 +35,7 @@
         <ant.version>1.9.6</ant.version>
         <scaling.version>0.8.6</scaling.version>
         <swagger.version>2.0.0</swagger.version>
-        <slf4j_version>1.7.25</slf4j_version>
+        <slf4j_version>1.7.26</slf4j_version>
         <lombok_version>1.18.4</lombok_version>
         <!--  win和linux版本不一致      -->
         <j2v8_linux_version>4.8.0</j2v8_linux_version>
@@ -45,7 +45,7 @@
         <jedis_version>2.9.0</jedis_version>
         <quartz_version>2.3.0</quartz_version>
         <websocket_version>1.1</websocket_version>
-        <commons_lang3_version>3.8.1</commons_lang3_version>
+        <commons_lang3_version>3.9</commons_lang3_version>
         <commons_net_version>3.6</commons_net_version>
         <commons_mail_version>1.5</commons_mail_version>
         <commons_codec_version>1.10</commons_codec_version>
@@ -68,7 +68,7 @@
         <batik_version>1.7</batik_version>
         <oshi_version>3.13.2</oshi_version>
         <truelicense_version>1.33</truelicense_version>
-        <guava_version>27.0.1-jre</guava_version>
+        <guava_version>28.0-jre</guava_version>
     </properties>
 
     <!-- maven 中央仓库地址 -->
@@ -107,7 +107,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-resources-plugin</artifactId>
-                    <version>2.6</version>
+                    <version>3.1.0</version>
                     <configuration>
                         <encoding>UTF-8</encoding>
                     </configuration>
@@ -115,7 +115,15 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>2.5.1</version>
+                    <version>3.8.0</version>
+                    <configuration>
+                        <encoding>UTF-8</encoding>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-war-plugin</artifactId>
+                    <version>3.2.3</version>
                     <configuration>
                         <encoding>UTF-8</encoding>
                     </configuration>

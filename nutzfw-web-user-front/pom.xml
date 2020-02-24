@@ -8,15 +8,13 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>nutzfw-web-user-front</artifactId>
     <packaging>war</packaging>
-    <name>nutzfw-web-user-front Maven Webapp</name>
-    <url>http://maven.apache.org</url>
+    <name>nutzfw-web-user-front</name>
     <build>
         <finalName>nutzfw-web-user-front</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.0</version>
             </plugin>
             <!-- 合并多个war -->
             <plugin>
