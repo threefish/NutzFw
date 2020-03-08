@@ -153,7 +153,7 @@ public abstract class AbstractAuthorizingRealm extends AuthorizingRealm {
             session.setAttribute(Cons.SESSION_USER_KEY, userAccount);
             Set<String> userNames = roleBiz.queryManagerUserNames(userAccount.getId());
             if (log.isDebugEnabled()) {
-                log.debugf("%s 可以管理的人员有: %s", userNames);
+                log.debugf("可以管理的人员有: %s", userNames);
                 log.debug("如果你发现设置了管理部门但是还是没有可以管理的人员，那么你应该设置岗位，并将岗位赋予人员。");
             }
             session.setAttribute(Cons.SESSION_MANAGER_USER_NAMES_KEY, userNames);

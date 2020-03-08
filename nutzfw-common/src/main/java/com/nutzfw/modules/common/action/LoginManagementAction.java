@@ -38,12 +38,8 @@ import org.nutz.mvc.annotation.*;
 import java.security.interfaces.RSAPublicKey;
 
 /**
- * Created with IntelliJ IDEA.
- *
  * @author huchuc@vip.qq.com
- * 创建人：黄川
  * 创建时间: 2017/12/25  19:30
- * 描述此类：
  */
 @IocBean
 @At("/management/")
@@ -51,12 +47,13 @@ import java.security.interfaces.RSAPublicKey;
 public class LoginManagementAction extends BaseAction {
 
     static final String LOGIN_ERROR_PREFIX = "loginError.";
+    private final static int RSA_PASS_LENGTH = 256;
     @Inject
-    LoginBiz           loginBiz;
+    private LoginBiz loginBiz;
     @Inject
-    RedisHelpper       redisHelpper;
+    private RedisHelpper redisHelpper;
     @Inject
-    UserAccountService userAccountService;
+    private UserAccountService userAccountService;
 
     @GET
     @At("logout")
@@ -152,11 +149,14 @@ public class LoginManagementAction extends BaseAction {
             if (num >= Cons.optionsCach.getErrorPassInputTimes()) {
                 return AjaxResult.error("该账户登录错误次数过多，已被冻结登录！请15分钟后再尝试！");
             }
-            if (password.length() == 256) {
+            if (password.length() == RSA_PASS_LENGTH) {
                 password = RsaUtils.decryptStringByJs(password);
             }
             UserAccount userAccount = userAccountService.loginFind(username);
             if (userAccount == null) {
+                if (log.isDebugEnabled()) {
+                    return AjaxResult.error("帐号不存在,登录失败！");
+                }
                 return AjaxResult.error("登录失败！");
             }
             if (userAccount.isLocked()) {
@@ -164,15 +164,14 @@ public class LoginManagementAction extends BaseAction {
             }
             Sha256Hash sha = new Sha256Hash(password, userAccount.getSalt());
             if (!sha.toHex().equals(userAccount.getUserPass())) {
-                if(log.isDebugEnabled()){
-                    log.debug("密码错误！登录失败！");
+                if (log.isDebugEnabled()) {
+                    return AjaxResult.error("密码错误！登录失败！");
                 }
                 return AjaxResult.error("登录失败！");
             }
             LoginTypeEnum loginType = isApp ? LoginTypeEnum.app : LoginTypeEnum.web;
             UserPassToken token = new UserPassToken(username, password, loginType, rememberMe, WebUtil.ip(Mvcs.getReq()));
-            Subject user = SecurityUtils.getSubject();
-            user.login(token);
+            SecurityUtils.getSubject().login(token);
             NutMap data = loginBiz.doLogin(getSessionUserAccount(), loginType);
             if (data.getBoolean(LoginBiz.NEED_CHANGE_PASS)) {
                 setSessionAttribute(FristLoginProcessor.NEED_FRIST_LOGIN, true);
@@ -181,11 +180,7 @@ public class LoginManagementAction extends BaseAction {
             }
             return AjaxResult.sucess(data, MvcI18n.message("login.sucess"));
         } catch (Exception e) {
-            log.debug(e);
-            /**
-             * 如果取NX，则只有当key不存在是才进行set，如果取XX，则只有当key已经存在时才进行set
-             * EX代表秒，PX代表毫秒
-             */
+            log.error("产生异常致登录失败：", e);
             int count = 1;
             if (redisHelpper.exists(key)) {
                 redisHelpper.setString(key, String.valueOf(num + count), 15 * 60);
@@ -217,8 +212,7 @@ public class LoginManagementAction extends BaseAction {
                     if (userAccount.isLocked()) {
                         throw new AccountException("登录失败！帐号已被冻结！");
                     }
-                    Subject user = SecurityUtils.getSubject();
-                    user.login(userToken);
+                    SecurityUtils.getSubject().login(userToken);
                     NutMap data = loginBiz.doLogin(getSessionUserAccount(), LoginTypeEnum.QrLogin);
                     if (data.getBoolean(LoginBiz.NEED_CHANGE_PASS)) {
                         setSessionAttribute(FristLoginProcessor.NEED_FRIST_LOGIN, true);
@@ -236,9 +230,8 @@ public class LoginManagementAction extends BaseAction {
                 return AjaxResult.error("二维码已过期");
             }
         } catch (Exception e) {
-            log.debug(e);
+            log.error(e);
             return AjaxResult.error(MvcI18n.message("login.error"));
         }
-
     }
 }
