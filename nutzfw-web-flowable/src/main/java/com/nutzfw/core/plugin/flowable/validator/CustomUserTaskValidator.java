@@ -53,6 +53,8 @@ public class CustomUserTaskValidator extends UserTaskValidator {
                         addError(errors, Problems.USER_TASK_LISTENER_IMPLEMENTATION_MISSING, process, userTask, e.getLocalizedMessage());
                     }
                 }
+            } else {
+                addError(errors, Problems.USER_TASK_LISTENER_IMPLEMENTATION_MISSING, process, userTask, "自定义扩展属性必须设置");
             }
         }
     }

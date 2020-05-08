@@ -117,9 +117,12 @@ public class FlowUtils {
     public static UserTaskExtensionDTO getUserTaskExtension(UserTask userTask) {
         UserTaskExtensionDTO dto = null;
         if (userTask != null) {
-            List<ExtensionElement> properites = userTask.getExtensionElements().get(CustomUserTaskJsonConverter.USER_TASK_EXTENSION_ELEMENT_NAME);
-            if (properites.size() > 0) {
-                String extensionElementText = properites.get(0).getElementText();
+            List<ExtensionElement> extensionElements = userTask.getExtensionElements().get(CustomUserTaskJsonConverter.USER_TASK_EXTENSION_ELEMENT_NAME);
+            if (CollectionUtils.isEmpty(extensionElements)) {
+                throw new RuntimeException("当前用户节点未配置任何扩展属性，无法继续下一步!");
+            }
+            if (CollectionUtils.isNotEmpty(extensionElements)) {
+                String extensionElementText = extensionElements.get(0).getElementText();
                 if (Strings.isNotBlank(extensionElementText)) {
                     dto = Json.fromJson(UserTaskExtensionDTO.class, extensionElementText);
                 }
