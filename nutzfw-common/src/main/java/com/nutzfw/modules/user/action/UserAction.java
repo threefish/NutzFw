@@ -415,7 +415,7 @@ public class UserAction extends BaseAction {
         }
         account.setPhone(phone);
         account.setMail(mail);
-        account.setRealName(realName);
+        account.setRealName(Strings.escapeHtml(realName));
         if (chanPass){
             String salt = R.UU16();
             Sha256Hash newsha = new Sha256Hash(newPass, salt);

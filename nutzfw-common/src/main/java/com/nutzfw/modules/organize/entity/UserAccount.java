@@ -107,7 +107,7 @@ public class UserAccount extends BaseEntity implements Serializable {
 
     @Column("create_by_name")
     @Comment("创建人名称")
-    @ColDefine(width = 20)
+    @ColDefine(width = 50)
     private String createByName;
 
     @Column("create_by_userid")
@@ -121,7 +121,7 @@ public class UserAccount extends BaseEntity implements Serializable {
 
     @Column("update_by_name")
     @Comment("更新人名称")
-    @ColDefine(width = 20)
+    @ColDefine(width = 50)
     private String updateByName;
 
     @Column("update_by_userid")

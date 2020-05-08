@@ -78,8 +78,12 @@ public class UserDataReviewAction extends BaseAction {
         if (Strings.isBlank(reviewOpinion)) {
             return AjaxResult.error("审核意见不能为空！");
         }
+        AjaxResult ajaxResult = null;
         for (String id : ids) {
-            userDataReviewBiz.agreeReview(id, reviewOpinion);
+            ajaxResult = userDataReviewBiz.agreeReview(id, reviewOpinion);
+        }
+        if (ids != null && ids.length == 1) {
+            return ajaxResult;
         }
         return AjaxResult.sucess("批量操作完成！");
     }

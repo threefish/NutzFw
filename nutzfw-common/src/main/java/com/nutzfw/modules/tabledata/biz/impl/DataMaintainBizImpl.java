@@ -384,7 +384,7 @@ public class DataMaintainBizImpl implements DataMaintainBiz {
 
     @Override
     public NutMap formJsonData(String dataStr, UserAccount userAccount) {
-        NutMap data = Json.fromJson(NutMap.class, dataStr);
+        NutMap data = Json.fromJson(NutMap.class, Strings.escapeHtmlQuick(dataStr));
         String userid = data.getString("userid", "");
         if (!Strings.isEmpty(userid)) {
             data.put("username", accountService.fetch(userid).getUserName());
