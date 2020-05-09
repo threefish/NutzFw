@@ -925,7 +925,7 @@ public class FileUtil {
         return file;
     }
 
-    public static String getMD5(File file) {
+    public static String getMd5Hex(File file) {
         try {
             return DigestUtils.md5Hex(new FileInputStream(file));
         } catch (IOException e) {
@@ -941,7 +941,7 @@ public class FileUtil {
      * @return String
      * @throws Exception
      */
-    public String readFromIS(InputStream is) throws Exception {
+    public String readFromInputStream(InputStream is) throws Exception {
         try {
             String strRtn = "";
             int length = is.available();

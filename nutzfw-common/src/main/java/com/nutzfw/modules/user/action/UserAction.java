@@ -499,9 +499,9 @@ public class UserAction extends BaseAction {
     @POST
     @At("user_search")
     @Ok("json:{nullAsEmtry:true}")
-    public AjaxResult user_search(@Param("key") String key,
-                                  @Param("pageSize") int pageSize,
-                                  @Param("pageNum") int pageNum) {
+    public AjaxResult userSearch(@Param("key") String key,
+                                 @Param("pageSize") int pageSize,
+                                 @Param("pageNum") int pageNum) {
         try {
             List<NutMap> nutMaps = userAccountBiz.userSearch(key, pageNum, pageSize);
             return AjaxResult.sucess(nutMaps);

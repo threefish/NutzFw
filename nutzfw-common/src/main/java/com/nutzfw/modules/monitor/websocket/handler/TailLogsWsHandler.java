@@ -8,7 +8,7 @@
 package com.nutzfw.modules.monitor.websocket.handler;
 
 import com.nutzfw.core.common.vo.SocketMsgVO;
-import com.nutzfw.modules.monitor.websocket.LogsWsSessionsEndpoint;
+import com.nutzfw.modules.monitor.websocket.AbstractLogsWsSessionsEndpoint;
 import org.nutz.lang.Encoding;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
@@ -81,7 +81,7 @@ public class TailLogsWsHandler extends SimpleWsHandler {
                 while ((line = reader.readLine()) != null) {
                     try {
                         String finalLine = line;
-                        ((LogsWsSessionsEndpoint) endpoint).getSessions().forEach((sessionId, se) ->
+                        ((AbstractLogsWsSessionsEndpoint) endpoint).getSessions().forEach((sessionId, se) ->
                                 endpoint.sendJson(sessionId,
                                         SocketMsgVO.builder()
                                                 .action(level)

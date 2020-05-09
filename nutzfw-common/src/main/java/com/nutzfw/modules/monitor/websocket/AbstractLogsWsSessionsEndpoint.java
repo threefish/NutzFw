@@ -18,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author 黄川 huchuc@vip.qq.com
  * @date: 2019/3/4
  */
-public abstract class LogsWsSessionsEndpoint extends AbstractWsEndpoint {
+public abstract class AbstractLogsWsSessionsEndpoint extends AbstractWsEndpoint {
 
 
     TailLogsWsHandler tailLogsWsHandler;

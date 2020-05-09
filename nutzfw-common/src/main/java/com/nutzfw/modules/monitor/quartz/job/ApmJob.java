@@ -66,7 +66,7 @@ public class ApmJob extends BaseJob {
     SystemInfo systemInfo = new SystemInfo();
     HardwareAbstractionLayer hardwar = systemInfo.getHardware();
     SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm:ss");
-    MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
+    MemoryMXBean memoryMxBean = ManagementFactory.getMemoryMXBean();
     @Inject
     ApmDashboardWs ws;
     @Inject
@@ -131,7 +131,7 @@ public class ApmJob extends BaseJob {
                     switch (option.getAlarmType()) {
                         case "JVM":
                             //椎内存使用情况
-                            MemoryUsage memoryUsage = memoryMXBean.getHeapMemoryUsage();
+                            MemoryUsage memoryUsage = memoryMxBean.getHeapMemoryUsage();
                             jvmUsage = 100d * memoryUsage.getUsed() / memoryUsage.getMax();
                             alarm("JVM", "JVM内存告警", "JVM", jvmUsage, option.getPercent());
                             break;

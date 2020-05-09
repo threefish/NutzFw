@@ -42,7 +42,7 @@ public class DataQueryBizImpl implements DataQueryBiz {
      * 例：RID_15 表示tableid等于15
      */
     static final String RID = "RID_";
-    List<DataQueryDTO> dataQueryDTOS;
+    List<DataQueryDTO> dataQuerys;
     int                selectTable;
     DataTableService   tableService;
     TableFieldsService fieldsService;
@@ -61,8 +61,8 @@ public class DataQueryBizImpl implements DataQueryBiz {
      */
     TableType          tableType;
 
-    public DataQueryBizImpl(List<DataQueryDTO> dataQueryDTOS, Integer selectTable, DataTableService tableService, TableFieldsService fieldsService, DataMaintainBiz dataMaintainBiz, TableType tableType, Set<String> sessionManagerUserNames) {
-        this.dataQueryDTOS = dataQueryDTOS;
+    public DataQueryBizImpl(List<DataQueryDTO> dataQuerys, Integer selectTable, DataTableService tableService, TableFieldsService fieldsService, DataMaintainBiz dataMaintainBiz, TableType tableType, Set<String> sessionManagerUserNames) {
+        this.dataQuerys = dataQuerys;
         this.selectTable = selectTable;
         this.fieldsService = fieldsService;
         this.tableService = tableService;
@@ -78,8 +78,8 @@ public class DataQueryBizImpl implements DataQueryBiz {
      */
     private List<TableFields> getFields() {
         if (this.fields == null) {
-            Set<Integer> fieldIdSets = new HashSet<>(dataQueryDTOS.size());
-            dataQueryDTOS.forEach(dataQueryDTO -> fieldIdSets.add(dataQueryDTO.getId()));
+            Set<Integer> fieldIdSets = new HashSet<>(dataQuerys.size());
+            dataQuerys.forEach(dataQueryDTO -> fieldIdSets.add(dataQueryDTO.getId()));
             this.fields = fieldsService.query(Cnd.where("id", "in", fieldIdSets));
         }
         return fields;
@@ -108,7 +108,7 @@ public class DataQueryBizImpl implements DataQueryBiz {
             filedPhysicalNames.put(field.getId(), filedPhysicalName);
         }
         List<String> strings = new ArrayList<>();
-        for (DataQueryDTO dto : dataQueryDTOS) {
+        for (DataQueryDTO dto : dataQuerys) {
             if (dto.getFieldGroup() == 1) {
                 strings.add(filedPhysicalNames.get(dto.getId()));
             }
@@ -132,7 +132,7 @@ public class DataQueryBizImpl implements DataQueryBiz {
             filedPhysicalNames.put(field.getId(), filedPhysicalName);
         }
         List<String> strings = new ArrayList<>();
-        for (DataQueryDTO dto : dataQueryDTOS) {
+        for (DataQueryDTO dto : dataQuerys) {
             if (dto.getFieldDesc() == 1) {
                 strings.add(filedPhysicalNames.get(dto.getId()).concat(" asc"));
             } else if (dto.getFieldDesc() == 2) {
@@ -170,7 +170,7 @@ public class DataQueryBizImpl implements DataQueryBiz {
     public String getGroupShowFields(TableFields field, String filedPhysicalName) {
         StringBuilder sb = new StringBuilder();
         sw:
-        for (DataQueryDTO dto : dataQueryDTOS) {
+        for (DataQueryDTO dto : dataQuerys) {
             if (dto.getId() == field.getId() && dto.getFieldGroup() > 0) {
                 switch (dto.getFieldGroup()) {
                     case 1:
@@ -231,7 +231,7 @@ public class DataQueryBizImpl implements DataQueryBiz {
             whereSqlBuilder.append(" and FIND_IN_SET(" + getFirstTableName().concat(".userName,@sessionManagerUserNames)"));
         }
 
-        for (DataQueryDTO dto : dataQueryDTOS) {
+        for (DataQueryDTO dto : dataQuerys) {
             String cndText = dto.getCndText().replace("{" + dto.getText() + "}", filedPhysicalNames.get(dto.getId()));
             cndText = cndText.trim();
             if (!Strings.isEmpty(cndText)) {
@@ -298,7 +298,7 @@ public class DataQueryBizImpl implements DataQueryBiz {
         List<TableColsVO> list = new ArrayList<>();
         list.add(new TableColsVO("numbers", "true"));
         /* list.add(new TableColsVO("checkbox", "true"));*/
-        dataQueryDTOS.forEach(dataQueryDTO -> {
+        dataQuerys.forEach(dataQueryDTO -> {
             TableColsVO vo = hashMap.get(dataQueryDTO.getId());
             if (dataQueryDTO.getFieldFixed() == 1) {
                 vo.setFixed("left");

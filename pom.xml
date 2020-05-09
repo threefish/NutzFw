@@ -14,7 +14,7 @@
         <module>nutzfw-web-flowable</module>
         <module>nutzfw-web-user-front</module>
         <module>nutzfw-web-oa</module>
-		<module>test</module>
+<!--		<module>test</module>-->
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -131,11 +131,6 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-war-plugin</artifactId>
                     <version>3.2.3</version>
-                    <configuration>
-                        <encoding>UTF-8</encoding>
-                        <source>1.8</source>
-                        <target>1.8</target>
-                    </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>

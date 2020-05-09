@@ -111,7 +111,7 @@ public class DataMaintainBizImpl implements DataMaintainBiz {
     @Override
     public List<TableColsVO> getColsNotFix(int tableid, Set<String> sessionRoleIds) {
         List<TableColsVO> colsVOS = getCols(tableid, sessionRoleIds);
-        colsVOS.stream().forEach(tableColsVO -> tableColsVO.setFixed(null));
+        colsVOS.forEach(tableColsVO -> tableColsVO.setFixed(null));
         return colsVOS;
     }
 
@@ -154,9 +154,7 @@ public class DataMaintainBizImpl implements DataMaintainBiz {
 
     @Override
     public Record fetchData(String sourceId, DataTable dataTable) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("SELECT $showFields FROM $tableName where id=@id order by $tableName.create_by_date");
-        Sql querySql = Sqls.create(sb.toString());
+        Sql querySql = Sqls.create("SELECT $showFields FROM $tableName where id=@id order by $tableName.create_by_date");
         querySql.vars().set("tableName", Sqls.escapeSqlFieldValue(dataTable.getTableName()));
         querySql.vars().set("showFields", Strings.join(",", getQueryFields(dataTable)));
         querySql.setParam("id", sourceId);
@@ -195,7 +193,7 @@ public class DataMaintainBizImpl implements DataMaintainBiz {
         sb.append("SELECT $showFields FROM $tableName ");
         String whereSql = getWhereSql(list);
         if (Strings.isNotBlank(whereSql)) {
-            sb.append("where " + whereSql);
+            sb.append("where ").append(whereSql);
         }
         sb.append(" order by $tableName.create_by_date");
         Sql querySql = Sqls.create(sb.toString());
@@ -220,7 +218,7 @@ public class DataMaintainBizImpl implements DataMaintainBiz {
         if (null == list) {
             return "";
         }
-        list.stream().forEach(queryVO -> {
+        list.forEach(queryVO -> {
             String fieldName = Sqls.escapeSqlFieldValue(queryVO.getFieldName()).toString();
             CharSequence val = Sqls.escapteConditionValue(queryVO.getVal());
             CharSequence startVal = Sqls.escapteConditionValue(queryVO.getStartVal());
@@ -321,7 +319,7 @@ public class DataMaintainBizImpl implements DataMaintainBiz {
 
     private void setWhereParam(List<SingeDataMaintainQueryVO> list, Sql querySql) {
         if (null != list) {
-            list.stream().forEach(queryVO -> {
+            list.forEach(queryVO -> {
                 String fieldName = Sqls.escapeSqlFieldValue(queryVO.getFieldName()).toString();
                 CharSequence val = Sqls.escapteConditionValue(queryVO.getVal());
                 CharSequence startVal = Sqls.escapteConditionValue(queryVO.getStartVal());
@@ -402,8 +400,7 @@ public class DataMaintainBizImpl implements DataMaintainBiz {
      */
     @Override
     public String getSourceId(String tableName, String userName) {
-        StringBuilder sb = new StringBuilder("SELECT id FROM $tableName where userName=@userName");
-        Sql querySql = Sqls.create(sb.toString());
+        Sql querySql = Sqls.create("SELECT id FROM $tableName where userName=@userName");
         querySql.vars().set("tableName", tableName);
         querySql.setParam("userName", userName);
         querySql.setCallback(Sqls.callback.str());
@@ -457,7 +454,7 @@ public class DataMaintainBizImpl implements DataMaintainBiz {
         sb.append(" and FIND_IN_SET(sys_user_account.userName,@sessionManagerUserNames) ");
         String whereSql = getWhereSql(list);
         if (Strings.isNotBlank(whereSql)) {
-            sb.append(" and " + whereSql);
+            sb.append(" and ").append(whereSql);
         }
         if (Strings.isNotBlank(likeUserNameOrRealName)) {
             sb.append(" and (sys_user_account.username like @likeUserNameOrRealName or sys_user_account.realname like @likeUserNameOrRealName) ");
@@ -658,7 +655,7 @@ public class DataMaintainBizImpl implements DataMaintainBiz {
                 String[] ss = ((String) val).split(",");
                 Set<String> lables = new HashSet<>();
                 for (String s : ss) {
-                    if (s.trim() == "") {
+                    if ("".equals(s.trim())) {
                         continue;
                     }
                     int dictId = Integer.parseInt(s);
@@ -805,7 +802,7 @@ public class DataMaintainBizImpl implements DataMaintainBiz {
         }
         String val = String.valueOf(value);
         String lableName = fields.getFromLable();
-        if (Strings.isNotBlank(fields.getDictSysCode()) && val.indexOf(DataImportPoiUtil.IMPORT_DICT_NOT_FOUND) > -1) {
+        if (Strings.isNotBlank(fields.getDictSysCode()) && val.contains(DataImportPoiUtil.IMPORT_DICT_NOT_FOUND)) {
             //是字典
             String[] ss = val.split(DataImportPoiUtil.IMPORT_DICT_NOT_FOUND);
             return MessageFormat.format("{0} 枚举不存在!", ss[1]);
@@ -1146,14 +1143,14 @@ public class DataMaintainBizImpl implements DataMaintainBiz {
         });
         //所有依赖字段
         List<TableFields> dictDependFieldIdList = new ArrayList<>();
-        tableFields.stream().filter(fields -> fields.getDictDepend() > DictDepend.NONE.getValue()).forEach(fields -> dictDependFieldIdList.add(fields));
+        tableFields.stream().filter(fields -> fields.getDictDepend() > DictDepend.NONE.getValue()).forEach(dictDependFieldIdList::add);
         //全部字典字段
         List<TableFields> dictFields = new ArrayList<>();
-        tableFields.stream().filter(fields -> Strings.isNotBlank(fields.getDictSysCode())).forEach(fields -> dictFields.add(fields));
+        tableFields.stream().filter(fields -> Strings.isNotBlank(fields.getDictSysCode())).forEach(dictFields::add);
         dictFields.forEach(fields -> {
             //当前依赖本字段的所有依赖字段
             List<TableFields> tempDictDependFieldIdList = new ArrayList<>();
-            dictDependFieldIdList.stream().filter(fields1 -> fields1.getDictDependFieldId() == fields.getId()).forEach(fields1 -> tempDictDependFieldIdList.add(fields1));
+            dictDependFieldIdList.stream().filter(fields1 -> fields1.getDictDependFieldId() == fields.getId()).forEach(tempDictDependFieldIdList::add);
             if (tempDictDependFieldIdList.size() > 0) {
                 //字典值
                 int dictVal = data.getInt(fields.getFieldName());
@@ -1364,9 +1361,7 @@ public class DataMaintainBizImpl implements DataMaintainBiz {
         if (tableFields.getFieldType() == FieldType.MultiAttach.getValue()) {
             String[] ids = Strings.splitIgnoreBlank(Strings.sNull(attachIdStr));
             List<String> old = new ArrayList<>();
-            for (String id : ids) {
-                old.add(id);
-            }
+            old.addAll(Arrays.asList(ids));
             if (old.size() < 20) {
                 old.add(attach.getId());
                 return Strings.join(",", old);
@@ -1405,7 +1400,6 @@ public class DataMaintainBizImpl implements DataMaintainBiz {
 
     private String getUniqueValueByAttachName(FileAttach attach) {
         int start = attach.getFileName().trim().indexOf(".");
-        String fileName = attach.getFileName().trim().substring(0, start);
-        return fileName;
+        return attach.getFileName().trim().substring(0, start);
     }
 }

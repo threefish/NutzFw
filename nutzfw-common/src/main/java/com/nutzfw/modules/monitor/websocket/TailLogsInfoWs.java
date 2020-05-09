@@ -26,7 +26,7 @@ import javax.websocket.server.ServerEndpoint;
  */
 @ServerEndpoint(value = "/tailLogs/info", configurator = NutWsConfigurator.class)
 @IocBean
-public class TailLogsInfoWs extends LogsWsSessionsEndpoint {
+public class TailLogsInfoWs extends AbstractLogsWsSessionsEndpoint {
 
     @Inject("java:$conf.get('command.info')")
     String command;

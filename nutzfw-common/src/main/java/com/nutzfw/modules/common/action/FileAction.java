@@ -211,7 +211,7 @@ public class FileAction extends BaseAction {
             return AjaxResult.error("附件类型不存在！");
         }
         String rootPath = getRootPath(Mvcs.getHttpSession());
-        String md5 = FileUtil.getMD5(tf.getFile());
+        String md5 = FileUtil.getMd5Hex(tf.getFile());
         FileAttach referenceFileAttach = fileAttachService.fetchByMd5(md5);
         if (referenceFileAttach != null) {
             return this.md5FileUploadact(module, tf.getSubmittedFileName(), md5);
@@ -319,7 +319,7 @@ public class FileAction extends BaseAction {
                 String relPath = newFile.toAbsolutePath().toString();
                 String filePath = newFile.toAbsolutePath().toString().replace(Paths.get(parentPath).toString(), "");
                 if (Base64Tool.generateImage(filedate, relPath)) {
-                    String md5 = FileUtil.getMD5(newFile.toFile());
+                    String md5 = FileUtil.getMd5Hex(newFile.toFile());
                     //存数据库
                     FileAttach fileAttach = new FileAttach();
                     fileAttach.setAdduser(getUserName(Mvcs.getHttpSession()));

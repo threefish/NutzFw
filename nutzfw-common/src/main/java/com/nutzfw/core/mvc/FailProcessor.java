@@ -9,7 +9,7 @@ package com.nutzfw.core.mvc;
 
 import com.nutzfw.core.common.annotation.TryCatchMsg;
 import com.nutzfw.core.common.cons.Cons;
-import com.nutzfw.core.common.error.PreventDuplicateSubmitError;
+import com.nutzfw.core.common.error.PreventDuplicateSubmitException;
 import com.nutzfw.core.common.util.ElUtil;
 import com.nutzfw.core.common.util.StringUtil;
 import com.nutzfw.core.plugin.view.BeetlViewMaker;
@@ -101,8 +101,8 @@ public class FailProcessor extends ViewProcessor {
     private String getErrorMsg(ActionContext ac) {
         Throwable throwable = ac.getError();
         String errorMsg = ac.getError().getMessage();
-        if (throwable instanceof PreventDuplicateSubmitError) {
-            errorMsg = ((PreventDuplicateSubmitError) throwable).getDetailMessage();
+        if (throwable instanceof PreventDuplicateSubmitException) {
+            errorMsg = ((PreventDuplicateSubmitException) throwable).getDetailMessage();
         } else if (ac.getError().getCause() != null) {
             errorMsg = ac.getError().getCause().getMessage();
         }

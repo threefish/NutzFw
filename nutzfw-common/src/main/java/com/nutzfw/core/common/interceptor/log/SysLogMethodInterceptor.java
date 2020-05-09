@@ -48,9 +48,9 @@ public class SysLogMethodInterceptor implements MethodInterceptor {
         this.tag = sysLog.tag();
         this.param = sysLog.param();
         this.result = sysLog.result();
-        SysLog _s = method.getDeclaringClass().getAnnotation(SysLog.class);
-        if (_s != null) {
-            this.tag = _s.tag() + "," + this.tag;
+        SysLog log = method.getDeclaringClass().getAnnotation(SysLog.class);
+        if (log != null) {
+            this.tag = log.tag() + "," + this.tag;
         }
     }
 

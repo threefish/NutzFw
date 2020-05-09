@@ -23,6 +23,7 @@ import com.nutzfw.modules.organize.thread.CheckUserDataThread;
 import com.nutzfw.modules.sys.action.QuartzJobAction;
 import com.nutzfw.modules.sys.biz.UserAccountBiz;
 import com.nutzfw.modules.sys.service.QuartzJobService;
+import net.sf.ehcache.util.NamedThreadFactory;
 import org.nutz.dao.Cnd;
 import org.nutz.dao.Dao;
 import org.nutz.dao.Sqls;
@@ -57,31 +58,29 @@ import java.util.concurrent.TimeUnit;
 @IocBean(name = "userAccountBiz")
 @SqlsXml("UserAccountBizImpl.xml")
 public class UserAccountBizImpl implements UserAccountBiz, ISqlDaoExecuteService {
-    private static final Log                log = Logs.get();
+    private static ExecutorService executorService = new ThreadPoolExecutor(1, 1, 0, TimeUnit.SECONDS, new LinkedBlockingDeque<>(100),
+            new NamedThreadFactory("用户导入线程", false));
     @Inject
-    protected            UserAccountService userAccountService;
-
+    protected UserAccountService userAccountService;
     @Inject
     Dao dao;
-
     @Inject
-    JobService             jobService;
+    JobService jobService;
     @Inject
-    QuartzJobAction        quartzJobAction;
+    QuartzJobAction quartzJobAction;
     @Inject
     UserAccountRoleService userAccountRoleService;
     @Inject
-    DepartmentJobService   departmentJobService;
+    DepartmentJobService departmentJobService;
     @Inject("refer:$ioc")
-    Ioc                    ioc;
-    ExecutorService executorService = new ThreadPoolExecutor(1, 1, 0, TimeUnit.SECONDS, new LinkedBlockingDeque<>());
+    Ioc ioc;
     @Inject
-    private DepartmentService        departmentService;
+    private DepartmentService departmentService;
     @Inject
     private UserImportHistoryService userImportHistoryService;
     @Inject
-    private QuartzJobService         quartzJobService;
-    private SqlsTplHolder            sqlsTplHolder;
+    private QuartzJobService quartzJobService;
+    private SqlsTplHolder sqlsTplHolder;
 
     /**
      * 用户管理-接收岗位

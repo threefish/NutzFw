@@ -256,7 +256,7 @@ public class SysOperateLogServiceImpl extends BaseServiceImpl<SysOperateLog> imp
                     Throwable e) {
         try {
 
-            String _msg = null;
+            String msg;
             if (seg.hasKey()) {
                 Context ctx = Lang.context();
                 List<String> names = MethodParamNamesScaner.getParamNames(method);
@@ -271,31 +271,31 @@ public class SysOperateLogServiceImpl extends BaseServiceImpl<SysOperateLog> imp
                 ctx.set("return", re);
                 ctx.set("req", Mvcs.getReq());
                 ctx.set("resp", Mvcs.getResp());
-                Context _ctx = Lang.context();
+                Context context = Lang.context();
                 for (String key : seg.keys()) {
-                    _ctx.set(key, els.get(key).eval(ctx));
+                    context.set(key, els.get(key).eval(ctx));
                 }
-                _msg = seg.render(_ctx).toString();
+                msg = seg.render(context).toString();
             } else {
-                _msg = seg.getOrginalString();
+                msg = seg.getOrginalString();
             }
-            String _param = "";
-            String _result = "";
+            String param_ = "";
+            String result_ = "";
             if (param && args != null) {
                 try {
-                    _param = Json.toJson(args, JsonFormat.compact());
+                    param_ = Json.toJson(args, JsonFormat.compact());
                 } catch (Exception e1) {
-                    _param = "传参不能转换为JSON格式";
+                    param_ = "传参不能转换为JSON格式";
                 }
             }
             if (result && re != null) {
                 try {
-                    _result = Json.toJson(re, JsonFormat.compact());
+                    result_ = Json.toJson(re, JsonFormat.compact());
                 } catch (Exception e1) {
-                    _param = "返回对象不能转换为JSON格式";
+                    param_ = "返回对象不能转换为JSON格式";
                 }
             }
-            log(type, tag, source, consuming, _msg, _param, _result);
+            log(type, tag, source, consuming, msg, param_, result_);
         } catch (Throwable te) {
             log.errorf("@SysLog 日志记录出现错误 %s", source, te);
         }

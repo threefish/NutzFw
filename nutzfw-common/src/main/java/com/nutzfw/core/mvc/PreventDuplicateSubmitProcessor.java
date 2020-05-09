@@ -10,7 +10,7 @@ package com.nutzfw.core.mvc;
 import com.nutzfw.core.common.annotation.Token;
 import com.nutzfw.core.common.annotation.TypeEnum;
 import com.nutzfw.core.common.cons.Cons;
-import com.nutzfw.core.common.error.PreventDuplicateSubmitError;
+import com.nutzfw.core.common.error.PreventDuplicateSubmitException;
 import org.nutz.integration.jedis.RedisService;
 import org.nutz.lang.Strings;
 import org.nutz.mvc.ActionContext;
@@ -74,7 +74,7 @@ public class PreventDuplicateSubmitProcessor extends AbstractProcessor {
         }
     }
 
-    private void removeSessionToken(ActionContext ac, String key) throws PreventDuplicateSubmitError {
+    private void removeSessionToken(ActionContext ac, String key) throws PreventDuplicateSubmitException {
         HttpServletRequest request = ac.getRequest();
         HttpSession session = request.getSession();
         //检查是否存在键值
@@ -84,18 +84,18 @@ public class PreventDuplicateSubmitProcessor extends AbstractProcessor {
             session.removeAttribute(key);
         } else {
             //不存在键值
-            throw new PreventDuplicateSubmitError("检测到重复提交数据或非法提交数据");
+            throw new PreventDuplicateSubmitException("检测到重复提交数据或非法提交数据");
         }
     }
 
-    private void removeRedisToken(ActionContext ac, String rediskey) throws PreventDuplicateSubmitError {
+    private void removeRedisToken(ActionContext ac, String rediskey) throws PreventDuplicateSubmitException {
         boolean hasToken = redisService.exists(rediskey);
         if (hasToken) {
             //存在键值进行移除即可
             redisService.del(rediskey);
         } else {
             //不存在键值
-            throw new PreventDuplicateSubmitError("检测到重复提交数据或非法提交数据");
+            throw new PreventDuplicateSubmitException("检测到重复提交数据或非法提交数据");
         }
     }
 

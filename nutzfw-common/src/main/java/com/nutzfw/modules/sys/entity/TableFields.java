@@ -222,8 +222,8 @@ public class TableFields extends BaseEntity {
 
     public boolean decimalCheckDefault() {
         try {
-            final String NULL = "NULL";
-            if (NULL.equals(defaultValue)) {
+            final String aNull = "NULL";
+            if (aNull.equals(defaultValue)) {
                 return true;
             }
             Double.parseDouble(defaultValue);

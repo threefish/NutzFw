@@ -26,6 +26,7 @@ import com.nutzfw.modules.tabledata.enums.FieldType;
 import com.nutzfw.modules.tabledata.service.DataImportHistoryService;
 import com.nutzfw.modules.tabledata.thread.CheckDataThread;
 import com.nutzfw.modules.tabledata.vo.SingeDataMaintainQueryVO;
+import net.sf.ehcache.util.NamedThreadFactory;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.nutz.dao.Cnd;
@@ -61,16 +62,17 @@ import java.util.concurrent.TimeUnit;
 @Filters(@By(type = CheckRoleAndSession.class, args = {Cons.SESSION_USER_KEY, Cons.SESSION_USER_ROLE}))
 public class DataMaintainAction extends BaseAction {
 
-    @Inject
-    DataTableService         tableService;
-    @Inject
-    DataMaintainBiz          dataMaintainBiz;
-    @Inject
-    DataImportHistoryService importHistoryService;
     /**
      * 数据导入线程
      */
-    ExecutorService executorService = new ThreadPoolExecutor(1, 1, 0, TimeUnit.SECONDS, new LinkedBlockingDeque<>());
+    private static ExecutorService executorService = new ThreadPoolExecutor(1, 1, 0, TimeUnit.SECONDS, new LinkedBlockingDeque<>(100),
+            new NamedThreadFactory("数据导入线程", false));
+    @Inject
+    DataTableService tableService;
+    @Inject
+    DataMaintainBiz dataMaintainBiz;
+    @Inject
+    DataImportHistoryService importHistoryService;
     @Inject("refer:$ioc")
     Ioc ioc;
     @Inject("java:$conf.get('attach.extensions')")

@@ -26,7 +26,7 @@ import javax.websocket.server.ServerEndpoint;
  */
 @ServerEndpoint(value = "/tailLogs/debug", configurator = NutWsConfigurator.class)
 @IocBean
-public class TailLogsDebugWs extends LogsWsSessionsEndpoint {
+public class TailLogsDebugWs extends AbstractLogsWsSessionsEndpoint {
 
     @Inject("java:$conf.get('command.debug')")
     String command;

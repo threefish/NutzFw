@@ -260,7 +260,7 @@ public class CheckDataThread implements Runnable {
             }
         } else {
             //附表导入全部记录
-            importDataALL();
+            importDataAll();
         }
     }
 
@@ -302,13 +302,13 @@ public class CheckDataThread implements Runnable {
                 iGnoreExistsImportNotExists();
             } else if (!hasUnique && history.getImportType() == ImportType.ALL.getValue()) {
                 //没有唯一验证，并且是全部导入
-                importDataALL();
+                importDataAll();
             } else {
                 throw new RuntimeException("导入模式不支持");
             }
         } else {
             //附表导入全部记录
-            importDataALL();
+            importDataAll();
         }
 
 
@@ -402,7 +402,7 @@ public class CheckDataThread implements Runnable {
     /**
      * 导入全部记录
      */
-    private void importDataALL() {
+    private void importDataAll() {
         List<NutMap> inserData = new ArrayList<>();
         listData.forEach(nutMap -> inserData.add(coverInsertData(nutMap)));
         Trans.exec(() -> tableService.dao().fastInsert(inserData));

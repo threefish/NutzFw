@@ -46,7 +46,7 @@ public class DictFn implements Function {
 
     final static int MIN_PARAM = 1;
 
-    private static final StringTemplateResourceLoader resourceLoader = new StringTemplateResourceLoader();
+    private static final StringTemplateResourceLoader RESOURCE_LOADER = new StringTemplateResourceLoader();
 
     @Inject
     DictBiz dictBiz;
@@ -87,7 +87,7 @@ public class DictFn implements Function {
             templeText = getTempleText("tree.html");
             dto.getHtmlClass().add("form-control");
         }
-        Template template = context.gt.getTemplate(templeText, resourceLoader);
+        Template template = context.gt.getTemplate(templeText, RESOURCE_LOADER);
         Map data = new HashMap(9);
         data.put("dict", dto.getDictType());
         data.put("dto", dto);

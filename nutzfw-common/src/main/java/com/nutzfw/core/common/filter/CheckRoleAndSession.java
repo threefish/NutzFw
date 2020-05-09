@@ -72,15 +72,15 @@ public class CheckRoleAndSession implements ActionFilter {
         boolean isNotLogin = session == null || null == session.getAttribute(sessionKey);
         boolean isAjax = NutShiro.isAjax(context.getRequest());
         boolean isNutzFwFront = Strings.isNotBlank(context.getRequest().getHeader("NutzFwFront"));
-        String requestURI = context.getRequest().getRequestURI();
+        String requesturi = context.getRequest().getRequestURI();
         if (isNotLogin) {
             Logs.get().debugf("session key [%s] is not found :[%s]", sessionKey, context.getPath());
             if (isAjax) {
-                return buildUTF8JsonView(NutShiro.DefaultOtherAjax.setv("loginUrl", loginPageUrl));
+                return buildUtf8JsonView(NutShiro.DefaultOtherAjax.setv("loginUrl", loginPageUrl));
             } else if (isNutzFwFront) {
                 //需要重新登录
                 return new HttpStatusView(401);
-            } else if (!loginPageUrl.equals(requestURI)) {
+            } else if (!loginPageUrl.equals(requesturi)) {
                 return new ServerRedirectView(loginPageUrl);
             }
         } else {
@@ -88,7 +88,7 @@ public class CheckRoleAndSession implements ActionFilter {
             if (!hasRole) {
                 Logs.get().debugf("无权访问:[%s]", context.getPath());
                 if (isAjax) {
-                    return buildUTF8JsonView(NutShiro.DefaultUnauthenticatedAjax);
+                    return buildUtf8JsonView(NutShiro.DefaultUnauthenticatedAjax);
                 } else if (isNutzFwFront) {
                     return new HttpStatusView(403);
                 } else {
@@ -99,7 +99,7 @@ public class CheckRoleAndSession implements ActionFilter {
         return null;
     }
 
-    public UTF8JsonView buildUTF8JsonView(Object data) {
+    public UTF8JsonView buildUtf8JsonView(Object data) {
         UTF8JsonView view = new UTF8JsonView(JsonFormat.compact());
         view.setData(data);
         return view;

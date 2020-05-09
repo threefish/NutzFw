@@ -244,21 +244,21 @@ public class DataTableAction extends BaseAction {
     @POST
     @Ok("json")
     public List<DbTreeVO> authDbTree(@Param("id") int id, @Param("type") int type, @Param("tableType") String tableType) {
-        List<DbTreeVO> treeVOS = new ArrayList<>();
+        List<DbTreeVO> vos = new ArrayList<>();
         if (id == 0 && type == 0) {
             Cnd cnd = Cnd.NEW();
             cnd.andEX("TableType", "=", tableType);
             List<DataTable> dataTable = tableService.query(cnd);
             dataTable.forEach(table ->
-                    treeVOS.add(new DbTreeVO(table.getId(), 0, table.getName(), table.getTableType(), table.getId(), 0, 0, true))
+                    vos.add(new DbTreeVO(table.getId(), 0, table.getName(), table.getTableType(), table.getId(), 0, 0, true))
             );
         } else {
             DataTable dataTable = tableService.fetchAuthReadFields(id, getSessionRoleIds());
             dataTable.getFields().forEach(fields ->
-                    treeVOS.add(new DbTreeVO(fields.getId(), 1, fields.getName(), dataTable.getTableType(), dataTable.getId(), fields.getId(), fields.getFieldType(), false))
+                    vos.add(new DbTreeVO(fields.getId(), 1, fields.getName(), dataTable.getTableType(), dataTable.getId(), fields.getId(), fields.getFieldType(), false))
             );
         }
-        return treeVOS;
+        return vos;
     }
 
     @POST
@@ -279,10 +279,10 @@ public class DataTableAction extends BaseAction {
     @POST
     @Ok("json")
     public List<DbTreeVO> authTable() {
-        List<DbTreeVO> treeVOS = new ArrayList<>();
+        List<DbTreeVO> vos = new ArrayList<>();
         List<DataTable> dataTable = tableService.query(Cnd.where("TableType", "=", TableType.PrimaryTable).or("TableType", "=", TableType.Schedule));
-        dataTable.forEach(table -> treeVOS.add(new DbTreeVO(table.getId(), 0, table.getName(), table.getTableType(), table.getId(), 0, 0, false)));
-        return treeVOS;
+        dataTable.forEach(table -> vos.add(new DbTreeVO(table.getId(), 0, table.getName(), table.getTableType(), table.getId(), 0, 0, false)));
+        return vos;
     }
 
     /**
@@ -294,10 +294,10 @@ public class DataTableAction extends BaseAction {
     @POST
     @Ok("json")
     public List<DbTreeVO> authPrimaryTable() {
-        List<DbTreeVO> treeVOS = new ArrayList<>();
+        List<DbTreeVO> vos = new ArrayList<>();
         List<DataTable> dataTable = tableService.query(Cnd.where("TableType", "=", TableType.PrimaryTable));
-        dataTable.forEach(table -> treeVOS.add(new DbTreeVO(table.getId(), 0, table.getName(), table.getTableType(), table.getId(), 0, 0, false)));
-        return treeVOS;
+        dataTable.forEach(table -> vos.add(new DbTreeVO(table.getId(), 0, table.getName(), table.getTableType(), table.getId(), 0, 0, false)));
+        return vos;
     }
 
     /**
@@ -309,10 +309,10 @@ public class DataTableAction extends BaseAction {
     @POST
     @Ok("json")
     public List<DbTreeVO> authScheduleTable() {
-        List<DbTreeVO> treeVOS = new ArrayList<>();
+        List<DbTreeVO> vos = new ArrayList<>();
         List<DataTable> dataTable = tableService.query(Cnd.where("TableType", "=", TableType.Schedule));
-        dataTable.forEach(table -> treeVOS.add(new DbTreeVO(table.getId(), 0, table.getName(), table.getTableType(), table.getId(), 0, 0, false)));
-        return treeVOS;
+        dataTable.forEach(table -> vos.add(new DbTreeVO(table.getId(), 0, table.getName(), table.getTableType(), table.getId(), 0, 0, false)));
+        return vos;
     }
 
     /**
@@ -324,10 +324,10 @@ public class DataTableAction extends BaseAction {
     @POST
     @Ok("json")
     public List<DbTreeVO> authSingleTable() {
-        List<DbTreeVO> treeVOS = new ArrayList<>();
+        List<DbTreeVO> vos = new ArrayList<>();
         List<DataTable> dataTable = tableService.query(Cnd.where("TableType", "=", TableType.SingleTable));
-        dataTable.forEach(table -> treeVOS.add(new DbTreeVO(table.getId(), 0, table.getName(), table.getTableType(), table.getId(), 0, 0, false)));
-        return treeVOS;
+        dataTable.forEach(table -> vos.add(new DbTreeVO(table.getId(), 0, table.getName(), table.getTableType(), table.getId(), 0, 0, false)));
+        return vos;
     }
 
     @At("/allFileds")

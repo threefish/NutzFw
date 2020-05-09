@@ -26,7 +26,7 @@ import javax.websocket.server.ServerEndpoint;
  */
 @ServerEndpoint(value = "/tailLogs/error", configurator = NutWsConfigurator.class)
 @IocBean
-public class TailLogsErrorWs extends LogsWsSessionsEndpoint {
+public class TailLogsErrorWs extends AbstractLogsWsSessionsEndpoint {
 
     @Inject("java:$conf.get('command.error')")
     String command;

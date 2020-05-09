@@ -50,8 +50,8 @@ public class DemoModeProcessor extends AbstractProcessor {
      * @return
      */
     boolean checkWhitelist(ActionContext ac) {
-        String requestURI = ac.getRequest().getRequestURI();
-        if (URL_LIST.contains(requestURI)) {
+        String requestUri = ac.getRequest().getRequestURI();
+        if (URL_LIST.contains(requestUri)) {
             return true;
         }
         return false;

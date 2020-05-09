@@ -118,10 +118,10 @@ public class FlowProcessDefinitionServiceImpl implements FlowProcessDefinitionSe
      */
     @Override
     public String updateState(String state, String procDefId) {
-        if (state.equals("active")) {
+        if ("active".equals(state)) {
             repositoryService.activateProcessDefinitionById(procDefId, true, null);
             return "已激活ID为[" + procDefId + "]的流程定义。";
-        } else if (state.equals("suspend")) {
+        } else if ("suspend".equals(state)) {
             repositoryService.suspendProcessDefinitionById(procDefId, true, null);
             return "已挂起ID为[" + procDefId + "]的流程定义。";
         }

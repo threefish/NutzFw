@@ -12,13 +12,13 @@ package com.nutzfw.core.common.error;
  * @date: 2018/8/14
  * 描述此类：
  */
-public class PreventDuplicateSubmitError extends Exception {
+public class PreventDuplicateSubmitException extends Exception {
 
     private static final long serialVersionUID = 1L;
 
     String detailMessage;
 
-    public PreventDuplicateSubmitError(String msg) {
+    public PreventDuplicateSubmitException(String msg) {
         super(msg);
         this.detailMessage = msg;
     }
