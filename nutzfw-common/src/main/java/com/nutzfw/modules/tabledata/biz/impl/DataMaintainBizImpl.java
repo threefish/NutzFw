@@ -66,17 +66,17 @@ public class DataMaintainBizImpl implements DataMaintainBiz {
 
 
     @Inject
-    UserAccountService           accountService;
+    UserAccountService accountService;
     @Inject
-    DataTableService             tableService;
+    DataTableService tableService;
     @Inject
-    TableFieldsService           fieldsService;
+    TableFieldsService fieldsService;
     @Inject
-    DataImportHistoryService     importHistoryService;
+    DataImportHistoryService importHistoryService;
     @Inject
-    DictBiz                      dictBiz;
+    DictBiz dictBiz;
     @Inject
-    FileAttachService            fileAttachService;
+    FileAttachService fileAttachService;
     @Inject
     UserDataChangeHistoryService userDataChangeHistoryService;
 
@@ -445,7 +445,7 @@ public class DataMaintainBizImpl implements DataMaintainBiz {
         StringBuilder sb = new StringBuilder();
         //当前查询的就是系统用户表所以不需要连用户表查询了
         if (Cons.USER_ACCOUNT_TABLE_NAME.equals(dataTable.getTableName())) {
-            sb.append("SELECT $showFields,sys_user_account.userName,sys_department.NAME as deptname FROM sys_user_account,sys_department WHERE ");
+            sb.append("SELECT $showFields,sys_department.NAME as deptname FROM sys_user_account,sys_department WHERE ");
         } else {
             sb.append("SELECT $showFields,sys_user_account.username,sys_user_account.realname,sys_department.NAME as deptname FROM $tableName, sys_user_account,sys_department");
             sb.append(" WHERE sys_user_account.userid = $tableName.userid AND  ");
@@ -980,7 +980,7 @@ public class DataMaintainBizImpl implements DataMaintainBiz {
         data.put(".table", dataTable.getTableName());
         String primaryKey = dataTable.getPrimaryKey();
         String uuid = data.getString(primaryKey, "");
-        data = coverSaveTableData(dataTable.getFields(), data);
+        data = historyDataFilterFromData(coverSaveTableData(dataTable.getFields(), data));
         if (Strings.isBlank(uuid)) {
             data.setv(primaryKey, R.UU16());
             data = DataUtil.coverInsertData(data, userAccount);
@@ -994,6 +994,23 @@ public class DataMaintainBizImpl implements DataMaintainBiz {
 
 
     /**
+     * 带前缀的是转换时候将依赖值给转换进去了，在这里过滤掉
+     *
+     * @param data
+     */
+    private NutMap historyDataFilterFromData(NutMap data) {
+        String prefix = "fromData.";
+        Set<String> keys = new HashSet<>();
+        data.forEach((key, val) -> {
+            if (key.startsWith(prefix)) {
+                keys.add(key);
+            }
+        });
+        keys.forEach(key -> data.remove(key));
+        return data;
+    }
+
+    /**
      * 保存数据-等待审核
      *
      * @param tableId
@@ -1005,7 +1022,7 @@ public class DataMaintainBizImpl implements DataMaintainBiz {
         newData.put(".table", dataTable.getTableName());
         String primaryKey = dataTable.getPrimaryKey();
         String sourceId = newData.getString(primaryKey, "");
-        newData = coverSaveTableData(dataTable.getFields(), newData);
+        newData = historyDataFilterFromData(coverSaveTableData(dataTable.getFields(), newData));
         String userId = newData.getString("userid");
         UserDataChangeHistory changeHistory = null;
         if (dataTable.getTableType() == TableType.PrimaryTable) {

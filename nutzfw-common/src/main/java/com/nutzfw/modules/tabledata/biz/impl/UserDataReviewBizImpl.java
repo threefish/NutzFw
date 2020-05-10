@@ -23,7 +23,10 @@ import org.nutz.log.Log;
 import org.nutz.log.Logs;
 import org.nutz.trans.Trans;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author 黄川 huchuc@vip.qq.com
@@ -63,11 +66,22 @@ public class UserDataReviewBizImpl implements UserDataReviewBiz {
     public AjaxResult agreeReview(String id, String reviewOpinion) {
         try {
             UserDataChangeHistory userDataChangeHistory = userDataChangeHistoryService.fetch(id);
+
+            //带前缀的是转换时候将依赖值给转换进去了，在这里过滤掉
+            String prefix = "fromData.";
+            NutMap newData = NutMap.WRAP(userDataChangeHistory.getNewDataJson());
+            Set<String> keys=new HashSet<>();
+            newData.forEach((key, val) -> {
+                if (key.startsWith(prefix)) {
+                    keys.add(key);
+                }
+            });
+            keys.forEach(key -> newData.remove(key));
             Trans.exec(() -> {
                 if (userDataChangeHistory.getStatus() == 0) {
-                    userDataChangeHistoryService.dao().insert(NutMap.WRAP(userDataChangeHistory.getNewDataJson()));
+                    userDataChangeHistoryService.dao().insert(newData);
                 } else if (userDataChangeHistory.getStatus() == 1) {
-                    userDataChangeHistoryService.dao().update(NutMap.WRAP(userDataChangeHistory.getNewDataJson()));
+                    userDataChangeHistoryService.dao().update(newData);
                 } else if (userDataChangeHistory.getStatus() == 2) {
                     List<String> sourceIds = Json.fromJson(List.class, userDataChangeHistory.getDelIdsJson());
                     String tableName = tableService.fetch(userDataChangeHistory.getTableId()).getTableName();

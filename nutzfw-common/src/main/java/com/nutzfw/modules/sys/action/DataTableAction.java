@@ -58,9 +58,9 @@ import java.util.*;
 public class DataTableAction extends BaseAction {
 
     @Inject
-    DataTableService  tableService;
+    DataTableService tableService;
     @Inject
-    DataTableBiz      dataTableBiz;
+    DataTableBiz dataTableBiz;
     @Inject
     FileAttachService fileAttachService;
     @Inject
@@ -247,7 +247,11 @@ public class DataTableAction extends BaseAction {
         List<DbTreeVO> vos = new ArrayList<>();
         if (id == 0 && type == 0) {
             Cnd cnd = Cnd.NEW();
-            cnd.andEX("TableType", "=", tableType);
+            if (TableType.SingleTable.toString().equalsIgnoreCase(tableType)) {
+                cnd.andEX("TableType", "=", tableType);
+            } else {
+                cnd.and("TableType", "!=", TableType.SingleTable.toString());
+            }
             List<DataTable> dataTable = tableService.query(cnd);
             dataTable.forEach(table ->
                     vos.add(new DbTreeVO(table.getId(), 0, table.getName(), table.getTableType(), table.getId(), 0, 0, true))

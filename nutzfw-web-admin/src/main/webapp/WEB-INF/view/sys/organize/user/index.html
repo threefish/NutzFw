@@ -144,6 +144,13 @@ layout("/layouts/blank.html",{title:title}){
     </div>
     <div id="dataBox" style="display: none;padding: 15px">
         <div class="form-grou">
+            <label>部门<span class="required">*</span></label>
+            <input class="form-control input-sm" type="hidden" v-model="fromData.deptId"
+                   placeholder="部门选择器进行选择" readonly>
+            <input class="form-control input-sm mouseType" type="text" v-model="fromData.deptName"
+                   placeholder="部门选择器进行选择" readonly>
+        </div>
+        <div class="form-grou">
             <label>真实姓名<span class="required">*</span></label>
             <input type="text" v-model="fromData.realName" class="form-control input-sm" placeholder="真实姓名">
         </div>
@@ -156,26 +163,19 @@ layout("/layouts/blank.html",{title:title}){
             <input type="text" v-model="fromData.userPass" class="form-control input-sm" placeholder="为空则设置为默认密码">
         </div>
         <div class="form-grou">
+            <label>岗位<span class="required">*</span></label>
+            <input class="form-control input-sm" type="hidden" v-model="fromData.jobsId"
+                   placeholder="岗位选择器进行选择" readonly>
+            <input @click="acceptJobFn" type="text" v-model="fromData.jobsName"
+                   class="form-control input-sm mouseType" placeholder="岗位选择器进行选择" readonly>
+        </div>
+        <div class="form-grou">
             <label>手机</label>
             <input type="text" v-model="fromData.phone" class="form-control input-sm" placeholder="11位手机号码">
         </div>
         <div class="form-grou">
             <label>电子邮箱</label>
             <input type="text" v-model="fromData.mail" class="form-control input-sm" placeholder="电子邮箱">
-        </div>
-        <div class="form-grou">
-            <label>部门<span class="required">*</span></label>
-            <input class="form-control input-sm" type="hidden" v-model="fromData.deptId"
-                   placeholder="部门选择器进行选择" readonly>
-            <input class="form-control input-sm mouseType" type="text" v-model="fromData.deptName"
-                   placeholder="部门选择器进行选择" readonly>
-        </div>
-        <div class="form-grou">
-            <label>岗位<span class="required">*</span></label>
-            <input class="form-control input-sm" type="hidden" v-model="fromData.jobsId"
-                   placeholder="岗位选择器进行选择" readonly>
-            <input @click="acceptJobFn" type="text" v-model="fromData.jobsName"
-                   class="form-control input-sm mouseType" placeholder="岗位选择器进行选择" readonly>
         </div>
     </div>
     <div id="roleBox" style="display: none;padding: 15px">
@@ -661,7 +661,7 @@ layout("/layouts/blank.html",{title:title}){
                     var lockedCount = 0;
                     for (var i = 0; i < checkStatus.data.length; i++) {
                         vm.selectedUserIds.push(checkStatus.data[i].id);
-                        if (checkStatus.data[i].username == "admin" && type == 1) {
+                        if (checkStatus.data[i].userName == "admin" && type == 1) {
                             core.error('admin是系统管理员账号，不能被禁用')
                             return;
                         }

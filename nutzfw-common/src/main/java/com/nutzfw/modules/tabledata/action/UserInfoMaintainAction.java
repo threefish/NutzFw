@@ -78,7 +78,8 @@ public class UserInfoMaintainAction extends BaseAction {
         if (CollectionUtils.isEmpty(sessionManagerUserNames)) {
             return LayuiTableDataListVO.noData();
         }
-        return accountService.listPage(pageNum, pageSize, Cnd.where("delFlag", "=", 0).and("userName", "in", Strings.join(",", sessionManagerUserNames)));
+        return accountService.listPage(pageNum, pageSize, Cnd.where("delFlag", "=", 0)
+                .and("userName", "in", sessionManagerUserNames));
     }
 
     /**

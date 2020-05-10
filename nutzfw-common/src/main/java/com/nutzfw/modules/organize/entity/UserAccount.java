@@ -88,7 +88,7 @@ public class UserAccount extends BaseEntity implements Serializable {
 
     @Column
     @Comment("部门")
-    @Validations(required = true, strLen = {4, 30},  errorMsg = "部门不能为空")
+    @Validations(required = true, errorMsg = "部门不能为空")
     private String deptId;
 
     @Column
@@ -144,7 +144,7 @@ public class UserAccount extends BaseEntity implements Serializable {
     @Comment("更新版本-主要控制数据导入")
     @ColDefine(width = 11)
     @Default("0")
-    private int        updateVersion;
+    private int updateVersion;
     /**
      * 一对一
      */
