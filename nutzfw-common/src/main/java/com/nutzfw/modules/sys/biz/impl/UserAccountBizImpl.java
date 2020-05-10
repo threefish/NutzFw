@@ -46,6 +46,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -125,11 +126,11 @@ public class UserAccountBizImpl implements UserAccountBiz, ISqlDaoExecuteService
         nutMap.setv("userids", userids.toArray());
         Sql sql = getSqlsTplHolder().getSql("listPage", nutMap);
         sql.setParam("name", "%" + Strings.sNull(name) + "%");
-        sql.setCallback(Sqls.callback.records());
+        sql.setCallback(Sqls.callback.maps());
         long count = Daos.queryCount(dao, sql);
         sql.setPager(new Pager(pageNum, pageSize));
         dao.execute(sql);
-        return LayuiTableDataListVO.pageByData(sql.getList(Record.class), (int) count);
+        return LayuiTableDataListVO.pageByData(sql.getList(Map.class), (int) count);
     }
 
     /**

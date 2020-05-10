@@ -35,6 +35,7 @@ import org.nutz.lang.random.R;
 import org.nutz.mvc.Mvcs;
 import org.nutz.mvc.annotation.*;
 import org.nutz.plugins.validation.Errors;
+import org.nutz.trans.Trans;
 
 import java.io.File;
 import java.net.URLEncoder;
@@ -56,7 +57,7 @@ public class UserAccountAction extends BaseAction {
     @Inject
     protected UserAccountService userAccountService;
     @Inject
-    DictBiz        dictBiz;
+    DictBiz dictBiz;
     @Inject
     UserAccountBiz userAccountBiz;
 
@@ -154,54 +155,64 @@ public class UserAccountAction extends BaseAction {
 
     @Ok("json:{ignoreNull:false,DateFormat:'yyyy-MM-dd HH:mm:ss'}")
     @POST
-    @At("/add")
+    @At("/save")
     @RequiresPermissions("sysAccount.add")
     @AutoCreateMenuAuth(name = "添加", type = AutoCreateMenuAuth.RESOURCE, parentPermission = "sysAccount.index")
-    public AjaxResult add(@Param("::data.") UserAccount userAccount, @Param("jobsId") String jobsId, Errors errors) {
+    public AjaxResult save(@Param("::data.") UserAccount userAccount, @Param("jobsId") String jobsId, Errors errors) {
         if (errors.hasError()) {
             return AjaxResult.error(errors.getErrorsList().iterator().next());
         }
-        UserAccount account = userAccountService.fetch(Cnd.where("userName", "=", userAccount.getUserName()));
-        if (account != null) {
-            return AjaxResult.error("帐号已存在！");
-        }
-
         if (Strings.isNotBlank(userAccount.getPhone()) && !RegexUtil.isPhone(userAccount.getPhone())) {
             return AjaxResult.error("手机号码不符合规则");
         }
         if (Strings.isNotBlank(userAccount.getMail()) && !RegexUtil.isEmail(userAccount.getMail())) {
             return AjaxResult.error("电子邮箱不符合规则");
         }
+        if (Strings.isBlank(jobsId)) {
+            return AjaxResult.error("岗位不能为空");
+        }
         String pass = Strings.sNull(userAccount.getUserPass()).trim();
-        Sha256Hash sha;
         if (pass.length() == 0) {
             pass = Cons.DEFAULT_PASSWORD;
         } else if (pass.length() < 6 && pass.length() > 20) {
             return AjaxResult.error("密码长度不能小于6！不能大于20");
         }
-        String salt = R.UU16();
-        sha = new Sha256Hash(pass, salt);
-        try {
+        boolean isUpdate = Strings.isNotBlank(userAccount.getId());
+        UserAccount account;
+        if (isUpdate) {
+            account = userAccountService.fetch(userAccount.getId());
+        } else {
+            int count = userAccountService.count(Cnd.where("userName", "=", userAccount.getUserName()));
+            if (count > 0) {
+                return AjaxResult.error("帐号已存在！");
+            }
             account = new UserAccount();
+            account.setCreateByDate(new Date(System.currentTimeMillis()));
+            account.setCreateByName(getSessionUserAccount().getRealName());
+            account.setCreateByUserid(getSessionUserAccount().getUserid());
+        }
+        try {
             account.setLocked(false);
-            account.setUserPass(sha.toHex());
-            account.setSalt(salt);
-            account.setUserName(userAccount.getUserName());
+            account.setSalt(R.UU16());
+            account.setUserPass(new Sha256Hash(pass, account.getSalt()).toHex());
             account.setRealName(userAccount.getRealName());
             account.setPhone(userAccount.getPhone());
             account.setMail(userAccount.getMail());
             account.setDeptId(userAccount.getDeptId());
-            account.setCreateByDate(new Date(System.currentTimeMillis()));
-            account.setCreateByName(getSessionUserAccount().getRealName());
-            account.setCreateByUserid(getSessionUserAccount().getUserid());
-            userAccountService.insert(account);
-            String userId = account.getId();
-            String[] jobIds = Strings.splitIgnoreBlank(",");
-            List<UserAccountJob> userAccountJobList = new ArrayList<>();
-            for (String jobId : jobIds) {
-                userAccountJobList.add(UserAccountJob.builder().jobId(jobId).userId(userId).build());
-            }
-            userAccountJobService.insert(userAccountJobList);
+            UserAccount finalAccount = account;
+            Trans.exec(() -> {
+                userAccountService.insertOrUpdate(finalAccount);
+                String userId = finalAccount.getId();
+                String[] jobIds = Strings.splitIgnoreBlank(jobsId);
+                List<UserAccountJob> userAccountJobList = new ArrayList<>();
+                for (String jobId : jobIds) {
+                    userAccountJobList.add(UserAccountJob.builder().jobId(jobId).userId(userId).build());
+                }
+                if (isUpdate) {
+                    userAccountJobService.delete(Cnd.where("user_id", "=", finalAccount.getId()));
+                }
+                userAccountJobService.insert(userAccountJobList);
+            });
         } catch (Exception e) {
             return AjaxResult.error(e.getMessage());
         }

@@ -164,17 +164,17 @@ layout("/layouts/blank.html",{title:title}){
             <input type="text" v-model="fromData.mail" class="form-control input-sm" placeholder="电子邮箱">
         </div>
         <div class="form-grou">
-            <label>部门</label>
-            <input class="form-control input-sm" type="hidden"  v-model="fromData.deptId"
+            <label>部门<span class="required">*</span></label>
+            <input class="form-control input-sm" type="hidden" v-model="fromData.deptId"
                    placeholder="部门选择器进行选择" readonly>
-            <input class="form-control input-sm mouseType" type="text"  v-model="fromData.deptName"
+            <input class="form-control input-sm mouseType" type="text" v-model="fromData.deptName"
                    placeholder="部门选择器进行选择" readonly>
         </div>
         <div class="form-grou">
-            <label>岗位</label>
-            <input class="form-control input-sm" type="hidden"  v-model="fromData.jobsId"
+            <label>岗位<span class="required">*</span></label>
+            <input class="form-control input-sm" type="hidden" v-model="fromData.jobsId"
                    placeholder="岗位选择器进行选择" readonly>
-            <input @click="acceptJobFn" type="text"  v-model="fromData.jobsName"
+            <input @click="acceptJobFn" type="text" v-model="fromData.jobsName"
                    class="form-control input-sm mouseType" placeholder="岗位选择器进行选择" readonly>
         </div>
     </div>
@@ -203,7 +203,8 @@ layout("/layouts/blank.html",{title:title}){
 </section>
 <script type="text/html" id="toolBarFixed">
     <%if(so.hasPermission("sysDynamicFrom.edit")){%>
-    <div class="layui-btn layui-btn-sm layui-btn-normal" lay-event="userMaintain">维护信息</div>
+    <div class="layui-btn layui-btn-sm layui-btn-normal" lay-event="edit" title="编辑基础信息">编辑</div>
+    <div class="layui-btn layui-btn-sm layui-btn-normal" lay-event="userMaintain" title="维护个人扩展信息">维护</div>
     <%}%>
 </script>
 <link rel="stylesheet" href="${base}/static/plugins/ztree/css/metroStyle/metroStyle.css">
@@ -225,14 +226,15 @@ layout("/layouts/blank.html",{title:title}){
                 userPass: "",
                 realName: "",
                 deptId: "",
+                deptName: "",
                 phone: "",
                 mail: "",
                 jobsName: "",
-                jobsId: ""
+                jobsId: "",
+                id: "",
             },
             fromDataSubmit: false,
             fromDataEdit: true,
-
             selectedUserIds: [],
             selectedRoleIds: []
         },
@@ -374,27 +376,29 @@ layout("/layouts/blank.html",{title:title}){
             },
             /*打开添加人员窗口;添加人员*/
             handleAdd: function () {
+                let deptId = this.fromData.deptId
+                let deptName = this.fromData.deptName
+                this.fromData = {
+                    userName: "",
+                    userPass: "",
+                    realName: "",
+                    deptId: deptId,
+                    deptName: deptName,
+                    phone: "",
+                    mail: "",
+                    jobsName: "",
+                    jobsId: "",
+                    id: "",
+                };
                 layer.open({
                     scrollbar: false,
                     type: 1,
                     title: "新增人员",
-                    area: ['500px', '500px'],
+                    area: ['500px', '550px'],
                     content: $("#dataBox"),
                     btn: ['确定', '取消'],
                     yes: function (index) {
-                        var fromData = core.convertDataJSON(vm.fromData);
-                        //  岗位ID处理提交接收
-                        fromData.jobsId = vm.fromData.jobsId
-                        var jsonre = core.postJSON("/sysAccount/add", fromData);
-                        core.msg(jsonre);
-                        if (jsonre.ok) {
-                            vm.fromDataSubmit = false;
-                            vm.fromDataEdit = true;
-                            vm.reloadTable();
-                            layer.close(index);
-                        } else {
-                            vm.fromDataSubmit = false;
-                        }
+                        vm.handleSaveUserEdit(index);
                     }
                 });
             },
@@ -574,7 +578,6 @@ layout("/layouts/blank.html",{title:title}){
                                         var child = $('input[name="acceptPostcheck"]');
                                         //监听全选
                                         form.on('checkbox(allChoosepost)', function (data) {
-
                                             var child = $('input[name="acceptPostcheck"]');
                                             child.each(function (index, item) {
                                                 item.checked = data.elem.checked;
@@ -594,7 +597,7 @@ layout("/layouts/blank.html",{title:title}){
                                             }
                                             form.render('checkbox');
                                         });
-                                        var toUseridsArr = that.fromData.jobsId.split(',');
+                                        var toUseridsArr = that.fromData.jobsId ? that.fromData.jobsId.split(',') : [];
                                         //回显 已选中的 id
                                         toUseridsArr.forEach(function (itemid, index) {
                                             child.each(function (index, item) {
@@ -616,22 +619,24 @@ layout("/layouts/blank.html",{title:title}){
                         });
                     },
                     yes: function (index, layero) {
-                        that.fromData.jobsId = '';
-                        that.fromData.jobsName = '';
+                        let jobsId = '';
+                        let jobsName = '';
                         var child = $('input[name="acceptPostcheck"]');
                         child.each(function (index, item) {
                             if (item.checked == true) {
-                                if (that.fromData.jobsId == '') {
-                                    that.fromData.jobsId = $(item).val();
-                                    that.fromData.jobsName = $(item).attr('text');
+                                if (jobsId == '') {
+                                    jobsId = $(item).val();
+                                    jobsName = $(item).attr('text');
                                 } else {
-                                    that.fromData.jobsId += ',' + $(item).val();
-                                    that.fromData.jobsName += ',' + $(item).attr('text');
+                                    jobsId += ',' + $(item).val();
+                                    jobsName += ',' + $(item).attr('text');
                                 }
                             }
                         });
+                        vm.fromData.jobsId = jobsId;
+                        vm.fromData.jobsName = jobsName;
+                        vm.$forceUpdate();//强制刷新UI
                         $("#acceptJobDiv").addClass('hide');
-//                        console.log(that.fromData.jobsId,that.fromData.toJobnames)
                         layer.close(index);
                     },
                     btn2: function (index, layero) {
@@ -665,7 +670,6 @@ layout("/layouts/blank.html",{title:title}){
                             lockedCount++;
                         }
                     }
-                    console.log(lockedCount)
                     if (type == 2 && lockedCount == 0) {
                         core.error("您选择的用户中没有需要启用的用户!")
                         return;
@@ -684,11 +688,44 @@ layout("/layouts/blank.html",{title:title}){
             handleUserMaintain: function (data) {
                 parent.addTabs({
                     id: data.id,
-                    title: '维护--' + data.realname,
+                    title: '维护--' + data.realName,
                     close: true,
                     url: '/sysUserMaintain/userManager/' + data.id,
                     urlType: "relative"
                 })
+            },
+            //编辑基础信息
+            handleUserEdit: function (data) {
+                if (data.userName != 'admin') {
+                    vm.fromData = data;
+                    layer.open({
+                        scrollbar: false,
+                        type: 1,
+                        title: "编辑人员基本信息",
+                        area: ['500px', '550px'],
+                        content: $("#dataBox"),
+                        btn: ['确定', '取消'],
+                        yes: function (index) {
+                            vm.handleSaveUserEdit(index);
+                        }
+                    })
+                } else {
+                    core.error("不允许编辑管理员账号")
+                }
+            },
+            handleSaveUserEdit: function (index) {
+                var fromData = core.convertDataJSON(vm.fromData);
+                fromData.jobsId = vm.fromData.jobsId
+                var jsonre = core.postJSON("/sysAccount/save", fromData);
+                core.msg(jsonre);
+                if (jsonre.ok) {
+                    vm.fromDataSubmit = false;
+                    vm.fromDataEdit = true;
+                    vm.reloadTable();
+                    layer.close(index);
+                } else {
+                    vm.fromDataSubmit = false;
+                }
             }
         },
         created: function () {
@@ -708,7 +745,7 @@ layout("/layouts/blank.html",{title:title}){
                     url: base + '/sysAccount/listPage',
                     height: 'full-80',
                     limit: 50,
-                    limits: [50,100,1000],
+                    limits: [50, 100, 1000],
                     even: true,
                     request: {
                         pageName: 'pageNum',
@@ -723,33 +760,40 @@ layout("/layouts/blank.html",{title:title}){
                         {type: 'checkbox'},
                         {title: '序号', type: 'numbers', width: 50},
                         {
-                            field: 'username', title: '用户名', templet: function (row) {
-                                return row.username.replace(vm.searchData.name, "<l style='color:red'>" + vm.searchData.name + "</l>");
+                            field: 'userName', title: '用户名', templet: function (row) {
+                                return row.userName.replace(vm.searchData.name, "<l style='color:red'>" + vm.searchData.name + "</l>");
                             }
                         },
                         {
-                            field: 'realname', title: '姓名', templet: function (row) {
-                                return row.realname.replace(vm.searchData.name, "<l style='color:red'>" + vm.searchData.name + "</l>");
+                            field: 'realName', title: '姓名', templet: function (row) {
+                                return row.realName.replace(vm.searchData.name, "<l style='color:red'>" + vm.searchData.name + "</l>");
                             }
                         },
                         {field: 'role', title: '角色'},
-                        {field: 'jobname', title: '岗位'},
+                        {field: 'jobsName', title: '岗位'},
+                        {field: 'phone', title: '手机'},
+                        {field: 'mail', title: '邮件'},
+                        {
+                            field: 'review', title: '审核状态', templet: function (row) {
+                                return row.review == 1 ? "<span style='color: orangered'>未审核</span>" : "已审核";
+                            }
+                        },
                         {
                             field: 'locked', title: '状态', templet: function (row) {
                                 return row.locked ? "<span style='color: orangered'>已禁用</span>" : "启用中";
                             }
                         },
-                        {field: 'phone', title: '手机'},
-                        {field: 'mail', title: '邮件'},
-                        {field: 'create_by_date', title: '创建时间'},
+                        {field: 'create_By_Date', title: '创建时间'},
                         {field: 'create_by_name', title: '创建人'},
-                        {title: '操作', align: 'center', minWidth: 120, toolbar: '#toolBarFixed'},
+                        {title: '操作', align: 'center', minWidth: 180, toolbar: '#toolBarFixed'},
                     ]]
                 });
                 table.on("tool(listTable)", function (obj) {
                     var data = obj.data, layEvent = obj.event;
                     if (layEvent == "userMaintain") {
                         vm.handleUserMaintain(data);
+                    } else if (layEvent == "edit") {
+                        vm.handleUserEdit(data);
                     }
                 });
             });

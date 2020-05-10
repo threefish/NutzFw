@@ -18,6 +18,7 @@ import org.nutz.mvc.Mvcs;
 
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author 黄川 huchuc@vip.qq.com
@@ -94,9 +95,7 @@ public abstract class BaseAction {
      * @return
      */
     protected final Set<String> getSessionRoleIds() {
-        Set<String> codes = Sets.newHashSet();
-        getSessionRoles().forEach(role -> codes.add(role.getId()));
-        return codes;
+        return getSessionRoles().stream().map(Role::getId).collect(Collectors.toSet());
     }
 
     /**

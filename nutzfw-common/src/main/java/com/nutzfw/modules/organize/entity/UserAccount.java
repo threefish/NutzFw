@@ -88,6 +88,7 @@ public class UserAccount extends BaseEntity implements Serializable {
 
     @Column
     @Comment("部门")
+    @Validations(required = true, strLen = {4, 30},  errorMsg = "部门不能为空")
     private String deptId;
 
     @Column

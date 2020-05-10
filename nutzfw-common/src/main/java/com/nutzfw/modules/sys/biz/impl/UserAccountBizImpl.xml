@@ -12,11 +12,16 @@
     <sql id="listPage" wrap="true">
         SELECT sys_user_account.userName,sys_user_account.locked,sys_user_account.phone,sys_user_account.realName,
         sys_user_account.mail,sys_user_account.create_By_Date,sys_user_account.create_by_name,sys_user_account.id,
+        sys_department.id as deptId,sys_department.`name` as deptName,sys_user_account.review,
         (SELECT GROUP_CONCAT(role_name) FROM sys_role LEFT JOIN sys_user_account_role ON
         sys_user_account_role.role_id=sys_role.id WHERE sys_user_account_role.user_id = sys_user_account.id) AS role,
         (SELECT GROUP_CONCAT(`name`) FROM sys_job LEFT JOIN sys_user_account_job ON sys_user_account_job.job_id =
-        sys_job.id WHERE sys_user_account_job.user_id = sys_user_account.id ) AS jobName FROM sys_user_account
-        WHERE delFlag=0
+        sys_job.id WHERE sys_user_account_job.user_id = sys_user_account.id ) AS jobsName,
+        (SELECT GROUP_CONCAT(`id`) FROM sys_job LEFT JOIN sys_user_account_job ON sys_user_account_job.job_id =
+        sys_job.id WHERE sys_user_account_job.user_id = sys_user_account.id ) AS jobsId
+        FROM sys_user_account
+        left join sys_department on sys_department.id = sys_user_account.deptId
+        WHERE sys_user_account.delFlag = 0
         <exp>if(Strings.isNotBlank(deptId)){</exp>
         and deptId in (@deptId)
         <exp>} if(Strings.isNotBlank(name)){</exp>

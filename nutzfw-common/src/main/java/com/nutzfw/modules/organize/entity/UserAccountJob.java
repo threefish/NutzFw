@@ -35,7 +35,6 @@ public class UserAccountJob extends BaseEntity {
     private String jobId;
 
     @Column("user_id")
-    @Name
     @ColDefine(width = 32, notNull = true)
     private String userId;
 }
