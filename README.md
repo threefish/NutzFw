@@ -20,7 +20,7 @@ Java开源企业级快速开发框架、后台管理系统，拥有完善的权�
 
 [QQ交流群:671442044](https://shang.qq.com/wpa/qunwpa?idkey=6f668db4991eb344d1cf643617665a34f654c08e0d73cb34777fca6b1679ace5)
 
-[点我在线体验](http://114.67.74.123:8084/management/login)
+在线demo服务器将在2020-06-18日到期,建议下载部署进行体验。[点我在线体验](http://114.67.74.123:8084/management/login)
 > admin 666666
 
 [NutzFw 开发文档详见wikis](https://gitee.com/threefish/NutzFw/wikis/pages)
