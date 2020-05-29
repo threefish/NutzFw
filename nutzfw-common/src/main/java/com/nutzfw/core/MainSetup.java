@@ -7,8 +7,9 @@
 
 package com.nutzfw.core;
 
-import com.github.threefish.nutz.sqltpl.BeetlSqlTemplteEngineImpl;
+import com.github.threefish.nutz.sqltpl.SqlTplResourceLoader;
 import com.github.threefish.nutz.sqltpl.SqlsTplHolder;
+import com.github.threefish.nutz.sqltpl.templte.beetl.BeetlSqlTemplteEngineImpl;
 import com.nutzfw.core.common.cons.Cons;
 import com.nutzfw.core.common.el.function.DateFormat;
 import com.nutzfw.core.common.entity.BaseEntity;
@@ -246,9 +247,7 @@ public class MainSetup extends AbstractInitSetup implements Setup {
         NutShiro.DefaultOtherAjax = new NutMap().setv("ok", false).setv("msg", "您需要登录！").setv("type", "user.require.login");
         NutShiro.DefaultUnauthenticatedAjax = new NutMap().setv("ok", false).setv("msg", "您的权限不足！").setv("type", "user.require.unauthorized");
         BeetlViewMaker.isDev = conf.getBoolean("isDev");
-        if (BeetlViewMaker.isDev) {
-            SqlsTplHolder.DEVELOPER_MODE = true;
-        }
+        SqlTplResourceLoader.DEVELOPER_MODE = BeetlViewMaker.isDev;
         BeetlViewMaker.productVersion = conf.get("productVersion");
     }
 

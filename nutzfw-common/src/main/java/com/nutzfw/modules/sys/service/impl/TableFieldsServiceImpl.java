@@ -7,9 +7,10 @@
 
 package com.nutzfw.modules.sys.service.impl;
 
-import com.github.threefish.nutz.sqltpl.ISqlDaoExecuteService;
 import com.github.threefish.nutz.sqltpl.SqlsTplHolder;
-import com.github.threefish.nutz.sqltpl.SqlsXml;
+import com.github.threefish.nutz.sqltpl.annotation.SqlsXml;
+import com.github.threefish.nutz.sqltpl.service.ISqlDaoExecuteService;
+import com.github.threefish.nutz.sqltpl.service.ISqlTpl;
 import com.nutzfw.core.common.service.impl.BaseServiceImpl;
 import com.nutzfw.modules.sys.entity.TableFields;
 import com.nutzfw.modules.sys.service.TableFieldsService;
@@ -25,7 +26,7 @@ import java.util.List;
  */
 @IocBean(name = "tableFieldsService", args = {"refer:dao"})
 @SqlsXml("TableFieldsServiceImpl.xml")
-public class TableFieldsServiceImpl extends BaseServiceImpl<TableFields> implements TableFieldsService, ISqlDaoExecuteService {
+public class TableFieldsServiceImpl extends BaseServiceImpl<TableFields> implements TableFieldsService, ISqlDaoExecuteService, ISqlTpl {
 
     private SqlsTplHolder sqlsTplHolder;
 
@@ -46,5 +47,15 @@ public class TableFieldsServiceImpl extends BaseServiceImpl<TableFields> impleme
     @Override
     public List<TableFields> fetchAuthFields(String fetchAuthFields, NutMap setv) {
         return queryEntityBySql(fetchAuthFields, setv);
+    }
+
+    @Override
+    public SqlsTplHolder getSqlTplHolder() {
+        return sqlsTplHolder;
+    }
+
+    @Override
+    public void setSqlTpl(SqlsTplHolder sqlsTplHolder) {
+        this.sqlsTplHolder = sqlsTplHolder;
     }
 }

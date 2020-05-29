@@ -7,10 +7,11 @@
 
 package com.nutzfw.modules.message.service.impl;
 
-import com.github.threefish.nutz.dto.PageDataDTO;
-import com.github.threefish.nutz.sqltpl.ISqlDaoExecuteService;
 import com.github.threefish.nutz.sqltpl.SqlsTplHolder;
-import com.github.threefish.nutz.sqltpl.SqlsXml;
+import com.github.threefish.nutz.sqltpl.annotation.SqlsXml;
+import com.github.threefish.nutz.sqltpl.dto.PageDataDTO;
+import com.github.threefish.nutz.sqltpl.service.ISqlDaoExecuteService;
+import com.github.threefish.nutz.sqltpl.service.ISqlTpl;
 import com.nutzfw.core.common.service.impl.BaseServiceImpl;
 import com.nutzfw.core.common.vo.LayuiTableDataListVO;
 import com.nutzfw.modules.message.entity.News;
@@ -32,9 +33,9 @@ import java.util.Set;
  */
 @IocBean(args = {"refer:dao"}, name = "newsService")
 @SqlsXml
-public class NewsServiceImpl extends BaseServiceImpl<News> implements NewsService, ISqlDaoExecuteService {
+public class NewsServiceImpl extends BaseServiceImpl<News> implements NewsService, ISqlDaoExecuteService, ISqlTpl {
 
-    SqlsTplHolder sqlsTplHolder;
+    private SqlsTplHolder sqlsTplHolder;
 
     public NewsServiceImpl(Dao dao) {
         super(dao);
@@ -76,5 +77,15 @@ public class NewsServiceImpl extends BaseServiceImpl<News> implements NewsServic
     @Override
     public Dao getDao() {
         return this.dao;
+    }
+
+    @Override
+    public SqlsTplHolder getSqlTplHolder() {
+        return this.sqlsTplHolder;
+    }
+
+    @Override
+    public void setSqlTpl(SqlsTplHolder sqlsTplHolder) {
+        this.sqlsTplHolder = sqlsTplHolder;
     }
 }

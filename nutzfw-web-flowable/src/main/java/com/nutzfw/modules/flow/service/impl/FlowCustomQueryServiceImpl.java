@@ -7,9 +7,10 @@
 
 package com.nutzfw.modules.flow.service.impl;
 
-import com.github.threefish.nutz.sqltpl.ISqlDaoExecuteService;
 import com.github.threefish.nutz.sqltpl.SqlsTplHolder;
-import com.github.threefish.nutz.sqltpl.SqlsXml;
+import com.github.threefish.nutz.sqltpl.annotation.SqlsXml;
+import com.github.threefish.nutz.sqltpl.service.ISqlDaoExecuteService;
+import com.github.threefish.nutz.sqltpl.service.ISqlTpl;
 import com.google.common.collect.Lists;
 import com.nutzfw.core.plugin.flowable.constant.FlowConstant;
 import com.nutzfw.core.plugin.flowable.dto.FlowSubmitInfoDTO;
@@ -31,11 +32,10 @@ import java.util.Objects;
  */
 @SqlsXml
 @IocBean
-public class FlowCustomQueryServiceImpl implements FlowCustomQueryService, ISqlDaoExecuteService {
-    SqlsTplHolder sqlsTplHolder;
-
+public class FlowCustomQueryServiceImpl implements FlowCustomQueryService, ISqlDaoExecuteService, ISqlTpl {
     @Inject
-    Dao dao;
+    private Dao dao;
+    private SqlsTplHolder sqlsTplHolder;
 
     @Override
     public FlowSubmitInfoDTO getFlowSubmitInfo(String taskId) {
@@ -80,5 +80,15 @@ public class FlowCustomQueryServiceImpl implements FlowCustomQueryService, ISqlD
     @Override
     public Class getEntityClass() {
         return null;
+    }
+
+    @Override
+    public SqlsTplHolder getSqlTplHolder() {
+        return sqlsTplHolder;
+    }
+
+    @Override
+    public void setSqlTpl(SqlsTplHolder sqlsTplHolder) {
+        this.sqlsTplHolder = sqlsTplHolder;
     }
 }
