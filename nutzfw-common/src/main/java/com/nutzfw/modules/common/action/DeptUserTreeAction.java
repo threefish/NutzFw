@@ -7,7 +7,7 @@
 
 package com.nutzfw.modules.common.action;
 
-import com.github.threefish.nutz.dto.PageDataDTO;
+import com.github.threefish.nutz.sqltpl.dto.PageDataDTO;
 import com.nutzfw.core.common.cons.Cons;
 import com.nutzfw.core.common.filter.CheckRoleAndSession;
 import com.nutzfw.core.common.vo.LayuiTableDataListVO;

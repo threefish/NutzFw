@@ -63,7 +63,7 @@
         <servlet_api_version>3.1.0</servlet_api_version>
         <bcprov_jdk16_version>1.46</bcprov_jdk16_version>
         <useragentutils_version>1.21</useragentutils_version>
-        <nutz_sqltpl>1.3.9.RELEASE</nutz_sqltpl>
+        <nutz_sqltpl>2.0.1-SNAPSHOT</nutz_sqltpl>
         <antlr4_runtime>4.7.2</antlr4_runtime>
         <flowable_version>6.4.2</flowable_version>
         <batik_version>1.7</batik_version>

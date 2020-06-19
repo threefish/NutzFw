@@ -7,9 +7,10 @@
 
 package com.nutzfw.modules.sys.biz.impl;
 
-import com.github.threefish.nutz.sqltpl.ISqlDaoExecuteService;
 import com.github.threefish.nutz.sqltpl.SqlsTplHolder;
-import com.github.threefish.nutz.sqltpl.SqlsXml;
+import com.github.threefish.nutz.sqltpl.annotation.SqlsXml;
+import com.github.threefish.nutz.sqltpl.service.ISqlDaoExecuteService;
+import com.github.threefish.nutz.sqltpl.service.ISqlTpl;
 import com.nutzfw.core.common.cons.Cons;
 import com.nutzfw.core.common.util.FileUtil;
 import com.nutzfw.core.common.util.excel.PoiExcelUtil;
@@ -22,13 +23,11 @@ import com.nutzfw.modules.organize.service.*;
 import com.nutzfw.modules.organize.thread.CheckUserDataThread;
 import com.nutzfw.modules.sys.action.QuartzJobAction;
 import com.nutzfw.modules.sys.biz.UserAccountBiz;
-import com.nutzfw.modules.sys.service.QuartzJobService;
 import net.sf.ehcache.util.NamedThreadFactory;
 import org.nutz.dao.Cnd;
 import org.nutz.dao.Dao;
 import org.nutz.dao.Sqls;
 import org.nutz.dao.entity.Entity;
-import org.nutz.dao.entity.Record;
 import org.nutz.dao.pager.Pager;
 import org.nutz.dao.sql.Sql;
 import org.nutz.dao.util.Daos;
@@ -37,8 +36,6 @@ import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
-import org.nutz.log.Log;
-import org.nutz.log.Logs;
 import org.nutz.mvc.Mvcs;
 import org.nutz.trans.Trans;
 
@@ -58,30 +55,34 @@ import java.util.concurrent.TimeUnit;
  */
 @IocBean(name = "userAccountBiz")
 @SqlsXml("UserAccountBizImpl.xml")
-public class UserAccountBizImpl implements UserAccountBiz, ISqlDaoExecuteService {
+public class UserAccountBizImpl implements UserAccountBiz, ISqlDaoExecuteService, ISqlTpl {
     private static ExecutorService executorService = new ThreadPoolExecutor(1, 1, 0, TimeUnit.SECONDS, new LinkedBlockingDeque<>(100),
             new NamedThreadFactory("用户导入线程", false));
     @Inject
     protected UserAccountService userAccountService;
     @Inject
-    Dao dao;
+    private Dao dao;
     @Inject
-    JobService jobService;
+    private JobService jobService;
     @Inject
-    QuartzJobAction quartzJobAction;
-    @Inject
-    UserAccountRoleService userAccountRoleService;
-    @Inject
-    DepartmentJobService departmentJobService;
+    private UserAccountRoleService userAccountRoleService;
     @Inject("refer:$ioc")
-    Ioc ioc;
+    private Ioc ioc;
     @Inject
     private DepartmentService departmentService;
     @Inject
     private UserImportHistoryService userImportHistoryService;
-    @Inject
-    private QuartzJobService quartzJobService;
     private SqlsTplHolder sqlsTplHolder;
+
+    @Override
+    public SqlsTplHolder getSqlTplHolder() {
+        return sqlsTplHolder;
+    }
+
+    @Override
+    public void setSqlTpl(SqlsTplHolder sqlsTplHolder) {
+        this.sqlsTplHolder = sqlsTplHolder;
+    }
 
     /**
      * 用户管理-接收岗位
@@ -124,7 +125,7 @@ public class UserAccountBizImpl implements UserAccountBiz, ISqlDaoExecuteService
         nutMap.setv("status", status);
         nutMap.setv("review", review);
         nutMap.setv("userids", userids.toArray());
-        Sql sql = getSqlsTplHolder().getSql("listPage", nutMap);
+        Sql sql = Sqls.create(getSqlsTplHolder().getSql("listPage", nutMap));
         sql.setParam("name", "%" + Strings.sNull(name) + "%");
         sql.setCallback(Sqls.callback.maps());
         long count = Daos.queryCount(dao, sql);

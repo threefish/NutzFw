@@ -8,7 +8,8 @@
 package com.nutzfw.modules.tabledata.biz.impl;
 
 import com.github.threefish.nutz.sqltpl.SqlsTplHolder;
-import com.github.threefish.nutz.sqltpl.SqlsXml;
+import com.github.threefish.nutz.sqltpl.annotation.SqlsXml;
+import com.github.threefish.nutz.sqltpl.service.ISqlTpl;
 import com.nutzfw.modules.sys.entity.DataTable;
 import com.nutzfw.modules.sys.entity.TableFields;
 import com.nutzfw.modules.sys.service.DataTableService;
@@ -37,18 +38,18 @@ import java.util.stream.Collectors;
  */
 @IocBean(create = "init")
 @SqlsXml
-public class DataTableBizImpl implements DataTableBiz {
+public class DataTableBizImpl implements DataTableBiz, ISqlTpl {
 
-    final Log log = Logs.get();
+    private  final Log log = Logs.get();
 
-    SqlsTplHolder sqlsTplHolder;
+    private   SqlsTplHolder sqlsTplHolder;
 
     @Inject
-    DataTableService               tableService;
+    private   DataTableService               tableService;
     @Inject
-    TableFieldsService             fieldsService;
+    private   TableFieldsService             fieldsService;
     @Inject
-    DataTableVersionHistoryService versionHistoryService;
+  private   DataTableVersionHistoryService versionHistoryService;
 
     public void init() {
 
@@ -310,7 +311,7 @@ public class DataTableBizImpl implements DataTableBiz {
         allFields.addAll(modifylist);
         data.put("list", allFields);
         try {
-            String alertTableSql = sqlsTplHolder.renderSql("alertTable", data);
+            String alertTableSql = sqlsTplHolder.getSql("alertTable", data);
             log.debug(alertTableSql);
             tableService.executeSql(Sqls.create(alertTableSql));
             dataTable.setStatus(1);
@@ -338,7 +339,7 @@ public class DataTableBizImpl implements DataTableBiz {
         data.put("t", dataTable);
         data.put("list", fields);
         try {
-            String createTableSql = sqlsTplHolder.renderSql("createTable", data);
+            String createTableSql = sqlsTplHolder.getSql("createTable", data);
             log.debug(createTableSql);
             tableService.executeSql(Sqls.create(createTableSql));
             dataTable.setStatus(1);
@@ -355,5 +356,16 @@ public class DataTableBizImpl implements DataTableBiz {
             }
         }
         return null;
+    }
+
+
+    @Override
+    public SqlsTplHolder getSqlTplHolder() {
+        return sqlsTplHolder;
+    }
+
+    @Override
+    public void setSqlTpl(SqlsTplHolder sqlsTplHolder) {
+        this.sqlsTplHolder = sqlsTplHolder;
     }
 }

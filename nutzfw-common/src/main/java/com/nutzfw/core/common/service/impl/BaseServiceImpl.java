@@ -7,7 +7,7 @@
 
 package com.nutzfw.core.common.service.impl;
 
-import com.github.threefish.nutz.dto.PageDataDTO;
+import com.github.threefish.nutz.sqltpl.dto.PageDataDTO;
 import com.nutzfw.core.common.service.BaseService;
 import com.nutzfw.core.common.vo.LayuiTableDataListVO;
 import org.apache.commons.lang3.math.NumberUtils;

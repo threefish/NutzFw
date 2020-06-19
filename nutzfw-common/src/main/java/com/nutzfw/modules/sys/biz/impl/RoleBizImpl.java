@@ -7,9 +7,10 @@
 
 package com.nutzfw.modules.sys.biz.impl;
 
-import com.github.threefish.nutz.sqltpl.ISqlDaoExecuteService;
 import com.github.threefish.nutz.sqltpl.SqlsTplHolder;
-import com.github.threefish.nutz.sqltpl.SqlsXml;
+import com.github.threefish.nutz.sqltpl.annotation.SqlsXml;
+import com.github.threefish.nutz.sqltpl.service.ISqlDaoExecuteService;
+import com.github.threefish.nutz.sqltpl.service.ISqlTpl;
 import com.nutzfw.core.common.vo.AjaxResult;
 import com.nutzfw.modules.organize.entity.Department;
 import com.nutzfw.modules.organize.service.DepartmentService;
@@ -27,8 +28,6 @@ import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.lang.Lang;
 import org.nutz.lang.util.NutMap;
-import org.nutz.log.Log;
-import org.nutz.log.Logs;
 import org.nutz.trans.Trans;
 
 import java.util.ArrayList;
@@ -42,29 +41,38 @@ import java.util.Set;
  */
 @IocBean(name = "roleBiz")
 @SqlsXml
-public class RoleBizImpl implements RoleBiz, ISqlDaoExecuteService {
-    private static final Log log = Logs.get();
+public class RoleBizImpl implements RoleBiz, ISqlDaoExecuteService, ISqlTpl {
 
 
     @Inject
-    UserAccountJobService userAccountJobService;
+    private UserAccountJobService userAccountJobService;
     @Inject
-    Dao                   dao;
+    private Dao dao;
     @Inject
     private RoleDepartmentService roleDepartmentService;
     @Inject
-    private RoleJobService        roleJobService;
+    private RoleJobService roleJobService;
     @Inject
-    private DepartmentService     departmentService;
+    private DepartmentService departmentService;
     @Inject
-    private JobService            jobService;
+    private JobService jobService;
     @Inject
-    private RoleService           roleService;
+    private RoleService roleService;
     @Inject
-    private MenuService           menuService;
+    private MenuService menuService;
     @Inject
-    private RoleMenusService      roleMenusService;
-    private SqlsTplHolder         sqlsTplHolder;
+    private RoleMenusService roleMenusService;
+    private SqlsTplHolder sqlsTplHolder;
+
+    @Override
+    public SqlsTplHolder getSqlTplHolder() {
+        return sqlsTplHolder;
+    }
+
+    @Override
+    public void setSqlTpl(SqlsTplHolder sqlsTplHolder) {
+        this.sqlsTplHolder = sqlsTplHolder;
+    }
 
     /**
      * 查询所有的角色

@@ -7,7 +7,7 @@
 
 package com.nutzfw.modules.organize.service;
 
-import com.github.threefish.nutz.dto.PageDataDTO;
+import com.github.threefish.nutz.sqltpl.dto.PageDataDTO;
 import com.nutzfw.core.common.service.BaseService;
 import com.nutzfw.core.common.vo.AjaxResult;
 import com.nutzfw.modules.organize.entity.Department;

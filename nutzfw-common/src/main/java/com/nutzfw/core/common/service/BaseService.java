@@ -7,7 +7,7 @@
 
 package com.nutzfw.core.common.service;
 
-import com.github.threefish.nutz.dto.PageDataDTO;
+import com.github.threefish.nutz.sqltpl.dto.PageDataDTO;
 import com.nutzfw.core.common.vo.LayuiTableDataListVO;
 import org.nutz.dao.*;
 import org.nutz.dao.entity.Record;

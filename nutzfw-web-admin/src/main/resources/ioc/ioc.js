@@ -4,7 +4,7 @@ var ioc = {
         args: [{refer: '$ioc'}]
     },
     beetlSqlTemplteEngineImpl: {
-        type: "com.github.threefish.nutz.sqltpl.BeetlSqlTemplteEngineImpl",
+        type: "com.github.threefish.nutz.sqltpl.templte.beetl.BeetlSqlTemplteEngineImpl",
         events: {
             create: "init"
         }

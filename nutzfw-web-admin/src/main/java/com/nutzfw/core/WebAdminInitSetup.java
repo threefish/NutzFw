@@ -7,6 +7,7 @@
 
 package com.nutzfw.core;
 
+import com.github.threefish.nutz.sqltpl.SqlTplResourceLoader;
 import com.github.threefish.nutz.sqltpl.SqlsTplHolder;
 import com.nutzfw.core.common.entity.BaseEntity;
 import com.nutzfw.core.common.util.ScanerAotuCreateMenusUtil;
@@ -34,7 +35,6 @@ public class WebAdminInitSetup implements InitSetup {
     public void init(NutConfig nutConfig) {
         Ioc ioc = nutConfig.getIoc();
         PropertiesProxy conf = ioc.get(PropertiesProxy.class, "conf");
-        SqlsTplHolder.DEVELOPER_MODE = BeetlViewMaker.isDev;
         boolean initSystem = conf.getBoolean("initSystem", false);
         Dao dao = ioc.get(Dao.class, "dao");
         //扫描权限-菜单

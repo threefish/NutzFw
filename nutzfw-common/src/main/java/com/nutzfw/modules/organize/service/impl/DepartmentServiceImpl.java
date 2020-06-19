@@ -7,10 +7,11 @@
 
 package com.nutzfw.modules.organize.service.impl;
 
-import com.github.threefish.nutz.dto.PageDataDTO;
-import com.github.threefish.nutz.sqltpl.ISqlDaoExecuteService;
 import com.github.threefish.nutz.sqltpl.SqlsTplHolder;
-import com.github.threefish.nutz.sqltpl.SqlsXml;
+import com.github.threefish.nutz.sqltpl.annotation.SqlsXml;
+import com.github.threefish.nutz.sqltpl.dto.PageDataDTO;
+import com.github.threefish.nutz.sqltpl.service.ISqlDaoExecuteService;
+import com.github.threefish.nutz.sqltpl.service.ISqlTpl;
 import com.nutzfw.core.common.cons.Cons;
 import com.nutzfw.core.common.service.impl.BaseServiceImpl;
 import com.nutzfw.core.common.util.FileUtil;
@@ -24,6 +25,7 @@ import com.nutzfw.modules.organize.service.UserAccountService;
 import com.nutzfw.modules.organize.vo.DeptJobTreeVO;
 import com.nutzfw.modules.organize.vo.DeptSelectVO;
 import com.nutzfw.modules.sys.service.FileAttachService;
+import lombok.Setter;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -46,16 +48,27 @@ import java.util.*;
  */
 @IocBean(args = {"refer:dao"})
 @SqlsXml
-public class DepartmentServiceImpl extends BaseServiceImpl<Department> implements DepartmentService, ISqlDaoExecuteService {
+@Setter
+public class DepartmentServiceImpl extends BaseServiceImpl<Department> implements DepartmentService, ISqlDaoExecuteService, ISqlTpl {
     @Inject
-    FileAttachService  fileAttachService;
+    private FileAttachService fileAttachService;
     @Inject
-    UserAccountService userAccountService;
+    private UserAccountService userAccountService;
 
-    SqlsTplHolder sqlsTplHolder;
+    private SqlsTplHolder sqlsTplHolder;
 
     public DepartmentServiceImpl(Dao dao) {
         super(dao);
+    }
+
+    @Override
+    public SqlsTplHolder getSqlTplHolder() {
+        return sqlsTplHolder;
+    }
+
+    @Override
+    public void setSqlTpl(SqlsTplHolder sqlsTplHolder) {
+        this.sqlsTplHolder = sqlsTplHolder;
     }
 
     /**
@@ -514,4 +527,6 @@ public class DepartmentServiceImpl extends BaseServiceImpl<Department> implement
     public Dao getDao() {
         return dao;
     }
+
+
 }
