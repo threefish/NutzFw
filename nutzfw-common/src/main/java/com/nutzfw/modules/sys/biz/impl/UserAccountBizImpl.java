@@ -21,7 +21,6 @@ import com.nutzfw.modules.organize.entity.UserAccountRole;
 import com.nutzfw.modules.organize.entity.UserImportHistory;
 import com.nutzfw.modules.organize.service.*;
 import com.nutzfw.modules.organize.thread.CheckUserDataThread;
-import com.nutzfw.modules.sys.action.QuartzJobAction;
 import com.nutzfw.modules.sys.biz.UserAccountBiz;
 import net.sf.ehcache.util.NamedThreadFactory;
 import org.nutz.dao.Cnd;
@@ -127,6 +126,7 @@ public class UserAccountBizImpl implements UserAccountBiz, ISqlDaoExecuteService
         nutMap.setv("userids", userids.toArray());
         Sql sql = Sqls.create(getSqlsTplHolder().getSql("listPage", nutMap));
         sql.setParam("name", "%" + Strings.sNull(name) + "%");
+        sql.setParams(nutMap);
         sql.setCallback(Sqls.callback.maps());
         long count = Daos.queryCount(dao, sql);
         sql.setPager(new Pager(pageNum, pageSize));

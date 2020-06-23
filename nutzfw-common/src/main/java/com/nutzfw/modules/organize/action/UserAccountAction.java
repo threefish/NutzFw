@@ -190,6 +190,7 @@ public class UserAccountAction extends BaseAction {
             account.setCreateByDate(new Date(System.currentTimeMillis()));
             account.setCreateByName(getSessionUserAccount().getRealName());
             account.setCreateByUserid(getSessionUserAccount().getUserid());
+            account.setUserName(userAccount.getUserName());
         }
         try {
             account.setLocked(false);
