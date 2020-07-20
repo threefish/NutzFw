@@ -119,7 +119,6 @@ layout("/layouts/blank.html",{title:title}){
             fromData: {},
             fromDataSubmit: false,
             fromDataEdit: true,
-
             reviewOpinion: "",
             sourceUrl: "",
             batchAgreeReview: false,
@@ -309,17 +308,17 @@ layout("/layouts/blank.html",{title:title}){
                         cols: [[
                             {type: 'checkbox', width: 50},
                             {
-                                field: 'username', title: '用户名', templet: function (row) {
-                                    return row.username.replace(vm.searchData.key, "<l style='color:red'>" + vm.searchData.key + "</l>");
+                                field: 'userName', title: '用户名', templet: function (row) {
+                                    return row.userName.replace(vm.searchData.key, "<l style='color:red'>" + vm.searchData.key + "</l>");
                                 }
                             },
                             {
-                                field: 'realname', title: '姓名', templet: function (row) {
-                                    return row.realname.replace(vm.searchData.key, "<l style='color:red'>" + vm.searchData.key + "</l>");
+                                field: 'realName', title: '姓名', templet: function (row) {
+                                    return row.realName.replace(vm.searchData.key, "<l style='color:red'>" + vm.searchData.key + "</l>");
                                 }
                             },
                             {field: 'role', title: '角色'},
-                            {field: 'jobname', title: '岗位'},
+                            {field: 'jobsName', title: '岗位'},
                             {field: 'phone', title: '手机',width: 120,},
                             {field: 'mail', title: '邮件'},
                             {field: 'reviewOpinion', title: '审核意见'},
@@ -359,17 +358,17 @@ layout("/layouts/blank.html",{title:title}){
                     cols: [[
                         {type: 'checkbox', width: 50},
                         {
-                            field: 'username', title: '用户名', templet: function (row) {
-                                return row.username.replace(vm.searchData.key, "<l style='color:red'>" + vm.searchData.key + "</l>");
+                            field: 'userName', title: '用户名', templet: function (row) {
+                                return row.userName.replace(vm.searchData.key, "<l style='color:red'>" + vm.searchData.key + "</l>");
                             }
                         },
                         {
-                            field: 'realname', title: '姓名', templet: function (row) {
-                                return row.realname.replace(vm.searchData.key, "<l style='color:red'>" + vm.searchData.key + "</l>");
+                            field: 'realName', title: '姓名', templet: function (row) {
+                                return row.realName.replace(vm.searchData.key, "<l style='color:red'>" + vm.searchData.key + "</l>");
                             }
                         },
                         {field: 'role', title: '角色'},
-                        {field: 'jobname', title: '岗位'},
+                        {field: 'jobsName', title: '岗位'},
                         {field: 'phone', title: '手机',width: 120,},
                         {field: 'mail', title: '邮件'},
                         {
