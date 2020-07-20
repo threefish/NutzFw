@@ -310,12 +310,12 @@ layout("/layouts/blank.html",{title:title}){
                             {type: 'checkbox', width: 50},
                             {
                                 field: 'username', title: '用户名', templet: function (row) {
-                                    return row.username.replace(vm.searchData.name, "<l style='color:red'>" + vm.searchData.name + "</l>");
+                                    return row.username.replace(vm.searchData.key, "<l style='color:red'>" + vm.searchData.key + "</l>");
                                 }
                             },
                             {
                                 field: 'realname', title: '姓名', templet: function (row) {
-                                    return row.realname.replace(vm.searchData.name, "<l style='color:red'>" + vm.searchData.name + "</l>");
+                                    return row.realname.replace(vm.searchData.key, "<l style='color:red'>" + vm.searchData.key + "</l>");
                                 }
                             },
                             {field: 'role', title: '角色'},
@@ -360,12 +360,12 @@ layout("/layouts/blank.html",{title:title}){
                         {type: 'checkbox', width: 50},
                         {
                             field: 'username', title: '用户名', templet: function (row) {
-                                return row.username.replace(vm.searchData.name, "<l style='color:red'>" + vm.searchData.name + "</l>");
+                                return row.username.replace(vm.searchData.key, "<l style='color:red'>" + vm.searchData.key + "</l>");
                             }
                         },
                         {
                             field: 'realname', title: '姓名', templet: function (row) {
-                                return row.realname.replace(vm.searchData.name, "<l style='color:red'>" + vm.searchData.name + "</l>");
+                                return row.realname.replace(vm.searchData.key, "<l style='color:red'>" + vm.searchData.key + "</l>");
                             }
                         },
                         {field: 'role', title: '角色'},
