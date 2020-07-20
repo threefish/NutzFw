@@ -775,7 +775,7 @@ layout("/layouts/blank.html",{title:title}){
                         {field: 'mail', title: '邮件'},
                         {
                             field: 'review', title: '审核状态', templet: function (row) {
-                                return row.review == 1 ? "<span style='color: orangered'>未审核</span>" : "已审核";
+                                return row.review == 0 ? "<span style='color: orangered'>未审核</span>" : "已审核";
                             }
                         },
                         {
