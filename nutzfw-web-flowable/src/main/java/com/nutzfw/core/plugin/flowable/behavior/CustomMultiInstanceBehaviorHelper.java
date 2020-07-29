@@ -9,7 +9,6 @@ package com.nutzfw.core.plugin.flowable.behavior;
 
 
 import com.nutzfw.core.plugin.flowable.constant.FlowConstant;
-import com.nutzfw.core.plugin.flowable.dto.CandidateGroupsDTO;
 import com.nutzfw.core.plugin.flowable.dto.CandidateUsersDTO;
 import com.nutzfw.core.plugin.flowable.dto.UserTaskExtensionDTO;
 import com.nutzfw.core.plugin.flowable.enums.TaskReviewerScopeEnum;
@@ -74,9 +73,11 @@ public class CustomMultiInstanceBehaviorHelper {
                     assigneesCollection = Optional.ofNullable(taskExtensionDTO.getCandidateUsers()).orElse(new ArrayList<>(0)).stream().map(CandidateUsersDTO::getUserName).collect(Collectors.toList());
                     break;
                 case USER_ROLE_GROUPS:
+                    //使用时需要拆分出来
                     for (int i = 0; i < taskExtensionDTO.getSignNrOfInstances(); i++) {
-                        //使用时需要拆分出来
-                        assigneesCollection.add(Optional.ofNullable(taskExtensionDTO.getCandidateGroups()).orElse(new ArrayList<>()).stream().map(CandidateGroupsDTO::getRoleCode).collect(Collectors.joining(",")));
+                        // fix:https://gitee.com/threefish/NutzFw/issues/I1P8SG
+                        assigneesCollection.add(null);
+                        // assigneesCollection.add(Optional.ofNullable(taskExtensionDTO.getCandidateGroups()).orElse(new ArrayList<>()).stream().map(CandidateGroupsDTO::getRoleCode).collect(Collectors.joining(",")));
                     }
                     break;
                 default:
