@@ -3,6 +3,10 @@
 [![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
 [![PowerByNutz](https://img.shields.io/badge/PowerBy-Nutz-green.svg)](https://github.com/nutzam/nutz)
 
+
+# [大带宽20M起 ，便宜 HK\US VPS推荐](https://kvm.yunserver.com/aff.php?aff=1013)
+
+
 #### 介绍
 
 Java开源企业级快速开发框架、后台管理系统，拥有完善的权限控制、代码生成器、自定义表单、动态数据库、灵活的工作流、手机APP客户端、支持前后端分离开发。
@@ -20,11 +24,8 @@ Java开源企业级快速开发框架、后台管理系统，拥有完善的权�
 
 [QQ交流群:671442044](https://shang.qq.com/wpa/qunwpa?idkey=6f668db4991eb344d1cf643617665a34f654c08e0d73cb34777fca6b1679ace5)
 
-在线demo服务器将在已到期,请下载部署进行体验。
+在线demo服务器已到期,请下载部署进行体验。
 > 账号密码： admin 666666
-
-## [便宜 HK\JP\US VPS推荐](https://billing.raksmart.com/whmcs/aff.php?aff=3019)
-
 
 #### [NutzFw 开发文档详见wikis](https://gitee.com/threefish/NutzFw/wikis/pages)
 
@@ -177,7 +178,7 @@ Nutz 社区支持 [https://nutz.cn](https://nutz.cn) 及 Nutz 使用手册 [http
 ### NutzFw模块依赖结构
 ![NutzFw模块依赖结构](doc/imgae/NutzFw模块依赖结构.jpg)
 
-#### 注意：除核心模块外，其他所有模块都是完整的可以独立部署的模块，并且包含其继承的模块，所以不要同时部署多个模块
+#### 注意：除核心模块外，其他所有模块都是完整的可以独立部署的模块，并且包含其继承的模块，本系统不是微服务，所以不要同时部署多个模块，没有意义。
 
 ### maven打包
 
