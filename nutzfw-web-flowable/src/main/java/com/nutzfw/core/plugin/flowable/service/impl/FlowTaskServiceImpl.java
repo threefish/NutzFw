@@ -61,6 +61,7 @@ import org.nutz.trans.Trans;
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author 黄川 huchuc@vip.qq.com
@@ -533,6 +534,24 @@ public class FlowTaskServiceImpl implements FlowTaskService {
     @Override
     public void deleteTask(String taskId, String deleteReason) {
         taskService.deleteTask(taskId, deleteReason);
+    }
+
+    /**
+     * 结束流程实例
+     *
+     * @param processInstanceId 流程实例ID
+     * @param stopReason        停止原因
+     */
+    @Override
+    public void stopProcessInstance(String processInstanceId, String stopReason) {
+        ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
+        List<Task> tasks = taskService.createTaskQuery().processInstanceId(processInstanceId).list();
+        List<String> currentActivityIds = tasks.stream().map(task -> task.getTaskDefinitionKey()).collect(Collectors.toList());
+        FlowElement endFlowElement = flowProcessDefinitionService.findEndFlowElement(processInstance.getProcessDefinitionId());
+        this.addComment(null,task.getProcessInstanceId(), "[终止] " + reason);
+        runtimeService.createChangeActivityStateBuilder()
+                .processInstanceId(processInstanceId)
+                .moveActivityIdsToSingleActivityId(currentActivityIds, endFlowElement.getId()).changeState();
     }
 
     /**
