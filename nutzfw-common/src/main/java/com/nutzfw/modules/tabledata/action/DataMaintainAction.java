@@ -26,7 +26,7 @@ import com.nutzfw.modules.tabledata.enums.FieldType;
 import com.nutzfw.modules.tabledata.service.DataImportHistoryService;
 import com.nutzfw.modules.tabledata.thread.CheckDataThread;
 import com.nutzfw.modules.tabledata.vo.SingeDataMaintainQueryVO;
-import net.sf.ehcache.util.NamedThreadFactory;
+import com.zaxxer.hikari.util.DefaultThreadFactory;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.nutz.dao.Cnd;
@@ -66,7 +66,7 @@ public class DataMaintainAction extends BaseAction {
      * 数据导入线程
      */
     private static ExecutorService executorService = new ThreadPoolExecutor(1, 1, 0, TimeUnit.SECONDS, new LinkedBlockingDeque<>(100),
-            new NamedThreadFactory("数据导入线程", false));
+            new DefaultThreadFactory("数据导入线程", false));
     @Inject
     DataTableService tableService;
     @Inject
