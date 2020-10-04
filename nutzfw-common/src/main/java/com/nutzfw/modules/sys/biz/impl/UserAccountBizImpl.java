@@ -22,7 +22,7 @@ import com.nutzfw.modules.organize.entity.UserImportHistory;
 import com.nutzfw.modules.organize.service.*;
 import com.nutzfw.modules.organize.thread.CheckUserDataThread;
 import com.nutzfw.modules.sys.biz.UserAccountBiz;
-import net.sf.ehcache.util.NamedThreadFactory;
+import com.zaxxer.hikari.util.DefaultThreadFactory;
 import org.nutz.dao.Cnd;
 import org.nutz.dao.Dao;
 import org.nutz.dao.Sqls;
@@ -55,8 +55,8 @@ import java.util.concurrent.TimeUnit;
 @IocBean(name = "userAccountBiz")
 @SqlsXml("UserAccountBizImpl.xml")
 public class UserAccountBizImpl implements UserAccountBiz, ISqlDaoExecuteService, ISqlTpl {
-    private static ExecutorService executorService = new ThreadPoolExecutor(1, 1, 0, TimeUnit.SECONDS, new LinkedBlockingDeque<>(100),
-            new NamedThreadFactory("用户导入线程", false));
+    private static ExecutorService executorService = new ThreadPoolExecutor(1, 1, 0, TimeUnit.SECONDS,
+            new LinkedBlockingDeque<>(100), new DefaultThreadFactory("用户导入线程", false));
     @Inject
     protected UserAccountService userAccountService;
     @Inject

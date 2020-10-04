@@ -548,7 +548,7 @@ public class FlowTaskServiceImpl implements FlowTaskService {
         List<Task> tasks = taskService.createTaskQuery().processInstanceId(processInstanceId).list();
         List<String> currentActivityIds = tasks.stream().map(task -> task.getTaskDefinitionKey()).collect(Collectors.toList());
         FlowElement endFlowElement = flowProcessDefinitionService.findEndFlowElement(processInstance.getProcessDefinitionId());
-        this.addComment(null,task.getProcessInstanceId(), "[终止] " + reason);
+        taskService.addComment(null,processInstanceId, "[终止] " + stopReason);
         runtimeService.createChangeActivityStateBuilder()
                 .processInstanceId(processInstanceId)
                 .moveActivityIdsToSingleActivityId(currentActivityIds, endFlowElement.getId()).changeState();
