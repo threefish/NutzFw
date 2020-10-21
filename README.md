@@ -205,4 +205,5 @@ mvn clean install
 ![donation](https://gitee.com/threefish/NutzCodeInsight/raw/master/image/donation.jpg)
 
 #### 关于
-  本项目完全开源，商用完全免费。但请勿侵犯作者合法权益，如申请软著等。
+  本项目完全开源，请勿侵犯作者合法权益，如申请软著等。
+  严禁用于非法用途，请自行识别项目中使用到的三方库和三方插件等，出现商业纠纷和授权问题，本项目作者概不负责，请自行解决。
