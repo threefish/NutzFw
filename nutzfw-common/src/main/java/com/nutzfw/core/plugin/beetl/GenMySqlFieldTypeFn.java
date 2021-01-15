@@ -47,7 +47,7 @@ public class GenMySqlFieldTypeFn implements Function {
              */
             switch (fields.getFieldType()) {
                 case 0:
-                    return MessageFormat.format("varchar({0}) DEFAULT {1}", fields.getLength(), fields.getDefaultValue());
+                    return MessageFormat.format("varchar({0}) DEFAULT {1}", String.valueOf(fields.getLength()), fields.getDefaultValue());
                 case 1:
                     if (fields.getDecimalPoint() == 0) {
                         value = String.valueOf(fields.getLength());
