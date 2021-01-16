@@ -41,7 +41,7 @@
         <!--  win和linux版本不一致      -->
         <j2v8_linux_version>4.8.0</j2v8_linux_version>
         <j2v8_win_version>4.6.0</j2v8_win_version>
-        <shiro_version>1.2.4</shiro_version>
+        <shiro_version>1.2.6</shiro_version>
         <swagger_version>1.5.18</swagger_version>
         <jedis_version>2.9.0</jedis_version>
         <quartz_version>2.3.0</quartz_version>
