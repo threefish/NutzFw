@@ -1146,7 +1146,7 @@ hot-table .column-header.label {
 
 #paletteHelpWrapper {
     float: left;
-    width: 300px;
+    width: 230px;
     transition: 0.3s width;
 }
 
@@ -1155,7 +1155,7 @@ hot-table .column-header.label {
 }
 
 #contentCanvasWrapper {
-    padding-left: 300px;
+    padding-left: 230px;
     transition: 0.3s padding-left;
 }
 

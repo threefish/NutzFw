@@ -107,4 +107,9 @@ public class LeaveExecutor implements ExternalFormExecutor {
     public void afterCreateUserTask(DelegateExecution execution, UserTask userTask, UserTaskExtensionDTO dto, String processInstanceBusinessKey, TaskEntity taskEntity) {
 
     }
+
+    @Override
+    public String getUniqueName() {
+        return "请假业务表单处理器";
+    }
 }

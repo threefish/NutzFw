@@ -14,16 +14,17 @@ import org.flowable.bpmn.model.UserTask;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.task.service.impl.persistence.entity.TaskEntity;
 import org.nutz.ioc.loader.annotation.IocBean;
+import org.nutz.mvc.Mvcs;
 
 import java.util.Map;
 
 /**
  * @author huchuc@vip.qq.com
- * @date: 2019/6/20
- * 表单执行器的默认实现
+ * @date: 2021/10/08
+ * 在线表单执行器
  */
-@IocBean(name = "defaualtExternalFormExecutor")
-public class DefaualtExternalFormExecutor implements ExternalFormExecutor {
+@IocBean(name = "onlineFormExternalFormExecutor")
+public class OnlineFormExternalFormExecutor implements ExternalFormExecutor {
 
     @Override
     public Map start(Map formData, FlowTaskVO flowTaskVO, UserAccount sessionUserAccount) {
@@ -74,6 +75,11 @@ public class DefaualtExternalFormExecutor implements ExternalFormExecutor {
     @Override
     public void afterCreateUserTask(DelegateExecution execution, UserTask userTask, UserTaskExtensionDTO dto, String processInstanceBusinessKey, TaskEntity taskEntity) {
 
+    }
+
+    @Override
+    public String getUniqueName() {
+        return "在线表单执行器";
     }
 
 

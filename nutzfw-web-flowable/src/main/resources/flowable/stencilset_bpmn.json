@@ -83,45 +83,6 @@
       ]
     },
     {
-      "name": "process_authorpackage",
-      "properties": [
-        {
-          "id": "process_author",
-          "type": "String",
-          "title": "流程作者",
-          "value": "",
-          "description": "流程定义的作者.",
-          "popular": true
-        }
-      ]
-    },
-    {
-      "name": "process_versionpackage",
-      "properties": [
-        {
-          "id": "process_version",
-          "type": "String",
-          "title": "流程版本字符串（仅备注）",
-          "value": "",
-          "description": "文档的目的为版本标识",
-          "popular": true
-        }
-      ]
-    },
-    {
-      "name": "process_historylevelpackage",
-      "properties": [
-        {
-          "id": "process_historylevel",
-          "type": "flowable-processhistorylevel",
-          "title": "为此流程定义设置特定的历史级别",
-          "value": "",
-          "description": "为此流程定义设置特定的历史级别",
-          "popular": true
-        }
-      ]
-    },
-    {
       "name": "isexecutablepackage",
       "properties": [
         {
@@ -130,19 +91,6 @@
           "title": "是否可执行",
           "value": "true",
           "description": "这个流程是可执行的吗?",
-          "popular": true
-        }
-      ]
-    },
-    {
-      "name": "process_potentialstarteruserpackage",
-      "properties": [
-        {
-          "id": "process_potentialstarteruser",
-          "type": "String",
-          "title": "流程启动者",
-          "value": "",
-          "description": "哪个用户，可以启动流程?",
           "popular": true
         }
       ]
@@ -204,9 +152,9 @@
       "properties": [
         {
           "id": "externalformexecutor",
-          "type": "String",
+          "type": "flowable-externalformexecutor",
           "title": "外部业务表单执行器",
-          "value": "$ioc:defaualtExternalFormExecutor",
+          "value": "$ioc:onlineFormExternalFormExecutor",
           "description": "外部业务表单执行器",
           "popular": true
         }
@@ -1637,16 +1585,13 @@
         "documentationpackage",
         "process_authorpackage",
         "process_versionpackage",
-        "process_namespacepackage",
         "process_historylevelpackage",
-        "isexecutablepackage",
         "executionlistenerspackage",
         "eventlistenerspackage",
         "signaldefinitionspackage",
         "messagedefinitionspackage",
         "process_potentialstarteruserpackage",
-        "process_potentialstartergrouppackage",
-        "process_iseagerexecutionfetchpackage"
+        "process_potentialstartergrouppackage"
       ],
       "hiddenPropertyPackages": [],
       "roles": []

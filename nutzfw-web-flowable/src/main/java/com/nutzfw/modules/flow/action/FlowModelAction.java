@@ -55,7 +55,10 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.List;
+
+import static org.flowable.editor.constants.StencilConstants.*;
 
 /**
  * @author 黄川 huchuc@vip.qq.com
@@ -111,10 +114,18 @@ public class FlowModelAction extends BaseAction {
         properties.put("process_namespace", "https://github.com/threefish");
         properties.put("name", name);
         properties.put("documentation", description);
+        properties.put("dataproperties", new NutMap()
+                .setv("items", Arrays.asList(new NutMap()
+                        .setv(PROPERTY_DATA_ID, FlowConstant.PROCESS_TITLE)
+                        .setv(PROPERTY_DATA_NAME, "流程标题")
+                        .setv(PROPERTY_DATA_TYPE, "string")
+                        .setv("dataproperty_expression", "${user.realName} 发起的" + name + "流程")
+                )));
         editorNode.put("properties", properties);
         NutMap stencilSetNode = NutMap.NEW();
         stencilSetNode.put("namespace", "http://b3mn.org/stencilset/bpmn2.0#");
         editorNode.put("stencilset", stencilSetNode);
+
         repositoryService.addModelEditorSource(model.getId(), Json.toJson(editorNode, JsonFormat.compact()).getBytes(StandardCharsets.UTF_8));
         return AjaxResult.sucess(model.getId());
     }

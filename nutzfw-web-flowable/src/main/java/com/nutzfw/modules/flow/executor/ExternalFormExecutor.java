@@ -115,4 +115,13 @@ public interface ExternalFormExecutor {
      * @param processInstanceBusinessKey
      */
     void afterCreateUserTask(DelegateExecution execution, UserTask userTask, UserTaskExtensionDTO dto, String processInstanceBusinessKey, TaskEntity taskEntity);
+
+    /**
+     * 前端设计器中进行直接选取使用
+     * 唯一
+     * @return
+     */
+    String getUniqueName();
+
+
 }

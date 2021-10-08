@@ -14,12 +14,14 @@ import com.nutzfw.core.common.annotation.AutoCreateMenuAuth;
 import com.nutzfw.core.common.cons.Cons;
 import com.nutzfw.core.common.filter.CheckRoleAndSession;
 import com.nutzfw.core.common.vo.AjaxResult;
+import com.nutzfw.core.common.vo.OptionVO;
 import com.nutzfw.core.plugin.flowable.constant.FlowConstant;
 import com.nutzfw.core.plugin.flowable.converter.CustomBpmnJsonConverter;
 import com.nutzfw.core.plugin.flowable.util.FlowDiagramUtils;
 import com.nutzfw.core.plugin.flowable.util.FlowUtils;
 import com.nutzfw.core.plugin.flowable.validator.CustomProcessValidatorFactory;
 import com.nutzfw.modules.common.action.BaseAction;
+import com.nutzfw.modules.flow.executor.ExternalFormExecutor;
 import com.nutzfw.modules.organize.entity.UserAccount;
 import com.nutzfw.modules.organize.service.UserAccountService;
 import com.nutzfw.modules.sys.entity.Role;
@@ -45,6 +47,7 @@ import org.nutz.json.JsonFormat;
 import org.nutz.lang.Files;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
+import org.nutz.mvc.Mvcs;
 import org.nutz.mvc.adaptor.JsonAdaptor;
 import org.nutz.mvc.annotation.*;
 
@@ -55,6 +58,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author 黄川 huchuc@vip.qq.com
@@ -243,6 +247,17 @@ public class FlowDesignAction extends BaseAction {
         } else {
             return Arrays.asList();
         }
+    }
+
+    @At("/listExternalFormExecutor")
+    @Ok("json")
+    @GET
+    public List<OptionVO> listExternalFormExecutor() {
+        String[] namesByType = Mvcs.getIoc().getNamesByType(ExternalFormExecutor.class);
+        return Arrays.stream(namesByType).map(iocBeanName -> {
+            ExternalFormExecutor externalFormExecutor = Mvcs.getIoc().get(ExternalFormExecutor.class, iocBeanName);
+            return new OptionVO("$ioc:" + iocBeanName, externalFormExecutor.getUniqueName());
+        }).collect(Collectors.toList());
     }
 
     @At("/admin/process-instances/?/model-json")

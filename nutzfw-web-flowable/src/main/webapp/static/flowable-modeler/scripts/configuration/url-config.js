@@ -251,4 +251,7 @@ FLOWABLE.APP_URL = {
     getReviewerUserRolesUrl: function () {
         return FLOWABLE.CONFIG.contextRoot + '/flowDesign/reviewerUserRoles';
     },
+    getListExternalFormExecutorUrl: function () {
+        return FLOWABLE.CONFIG.contextRoot + '/flowDesign/listExternalFormExecutor';
+    },
 };
