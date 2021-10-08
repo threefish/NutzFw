@@ -153,9 +153,9 @@
         {
           "id": "externalformexecutor",
           "type": "flowable-externalformexecutor",
-          "title": "外部业务表单执行器",
+          "title": "业务表单执行器",
           "value": "$ioc:onlineFormExternalFormExecutor",
-          "description": "外部业务表单执行器",
+          "description": "业务表单执行器",
           "popular": true
         }
       ]
