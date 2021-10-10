@@ -2301,7 +2301,7 @@ ORYX = Object.extend(ORYX, {
 			{
 				append: function(message) {
 					if(typeof(console) !== "undefined" && console.log !== undefined) {
-						console.log(message);
+						//console.log(message);
 					}
 				}
 			}
@@ -25546,4 +25546,4 @@ new function(){
 
 	ORYX.Plugins.BPMN2_0 = ORYX.Plugins.AbstractPlugin.extend(ORYX.Plugins.BPMN2_0);
 
-}()	
+}()

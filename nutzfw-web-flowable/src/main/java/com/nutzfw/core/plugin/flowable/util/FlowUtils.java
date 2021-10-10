@@ -8,6 +8,7 @@
 package com.nutzfw.core.plugin.flowable.util;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nutzfw.core.plugin.flowable.converter.CustomUserTaskJsonConverter;
 import com.nutzfw.core.plugin.flowable.dto.UserTaskExtensionDTO;
 import com.nutzfw.core.plugin.flowable.enums.TaskStatusEnum;
@@ -35,6 +36,7 @@ import org.nutz.json.JsonFormat;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -44,6 +46,8 @@ import java.util.Objects;
  * @date: 2019/4/9
  */
 public class FlowUtils {
+
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     public static ExtensionElement buildExtensionElement(String name, String textValue) {
         ExtensionElement extensionElement = new ExtensionElement();
@@ -108,18 +112,16 @@ public class FlowUtils {
         return model;
     }
 
-
     public static NutMap toNutMap(JsonNode displayNode) {
         return NutMap.WRAP(displayNode.toString());
     }
-
 
     public static UserTaskExtensionDTO getUserTaskExtension(UserTask userTask) {
         UserTaskExtensionDTO dto = null;
         if (userTask != null) {
             List<ExtensionElement> extensionElements = userTask.getExtensionElements().get(CustomUserTaskJsonConverter.USER_TASK_EXTENSION_ELEMENT_NAME);
             if (CollectionUtils.isEmpty(extensionElements)) {
-                throw new RuntimeException("当前用户节点未配置任何扩展属性，无法继续下一步!");
+                throw new RuntimeException("当前用户节点未配置任何审核配置，无法继续下一步!");
             }
             if (CollectionUtils.isNotEmpty(extensionElements)) {
                 String extensionElementText = extensionElements.get(0).getElementText();
@@ -169,7 +171,6 @@ public class FlowUtils {
         flowTaskVO.setProcDefId(task.getProcessDefinitionId());
     }
 
-
     public static void buildTodoQuery(TaskQuery todoTaskQuery, String userName, List<String> roleCodes) {
         todoTaskQuery.or().taskAssignee(userName).taskCandidateUser(userName);
         if (CollectionUtils.isNotEmpty(roleCodes)) {
@@ -189,5 +190,23 @@ public class FlowUtils {
         listener.setImplementationType("delegateExpression");
         listener.setImplementation("${multiInstanceCompleteTaskListener}");
         taskListeners.add(listener);
+    }
+
+    /**
+     * 导入xml时会用到
+     *
+     * @param extensionElement
+     * @return
+     */
+    public static JsonNode convertPropertiesElementToJson(ExtensionElement extensionElement) {
+        String jsonText = extensionElement.getElementText();
+        if (Strings.isNotBlank(jsonText)) {
+            try {
+                return OBJECT_MAPPER.readTree(jsonText);
+            } catch (IOException e) {
+                throw new RuntimeException("json序列化失败");
+            }
+        }
+        return OBJECT_MAPPER.createObjectNode();
     }
 }

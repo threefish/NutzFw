@@ -2,7 +2,6 @@ angular.module('flowableModeler').controller('FlowableProcessExternalFormExecuto
 
     $scope.options = [];
 
-    console.log($scope.property.value)
 
     $scope.init = function () {
         $http({method: 'GET', ignoreErrors: true, url: FLOWABLE.APP_URL.getListExternalFormExecutorUrl()})

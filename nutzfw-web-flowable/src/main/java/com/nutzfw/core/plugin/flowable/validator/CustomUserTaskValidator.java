@@ -44,7 +44,7 @@ public class CustomUserTaskValidator extends UserTaskValidator {
             if (CollectionUtils.isNotEmpty(extensionElements)) {
                 ExtensionElement extensionElement = extensionElements.stream().filter(element -> Objects.equals(element.getName(), CustomUserTaskJsonConverter.USER_TASK_EXTENSION_ELEMENT_NAME)).findFirst().orElse(null);
                 if (extensionElement == null) {
-                    addError(errors, Problems.USER_TASK_LISTENER_IMPLEMENTATION_MISSING, process, userTask, "自定义扩展属性必须设置");
+                    addError(errors, Problems.USER_TASK_LISTENER_IMPLEMENTATION_MISSING, process, userTask, "审核配置必须设置");
                 } else {
                     String elementTextValue = extensionElement.getElementText();
                     try {
@@ -54,7 +54,7 @@ public class CustomUserTaskValidator extends UserTaskValidator {
                     }
                 }
             } else {
-                addError(errors, Problems.USER_TASK_LISTENER_IMPLEMENTATION_MISSING, process, userTask, "自定义扩展属性必须设置");
+                addError(errors, Problems.USER_TASK_LISTENER_IMPLEMENTATION_MISSING, process, userTask, "审核配置必须设置");
             }
         }
     }

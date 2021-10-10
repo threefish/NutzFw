@@ -14,6 +14,7 @@ import com.nutzfw.core.common.annotation.AutoCreateMenuAuth;
 import com.nutzfw.core.common.cons.Cons;
 import com.nutzfw.core.common.filter.CheckRoleAndSession;
 import com.nutzfw.core.common.vo.AjaxResult;
+import com.nutzfw.core.common.vo.LayuiTableDataListVO;
 import com.nutzfw.core.common.vo.OptionVO;
 import com.nutzfw.core.plugin.flowable.constant.FlowConstant;
 import com.nutzfw.core.plugin.flowable.converter.CustomBpmnJsonConverter;
@@ -24,7 +25,12 @@ import com.nutzfw.modules.common.action.BaseAction;
 import com.nutzfw.modules.flow.executor.ExternalFormExecutor;
 import com.nutzfw.modules.organize.entity.UserAccount;
 import com.nutzfw.modules.organize.service.UserAccountService;
+import com.nutzfw.modules.sys.entity.DataTable;
 import com.nutzfw.modules.sys.entity.Role;
+import com.nutzfw.modules.sys.entity.RoleField;
+import com.nutzfw.modules.sys.entity.TableFields;
+import com.nutzfw.modules.sys.enums.FieldAuth;
+import com.nutzfw.modules.sys.service.DataTableService;
 import com.nutzfw.modules.sys.service.RoleService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.flowable.bpmn.model.BpmnModel;
@@ -40,6 +46,7 @@ import org.flowable.ui.common.model.ResultListDataRepresentation;
 import org.flowable.ui.common.model.UserRepresentation;
 import org.flowable.validation.ProcessValidator;
 import org.flowable.validation.ValidationError;
+import org.nutz.dao.Cnd;
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.json.Json;
@@ -80,6 +87,8 @@ public class FlowDesignAction extends BaseAction {
     FlowDiagramUtils flowDiagramUtils;
 
     CustomBpmnJsonConverter customBpmnJsonConverter = new CustomBpmnJsonConverter();
+    @Inject
+    DataTableService dataTableService;
 
     @At("/flowable")
     @RequiresPermissions("sys.flow")
@@ -249,17 +258,6 @@ public class FlowDesignAction extends BaseAction {
         }
     }
 
-    @At("/listExternalFormExecutor")
-    @Ok("json")
-    @GET
-    public List<OptionVO> listExternalFormExecutor() {
-        String[] namesByType = Mvcs.getIoc().getNamesByType(ExternalFormExecutor.class);
-        return Arrays.stream(namesByType).map(iocBeanName -> {
-            ExternalFormExecutor externalFormExecutor = Mvcs.getIoc().get(ExternalFormExecutor.class, iocBeanName);
-            return new OptionVO("$ioc:" + iocBeanName, externalFormExecutor.getUniqueName());
-        }).collect(Collectors.toList());
-    }
-
     @At("/admin/process-instances/?/model-json")
     @Ok("json")
     @GET
@@ -274,5 +272,60 @@ public class FlowDesignAction extends BaseAction {
         return flowDiagramUtils.getHistoryProcessInstanceModelJSON(processInstanceId, processDefinitionId);
     }
 
+    /**
+     * 获取全部表单执行器
+     *
+     * @return
+     */
+    @At("/listExternalFormExecutor")
+    @Ok("json")
+    @GET
+    public List<OptionVO> listExternalFormExecutor() {
+        String[] namesByType = Mvcs.getIoc().getNamesByType(ExternalFormExecutor.class);
+        return Arrays.stream(namesByType).map(iocBeanName -> {
+            ExternalFormExecutor externalFormExecutor = Mvcs.getIoc().get(ExternalFormExecutor.class, iocBeanName);
+            return new OptionVO("$ioc:" + iocBeanName, externalFormExecutor.getUniqueName());
+        }).collect(Collectors.toList());
+    }
+
+    /**
+     * 获取全部在线表单
+     *
+     * @return
+     */
+    @At("/listAllOnlineForm")
+    @Ok("json")
+    @GET
+    public List<DataTable> listAllOnlineForm() {
+        return dataTableService.query(Cnd.where("system", "=", false));
+    }
+
+    /**
+     * 获取在线表单字段信息
+     *
+     * @param tableId
+     * @return
+     */
+    @At("/dataTableAllFileds")
+    @Ok("json")
+    @POST
+    public LayuiTableDataListVO dataTableAllFileds(@Param("tableId") int tableId) {
+        if (tableId > 0) {
+            DataTable dataTable = dataTableService.fetchAllFields(tableId);
+            List<RoleField> list = new ArrayList<>();
+            List<TableFields> fields = dataTable.getFields();
+            fields.forEach(field -> {
+                List<FieldAuth> fieldAuths = new ArrayList<>();
+                fieldAuths.add(FieldAuth.hide);
+                fieldAuths.add(FieldAuth.r);
+                if (!field.isLogic()) {
+                    fieldAuths.add(FieldAuth.rw);
+                }
+                list.add(RoleField.builder().auths(fieldAuths).name(field.getName()).fieldId(field.getId()).tableId(tableId).build());
+            });
+            return LayuiTableDataListVO.allData(list);
+        }
+        return LayuiTableDataListVO.noData();
+    }
 
 }

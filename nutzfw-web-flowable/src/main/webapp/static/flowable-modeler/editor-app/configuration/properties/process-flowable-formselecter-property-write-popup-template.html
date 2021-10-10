@@ -1,0 +1,157 @@
+<style>
+    * {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .form-group {
+        margin-bottom: 5px;
+    }
+
+    .ng-nav-title {
+        height: 35px;
+    }
+
+    .ng-nav-lable {
+        font-size: 14px;
+        min-width: 80px;
+        width: 50%;
+        display: block;
+        float: left;
+        height: 35px;
+        line-height: 35px;
+        text-align: center;
+        border: 1px #e0e0e0 solid;
+        margin-right: 5px;
+        padding: 0px 5px;
+        margin-right: -1px;
+    }
+
+    .ng-nav-lable.active, .ng-nav-lable:active {
+        background: #2196F3;
+        border: 1px #2196F3 solid;
+        color: #fff;
+        font-weight: bold;
+    }
+
+    .modal-content {
+        width: 900px;
+    }
+
+    @media (min-width: 768px) {
+        .modal-dialog {
+            width: 900px;
+            margin: 30px auto;
+        }
+    }
+
+    .table-operate-td label {
+        font-size: 13px
+    }
+
+</style>
+
+<div class="modal" ng-controller="FlowableProcessFormselecterPopupCtrl">
+    <div class="modal-dialog" data-backdrop="static" data-keyboard="false">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button aria-hidden="true" class="close" data-dismiss="modal" ng-click="close()" type="button">&times;
+                </button>
+                <h3>节点表单设置-{{title}}-({{selectedShape.resourceId}})</h3>
+            </div>
+            <div class="modal-body">
+                <div class="detail-group clearfix">
+                    <div>
+                        <ul class="ng-nav-title" ng-init='activeTab=1'>
+                            <li class="ng-nav-lable" ng-class='{active:activeTab==1}' ng-click='activeTab=1'>
+                                表单设置
+                            </li>
+                            <li class="ng-nav-lable" ng-class='{active:activeTab==2}' ng-click='activeTab=2'>
+                                表单字段权限
+                            </li>
+                        </ul>
+                        <div class="ng-nav-con clearfix">
+                            <div ng-show="activeTab==1">
+                                <form class="form-horizontal">
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">表单类型</label>
+                                        <div class="col-sm-10">
+                                            <select class="form-control ng-pristine ng-untouched ng-valid"
+                                                    ng-model="formProperties.formType">
+                                                <option value="ONLINE">在线表单</option>
+                                                <option value="DEVELOP">业务开发表单</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group" ng-if="formProperties.formType=='ONLINE'">
+                                        <label class="col-sm-2 control-label">在线表单</label>
+                                        <div class="col-sm-10">
+                                            <select class="form-control ng-pristine ng-untouched ng-valid"
+                                                    ng-change="changeOnlineFormValue()"
+                                                    ng-model="formProperties.formKey">
+                                                <option ng-repeat="item in tables" value="{{ item.id }}" ng-selected="{{ item.selected }}">
+                                                    {{ item.name }}
+                                                </option>
+                                            </select>
+                                            <p>请不要忘记设置表单字段权限</p>
+                                        </div>
+                                    </div>
+                                    <div class="form-group" ng-if="formProperties.formType=='DEVELOP'">
+                                        <label class="col-sm-2 control-label">业务开发表单key</label>
+                                        <div class="col-sm-10">
+                                            <input class="form-control ng-pristine ng-untouched ng-valid"
+                                                   ng-model="formProperties.formKey"/>
+                                            </input>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            <div ng-show='activeTab==2'>
+                                <div class="form-group" ng-if="formProperties.formType=='ONLINE'">
+                                    <table class="table table-bordered table-striped table-hover">
+                                        <tr>
+                                            <th style="width:100px">#</th>
+                                            <th>字段名</th>
+                                            <th style="width:300px">权限</th>
+                                        </tr>
+                                        <tr ng-repeat="field in onlineFields track by $index" ng-init="tIndex = $index">
+                                            <td>{{$index+1}}</td>
+                                            <td>{{field.name}}</td>
+                                            <td class="table-operate-td">
+                                                <label style="margin-right: 15px" ng-show="field.auths.include('hide')">
+                                                    <input type="radio" value="hide" ng-model="authList[$index].auth">
+                                                    &nbsp;不可见
+                                                </label>
+                                                <label style="margin-right: 15px" ng-show="field.auths.include('r')">
+                                                    <input type="radio" value="r" ng-model="authList[$index].auth">
+                                                    &nbsp;只读
+                                                </label>
+                                                <label style="margin-right: 15px" ng-show="field.auths.include('rw')">
+                                                    <input type="radio" value="rw" ng-model="authList[$index].auth">
+                                                    &nbsp;可读写
+                                                </label>
+                                            </td>
+                                        </tr>
+                                        <tr ng-show="onlineFields.length == 0">
+                                            <td colspan="3">
+                                                暂无数据，请先选择表单！
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="form-group" ng-if="formProperties.formType=='DEVELOP'">
+                                    <p class="bg-warning">业务开发表单，请自己控制权限！</p>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" ng-click="close()" translate>ACTION.CANCEL</button>
+                    <button class="btn btn-primary" ng-click="save()" translate>ACTION.SAVE</button>
+                </div>
+            </div>
+        </div>
+    </div>

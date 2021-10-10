@@ -254,4 +254,11 @@ FLOWABLE.APP_URL = {
     getListExternalFormExecutorUrl: function () {
         return FLOWABLE.CONFIG.contextRoot + '/flowDesign/listExternalFormExecutor';
     },
+    getListAllOnlineFormUrl: function () {
+        return FLOWABLE.CONFIG.contextRoot + '/flowDesign/listAllOnlineForm';
+    },
+
+    getDataTableAllFiledsUrl: function () {
+        return FLOWABLE.CONFIG.contextRoot + '/flowDesign/dataTableAllFileds';
+    },
 };

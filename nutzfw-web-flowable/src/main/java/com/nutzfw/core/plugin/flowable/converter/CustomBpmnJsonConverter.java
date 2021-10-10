@@ -9,6 +9,7 @@ package com.nutzfw.core.plugin.flowable.converter;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import com.nutzfw.core.plugin.flowable.util.FlowUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.flowable.bpmn.model.BpmnModel;
@@ -23,6 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import static com.nutzfw.core.plugin.flowable.converter.CustomUserTaskJsonConverter.FORM_KEY_DEFINITION;
+
 /**
  * @author huchuc@vip.qq.com
  * @date: 2019/4/28
@@ -31,7 +34,7 @@ public class CustomBpmnJsonConverter extends BpmnJsonConverter {
 
     public static final String EXTERNAL_FORM_EXECUTOR = "externalformexecutor";
     public static final String DATA_OBJECTS_EXPRESSION = "expression";
-    private static final String[] PROPERTY_KEYS = new String[]{EXTERNAL_FORM_EXECUTOR};
+    private static final String[] PROPERTY_KEYS = new String[]{EXTERNAL_FORM_EXECUTOR, FORM_KEY_DEFINITION};
 
     static {
         convertersToBpmnMap.put(STENCIL_TASK_USER, CustomUserTaskJsonConverter.class);
@@ -74,14 +77,18 @@ public class CustomBpmnJsonConverter extends BpmnJsonConverter {
     }
 
     private ObjectNode handleConvertExpansionToJson(BpmnModel bpmnModel, ObjectNode modelNode) {
-        ObjectNode propertiesNode = (ObjectNode) modelNode.get("properties");
+        ObjectNode propertiesNode = (ObjectNode) modelNode.get(EDITOR_SHAPE_PROPERTIES);
         Process process = bpmnModel.getMainProcess();
         for (String propertyKey : PROPERTY_KEYS) {
             if (process.getExtensionElements().containsKey(propertyKey)) {
                 List<ExtensionElement> extensionElements = process.getExtensionElements().get(propertyKey);
                 for (ExtensionElement extensionElement : extensionElements) {
                     if (propertyKey.equals(extensionElement.getName())) {
-                        propertiesNode.put(propertyKey, extensionElement.getElementText());
+                        if (FORM_KEY_DEFINITION.equals(extensionElement.getName())) {
+                            propertiesNode.set(propertyKey, FlowUtils.convertPropertiesElementToJson(extensionElement));
+                        } else {
+                            propertiesNode.put(propertyKey, extensionElement.getElementText());
+                        }
                     }
                 }
             }
@@ -90,12 +97,17 @@ public class CustomBpmnJsonConverter extends BpmnJsonConverter {
     }
 
     public BpmnModel handleConvertExpansionToBpmnModel(BpmnModel bpmnModel, JsonNode modelNode) {
-        JsonNode properties = modelNode.get("properties");
+        JsonNode properties = modelNode.get(EDITOR_SHAPE_PROPERTIES);
         Process process = bpmnModel.getMainProcess();
         for (String propertyKey : PROPERTY_KEYS) {
             if (!process.getExtensionElements().containsKey(propertyKey)) {
+                JsonNode jsonNode = properties.get(propertyKey);
                 if (Objects.nonNull(properties.get(propertyKey))) {
-                    process.addExtensionElement(buildExtensionElement(propertyKey, properties.get(propertyKey).asText()));
+                    if (jsonNode instanceof TextNode) {
+                        process.addExtensionElement(buildExtensionElement(propertyKey, jsonNode.asText()));
+                    } else {
+                        process.addExtensionElement(buildExtensionElement(propertyKey, jsonNode.toString()));
+                    }
                 }
             }
         }

@@ -22,9 +22,9 @@
         {
           "id": "usertaskexpansion",
           "type": "Complex",
-          "title": "扩展属性",
+          "title": "审核配置",
           "value": "",
-          "description": "扩展属性",
+          "description": "审核配置",
           "popular": true
         }
       ]
@@ -165,8 +165,8 @@
       "properties": [
         {
           "id": "formkeydefinition",
-          "type": "String",
-          "title": "表单的标识Key",
+          "type": "flowable-formselecter",
+          "title": "表单设置",
           "value": "",
           "description": "表单的Key(指向定义的Form).",
           "popular": true
@@ -1578,8 +1578,7 @@
       "mayBeRoot": true,
       "hide": true,
       "propertyPackages": [
-        "process_idpackage",
-        "namepackage",
+        "formkeydefinitionpackage",
         "datapropertiespackage",
         "externalformexecutorpackage",
         "documentationpackage",
@@ -1743,14 +1742,9 @@
         "documentationpackage",
         "formkeydefinitionpackage",
         "multiinstance_typepackage",
-        "multiinstance_cardinalitypackage",
-        "multiinstance_collectionpackage",
-        "multiinstance_variablepackage",
-        "multiinstance_conditionpackage",
         "asynchronousdefinitionpackage",
         "exclusivedefinitionpackage",
         "executionlistenerspackage",
-        "isforcompensationpackage",
         "usertaskassignmentpackage",
         "formreferencepackage",
         "duedatedefinitionpackage",

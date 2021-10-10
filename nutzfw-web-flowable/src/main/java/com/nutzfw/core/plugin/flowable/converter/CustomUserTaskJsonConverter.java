@@ -33,8 +33,10 @@ public class CustomUserTaskJsonConverter extends UserTaskJsonConverter {
      * 扩展属性设置
      */
     public static final String USER_TASK_EXPANSION = "usertaskexpansion";
+    public static final String FORM_KEY_DEFINITION = "formkeydefinition";
     public static final String EXPANSION_PROPERTIES = "expansionProperties";
     public static final String USER_TASK_EXTENSION_ELEMENT_NAME = "user-task-expansion";
+    public static final String FORM_KEY_DEFINITION_ELEMENT_NAME = "form-key-definition-expansion";
 
     public static void customFillTypes(Map<String, Class<? extends BaseBpmnJsonConverter>> convertersToBpmnMap, Map<Class<? extends BaseElement>, Class<? extends BaseBpmnJsonConverter>> convertersToJsonMap) {
         fillJsonTypes(convertersToBpmnMap);
@@ -56,9 +58,15 @@ public class CustomUserTaskJsonConverter extends UserTaskJsonConverter {
             ObjectNode usertaskexpansionNode = objectMapper.createObjectNode();
             baseElement.getExtensionElements().forEach((s, elements) -> elements.forEach(extensionElement -> {
                 if (extensionElement.getName().equals(USER_TASK_EXTENSION_ELEMENT_NAME)) {
-                    JsonNode expansionPropertiesNode = convertExpansionPropertiesElementToJson(extensionElement);
+                    JsonNode expansionPropertiesNode = FlowUtils.convertPropertiesElementToJson(extensionElement);
                     if (expansionPropertiesNode.size() > 0) {
                         usertaskexpansionNode.set(EXPANSION_PROPERTIES, expansionPropertiesNode);
+                    }
+                }
+                if (extensionElement.getName().equals(FORM_KEY_DEFINITION_ELEMENT_NAME)) {
+                    JsonNode expansionPropertiesNode = FlowUtils.convertPropertiesElementToJson(extensionElement);
+                    if (expansionPropertiesNode.size() > 0) {
+                        propertiesNode.set(FORM_KEY_DEFINITION, expansionPropertiesNode);
                     }
                 }
             }));
@@ -66,24 +74,6 @@ public class CustomUserTaskJsonConverter extends UserTaskJsonConverter {
         }
     }
 
-    /**
-     * 导入xml时会用到
-     *
-     * @param extensionElement
-     * @return
-     */
-    private JsonNode convertExpansionPropertiesElementToJson(ExtensionElement extensionElement) {
-        String jsonText = extensionElement.getElementText();
-        if (Strings.isNotBlank(jsonText)) {
-            try {
-                return objectMapper.readTree(jsonText);
-            } catch (IOException e) {
-                log.error("json序列化失败", e);
-                throw new RuntimeException("json序列化失败");
-            }
-        }
-        return objectMapper.createObjectNode();
-    }
 
     @Override
     protected FlowElement convertJsonToElement(JsonNode elementNode, JsonNode modelNode, Map<String, JsonNode> shapeMap) {
@@ -95,9 +85,9 @@ public class CustomUserTaskJsonConverter extends UserTaskJsonConverter {
         super.convertJsonToFormProperties(objectNode, element);
         if (element instanceof UserTask) {
             JsonNode userTaskExpansion = getProperty(USER_TASK_EXPANSION, objectNode);
-            if (userTaskExpansion != null && userTaskExpansion instanceof ObjectNode) {
-                addExpansionPropertiesElement((UserTask) element, userTaskExpansion);
-            }
+            JsonNode formkeydefinition = getProperty(FORM_KEY_DEFINITION, objectNode);
+            addExpansionPropertiesElement((UserTask) element, userTaskExpansion);
+            addFormPropertiesElement((UserTask) element, formkeydefinition);
         }
     }
 
@@ -109,9 +99,27 @@ public class CustomUserTaskJsonConverter extends UserTaskJsonConverter {
      * @param userTaskExpansion
      */
     private void addExpansionPropertiesElement(UserTask userTask, JsonNode userTaskExpansion) {
-        JsonNode jsonNode = userTaskExpansion.get(EXPANSION_PROPERTIES);
-        if (jsonNode != null && jsonNode instanceof ObjectNode) {
-            ExtensionElement element = FlowUtils.buildExtensionElement(CustomUserTaskJsonConverter.USER_TASK_EXTENSION_ELEMENT_NAME, jsonNode.toString());
+        if (userTaskExpansion != null && userTaskExpansion instanceof ObjectNode) {
+            JsonNode jsonNode = userTaskExpansion.get(EXPANSION_PROPERTIES);
+            if (jsonNode != null && jsonNode instanceof ObjectNode) {
+                ExtensionElement element = FlowUtils.buildExtensionElement(CustomUserTaskJsonConverter.USER_TASK_EXTENSION_ELEMENT_NAME, jsonNode.toString());
+                userTask.addExtensionElement(element);
+            }
+        }
+
+    }
+
+    /**
+     * 添加扩展属性
+     *
+     * @param userTask
+     */
+    private void addFormPropertiesElement(UserTask userTask, JsonNode formkeydefinition) {
+        if (formkeydefinition != null && formkeydefinition instanceof ObjectNode) {
+            if ("DEVELOP".equals(formkeydefinition.get("formType").asText())) {
+                userTask.setFormKey(formkeydefinition.get("formKey").asText());
+            }
+            ExtensionElement element = FlowUtils.buildExtensionElement(CustomUserTaskJsonConverter.FORM_KEY_DEFINITION_ELEMENT_NAME, formkeydefinition.toString());
             userTask.addExtensionElement(element);
         }
     }

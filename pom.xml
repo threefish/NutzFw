@@ -23,6 +23,7 @@
         <java.version>1.8</java.version>
         <maven.compiler.encoding>UTF8</maven.compiler.encoding>
         <nutz.version>1.r.68.v20191031</nutz.version>
+        <nutz.plugins.version>1.r.68.v20191031</nutz.plugins.version>
         <!-- beetl版本固定了不可再次升級了-->
         <beetl.version>2.9.10</beetl.version>
         <druid.version>1.1.14</druid.version>
@@ -50,7 +51,7 @@
         <commons_net_version>3.6</commons_net_version>
         <commons_mail_version>1.5</commons_mail_version>
         <commons_codec_version>1.10</commons_codec_version>
-        <commons_io_version>2.4</commons_io_version>
+        <commons_io_version>2.7</commons_io_version>
         <commons_logging_version>1.2</commons_logging_version>
         <commons_dbutils_version>1.6</commons_dbutils_version>
         <commons_fileupload_version>1.3.3</commons_fileupload_version>
