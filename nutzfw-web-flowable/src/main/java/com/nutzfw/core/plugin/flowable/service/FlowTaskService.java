@@ -154,6 +154,12 @@ public interface FlowTaskService {
      */
     void deleteTask(String taskId, String deleteReason);
 
+    /**
+     * 结束流程实例
+     *
+     * @param processInstanceId 流程实例ID
+     * @param stopReason        停止原因
+     */
     void stopProcessInstance(String processInstanceId, String stopReason);
 
     /**

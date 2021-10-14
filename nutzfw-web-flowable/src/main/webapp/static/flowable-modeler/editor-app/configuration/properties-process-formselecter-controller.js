@@ -19,7 +19,14 @@ angular.module('flowableModeler').controller('FlowableProcessFormselecterPopupCt
     $scope.authList = []
     if (typeof $scope.property.value == "string") {
         let jsonString = $scope.property.value;
-        $scope.property.value = JSON.parse(jsonString)
+        if (jsonString.indexOf("{") == 0) {
+            $scope.property.value = JSON.parse(jsonString)
+        } else {
+            $scope.property.value = {
+                formKey: $scope.property.value,
+                formType: "DEVELOP",
+            }
+        }
     }
     if ($scope.property.value != undefined) {
         $scope.formProperties = angular.copy($scope.property.value);

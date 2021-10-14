@@ -14,6 +14,7 @@ import com.nutzfw.core.common.vo.LayuiTableDataListVO;
 import com.nutzfw.core.plugin.flowable.dto.FlowSubmitInfoDTO;
 import com.nutzfw.core.plugin.flowable.dto.UserTaskExtensionDTO;
 import com.nutzfw.core.plugin.flowable.enums.TaskFormStatusEnum;
+import com.nutzfw.core.plugin.flowable.extmodel.FormElementModel;
 import com.nutzfw.core.plugin.flowable.service.FlowProcessDefinitionService;
 import com.nutzfw.core.plugin.flowable.service.FlowTaskService;
 import com.nutzfw.core.plugin.flowable.util.FlowUtils;
@@ -74,11 +75,12 @@ public class GeneralProcessAction extends BaseAction {
             flowTaskVO.setProcDefversion(processDefinition.getVersion());
         }
         NutMap nutMap = new NutMap();
-        String formPage = generalFlowBiz.getFormPage(flowTaskVO);
-        if (Strings.isBlank(formPage)) {
+        FormElementModel formElementModel = generalFlowBiz.getFormPage(flowTaskVO);
+        if (Strings.isBlank(formElementModel.getFormKey())) {
             throw new RuntimeException("表单不能为空");
         }
-        nutMap.put("formPage", formPage);
+        nutMap.put("formElementModel", formElementModel);
+        nutMap.put("formPage", formElementModel.getFormKey());
         nutMap.put("flow", flowTaskVO);
         nutMap.put("title", generalFlowBiz.getFlowName(flowTaskVO));
         nutMap.put("formData", generalFlowBiz.loadFormData(flowTaskVO, sessionUserAccount));

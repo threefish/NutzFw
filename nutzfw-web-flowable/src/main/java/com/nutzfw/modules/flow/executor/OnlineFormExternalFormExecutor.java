@@ -7,14 +7,17 @@
 
 package com.nutzfw.modules.flow.executor;
 
+import com.nutzfw.core.plugin.flowable.FlowServiceSupport;
+import com.nutzfw.core.plugin.flowable.cmd.GetOnlineFormKeyCmd;
 import com.nutzfw.core.plugin.flowable.dto.UserTaskExtensionDTO;
+import com.nutzfw.core.plugin.flowable.extmodel.FormElementModel;
 import com.nutzfw.core.plugin.flowable.vo.FlowTaskVO;
 import com.nutzfw.modules.organize.entity.UserAccount;
 import org.flowable.bpmn.model.UserTask;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.task.service.impl.persistence.entity.TaskEntity;
 import org.nutz.ioc.loader.annotation.IocBean;
-import org.nutz.mvc.Mvcs;
+import org.nutz.lang.Strings;
 
 import java.util.Map;
 
@@ -48,7 +51,12 @@ public class OnlineFormExternalFormExecutor implements ExternalFormExecutor {
 
     @Override
     public Object loadFormData(FlowTaskVO flowTaskVO, UserAccount sessionUserAccount) {
-        throw new RuntimeException("你应该自己实现");
+        //自行组织数据，按照流程步骤，确定是否显示某些字段
+        if (Strings.isNotBlank(flowTaskVO.getBusinessId())) {
+            return loadFormData(flowTaskVO.getBusinessId());
+        }
+        //TODO 返回一个基类，有发起人发起时间什么的
+        return new Object();
     }
 
     @Override
@@ -65,6 +73,11 @@ public class OnlineFormExternalFormExecutor implements ExternalFormExecutor {
     @Override
     public String getFormPage(FlowTaskVO flowTaskVO) {
         throw new RuntimeException("你应该自己实现");
+    }
+
+    @Override
+    public FormElementModel getFormElementModel(FlowTaskVO flowTaskVO) {
+        return FlowServiceSupport.managementService().executeCommand(new GetOnlineFormKeyCmd(flowTaskVO.getProcDefId(), flowTaskVO.getTaskDefKey()));
     }
 
     @Override

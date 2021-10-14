@@ -8,6 +8,7 @@
 package com.nutzfw.modules.flow.executor;
 
 import com.nutzfw.core.plugin.flowable.dto.UserTaskExtensionDTO;
+import com.nutzfw.core.plugin.flowable.extmodel.FormElementModel;
 import com.nutzfw.core.plugin.flowable.vo.FlowTaskVO;
 import com.nutzfw.modules.organize.entity.UserAccount;
 import org.flowable.bpmn.model.UserTask;
@@ -95,6 +96,20 @@ public interface ExternalFormExecutor {
      * @return 表单路径
      */
     String getFormPage(FlowTaskVO flowTaskVO);
+
+
+    /**
+     * 加载表单页面配置
+     *
+     * @param flowTaskVO
+     * @return 表单路径
+     */
+   default FormElementModel getFormElementModel(FlowTaskVO flowTaskVO){
+       FormElementModel formElementModel = new FormElementModel();
+       formElementModel.setFormKey(getFormPage(flowTaskVO));
+       formElementModel.setFormType("DEVELOP");
+       return formElementModel;
+   }
 
     /**
      * 创建用户任务前执行-也可以使用动态脚本实现

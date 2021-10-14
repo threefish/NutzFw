@@ -9,6 +9,7 @@ package com.nutzfw.modules.flow.biz;
 
 import com.nutzfw.core.plugin.flowable.dto.FlowSubmitInfoDTO;
 import com.nutzfw.core.plugin.flowable.dto.UserTaskExtensionDTO;
+import com.nutzfw.core.plugin.flowable.extmodel.FormElementModel;
 import com.nutzfw.core.plugin.flowable.vo.FlowTaskVO;
 import com.nutzfw.modules.organize.entity.UserAccount;
 import org.nutz.lang.util.NutMap;
@@ -23,7 +24,7 @@ import java.util.Set;
  */
 public interface GeneralFlowBiz {
 
-    String getFormPage(FlowTaskVO flowTaskVO);
+    FormElementModel getFormPage(FlowTaskVO flowTaskVO);
 
     String start(Map formData, FlowTaskVO flowTaskVO, UserAccount sessionUserAccount, Set<String> sessionUserRoleCodes);
 

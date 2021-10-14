@@ -90,7 +90,7 @@ public class FlowModelAction extends BaseAction {
     @At("/index")
     @Ok("btl:WEB-INF/view/modules/flow/model/index.html")
     @RequiresPermissions("sys.flow.model")
-    @AutoCreateMenuAuth(name = "流程定义", icon = "fa-tasks", parentPermission = "sys.flow")
+    @AutoCreateMenuAuth(name = "流程模型定义", icon = "fa-tasks", parentPermission = "sys.flow")
     public NutMap index() {
         return NutMap.NEW();
     }

@@ -15,6 +15,7 @@ import com.nutzfw.core.plugin.flowable.dto.CandidateUsersDTO;
 import com.nutzfw.core.plugin.flowable.dto.FlowSubmitInfoDTO;
 import com.nutzfw.core.plugin.flowable.dto.UserTaskExtensionDTO;
 import com.nutzfw.core.plugin.flowable.enums.TaskReviewerScopeEnum;
+import com.nutzfw.core.plugin.flowable.extmodel.FormElementModel;
 import com.nutzfw.core.plugin.flowable.service.FlowCacheService;
 import com.nutzfw.core.plugin.flowable.service.FlowProcessDefinitionService;
 import com.nutzfw.core.plugin.flowable.service.FlowTaskService;
@@ -67,9 +68,9 @@ public class GeneralFlowBizImpl implements GeneralFlowBiz {
     FlowCustomQueryService flowCustomQueryService;
 
     @Override
-    public String getFormPage(FlowTaskVO flowTaskVO) {
+    public FormElementModel getFormPage(FlowTaskVO flowTaskVO) {
         ExternalFormExecutor executor = getExternalFormExecutor(flowTaskVO.getProcDefId());
-        return executor.getFormPage(flowTaskVO);
+        return executor.getFormElementModel(flowTaskVO);
     }
 
     @Override

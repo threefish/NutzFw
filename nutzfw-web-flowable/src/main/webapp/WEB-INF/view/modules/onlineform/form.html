@@ -1,0 +1,147 @@
+<!--自定义样式----开始-->
+<style>
+</style>
+<!--自定义样式---结束-->
+<div class="form-horizontal" id="form">
+    <!-- 自定义表单区域---开始 -->
+    <div class="form">
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="form-group">
+                    <label class="control-label col-sm-2">
+                        请假类型： </label>
+                    <div class="col-sm-10">
+                        ${dict("holiday_type",false,"form-control","END",'v-model=formData.leaveType')}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="form-group">
+                    <label class="control-label col-sm-2">
+                        开始时间：</label>
+                    <div class="col-sm-10">
+                        <input class="form-control required" d-format="yyyy-MM-dd HH:mm"
+                               d-name="formData.startTime"
+                               d-type="datetime" readonly type="text"
+                               v-model="formData.startTime">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="form-group">
+                    <label class="control-label col-sm-2">
+                        结束时间：</label>
+                    <div class="col-sm-10">
+                        <input class="form-control required" d-format="yyyy-MM-dd HH:mm"
+                               d-name="formData.endTime"
+                               d-type="datetime" readonly type="text"
+                               v-model="formData.endTime">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="form-group">
+                    <label class="control-label col-sm-2">
+                        请假原因：
+                    </label>
+                    <div class="col-sm-10">
+                        <textarea class="form-control required" v-model="formData.reason"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 自定义表单区域--- 结束 -->
+</div>
+<script>
+    var laydate, form = new Vue({
+        el: '#form',
+        data: {
+            formData: {
+                id: '${data.flow.businessId}',
+                leaveType: '',
+                startTime: '',
+                endTime: '',
+                reason: ''
+            },
+        },
+        methods: {
+            /**
+             * 页面加载完成之后执行初始化
+             * **/
+            handleInitAfter: function () {
+                console.log("handleInitAfter")
+            },
+            /**
+             * 提交审核之前执行
+             *  @return Boolean 返回true提交审核 返回false提示校验失败
+             * **/
+            handleSaveAuditBefor: function () {
+                console.log("handleSaveAuditBefor")
+                if (this.formData.leaveType == '') {
+                    core.error("请选择请假类型");
+                    return false;
+                }
+                if (this.formData.startTime == '') {
+                    core.error("请选择请假开始时间");
+                    return false;
+                }
+                if (this.formData.endTime == '') {
+                    core.error("请选择请假结束时间");
+                    return false;
+                }
+                if (this.formData.reason == '') {
+                    core.error("请输入请假原因");
+                    return false;
+                }
+                return true;
+            },
+            /**
+             * 提交回退之前执行
+             *  @return Boolean 返回true提交审核 返回false提示校验失败
+             * **/
+            handleBackToStepBefor: function () {
+                console.log("handleBackToStepBefor")
+                return true;
+            },/**
+             * 提交加签前行
+             *  @return Boolean 返回true提交审核 返回false提示校验失败
+             * **/
+            handleAddMultiInstanceBefor: function () {
+                console.log("handleAddMultiInstanceBefor")
+                return true;
+            },
+            renderDate: function () {
+                $("[d-format]").each(function () {
+                    var fieldName = $(this).attr("d-name");
+                    var format = $(this).attr("d-format");
+                    var type = $(this).attr("d-type");
+                    var el = $(this)[0];
+                    laydate.render({
+                        elem: el,
+                        type: type,
+                        format: format,
+                        done: function (value) {
+                            new Function("vm,value", "form." + fieldName + "=value;")(form, value);
+                        }
+                    });
+                });
+            }
+        },
+        created: function () {
+        },
+        mounted: function () {
+            /*时间选择*/
+            layui.use(['laydate'], function () {
+                laydate = layui.laydate;
+                form.renderDate();
+            });
+        }
+    });
+</script>
