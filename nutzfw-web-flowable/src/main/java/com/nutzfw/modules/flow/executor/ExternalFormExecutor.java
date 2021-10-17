@@ -8,6 +8,7 @@
 package com.nutzfw.modules.flow.executor;
 
 import com.nutzfw.core.plugin.flowable.dto.UserTaskExtensionDTO;
+import com.nutzfw.core.plugin.flowable.enums.FormType;
 import com.nutzfw.core.plugin.flowable.extmodel.FormElementModel;
 import com.nutzfw.core.plugin.flowable.vo.FlowTaskVO;
 import com.nutzfw.modules.organize.entity.UserAccount;
@@ -107,7 +108,7 @@ public interface ExternalFormExecutor {
    default FormElementModel getFormElementModel(FlowTaskVO flowTaskVO){
        FormElementModel formElementModel = new FormElementModel();
        formElementModel.setFormKey(getFormPage(flowTaskVO));
-       formElementModel.setFormType("DEVELOP");
+       formElementModel.setFormType(FormType.DEVELOP);
        return formElementModel;
    }
 

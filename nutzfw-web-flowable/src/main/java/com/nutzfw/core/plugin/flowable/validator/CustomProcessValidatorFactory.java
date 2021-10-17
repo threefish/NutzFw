@@ -21,7 +21,7 @@ public class CustomProcessValidatorFactory extends ProcessValidatorFactory {
 
     @Override
     public ProcessValidator createDefaultProcessValidator() {
-        ProcessValidatorImpl processValidator = new ProcessValidatorImpl();
+        CustomProcessValidator processValidator = new CustomProcessValidator();
         ValidatorSet validatorSet = new ValidatorSetFactory().createFlowableExecutableProcessValidatorSet();
         validatorSet.addValidator(new CustomUserTaskValidator());
         processValidator.addValidatorSet(validatorSet);

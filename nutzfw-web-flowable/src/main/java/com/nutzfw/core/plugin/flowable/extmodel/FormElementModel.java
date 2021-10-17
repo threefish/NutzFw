@@ -1,5 +1,6 @@
 package com.nutzfw.core.plugin.flowable.extmodel;
 
+import com.nutzfw.core.plugin.flowable.enums.FormType;
 import lombok.Data;
 
 import java.util.List;
@@ -14,6 +15,6 @@ public class FormElementModel {
     List<OnlineFieldAuth> fieldAuths;
     String formKey;
     String tableId;
-    String formType;
+    FormType formType;
 
 }

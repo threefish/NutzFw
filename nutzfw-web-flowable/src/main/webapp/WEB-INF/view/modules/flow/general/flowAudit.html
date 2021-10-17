@@ -72,7 +72,17 @@ layout("/layouts/blank.html",{title:data.title}){
     <div class="tab-content">
         <div class="tab-pane active" id="formTab" role="tabpanel">
             <div class="box-main" id='formBoxMain'>
-                <%include(data.formPage){}%>
+                <%if(data.formElementModel.formType=='ONLINE'){%>
+
+                 <%if(data.status=='EDIT'){%>
+                    <%include("/modules/onlineform/form.html",{}){}%>
+                 <%}else{%>
+                    <%include("/modules/onlineform/view.html",{}){}%>
+                 <%}%>
+
+                <%}else{%>
+                    <%include(data.formPage){}%>
+                <%}%>
             </div>
         </div>
         <%if(Strings.isNotBlank(data.flow.businessId)){%>
@@ -457,5 +467,3 @@ layout("/layouts/blank.html",{title:data.title}){
         }
     })
 </script>
-
-

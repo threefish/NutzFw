@@ -12,6 +12,7 @@ import org.flowable.engine.impl.util.ProcessDefinitionUtil;
 import org.flowable.engine.repository.ProcessDefinition;
 import org.nutz.json.Json;
 import org.nutz.lang.Lang;
+import org.nutz.lang.Strings;
 
 import java.util.List;
 
@@ -48,13 +49,10 @@ public class GetOnlineFormKeyCmd implements Command<FormElementModel> {
     @Override
     public FormElementModel execute(CommandContext commandContext) {
         ProcessDefinition processDefinition = ProcessDefinitionUtil.getProcessDefinition(processDefinitionId);
-        FormElementModel formElementModel = null;
-        if (taskDefinitionKey == null) {
-            formElementModel = this.getStartFormHandler(commandContext, processDefinition);
-        } else {
-            formElementModel = this.getTaskFormHandlder(processDefinitionId, taskDefinitionKey);
+        if (Strings.isBlank(taskDefinitionKey)) {
+            return this.getStartFormHandler(commandContext, processDefinition);
         }
-        return formElementModel;
+        return this.getTaskFormHandlder(processDefinitionId, taskDefinitionKey);
     }
 
 

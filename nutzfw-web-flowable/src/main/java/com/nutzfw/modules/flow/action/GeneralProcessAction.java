@@ -13,6 +13,7 @@ import com.nutzfw.core.common.vo.AjaxResult;
 import com.nutzfw.core.common.vo.LayuiTableDataListVO;
 import com.nutzfw.core.plugin.flowable.dto.FlowSubmitInfoDTO;
 import com.nutzfw.core.plugin.flowable.dto.UserTaskExtensionDTO;
+import com.nutzfw.core.plugin.flowable.enums.FormType;
 import com.nutzfw.core.plugin.flowable.enums.TaskFormStatusEnum;
 import com.nutzfw.core.plugin.flowable.extmodel.FormElementModel;
 import com.nutzfw.core.plugin.flowable.service.FlowProcessDefinitionService;
@@ -23,6 +24,10 @@ import com.nutzfw.modules.common.action.BaseAction;
 import com.nutzfw.modules.flow.biz.GeneralFlowBiz;
 import com.nutzfw.modules.flow.service.FlowCustomQueryService;
 import com.nutzfw.modules.organize.entity.UserAccount;
+import com.nutzfw.modules.sys.entity.DataTable;
+import com.nutzfw.modules.sys.entity.TableFields;
+import com.nutzfw.modules.sys.service.DataTableService;
+import com.nutzfw.modules.sys.service.RoleService;
 import org.flowable.bpmn.model.UserTask;
 import org.flowable.engine.RepositoryService;
 import org.flowable.engine.repository.ProcessDefinition;
@@ -56,6 +61,10 @@ public class GeneralProcessAction extends BaseAction {
     FlowTaskService flowTaskService;
     @Inject
     RepositoryService repositoryService;
+    @Inject
+    DataTableService dataTableService;
+    @Inject
+    RoleService roleService;
 
     @At("/form")
     @GET
@@ -78,6 +87,18 @@ public class GeneralProcessAction extends BaseAction {
         FormElementModel formElementModel = generalFlowBiz.getFormPage(flowTaskVO);
         if (Strings.isBlank(formElementModel.getFormKey())) {
             throw new RuntimeException("表单不能为空");
+        }
+        if (formElementModel.getFormType() == FormType.ONLINE) {
+            DataTable dataTable = dataTableService.fetchAuthReadWriteFields(Integer.parseInt(formElementModel.getTableId()), roleService.queryRoleIds(sessionUserAccount.getId()));
+            if (sessionUserAccount == null || sessionUserAccount.getId() == null) {
+                sessionUserAccount = getSessionUserAccount();
+            }
+            //是否有可以显示的字段
+            boolean hasAnyDisplay = dataTable.getFields().stream().anyMatch(TableFields::isFromDisplay);
+            setRequestAttribute("hasAnyDisplay", hasAnyDisplay);
+            setRequestAttribute("table", dataTable);
+            setRequestAttribute("userid", sessionUserAccount.getUserid());
+            setRequestAttribute("user", sessionUserAccount);
         }
         nutMap.put("formElementModel", formElementModel);
         nutMap.put("formPage", formElementModel.getFormKey());
@@ -192,7 +213,7 @@ public class GeneralProcessAction extends BaseAction {
      */
     @At("/saveAudit")
     @Ok("json")
-    @Aop(TransAop.READ_COMMITTED)
+    @Aop(TransAop.REPEATABLE_READ)
     public AjaxResult saveAudit(@Param("::form") Map formData, @Param("::flow") FlowTaskVO flowTaskVO, @Attr(Cons.SESSION_USER_KEY) UserAccount sessionUserAccount) {
         if (formData != null && flowTaskVO != null) {
             if (flowTaskVO.getTurnDown() == true && Strings.isBlank(flowTaskVO.getComment())) {

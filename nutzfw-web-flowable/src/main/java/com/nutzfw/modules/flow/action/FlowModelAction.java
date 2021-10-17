@@ -58,6 +58,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.flowable.editor.constants.EditorJsonConstants.EDITOR_PROPERTIES_GENERAL_ITEMS;
 import static org.flowable.editor.constants.StencilConstants.*;
 
 /**
@@ -114,8 +115,8 @@ public class FlowModelAction extends BaseAction {
         properties.put("process_namespace", "https://github.com/threefish");
         properties.put("name", name);
         properties.put("documentation", description);
-        properties.put("dataproperties", new NutMap()
-                .setv("items", Arrays.asList(new NutMap()
+        properties.put(PROPERTY_DATA_PROPERTIES, new NutMap()
+                .setv(EDITOR_PROPERTIES_GENERAL_ITEMS, Arrays.asList(new NutMap()
                         .setv(PROPERTY_DATA_ID, FlowConstant.PROCESS_TITLE)
                         .setv(PROPERTY_DATA_NAME, "流程标题")
                         .setv(PROPERTY_DATA_TYPE, "string")

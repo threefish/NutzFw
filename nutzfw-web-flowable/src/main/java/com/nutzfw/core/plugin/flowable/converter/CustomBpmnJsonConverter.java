@@ -8,6 +8,7 @@
 package com.nutzfw.core.plugin.flowable.converter;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.nutzfw.core.plugin.flowable.util.FlowUtils;
@@ -40,6 +41,8 @@ public class CustomBpmnJsonConverter extends BpmnJsonConverter {
         convertersToBpmnMap.put(STENCIL_TASK_USER, CustomUserTaskJsonConverter.class);
         CustomUserTaskJsonConverter.customFillTypes(convertersToBpmnMap, convertersToJsonMap);
     }
+
+    ObjectMapper objectMapper = new ObjectMapper();
 
     public static ExtensionElement buildExtensionElement(String name, String value) {
         ExtensionElement extensionElement = new ExtensionElement();
@@ -122,10 +125,18 @@ public class CustomBpmnJsonConverter extends BpmnJsonConverter {
      * @return
      */
     public BpmnModel handleConvertDataObjectsToBpmnModel(BpmnModel bpmnModel, JsonNode modelNode) {
+        JsonNode jsonNode = modelNode.get(EDITOR_SHAPE_PROPERTIES).get(PROPERTY_DATA_PROPERTIES);
         JsonNode itemsArrayNode = modelNode.get(EDITOR_SHAPE_PROPERTIES).get(PROPERTY_DATA_PROPERTIES).get(EDITOR_PROPERTIES_GENERAL_ITEMS);
+        if (itemsArrayNode == null && jsonNode instanceof TextNode) {
+            try {
+                itemsArrayNode = objectMapper.readTree(jsonNode.asText()).get(EDITOR_PROPERTIES_GENERAL_ITEMS);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
         Process process = bpmnModel.getMainProcess();
+        List<ValuedDataObject> dataObjects = process.getDataObjects();
         if (itemsArrayNode != null) {
-            List<ValuedDataObject> dataObjects = process.getDataObjects();
             for (JsonNode dataNode : itemsArrayNode) {
                 JsonNode dataIdNode = dataNode.get(PROPERTY_DATA_ID);
                 if (dataIdNode != null && StringUtils.isNotEmpty(dataIdNode.asText())) {

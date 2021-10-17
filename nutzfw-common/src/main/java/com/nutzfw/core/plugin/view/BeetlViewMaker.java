@@ -18,6 +18,7 @@ import org.beetl.core.GroupTemplate;
 import org.beetl.core.misc.BeetlUtil;
 import org.nutz.ioc.Ioc;
 import org.nutz.ioc.impl.PropertiesProxy;
+import org.nutz.json.Json;
 import org.nutz.lang.Strings;
 import org.nutz.lang.Times;
 import org.nutz.log.Log;
@@ -91,6 +92,7 @@ public class BeetlViewMaker implements ViewMaker {
         groupTemplate.registerFunction("i18n", new I18nFn());
         groupTemplate.registerFunctionPackage("Strings", Strings.class);
         groupTemplate.registerFunctionPackage("Times", Times.class);
+        groupTemplate.registerFunctionPackage("Json", Json.class);
         groupTemplate.setClassLoader(Thread.currentThread().getContextClassLoader());
         render = new NutzFwWebRender(groupTemplate);
         log.debug("beetl init complete");

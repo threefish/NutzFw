@@ -13,12 +13,24 @@ import com.nutzfw.core.plugin.flowable.dto.UserTaskExtensionDTO;
 import com.nutzfw.core.plugin.flowable.extmodel.FormElementModel;
 import com.nutzfw.core.plugin.flowable.vo.FlowTaskVO;
 import com.nutzfw.modules.organize.entity.UserAccount;
+import com.nutzfw.modules.sys.entity.DataTable;
+import com.nutzfw.modules.sys.service.DataTableService;
+import com.nutzfw.modules.sys.service.RoleService;
+import com.nutzfw.modules.tabledata.biz.DataMaintainBiz;
+import lombok.extern.slf4j.Slf4j;
 import org.flowable.bpmn.model.UserTask;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.task.service.impl.persistence.entity.TaskEntity;
+import org.nutz.dao.Sqls;
+import org.nutz.dao.entity.Record;
+import org.nutz.dao.sql.Sql;
+import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
+import org.nutz.json.Json;
 import org.nutz.lang.Strings;
+import org.nutz.lang.util.NutMap;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -26,17 +38,54 @@ import java.util.Map;
  * @date: 2021/10/08
  * 在线表单执行器
  */
+@Slf4j
 @IocBean(name = "onlineFormExternalFormExecutor")
 public class OnlineFormExternalFormExecutor implements ExternalFormExecutor {
 
+
+    @Inject
+    DataMaintainBiz dataMaintainBiz;
+    @Inject
+    DataTableService dataTableService;
+    @Inject
+    RoleService roleService;
+
     @Override
     public Map start(Map formData, FlowTaskVO flowTaskVO, UserAccount sessionUserAccount) {
-        return formData;
+        FormElementModel formElementModel = this.getFormElementModel(flowTaskVO);
+        int tableId = Integer.parseInt(formElementModel.getTableId());
+        try {
+            NutMap data = dataMaintainBiz.formJsonData(Json.toJson(formData), sessionUserAccount);
+            List<String> errmsg = dataMaintainBiz.checkTableData(tableId, data, DataMaintainBiz.UNIQUE_FIELD);
+            if (errmsg.size() == 0) {
+                dataMaintainBiz.saveTableData(tableId, data, sessionUserAccount);
+                return data;
+            } else {
+                throw new RuntimeException(Strings.join("<br>\r\n", errmsg));
+            }
+        } catch (Exception e) {
+            log.error("异常", e);
+            throw e;
+        }
     }
 
     @Override
     public String userAudit(Map formData, FlowTaskVO flowTaskVO, UserAccount sessionUserAccount) {
-        throw new RuntimeException("你应该自己实现");
+        FormElementModel formElementModel = this.getFormElementModel(flowTaskVO);
+        int tableId = Integer.parseInt(formElementModel.getTableId());
+        try {
+            NutMap data = dataMaintainBiz.formJsonData(Json.toJson(formData), sessionUserAccount);
+            List<String> errmsg = dataMaintainBiz.checkTableData(tableId, data, DataMaintainBiz.UNIQUE_FIELD);
+            if (errmsg.size() == 0) {
+                dataMaintainBiz.saveTableData(tableId, data, sessionUserAccount);
+                return null;
+            } else {
+                throw new RuntimeException(Strings.join("<br>\r\n", errmsg));
+            }
+        } catch (Exception e) {
+            log.error("异常", e);
+            throw e;
+        }
     }
 
     @Override
@@ -51,9 +100,18 @@ public class OnlineFormExternalFormExecutor implements ExternalFormExecutor {
 
     @Override
     public Object loadFormData(FlowTaskVO flowTaskVO, UserAccount sessionUserAccount) {
-        //自行组织数据，按照流程步骤，确定是否显示某些字段
+        FormElementModel formElementModel = this.getFormElementModel(flowTaskVO);
+        int tableId = Integer.parseInt(formElementModel.getTableId());
         if (Strings.isNotBlank(flowTaskVO.getBusinessId())) {
-            return loadFormData(flowTaskVO.getBusinessId());
+            DataTable dataTable = dataTableService.fetchAuthReadWriteFields(tableId, roleService.queryRoleIds(sessionUserAccount.getId()));
+            List<String> showFields = dataMaintainBiz.getQueryFields(dataTable);
+            Sql sql = Sqls.create("SELECT $showFields from $tableName where id=@id");
+            sql.setVar("tableName", dataTable.getTableName());
+            sql.setVar("showFields", Strings.join(",", showFields));
+            sql.setParam(dataTable.getPrimaryKey(), flowTaskVO.getBusinessId());
+            sql.setCallback(Sqls.callback.record());
+            dataTableService.dao().execute(sql);
+            return dataMaintainBiz.coverVueJsFromData(sql.getObject(Record.class), dataTable.getFields());
         }
         //TODO 返回一个基类，有发起人发起时间什么的
         return new Object();
@@ -61,7 +119,7 @@ public class OnlineFormExternalFormExecutor implements ExternalFormExecutor {
 
     @Override
     public Map loadFormData(String businessKeyId) {
-        throw new RuntimeException("你应该自己实现");
+        return new NutMap();
     }
 
     @Override
