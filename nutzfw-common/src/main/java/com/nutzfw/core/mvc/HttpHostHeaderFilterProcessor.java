@@ -9,6 +9,7 @@ package com.nutzfw.core.mvc;
 
 import lombok.extern.slf4j.Slf4j;
 import org.nutz.ioc.impl.PropertiesProxy;
+import org.nutz.lang.Strings;
 import org.nutz.mvc.ActionContext;
 import org.nutz.mvc.ActionInfo;
 import org.nutz.mvc.NutConfig;
@@ -49,7 +50,10 @@ public class HttpHostHeaderFilterProcessor extends AbstractProcessor {
     boolean checkWhitelist(ActionContext ac) {
         // 头攻击检测
         String requestHost = ac.getRequest().getHeader("host");
-        if (requestHost != null && !whitelist.contains(requestHost)) {
+        if (Strings.isNotBlank(requestHost)) {
+            if (whitelist.contains(requestHost.split(":")[0])) {
+                return false;
+            }
             return true;
         }
         return false;

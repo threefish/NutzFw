@@ -5,10 +5,11 @@
  * 源 码 地 址：https://gitee.com/threefish/NutzFw
  */
 
-package com.nutzfw.core.plugin.flowable.converter;
+package com.nutzfw.core.plugin.flowable.converter.json;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.nutzfw.core.plugin.flowable.converter.element.CustomSequenceFlow;
 import com.nutzfw.core.plugin.flowable.util.FlowUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.flowable.bpmn.model.BaseElement;
@@ -17,9 +18,7 @@ import org.flowable.bpmn.model.FlowElement;
 import org.flowable.bpmn.model.UserTask;
 import org.flowable.editor.language.json.converter.BaseBpmnJsonConverter;
 import org.flowable.editor.language.json.converter.UserTaskJsonConverter;
-import org.nutz.lang.Strings;
 
-import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -44,10 +43,12 @@ public class CustomUserTaskJsonConverter extends UserTaskJsonConverter {
 
     public static void fillJsonTypes(Map<String, Class<? extends BaseBpmnJsonConverter>> convertersToBpmnMap) {
         convertersToBpmnMap.put(STENCIL_TASK_USER, CustomUserTaskJsonConverter.class);
+        convertersToBpmnMap.put(STENCIL_SEQUENCE_FLOW, CustomSequenceFlowJsonConverter.class);
     }
 
     public static void fillBpmnTypes(Map<Class<? extends BaseElement>, Class<? extends BaseBpmnJsonConverter>> convertersToJsonMap) {
         convertersToJsonMap.put(UserTask.class, CustomUserTaskJsonConverter.class);
+        convertersToJsonMap.put(CustomSequenceFlow.class, CustomSequenceFlowJsonConverter.class);
     }
 
     @Override

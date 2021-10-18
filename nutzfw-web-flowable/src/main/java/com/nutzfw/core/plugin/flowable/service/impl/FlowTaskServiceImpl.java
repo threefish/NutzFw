@@ -13,7 +13,7 @@ import com.nutzfw.core.common.util.DateUtil;
 import com.nutzfw.core.common.vo.LayuiTableDataListVO;
 import com.nutzfw.core.plugin.flowable.cmd.FindNextUserTaskNodeCmd;
 import com.nutzfw.core.plugin.flowable.constant.FlowConstant;
-import com.nutzfw.core.plugin.flowable.converter.CustomBpmnJsonConverter;
+import com.nutzfw.core.plugin.flowable.converter.json.CustomBpmnJsonConverter;
 import com.nutzfw.core.plugin.flowable.dto.UserTaskExtensionDTO;
 import com.nutzfw.core.plugin.flowable.enums.CallBackTypeEnum;
 import com.nutzfw.core.plugin.flowable.enums.TaskStatusEnum;

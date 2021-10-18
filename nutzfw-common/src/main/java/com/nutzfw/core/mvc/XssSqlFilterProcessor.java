@@ -10,6 +10,7 @@ package com.nutzfw.core.mvc;
 import com.nutzfw.core.common.cons.Cons;
 import com.nutzfw.core.common.vo.AjaxResult;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.shiro.util.AntPathMatcher;
 import org.nutz.integration.shiro.NutShiro;
 import org.nutz.ioc.impl.PropertiesProxy;
 import org.nutz.log.Log;
@@ -54,8 +55,15 @@ public class XssSqlFilterProcessor extends AbstractProcessor {
      * @return
      */
     boolean checkWhitelist(ActionContext ac) {
+        final AntPathMatcher antPathMatcher = new AntPathMatcher();
         String path = ac.getPath();
-        return !whitelist.contains(path);
+        for (String urlpattern : whitelist) {
+            boolean match = antPathMatcher.match(urlpattern, path);
+            if (match) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.nutzfw.core.plugin.flowable;
 import com.nutzfw.core.plugin.flowable.service.FlowProcessDefinitionService;
 import com.nutzfw.core.plugin.flowable.service.FlowTaskService;
 import org.flowable.engine.*;
+import org.nutz.dao.Dao;
 import org.nutz.mvc.Mvcs;
 
 /**
@@ -50,6 +51,10 @@ public abstract class FlowServiceSupport {
 
     public static final FlowTaskService flowTaskService() {
         return Mvcs.getActionContext().getIoc().get(FlowTaskService.class);
+    }
+
+    public static final Dao dao() {
+        return Mvcs.getActionContext().getIoc().get(Dao.class);
     }
 
 }

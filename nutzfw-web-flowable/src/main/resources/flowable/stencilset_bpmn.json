@@ -48,7 +48,7 @@
         {
           "id": "name",
           "type": "String",
-          "title": "流程名称",
+          "title": "名称",
           "value": "",
           "description": "BPMN元素的描述名称.",
           "popular": true,

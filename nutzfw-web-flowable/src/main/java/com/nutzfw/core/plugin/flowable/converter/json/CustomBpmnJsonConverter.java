@@ -5,7 +5,7 @@
  * 源 码 地 址：https://gitee.com/threefish/NutzFw
  */
 
-package com.nutzfw.core.plugin.flowable.converter;
+package com.nutzfw.core.plugin.flowable.converter.json;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import static com.nutzfw.core.plugin.flowable.converter.CustomUserTaskJsonConverter.FORM_KEY_DEFINITION;
+import static com.nutzfw.core.plugin.flowable.converter.json.CustomUserTaskJsonConverter.FORM_KEY_DEFINITION;
 
 /**
  * @author huchuc@vip.qq.com
@@ -38,7 +38,6 @@ public class CustomBpmnJsonConverter extends BpmnJsonConverter {
     private static final String[] PROPERTY_KEYS = new String[]{EXTERNAL_FORM_EXECUTOR, FORM_KEY_DEFINITION};
 
     static {
-        convertersToBpmnMap.put(STENCIL_TASK_USER, CustomUserTaskJsonConverter.class);
         CustomUserTaskJsonConverter.customFillTypes(convertersToBpmnMap, convertersToJsonMap);
     }
 

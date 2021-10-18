@@ -17,7 +17,8 @@ import com.nutzfw.core.common.vo.AjaxResult;
 import com.nutzfw.core.common.vo.LayuiTableDataListVO;
 import com.nutzfw.core.common.vo.OptionVO;
 import com.nutzfw.core.plugin.flowable.constant.FlowConstant;
-import com.nutzfw.core.plugin.flowable.converter.CustomBpmnJsonConverter;
+import com.nutzfw.core.plugin.flowable.converter.json.CustomBpmnJsonConverter;
+import com.nutzfw.core.plugin.flowable.converter.xml.CustomBpmnXMLConverter;
 import com.nutzfw.core.plugin.flowable.util.FlowDiagramUtils;
 import com.nutzfw.core.plugin.flowable.util.FlowUtils;
 import com.nutzfw.core.plugin.flowable.validator.CustomProcessValidatorFactory;
@@ -33,8 +34,8 @@ import com.nutzfw.modules.sys.enums.FieldAuth;
 import com.nutzfw.modules.sys.service.DataTableService;
 import com.nutzfw.modules.sys.service.RoleService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
-import org.flowable.bpmn.model.BpmnModel;
-import org.flowable.bpmn.model.ValuedDataObject;
+import org.flowable.bpmn.model.Process;
+import org.flowable.bpmn.model.*;
 import org.flowable.common.engine.api.FlowableException;
 import org.flowable.editor.constants.ModelDataJsonConstants;
 import org.flowable.editor.constants.StencilConstants;
@@ -44,6 +45,7 @@ import org.flowable.idm.api.User;
 import org.flowable.idm.engine.impl.persistence.entity.GroupEntity;
 import org.flowable.ui.common.model.ResultListDataRepresentation;
 import org.flowable.ui.common.model.UserRepresentation;
+import org.flowable.ui.common.util.XmlUtil;
 import org.flowable.validation.ProcessValidator;
 import org.flowable.validation.ValidationError;
 import org.nutz.dao.Cnd;
@@ -51,6 +53,7 @@ import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
+import org.nutz.lang.Encoding;
 import org.nutz.lang.Files;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
@@ -58,7 +61,10 @@ import org.nutz.mvc.Mvcs;
 import org.nutz.mvc.adaptor.JsonAdaptor;
 import org.nutz.mvc.annotation.*;
 
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -66,6 +72,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static org.flowable.editor.constants.EditorJsonConstants.EDITOR_SHAPE_PROPERTIES;
 
 /**
  * @author 黄川 huchuc@vip.qq.com
@@ -140,15 +148,23 @@ public class FlowDesignAction extends BaseAction {
             }
             NutMap modelJson = Json.fromJson(NutMap.class, model.getMetaInfo());
             NutMap bpmJson = Json.fromJson(NutMap.class, json);
-            NutMap propertiesNode = bpmJson.getAs("properties", NutMap.class);
+            NutMap propertiesNode = bpmJson.getAs(EDITOR_SHAPE_PROPERTIES, NutMap.class);
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode jsonNode = objectMapper.readTree(json);
             BpmnModel bpmnModel = customBpmnJsonConverter.convertToBpmnModel(jsonNode);
-            if (bpmnModel.getMainProcess() != null) {
+            final Process mainProcess = bpmnModel.getMainProcess();
+            if (mainProcess != null) {
                 ValuedDataObject valuedDataObject = bpmnModel.getMainProcess().getDataObjects().stream().filter(va -> FlowConstant.PROCESS_TITLE.equals(va.getId())).findAny().orElse(null);
                 if (valuedDataObject == null) {
                     return AjaxResult.errorf("保存失败!流程应该设置标题模版，id为{0}", FlowConstant.PROCESS_TITLE);
                 }
+                mainProcess.getFlowElements().forEach(flowElement -> {
+                    if (flowElement instanceof StartEvent) {
+                        flowElement.setName("开始");
+                    } else if (flowElement instanceof EndEvent) {
+                        flowElement.setName("结束");
+                    }
+                });
             }
             ProcessValidator validator = new CustomProcessValidatorFactory().createDefaultProcessValidator();
             List<ValidationError> errors = validator.validate(bpmnModel);
@@ -186,6 +202,10 @@ public class FlowDesignAction extends BaseAction {
             BpmnModel bpmnModel = customBpmnJsonConverter.convertToBpmnModel(modelNode);
             ProcessValidator validator = new CustomProcessValidatorFactory().createDefaultProcessValidator();
             errors = validator.validate(bpmnModel);
+
+
+            byte[] bpmnBytes = new CustomBpmnXMLConverter().convertToXML(bpmnModel, Encoding.UTF8);
+            System.out.println(new String(bpmnBytes));
         } catch (IOException e) {
             log.error(e);
         }

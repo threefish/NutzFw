@@ -7,7 +7,7 @@
 
 package com.nutzfw.core.plugin.flowable.validator;
 
-import com.nutzfw.core.plugin.flowable.converter.CustomUserTaskJsonConverter;
+import com.nutzfw.core.plugin.flowable.converter.json.CustomUserTaskJsonConverter;
 import com.nutzfw.core.plugin.flowable.dto.UserTaskExtensionDTO;
 import com.nutzfw.core.plugin.flowable.enums.TaskReviewerScopeEnum;
 import org.apache.commons.collections.CollectionUtils;
@@ -33,10 +33,13 @@ public class CustomUserTaskValidator extends UserTaskValidator {
     protected void executeValidation(BpmnModel bpmnModel, Process process, List<ValidationError> errors) {
         List<UserTask> userTasks = process.findFlowElementsOfType(UserTask.class);
         for (UserTask userTask : userTasks) {
+            if (Strings.isBlank(userTask.getName())) {
+                addError(errors, Problems.USER_TASK_LISTENER_IMPLEMENTATION_MISSING, process, userTask, "请设置审核节点名称");
+            }
             if (userTask.getTaskListeners() != null) {
                 for (FlowableListener listener : userTask.getTaskListeners()) {
                     if (listener.getImplementation() == null || listener.getImplementationType() == null) {
-                        addError(errors, Problems.USER_TASK_LISTENER_IMPLEMENTATION_MISSING, process, userTask, "Element 'class' or 'expression' is mandatory on executionListener");
+                        addError(errors, Problems.USER_TASK_LISTENER_IMPLEMENTATION_MISSING, process, userTask, "元素“class”或“expression”在 executionListener 上是必需的");
                     }
                 }
             }

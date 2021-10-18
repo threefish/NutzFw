@@ -30,6 +30,7 @@ import org.nutz.lang.Strings;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -137,7 +138,8 @@ public class CustomUserTaskActivityBehavior extends UserTaskActivityBehavior {
     }
 
     private String getExpressionValue(String expression, ExpressionManager expressionManager, DelegateExecution execution) {
-        return expressionManager.createExpression("${" + expression + "}").getValue(execution).toString();
+        final Object value = expressionManager.createExpression("${" + expression + "}").getValue(execution);
+        return Objects.nonNull(value) ? value.toString() : null;
     }
 
 

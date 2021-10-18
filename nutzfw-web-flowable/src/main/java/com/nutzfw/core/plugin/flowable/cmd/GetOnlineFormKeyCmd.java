@@ -1,6 +1,6 @@
 package com.nutzfw.core.plugin.flowable.cmd;
 
-import com.nutzfw.core.plugin.flowable.converter.CustomUserTaskJsonConverter;
+import com.nutzfw.core.plugin.flowable.converter.json.CustomUserTaskJsonConverter;
 import com.nutzfw.core.plugin.flowable.extmodel.FormElementModel;
 import org.flowable.bpmn.model.ExtensionElement;
 import org.flowable.bpmn.model.FlowElement;
@@ -9,7 +9,6 @@ import org.flowable.common.engine.api.FlowableIllegalArgumentException;
 import org.flowable.common.engine.impl.interceptor.Command;
 import org.flowable.common.engine.impl.interceptor.CommandContext;
 import org.flowable.engine.impl.util.ProcessDefinitionUtil;
-import org.flowable.engine.repository.ProcessDefinition;
 import org.nutz.json.Json;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
@@ -48,16 +47,21 @@ public class GetOnlineFormKeyCmd implements Command<FormElementModel> {
 
     @Override
     public FormElementModel execute(CommandContext commandContext) {
-        ProcessDefinition processDefinition = ProcessDefinitionUtil.getProcessDefinition(processDefinitionId);
         if (Strings.isBlank(taskDefinitionKey)) {
-            return this.getStartFormHandler(commandContext, processDefinition);
+            return this.getStartFormHandler();
         }
-        return this.getTaskFormHandlder(processDefinitionId, taskDefinitionKey);
+        // 取当前节点的表单定义配置
+        final FormElementModel taskFormHandlder = this.getTaskFormHandlder();
+        if (taskFormHandlder == null) {
+            // 兼容一下取流程定义中的表单配置
+            return this.getStartFormHandler();
+        }
+        return taskFormHandlder;
     }
 
 
-    public FormElementModel getStartFormHandler(CommandContext commandContext, ProcessDefinition processDefinition) {
-        org.flowable.bpmn.model.Process process = ProcessDefinitionUtil.getProcess(processDefinition.getId());
+    public FormElementModel getStartFormHandler() {
+        org.flowable.bpmn.model.Process process = ProcessDefinitionUtil.getProcess(processDefinitionId);
         List<ExtensionElement> extensionElements = process.getExtensionElements().get(CustomUserTaskJsonConverter.FORM_KEY_DEFINITION);
         if (Lang.isNotEmpty(extensionElements)) {
             ExtensionElement extensionElement = extensionElements.get(0);
@@ -68,9 +72,9 @@ public class GetOnlineFormKeyCmd implements Command<FormElementModel> {
 
     }
 
-    public FormElementModel getTaskFormHandlder(String processDefinitionId, String taskId) {
+    public FormElementModel getTaskFormHandlder() {
         org.flowable.bpmn.model.Process process = ProcessDefinitionUtil.getProcess(processDefinitionId);
-        FlowElement flowElement = process.getFlowElement(taskId, true);
+        FlowElement flowElement = process.getFlowElement(taskDefinitionKey, true);
         if (flowElement instanceof UserTask) {
             UserTask userTask = (UserTask) flowElement;
             List<ExtensionElement> extensionElements = userTask.getExtensionElements().get(CustomUserTaskJsonConverter.FORM_KEY_DEFINITION);

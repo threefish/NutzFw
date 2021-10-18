@@ -9,13 +9,14 @@ package com.nutzfw.core.plugin.flowable.util;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nutzfw.core.plugin.flowable.converter.CustomUserTaskJsonConverter;
+import com.nutzfw.core.plugin.flowable.converter.json.CustomUserTaskJsonConverter;
 import com.nutzfw.core.plugin.flowable.dto.UserTaskExtensionDTO;
 import com.nutzfw.core.plugin.flowable.enums.TaskStatusEnum;
 import com.nutzfw.core.plugin.flowable.vo.FlowTaskVO;
 import com.nutzfw.modules.organize.entity.UserAccount;
 import com.nutzfw.modules.sys.entity.Role;
 import org.apache.commons.collections.CollectionUtils;
+import org.flowable.bpmn.model.ExtensionAttribute;
 import org.flowable.bpmn.model.ExtensionElement;
 import org.flowable.bpmn.model.FlowableListener;
 import org.flowable.bpmn.model.UserTask;
@@ -208,5 +209,18 @@ public class FlowUtils {
             }
         }
         return OBJECT_MAPPER.createObjectNode();
+    }
+
+    /**
+     * 创建扩展属性
+     *
+     * @param name
+     * @param value
+     * @return
+     */
+    public static ExtensionAttribute createExtensionAttribute(String name, String value) {
+        ExtensionAttribute attribute = new ExtensionAttribute(name);
+        attribute.setValue(value);
+        return attribute;
     }
 }

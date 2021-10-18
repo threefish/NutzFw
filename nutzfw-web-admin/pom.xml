@@ -25,7 +25,6 @@
                     <!--将class打包jar作为附件-->
                     <attachClasses>true</attachClasses>
                     <failOnMissingWebXml>false</failOnMissingWebXml>
-                    <includes>*</includes>
                     <dependentWarIncludes>*</dependentWarIncludes>
                 </configuration>
             </plugin>

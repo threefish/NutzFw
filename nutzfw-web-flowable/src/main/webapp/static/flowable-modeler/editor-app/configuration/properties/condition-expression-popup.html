@@ -1,26 +1,41 @@
 <div class="modal" ng-controller="FlowableConditionExpressionPopupCtrl">
-<div class="modal-dialog modal-wide">
-<div class="modal-content">
-<div class="modal-header">
-    <button type="button" class="close" data-dismiss="modal" aria-hidden="true" ng-click="close()">&times;</button>
-    <h2 translate>PROPERTY.SEQUENCEFLOW.CONDITION.TITLE</h2>
-</div>
-<div class="modal-body">
+    <div class="modal-dialog modal-wide">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true" ng-click="close()">&times;</button>
+                <h2 translate>PROPERTY.SEQUENCEFLOW.CONDITION.TITLE</h2>
+            </div>
+            <div class="modal-body">
 
-    <div class="detail-group clearfix">
-        
-        <div class="col-xs-12">
-            <label class="col-xs-3">{{'PROPERTY.SEQUENCEFLOW.CONDITION.STATIC' | translate}}</label>
-            <div class="col-xs-9">
-                <textarea class="form-control" ng-model="expression.staticValue" style="width:70%; height:100%; max-width: 100%; max-height: 100%; min-height: 50px"/>
+                <div class="detail-group clearfix">
+                    <div class="form-group clearfix">
+                        <label for="type" class="col-xs-2">条件类型</label>
+                        <div class="col-xs-10">
+                            <select id="type" class="form-control" ng-model="expression.type">
+                                <option value="static" selected>EL表达式</option>
+                                <option value="sql">SQL语句</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group clearfix" ng-show="expression.type=='static'">
+                        <label class="col-xs-2">EL表达式</label>
+                        <div class="col-xs-10">
+                            <textarea class=" form-control" ng-model="expression.staticValue" placeholder="使用el表达式，结果返回true则条件通过" rows="15"/>
+                        </div>
+                    </div>
+                    <div class="form-group clearfix" ng-show="expression.type=='sql'">
+                        <label class="col-xs-2">SQL语句</label>
+                        <div class="col-xs-10">
+                            <textarea class=" form-control" ng-model="expression.staticValue"
+                                      placeholder="在sql模式下，将获取列名为 result 的字段值作为判断。如果 result为： yes,y,true,t,on 或为 大于0的数字 则条件通过；例如:SELECT count(*) as result FROM sys_user_account"
+                                      rows="15"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button ng-click="close()" class="btn btn-primary" translate>ACTION.CANCEL</button>
+                    <button ng-click="save()" class="btn btn-primary" translate>ACTION.SAVE</button>
+                </div>
             </div>
         </div>
-
     </div>
-    <div class="modal-footer">
-        <button ng-click="close()" class="btn btn-primary" translate>ACTION.CANCEL</button>
-        <button ng-click="save()" class="btn btn-primary" translate>ACTION.SAVE</button>
-    </div>
-</div>
-</div>
-</div>

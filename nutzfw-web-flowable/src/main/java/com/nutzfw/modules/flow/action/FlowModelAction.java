@@ -18,7 +18,8 @@ import com.nutzfw.core.common.util.ViewUtil;
 import com.nutzfw.core.common.vo.AjaxResult;
 import com.nutzfw.core.common.vo.LayuiTableDataListVO;
 import com.nutzfw.core.plugin.flowable.constant.FlowConstant;
-import com.nutzfw.core.plugin.flowable.converter.CustomBpmnJsonConverter;
+import com.nutzfw.core.plugin.flowable.converter.json.CustomBpmnJsonConverter;
+import com.nutzfw.core.plugin.flowable.converter.xml.CustomBpmnXMLConverter;
 import com.nutzfw.core.plugin.flowable.service.FlowCacheService;
 import com.nutzfw.core.plugin.flowable.util.FlowUtils;
 import com.nutzfw.modules.common.action.BaseAction;
@@ -78,7 +79,7 @@ public class FlowModelAction extends BaseAction {
     FlowCacheService flowCacheService;
 
     CustomBpmnJsonConverter bpmnJsonConverter = new CustomBpmnJsonConverter();
-    BpmnXMLConverter bpmnXmlConverter = new BpmnXMLConverter();
+    BpmnXMLConverter bpmnXmlConverter = new CustomBpmnXMLConverter();
 
     @GET
     @At("/design")
@@ -196,7 +197,7 @@ public class FlowModelAction extends BaseAction {
             Model modelData = repositoryService.getModel(modelId);
             ObjectNode modelNode = (ObjectNode) new ObjectMapper().readTree(repositoryService.getModelEditorSource(modelData.getId()));
             BpmnModel model = new CustomBpmnJsonConverter().convertToBpmnModel(modelNode);
-            byte[] bpmnBytes = new BpmnXMLConverter().convertToXML(model, Encoding.UTF8);
+            byte[] bpmnBytes = new CustomBpmnXMLConverter().convertToXML(model, Encoding.UTF8);
             String processName = modelData.getName() + ".bpmn20.xml";
             Deployment deployment = repositoryService.createDeployment().name(modelData.getName()).category(modelData.getCategory()).addString(processName, new String(bpmnBytes)).deploy();
             modelData.setDeploymentId(deployment.getId());
@@ -271,7 +272,7 @@ public class FlowModelAction extends BaseAction {
             CustomBpmnJsonConverter jsonConverter = new CustomBpmnJsonConverter();
             JsonNode editorNode = new ObjectMapper().readTree(repositoryService.getModelEditorSource(modelData.getId()));
             BpmnModel bpmnModel = jsonConverter.convertToBpmnModel(editorNode);
-            BpmnXMLConverter xmlConverter = new BpmnXMLConverter();
+            BpmnXMLConverter xmlConverter = new CustomBpmnXMLConverter();
             byte[] bpmnBytes = xmlConverter.convertToXML(bpmnModel);
             Path file = FileUtil.createTempFile();
             Files.write(file, bpmnBytes);

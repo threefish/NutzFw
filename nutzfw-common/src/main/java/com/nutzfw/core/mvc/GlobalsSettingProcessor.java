@@ -7,10 +7,14 @@
 
 package com.nutzfw.core.mvc;
 
+import com.nutzfw.core.common.cons.Cons;
+import com.nutzfw.modules.organize.entity.UserAccount;
 import org.nutz.lang.Strings;
+import org.nutz.lang.random.R;
 import org.nutz.mvc.ActionContext;
 import org.nutz.mvc.Mvcs;
 import org.nutz.mvc.impl.processor.AbstractProcessor;
+import org.slf4j.MDC;
 
 /**
  * Created with IntelliJ IDEA.
@@ -20,6 +24,11 @@ import org.nutz.mvc.impl.processor.AbstractProcessor;
  * 设置基础全局基础参数
  */
 public class GlobalsSettingProcessor extends AbstractProcessor {
+
+    public static String TRACE_ID = "traceId";
+
+    public static String TRACE_USER = "traceUser";
+
     @Override
     public void process(ActionContext ac) throws Throwable {
         String lang = ac.getRequest().getParameter("lang");
@@ -31,6 +40,16 @@ public class GlobalsSettingProcessor extends AbstractProcessor {
         ac.getRequest().setAttribute("lang", lang);
         //可以预设变量
         ac.getRequest().setAttribute("base", Mvcs.getReq().getContextPath());
-        doNext(ac);
+        try {
+            MDC.put(TRACE_ID, R.UU16());
+            final UserAccount attribute = (UserAccount) ac.getRequest().getSession().getAttribute(Cons.SESSION_USER_KEY);
+            if (attribute != null) {
+                MDC.put(TRACE_USER, attribute.getUserName());
+            }
+            doNext(ac);
+        } finally {
+            MDC.remove(TRACE_ID);
+            MDC.remove(TRACE_USER);
+        }
     }
 }
