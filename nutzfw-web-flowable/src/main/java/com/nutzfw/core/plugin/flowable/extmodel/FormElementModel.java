@@ -15,6 +15,8 @@ public class FormElementModel {
     List<OnlineFieldAuth> fieldAuths;
     String formKey;
     String tableId;
+    // 流程状态回写字段
+    String writeBackProccessStatusField;
     FormType formType;
 
 }

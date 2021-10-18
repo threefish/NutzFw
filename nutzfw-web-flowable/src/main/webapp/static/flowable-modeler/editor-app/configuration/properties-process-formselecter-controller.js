@@ -11,7 +11,8 @@ angular.module('flowableModeler').controller('FlowableProcessFormselecterCtrl',
 
 
 angular.module('flowableModeler').controller('FlowableProcessFormselecterPopupCtrl', ['$scope', '$http', function ($scope, $http) {
-
+    console.log("$scope",$scope)
+    console.log("selectedShape",$scope.selectedShape)
     $scope.tables = [];
     $scope.onlineFields = [];
     $scope.activeTab = 1;
@@ -37,6 +38,7 @@ angular.module('flowableModeler').controller('FlowableProcessFormselecterPopupCt
     setDefaualtValue("formType", "ONLINE");
     setDefaualtValue("tableId", "");
     setDefaualtValue("fieldAuths", []);
+    setDefaualtValue("writeBackProccessStatusField", "");
 
 
     function setDefaualtValue(field, defaualtValue) {
@@ -57,7 +59,7 @@ angular.module('flowableModeler').controller('FlowableProcessFormselecterPopupCt
                 });
                 $scope.changeOnlineFormValue(function () {
                     // 设置权限回写
-                    $scope.authList = $scope.formProperties.fieldAuths
+                    $scope.authList = $scope.formProperties.fieldAuths;
                 })
             })
     };
@@ -77,6 +79,16 @@ angular.module('flowableModeler').controller('FlowableProcessFormselecterPopupCt
                         field: item.fieldId,
                         auth: 'r',
                     };
+                });
+                $scope.writeBackFieldList = [];
+                data.data.map(function (item) {
+                    if (item.auths.includes("rw")) {
+                        $scope.writeBackFieldList.push({
+                            id: item.fieldId,
+                            name: item.name,
+                            selected: $scope.formProperties.writeBackProccessStatusField == item.fieldId,
+                        })
+                    }
                 });
                 callback && callback();
             })

@@ -97,6 +97,18 @@
                                             <p>请不要忘记设置表单字段权限</p>
                                         </div>
                                     </div>
+                                    <div class="form-group" ng-if="formProperties.formType=='ONLINE' && selectedShape.parent == undefined">
+                                        <label class="col-sm-2 control-label">流程状态回写字段</label>
+                                        <div class="col-sm-10">
+                                            <select class="form-control ng-pristine ng-untouched ng-valid"
+                                                    ng-model="formProperties.writeBackProccessStatusField">
+                                                <option ng-repeat="item in writeBackFieldList" value="{{ item.id }}" ng-selected="{{ item.selected }}">
+                                                    {{ item.name }}
+                                                </option>
+                                            </select>
+                                            <p>请不要忘记设置流程状态回写字段</p>
+                                        </div>
+                                    </div>
                                     <div class="form-group" ng-if="formProperties.formType=='DEVELOP'">
                                         <label class="col-sm-2 control-label">业务开发表单key</label>
                                         <div class="col-sm-10">

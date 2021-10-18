@@ -16,6 +16,7 @@ layout("/layouts/blank.html",{title:title}){
 </section>
 <script type="text/html" id="toolBarFixed">
     <%if(so.hasPermission('sys.flow.process.update')){%>
+    <a class="layui-btn layui-btn-xs layui-btn-normal" lay-event="authority">权限</a>
     {{# if(d.suspensionState == 1) { }}
     <a class="layui-btn layui-btn-xs layui-btn-normal" lay-event="suspend">挂起</a>
     {{# }else{ }}
@@ -29,9 +30,11 @@ layout("/layouts/blank.html",{title:title}){
 <script type="text/javascript">
     var listTable, vm = new Vue({
         el: '#container',
-        data: {
-        },
+        data: {},
         methods: {
+            handleAuthority: function (data) {
+                //TODO 设置角色管理
+            },
             handleSuspend: function (data) {
                 core.confirm("确认要挂起该流程吗?", function () {
                     var jsonre = core.postJSON("/flow/process/update/suspend", {procDefId: data.id});
@@ -108,6 +111,9 @@ layout("/layouts/blank.html",{title:title}){
                         switch (layEvent) {
                             case "suspend":
                                 vm.handleSuspend(data);
+                                break;
+                            case "authority":
+                                vm.handleAuthority(data);
                                 break;
                             case "active":
                                 vm.handleActive(data);
