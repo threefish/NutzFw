@@ -13,6 +13,7 @@ import com.nutzfw.core.plugin.flowable.factory.CustomDefaultActivityBehaviorFact
 import com.nutzfw.core.plugin.flowable.interceptor.CustomCreateUserTaskInterceptor;
 import com.nutzfw.core.plugin.flowable.listener.ProccessStratAndCompletedListener;
 import com.nutzfw.core.plugin.flowable.listener.ProxyFlowableEventListener;
+import com.nutzfw.core.plugin.flowable.listener.handle.TaskMessageNoticeHandle;
 import com.nutzfw.core.plugin.flowable.listener.handle.TastCreateSetCategoryHandle;
 import com.nutzfw.core.plugin.flowable.transaction.NutzTransactionFactory;
 import com.nutzfw.core.plugin.flowable.util.FlowStrongUuidGenerator;
@@ -44,6 +45,8 @@ public class NutzFwProcessEngineConfiguration extends StandaloneProcessEngineCon
     DataSource dataSource;
     @Inject
     TastCreateSetCategoryHandle tastCreateSetCategoryHandle;
+    @Inject
+    TaskMessageNoticeHandle taskMessageNoticeHandle;
     @Inject
     DepartmentLeaderService departmentLeaderService;
     @Inject
@@ -92,7 +95,7 @@ public class NutzFwProcessEngineConfiguration extends StandaloneProcessEngineCon
      */
     private List<FlowableEventListener> getGlobalFlowableEventListener() {
         return Arrays.asList(
-                new ProxyFlowableEventListener(FlowableEngineEventType.TASK_CREATED, Arrays.asList(tastCreateSetCategoryHandle)),
+                new ProxyFlowableEventListener(FlowableEngineEventType.TASK_CREATED, Arrays.asList(tastCreateSetCategoryHandle,taskMessageNoticeHandle)),
                 new ProccessStratAndCompletedListener()
         );
     }

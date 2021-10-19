@@ -10,6 +10,7 @@ package com.nutzfw.modules.flow.websocket;
 import com.nutzfw.modules.flow.websocket.handler.FlowTaskMessageNoticeWsHandler;
 import org.apache.commons.collections.CollectionUtils;
 import org.flowable.engine.TaskService;
+import org.nutz.aop.interceptor.async.Async;
 import org.nutz.ioc.Ioc;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.lang.util.NutMap;
@@ -81,12 +82,14 @@ public class FlowTaskMessageNoticeWs extends AbstractWsEndpoint {
         return this.handlers;
     }
 
+
     /**
-     * 通知这些人员需要发送流程通知信息
+     * 发送异步消息通知这些人员需要发送流程通知信息
      *
      * @param userNames
      */
-    public void sendMessageNotice(List<String> userNames) {
+    @Async
+    public void sendAsyncMessageNotice(List<String> userNames) {
         if (CollectionUtils.isNotEmpty(userNames)) {
             if (this.getOnlineSeesionSize() > 0) {
                 ConcurrentHashMap<String, WsHandler> handlers = this.getHandlers();

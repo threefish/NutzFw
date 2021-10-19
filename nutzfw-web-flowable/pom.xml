@@ -31,7 +31,7 @@
                     <attachClasses>true</attachClasses>
                     <failOnMissingWebXml>false</failOnMissingWebXml>
                     <!-- 逗号分隔的列表，在进行WAR覆盖时要排除。-->
-                    <dependentWarExcludes>WEB-INF/view/modules/flow/**</dependentWarExcludes>
+                    <dependentWarExcludes>WEB-INF/view/modules/**</dependentWarExcludes>
                     <!-- 复制warSourceDirectory的内容时要包括的以逗号分隔的令牌列表-->
                     <warSourceIncludes>**</warSourceIncludes>
                 </configuration>
