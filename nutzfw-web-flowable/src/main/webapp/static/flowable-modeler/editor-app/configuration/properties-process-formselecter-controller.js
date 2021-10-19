@@ -101,6 +101,7 @@ angular.module('flowableModeler').controller('FlowableProcessFormselecterPopupCt
             formKey: $scope.formProperties.formKey,
             tableId: $scope.formProperties.formKey,
             formType: $scope.formProperties.formType,
+            writeBackProccessStatusField: $scope.formProperties.writeBackProccessStatusField,
         }
         console.log(data)
         if (data.formType == "ONLINE" && data.fieldAuths.length == 0) {

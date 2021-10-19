@@ -9,11 +9,14 @@ package com.nutzfw.modules.flow.executor;
 
 import com.nutzfw.core.plugin.flowable.FlowServiceSupport;
 import com.nutzfw.core.plugin.flowable.cmd.GetOnlineFormKeyCmd;
+import com.nutzfw.core.plugin.flowable.context.ProcessContext;
+import com.nutzfw.core.plugin.flowable.context.ProcessContextHolder;
 import com.nutzfw.core.plugin.flowable.dto.UserTaskExtensionDTO;
 import com.nutzfw.core.plugin.flowable.extmodel.FormElementModel;
 import com.nutzfw.core.plugin.flowable.vo.FlowTaskVO;
 import com.nutzfw.modules.organize.entity.UserAccount;
 import com.nutzfw.modules.sys.entity.DataTable;
+import com.nutzfw.modules.sys.entity.TableFields;
 import com.nutzfw.modules.sys.service.DataTableService;
 import com.nutzfw.modules.sys.service.RoleService;
 import com.nutzfw.modules.tabledata.biz.DataMaintainBiz;
@@ -29,9 +32,11 @@ import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.json.Json;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
+import org.springframework.util.Assert;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author huchuc@vip.qq.com
@@ -76,8 +81,10 @@ public class OnlineFormExternalFormExecutor implements ExternalFormExecutor {
         try {
             NutMap data = dataMaintainBiz.formJsonData(Json.toJson(formData), sessionUserAccount);
             List<String> errmsg = dataMaintainBiz.checkTableData(tableId, data, DataMaintainBiz.UNIQUE_FIELD);
+            Optional<TableFields> writeBackProccessStatusField = dataTableService.fetchAllFields(tableId).getFields().stream()
+                    .filter(fields -> String.valueOf(fields.getId()).equals(formElementModel.getWriteBackProccessStatusField())).findAny();
             if (errmsg.size() == 0) {
-                //TODO  使用 writeBackProccessStatusField 获取回写字段名，并设置流程状态
+
                 dataMaintainBiz.saveTableData(tableId, data, sessionUserAccount);
                 return null;
             } else {
@@ -154,5 +161,17 @@ public class OnlineFormExternalFormExecutor implements ExternalFormExecutor {
         return "在线表单执行器";
     }
 
-
+    @Override
+    public void processCompleted(Map formData, FlowTaskVO flowTaskVO, UserAccount sessionUserAccount) {
+        FormElementModel formElementModel = this.getFormElementModel(flowTaskVO);
+        int tableId = Integer.parseInt(formElementModel.getTableId());
+        NutMap data = dataMaintainBiz.formJsonData(Json.toJson(formData), sessionUserAccount);
+        Optional<TableFields> writeBackProccessStatusField = dataTableService.fetchAllFields(tableId).getFields().stream()
+                .filter(fields -> String.valueOf(fields.getId()).equals(formElementModel.getWriteBackProccessStatusField()))
+                .findAny();
+        ProcessContext processContext = ProcessContextHolder.get();
+        Assert.isTrue(writeBackProccessStatusField.isPresent(), "流程状态回写字段不能未设置");
+        data.put(writeBackProccessStatusField.get().getFieldName(), processContext.getProcessStatus());
+        dataMaintainBiz.saveTableData(tableId, data, sessionUserAccount);
+    }
 }

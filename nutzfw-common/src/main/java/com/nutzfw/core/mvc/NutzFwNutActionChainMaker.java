@@ -35,6 +35,7 @@ public class NutzFwNutActionChainMaker extends NutActionChainMaker {
      * ioc:fristLoginProcessor 表示在ioc中取得
      */
     static List<String> processors = Arrays.asList(
+            "com.nutzfw.core.mvc.RequestInterceptorProcessor",
             "com.nutzfw.core.mvc.HttpHostHeaderFilterProcessor",
             "com.nutzfw.core.mvc.GlobalsSettingProcessor",
             "com.nutzfw.core.mvc.DemoModeProcessor",

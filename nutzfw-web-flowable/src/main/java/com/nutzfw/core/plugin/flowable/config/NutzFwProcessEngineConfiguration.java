@@ -11,6 +11,7 @@ import com.nutzfw.core.plugin.flowable.config.listener.NutzFwProcessEngineLifecy
 import com.nutzfw.core.plugin.flowable.elbeans.IocElBeans;
 import com.nutzfw.core.plugin.flowable.factory.CustomDefaultActivityBehaviorFactory;
 import com.nutzfw.core.plugin.flowable.interceptor.CustomCreateUserTaskInterceptor;
+import com.nutzfw.core.plugin.flowable.listener.ProccessStratAndCompletedListener;
 import com.nutzfw.core.plugin.flowable.listener.ProxyFlowableEventListener;
 import com.nutzfw.core.plugin.flowable.listener.handle.TastCreateSetCategoryHandle;
 import com.nutzfw.core.plugin.flowable.transaction.NutzTransactionFactory;
@@ -90,7 +91,10 @@ public class NutzFwProcessEngineConfiguration extends StandaloneProcessEngineCon
      * @return
      */
     private List<FlowableEventListener> getGlobalFlowableEventListener() {
-        return Arrays.asList(new ProxyFlowableEventListener(FlowableEngineEventType.TASK_CREATED, Arrays.asList(tastCreateSetCategoryHandle)));
+        return Arrays.asList(
+                new ProxyFlowableEventListener(FlowableEngineEventType.TASK_CREATED, Arrays.asList(tastCreateSetCategoryHandle)),
+                new ProccessStratAndCompletedListener()
+        );
     }
 
 
@@ -100,7 +104,7 @@ public class NutzFwProcessEngineConfiguration extends StandaloneProcessEngineCon
     public void initElBeans() {
         String[] namesByType = ioc.getNamesByType(IocElBeans.class);
         if (Objects.nonNull(namesByType) && namesByType.length > 0) {
-            Map beansMap = new HashMap();
+            Map beansMap = new HashMap(namesByType.length);
             for (String name : namesByType) {
                 beansMap.put(name, ioc.get(IocElBeans.class, name));
             }

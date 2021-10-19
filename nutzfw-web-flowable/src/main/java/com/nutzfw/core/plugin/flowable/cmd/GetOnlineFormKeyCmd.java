@@ -47,20 +47,34 @@ public class GetOnlineFormKeyCmd implements Command<FormElementModel> {
 
     @Override
     public FormElementModel execute(CommandContext commandContext) {
+        FormElementModel proccessFormHandler = this.getProccessFormHandler();
         if (Strings.isBlank(taskDefinitionKey)) {
-            return this.getStartFormHandler();
+            return proccessFormHandler;
         }
         // 取当前节点的表单定义配置
         final FormElementModel taskFormHandlder = this.getTaskFormHandlder();
         if (taskFormHandlder == null) {
             // 兼容一下取流程定义中的表单配置
-            return this.getStartFormHandler();
+            return proccessFormHandler;
         }
+        if (Strings.isBlank(taskFormHandlder.getTableId())) {
+            taskFormHandlder.setTableId(proccessFormHandler.getTableId());
+        }
+        if (Strings.isBlank(taskFormHandlder.getFormKey())) {
+            taskFormHandlder.setFormKey(proccessFormHandler.getFormKey());
+        }
+        if (taskFormHandlder == null) {
+            taskFormHandlder.setFormType(proccessFormHandler.getFormType());
+        }
+        if (taskFormHandlder.getFieldAuths() == null || taskFormHandlder.getFieldAuths().isEmpty()) {
+            taskFormHandlder.setFieldAuths(proccessFormHandler.getFieldAuths());
+        }
+        taskFormHandlder.setWriteBackProccessStatusField(proccessFormHandler.getWriteBackProccessStatusField());
         return taskFormHandlder;
     }
 
 
-    public FormElementModel getStartFormHandler() {
+    public FormElementModel getProccessFormHandler() {
         org.flowable.bpmn.model.Process process = ProcessDefinitionUtil.getProcess(processDefinitionId);
         List<ExtensionElement> extensionElements = process.getExtensionElements().get(CustomUserTaskJsonConverter.FORM_KEY_DEFINITION);
         if (Lang.isNotEmpty(extensionElements)) {

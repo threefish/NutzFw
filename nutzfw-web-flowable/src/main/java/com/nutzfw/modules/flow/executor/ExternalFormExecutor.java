@@ -139,5 +139,13 @@ public interface ExternalFormExecutor {
      */
     String getUniqueName();
 
+    /**
+     * 流程结束后执行
+     * @param formData
+     * @param flowTaskVO
+     * @param sessionUserAccount
+     */
+    default void processCompleted(Map formData, FlowTaskVO flowTaskVO, UserAccount sessionUserAccount){
 
+    }
 }

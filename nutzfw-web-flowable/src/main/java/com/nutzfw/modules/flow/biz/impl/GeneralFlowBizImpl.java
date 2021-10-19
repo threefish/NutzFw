@@ -10,6 +10,8 @@ package com.nutzfw.modules.flow.biz.impl;
 import com.google.common.collect.Maps;
 import com.nutzfw.core.common.javascript.JsContex;
 import com.nutzfw.core.plugin.flowable.constant.FlowConstant;
+import com.nutzfw.core.plugin.flowable.context.ProcessContext;
+import com.nutzfw.core.plugin.flowable.context.ProcessContextHolder;
 import com.nutzfw.core.plugin.flowable.dto.CandidateGroupsDTO;
 import com.nutzfw.core.plugin.flowable.dto.CandidateUsersDTO;
 import com.nutzfw.core.plugin.flowable.dto.FlowSubmitInfoDTO;
@@ -181,6 +183,10 @@ public class GeneralFlowBizImpl implements GeneralFlowBiz {
         //变量别修改过了，所以从新设置下
         vars.put(FlowConstant.FORM_DATA, formData);
         flowTaskService.complete(flowTaskVO, vars);
+        ProcessContext processContext = ProcessContextHolder.get();
+        if (processContext.isProcessCompleted()) {
+            executor.processCompleted(formData, flowTaskVO, sessionUserAccount);
+        }
         return null;
     }
 
