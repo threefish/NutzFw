@@ -34,9 +34,10 @@ public interface RoleBiz {
      * @param roleIds 角色Id数组
      * @param trees   选中的部门和岗位id
      * @param menuIds
+     * @param processDefIds
      * @param status  是否删除后重建1,是,2,不是  @return
      */
-    AjaxResult updateAllRoles(String[] roleIds, DeptJobTreeVO[] trees, String[] menuIds, Integer status);
+    AjaxResult updateAllRoles(String[] roleIds, DeptJobTreeVO[] trees, String[] menuIds,String[] processDefIds, Integer status);
 
     /**
      * 根据用户ID取得拥有的角色

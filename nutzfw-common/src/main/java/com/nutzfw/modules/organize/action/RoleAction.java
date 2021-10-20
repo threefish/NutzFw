@@ -224,11 +224,10 @@ public class RoleAction extends BaseAction {
     public AjaxResult updateAllRoles(@Param("roleIds") String[] roleIds,
                                      @Param("trees") DeptJobTreeVO[] trees,
                                      @Param("menuIds") String[] menuIds,
+                                     @Param("processDefIds") String[] processDefIds,
                                      @Param("status") Integer status) {
         try {
-
-
-            return roleBiz.updateAllRoles(roleIds, trees, menuIds, status);
+            return roleBiz.updateAllRoles(roleIds, trees, menuIds,processDefIds, status);
         } catch (Exception e) {
             e.printStackTrace();
             return AjaxResult.error("操作失败");

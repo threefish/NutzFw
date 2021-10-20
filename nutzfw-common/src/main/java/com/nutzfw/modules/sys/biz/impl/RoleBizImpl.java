@@ -14,7 +14,6 @@ import com.github.threefish.nutz.sqltpl.service.ISqlTpl;
 import com.nutzfw.core.common.vo.AjaxResult;
 import com.nutzfw.modules.organize.entity.Department;
 import com.nutzfw.modules.organize.service.DepartmentService;
-import com.nutzfw.modules.organize.service.JobService;
 import com.nutzfw.modules.organize.service.UserAccountJobService;
 import com.nutzfw.modules.organize.vo.DeptJobTreeVO;
 import com.nutzfw.modules.sys.biz.RoleBiz;
@@ -54,14 +53,15 @@ public class RoleBizImpl implements RoleBiz, ISqlDaoExecuteService, ISqlTpl {
     private RoleJobService roleJobService;
     @Inject
     private DepartmentService departmentService;
-    @Inject
-    private JobService jobService;
+
     @Inject
     private RoleService roleService;
     @Inject
     private MenuService menuService;
     @Inject
     private RoleMenusService roleMenusService;
+    @Inject
+    private RoleProcessService roleProcessService;
     private SqlsTplHolder sqlsTplHolder;
 
     @Override
@@ -93,13 +93,14 @@ public class RoleBizImpl implements RoleBiz, ISqlDaoExecuteService, ISqlTpl {
     /**
      * 根据状态更新角色
      *
-     * @param roleIds 角色Id数组
-     * @param trees   选中的部门和岗位id
+     * @param roleIds     角色Id数组
+     * @param trees       选中的部门和岗位id
      * @param menuIds
-     * @param status  是否删除后重建1,是,2,不是  @return
+     * @param processDefIds
+     * @param status      是否删除后重建1,是,2,不是  @return
      */
     @Override
-    public AjaxResult updateAllRoles(String[] roleIds, DeptJobTreeVO[] trees, String[] menuIds, Integer status) {
+    public AjaxResult updateAllRoles(String[] roleIds, DeptJobTreeVO[] trees, String[] menuIds, String[] processDefIds, Integer status) {
         List<Role> roles = roleService.query(Cnd.where("id", "in", roleIds));
         List<String> deptIds = new ArrayList<>();
         List<DeptJobTreeVO> jobTrees = new ArrayList<>();
@@ -112,6 +113,7 @@ public class RoleBizImpl implements RoleBiz, ISqlDaoExecuteService, ISqlTpl {
         }
         List<Department> depts = departmentService.query(Cnd.where("id", "in", deptIds));
         List<Menu> menus = menuService.query(Cnd.where("id", "in", menuIds));
+        List<RoleProcess> roleProcessList = new ArrayList<>();
         List<RoleJob> roleJobs = new ArrayList<>();
         List<RoleDepartment> roleDepartments = new ArrayList<>();
         List<RoleMenus> roleMenus = new ArrayList<>();
@@ -125,16 +127,17 @@ public class RoleBizImpl implements RoleBiz, ISqlDaoExecuteService, ISqlTpl {
             for (Menu menu : menus) {
                 roleMenus.add(new RoleMenus(role.getId(), menu.getId()));
             }
+            for (String id : processDefIds) {
+                roleProcessList.add(new RoleProcess(role.getId(), id));
+            }
         }
         Trans.exec(() -> {
             if (status == 2) {
                 //单个修改
-                List<RoleDepartment> roleDepartmentList = roleDepartmentService.query(Cnd.where("roleId", "in", roleIds));
-                roleDepartmentService.delete(roleDepartmentList);
-                List<RoleJob> roleJobsList = roleJobService.query(Cnd.where("roleId", "in", roleIds));
-                roleJobService.delete(roleJobsList);
-                List<RoleMenus> roleMenus1 = roleMenusService.query(Cnd.where("roleId", "in", roleIds));
-                roleMenusService.delete(roleMenus1);
+                roleDepartmentService.delete(roleDepartmentService.query(Cnd.where("roleId", "in", roleIds)));
+                roleJobService.delete(roleJobService.query(Cnd.where("roleId", "in", roleIds)));
+                roleMenusService.delete(roleMenusService.query(Cnd.where("roleId", "in", roleIds)));
+                roleMenusService.delete(roleProcessService.query(Cnd.where("roleId", "in", roleIds)));
             } else if (status == 3) {
                 //批量删除
                 roleDepartmentService.delete(roleDepartments);
@@ -150,6 +153,9 @@ public class RoleBizImpl implements RoleBiz, ISqlDaoExecuteService, ISqlTpl {
                 }
                 for (RoleMenus rolemenu : roleMenus) {
                     roleMenusService.insertOrUpdate(rolemenu, FieldFilter.create(RoleMenus.class, false), FieldFilter.locked(RoleMenus.class, "delFlag"));
+                }
+                for (RoleProcess roleProcess : roleProcessList) {
+                    roleProcessService.insertOrUpdate(roleProcess, FieldFilter.create(RoleProcess.class, false), FieldFilter.locked(RoleMenus.class, "delFlag"));
                 }
             }
         });

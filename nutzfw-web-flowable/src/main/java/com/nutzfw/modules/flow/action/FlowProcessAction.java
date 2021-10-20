@@ -15,7 +15,10 @@ import com.nutzfw.core.common.vo.AjaxResult;
 import com.nutzfw.core.common.vo.LayuiTableDataListVO;
 import com.nutzfw.core.plugin.flowable.service.FlowProcessDefinitionService;
 import com.nutzfw.modules.common.action.BaseAction;
+import com.nutzfw.modules.sys.entity.RoleProcess;
+import com.nutzfw.modules.sys.service.RoleProcessService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.nutz.dao.Cnd;
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.lang.util.NutMap;
@@ -24,6 +27,8 @@ import org.nutz.mvc.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.InputStream;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author 黄川 huchuc@vip.qq.com
@@ -37,6 +42,8 @@ public class FlowProcessAction extends BaseAction {
 
     @Inject
     FlowProcessDefinitionService flowProcessDefinitionService;
+    @Inject
+    RoleProcessService roleProcessService;
 
     @GET
     @At("/index")
@@ -53,6 +60,21 @@ public class FlowProcessAction extends BaseAction {
     @RequiresPermissions("sys.flow.process")
     public LayuiTableDataListVO listPage(HttpServletRequest request) {
         return flowProcessDefinitionService.processList(LayuiTableDataListVO.get(request), "");
+    }
+
+
+    @POST
+    @At("/listPageForRolePage")
+    @Ok("json:{nullAsEmtry:true,locked:'metaInfo|originalPersistentState'}")
+    public LayuiTableDataListVO listPageForRolePage(HttpServletRequest request) {
+        return flowProcessDefinitionService.processList(LayuiTableDataListVO.get(request), "");
+    }
+
+    @POST
+    @At("/getAuthRoleProcess")
+    @Ok("json")
+    public List<String> getAuthRoleProcess(@Param("roleId") String roleId) {
+        return roleProcessService.query(Cnd.where("roleId", "=", roleId)).stream().map(RoleProcess::getProcessDefId).collect(Collectors.toList());
     }
 
     @POST

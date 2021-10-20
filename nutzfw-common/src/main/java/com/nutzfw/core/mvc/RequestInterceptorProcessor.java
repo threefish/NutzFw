@@ -31,8 +31,11 @@ public class RequestInterceptorProcessor extends AbstractProcessor {
             Arrays.stream(namesByType).forEach(name -> requestInterceptors.add(ac.getIoc().get(RequestInterceptor.class, name)));
             Collections.sort(requestInterceptors, (o1, o2) -> o1.getOrder() > o2.getOrder() ? 0 : -1);
         }
-        requestInterceptors.stream().forEach(requestInterceptor -> requestInterceptor.before(ac.getRequest(), ac.getResponse()));
-        doNext(ac);
-        requestInterceptors.stream().forEach(requestInterceptor -> requestInterceptor.after(ac.getRequest(), ac.getResponse()));
+        try {
+            requestInterceptors.stream().forEach(requestInterceptor -> requestInterceptor.before(ac.getRequest(), ac.getResponse()));
+            doNext(ac);
+        } finally {
+            requestInterceptors.stream().forEach(requestInterceptor -> requestInterceptor.after(ac.getRequest(), ac.getResponse()));
+        }
     }
 }

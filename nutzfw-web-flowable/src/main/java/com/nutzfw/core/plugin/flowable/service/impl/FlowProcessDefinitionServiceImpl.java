@@ -17,6 +17,8 @@ import com.nutzfw.core.plugin.flowable.util.FlowUtils;
 import com.nutzfw.core.plugin.flowable.vo.ProcessDefinitionEntitVO;
 import com.nutzfw.modules.flow.executor.ExternalFormExecutor;
 import com.nutzfw.modules.flow.service.FlowTypeService;
+import com.nutzfw.modules.sys.entity.RoleProcess;
+import com.nutzfw.modules.sys.service.RoleProcessService;
 import org.flowable.bpmn.model.Process;
 import org.flowable.bpmn.model.*;
 import org.flowable.editor.language.json.converter.util.CollectionUtils;
@@ -29,6 +31,7 @@ import org.flowable.engine.repository.ProcessDefinition;
 import org.flowable.engine.repository.ProcessDefinitionQuery;
 import org.flowable.engine.runtime.ProcessInstance;
 import org.flowable.image.impl.DefaultProcessDiagramGenerator;
+import org.nutz.dao.Cnd;
 import org.nutz.ioc.Ioc;
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
@@ -38,7 +41,9 @@ import java.io.InputStream;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 
 /**
@@ -60,6 +65,8 @@ public class FlowProcessDefinitionServiceImpl implements FlowProcessDefinitionSe
     RepositoryService repositoryService;
     @Inject
     RuntimeService runtimeService;
+    @Inject
+    RoleProcessService roleProcessService;
     @Inject("refer:$ioc")
     Ioc ioc;
 
@@ -68,7 +75,21 @@ public class FlowProcessDefinitionServiceImpl implements FlowProcessDefinitionSe
      */
     @Override
     public LayuiTableDataListVO processList(LayuiTableDataListVO vo, String category) {
-        ProcessDefinitionQuery processDefinitionQuery = repositoryService.createProcessDefinitionQuery().latestVersion().orderByProcessDefinitionKey().asc();
+        return processList(vo, category, null);
+    }
+
+    @Override
+    public LayuiTableDataListVO processList(LayuiTableDataListVO vo, String category, String roleId) {
+        ProcessDefinitionQuery processDefinitionQuery;
+        if (Strings.isNotBlank(roleId)) {
+            Set<String> ids = roleProcessService.query(Cnd.where("roleId", "=", roleId)).stream().map(RoleProcess::getProcessDefId).collect(Collectors.toSet());
+            if (ids.isEmpty()) {
+                return vo;
+            }
+            processDefinitionQuery = repositoryService.createProcessDefinitionQuery().processDefinitionIds(ids).latestVersion().orderByProcessDefinitionKey().asc();
+        } else {
+            processDefinitionQuery = repositoryService.createProcessDefinitionQuery().latestVersion().orderByProcessDefinitionKey().asc();
+        }
         if (Strings.isNotBlank(category)) {
             processDefinitionQuery.processDefinitionCategory(category);
         }

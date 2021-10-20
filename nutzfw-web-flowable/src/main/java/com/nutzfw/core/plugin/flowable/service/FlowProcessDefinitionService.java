@@ -25,6 +25,7 @@ public interface FlowProcessDefinitionService {
      * 流程定义列表
      */
     LayuiTableDataListVO processList(LayuiTableDataListVO vo, String category);
+    LayuiTableDataListVO processList(LayuiTableDataListVO vo, String category,String roleId);
 
     /**
      * 读取资源，通过部署ID

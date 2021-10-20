@@ -108,6 +108,7 @@ layout("/layouts/blank.html",{title:title}){
             <li class="layui-this" lay-id="1">部门权限</li>
             <li>功能权限</li>
             <li>数据表权限</li>
+            <li>发起流程权限</li>
         </ul>
         <div class="layui-tab-content">
             <div class="layui-tab-item layui-show">
@@ -144,6 +145,9 @@ layout("/layouts/blank.html",{title:title}){
                             class="fa fa-arrow-circle-o-down"></i></span>
                 </div>
                 <div id="fieldTable" lay-filter='fieldTable'></div>
+            </div>
+            <div class="layui-tab-item">
+                <div id="processTable" lay-filter='fieldTable'></div>
             </div>
         </div>
     </div>
@@ -194,11 +198,13 @@ layout("/layouts/blank.html",{title:title}){
                 roleCode: ""
             },
             grid_table: {},
+            oldProcessDefIds: [],
             roles: [],
             selectedIds: [],
             menuTree: {},
             deptTree: {},
             fieldTable: {},
+            processTable: {},
             isUpdate: false,
             isCommit: false,
             searchKey1: "",
@@ -268,6 +274,12 @@ layout("/layouts/blank.html",{title:title}){
                 }
                 return dataArr;
             },
+            getProcessData: function () {
+                if (table.checkStatus('processTable').data.length == 0){
+                    return  vm.oldProcessDefIds
+                }
+                return table.checkStatus('processTable').data;
+            },
             saveTableRole: function (roleIds) {
                 var roleData = this.getAuthData();
                 var json = core.postJSON("/sysRole/saveRoleFiledList", {
@@ -278,7 +290,7 @@ layout("/layouts/blank.html",{title:title}){
                 core.msg(json);
             },
             dataEqual: function (fieldTableCheckData, item) {
-                for (var x in  fieldTableCheckData) {
+                for (var x in fieldTableCheckData) {
                     var checkData = fieldTableCheckData[x];
                     if (checkData.fieldId == item.fieldId) {
                         return checkData;
@@ -411,6 +423,7 @@ layout("/layouts/blank.html",{title:title}){
                                 vm.selectedIds = []
                                 vm.selectedIds.push(data.id);
                                 vm.fn_detailRoles(2)
+                                vm.fn_reloadProcessTable(2)
                             }
                         }
                     });
@@ -431,6 +444,7 @@ layout("/layouts/blank.html",{title:title}){
                             {field: 'auth', title: '权限', align: 'center', width: 100, templet: "#selectBox"}
                         ]],
                     });
+
                     table.on("toolbar(fieldTable)", function (obj) {
                         var layEvent = obj.event;
                         if (layEvent == "save") {
@@ -443,10 +457,47 @@ layout("/layouts/blank.html",{title:title}){
                             vm.batchData(layEvent);
                         }
                     });
+                    vm.processTable = table.render({
+                        id: 'processTable',
+                        elem: '#processTable',
+                        page: true,
+                        method: 'post',
+                        url: base + '/flow/process/listPageForRolePage',
+                        height: 470,
+                        limit: 50,
+                        size: 'sm',
+                        data: [],
+                        defaultToolbar: [],
+                        cols: [[
+                            {type: 'checkbox'},
+                            {title: '序号', type: 'numbers', align: 'center'},
+                            {field: 'name', title: '流程名称'},
+                            {field: 'key', title: '流程KEY'},
+                        ]],
+                        done: function (res, curr, count) {
+                            core.postSyncJSON("/flow/process/getAuthRoleProcess", {roleId: vm.selectedIds[0]}, function (res) {
+                                console.log("加载完成")
+                                const data = table.cache['processTable']
+                                vm.oldProcessDefIds = [];
+                                for (var i = 0; i < data.length; i++) {
+                                    var row = data[i]
+                                    if (res.includes(row.id)) {
+                                        vm.oldProcessDefIds.push(row)
+                                        row.LAY_TABLE_INDEX = true;
+                                        $('#processTable').next().find("tr[data-index="+i+"]").find('input[type="checkbox"]').prop('checked', true);
+                                        $('#processTable').next().find("tr[data-index="+i+"]").find('input[type="checkbox"]').next().addClass('layui-form-checked');
+                                    }
+                                }
+                            })
+                        }
+                    });
                 });
             },
             fn_searchRoles: function () {
                 vm.grid_table.reload({page: {curr: 1}})
+            },
+            fn_reloadProcessTable: function () {
+                vm.processTable.reload({page: {curr: 1}})
             },
             fn_detailRoles: function (status) {
                 this.status = status;
@@ -493,11 +544,17 @@ layout("/layouts/blank.html",{title:title}){
                             for (var i in checkedNodes) {
                                 menuIds[i] = checkedNodes[i].id;
                             }
+                            var processDefIds = []
+                            var processData = vm.getProcessData()
+                            for (var i in processData) {
+                                processDefIds.push(processData[i].id)
+                            }
                             //提交
                             $.post(base + "/sysRole/updateAllRoles", {
                                 roleIds: vm.selectedIds.join(","),
                                 trees: JSON.stringify(trees),
                                 menuIds: menuIds.join(","),
+                                processDefIds: processDefIds.join(","),
                                 status: status,
                             }, function (data) {
                                 core.msg(data);
