@@ -29,6 +29,7 @@ import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Encoding;
 import org.nutz.lang.Files;
+import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
 import org.nutz.lang.util.NutMap;
@@ -57,15 +58,15 @@ import java.util.*;
 @Api("/File/")
 public class FileAction extends BaseAction {
 
-    public static final String            SYS_ATTACH_TYPE = "sys_attach_type";
+    public static final String SYS_ATTACH_TYPE = "sys_attach_type";
     @Inject
-    protected           FileAttachService fileAttachService;
+    protected FileAttachService fileAttachService;
     @Inject
-    DictBiz            dictBiz;
+    DictBiz dictBiz;
     @Inject
     UserAccountService userAccountService;
     @Inject("java:$conf.get('attach.upload.maxFileSize')")
-    private int    maxFileSize;
+    private int maxFileSize;
     @Inject("java:$conf.get('attach.extensions')")
     private String extensions;
     @Inject("java:$conf.get('attach.savePath')")
@@ -358,21 +359,23 @@ public class FileAction extends BaseAction {
     @POST
     @Ok("json")
     public AjaxResult fileList(@Param("ids") String[] ids) {
-        List<FileAttach> list = fileAttachService.query(Cnd.where("id", "in", ids));
         List<HashMap> dataList = new ArrayList<>();
-        list.forEach(fileAttach -> {
-            NutMap data = new NutMap();
-            data.setv("name", fileAttach.getFileName());
-            data.setv("id", fileAttach.getId());
-            data.setv("ext", Files.getSuffixName(fileAttach.getFileName()));
-            if (fileAttach.getFileName().length() < 18) {
-                data.setv("sortName", fileAttach.getFileName());
-            } else {
-                data.setv("sortName", fileAttach.getFileName().substring(0, 18) + "...");
-            }
-            data.setv("size", Strings.formatSizeForReadBy1024(fileAttach.getFilesize()));
-            dataList.add(data);
-        });
+        if (Lang.isNotEmpty(ids)) {
+            List<FileAttach> list = fileAttachService.query(Cnd.where("id", "in", ids));
+            list.forEach(fileAttach -> {
+                NutMap data = new NutMap();
+                data.setv("name", fileAttach.getFileName());
+                data.setv("id", fileAttach.getId());
+                data.setv("ext", Files.getSuffixName(fileAttach.getFileName()));
+                if (fileAttach.getFileName().length() < 18) {
+                    data.setv("sortName", fileAttach.getFileName());
+                } else {
+                    data.setv("sortName", fileAttach.getFileName().substring(0, 18) + "...");
+                }
+                data.setv("size", Strings.formatSizeForReadBy1024(fileAttach.getFilesize()));
+                dataList.add(data);
+            });
+        }
         return AjaxResult.sucess(dataList);
     }
 

@@ -136,7 +136,7 @@ public class FlowTaskAction extends BaseAction {
     @At("/processDataList")
     @Ok("json")
     public LayuiTableDataListVO processDataList(String category, HttpServletRequest request) {
-        return flowProcessDefinitionService.processList(LayuiTableDataListVO.get(request), category);
+        return flowProcessDefinitionService.processList(LayuiTableDataListVO.get(request), category, getSessionRoleIds());
     }
 
 

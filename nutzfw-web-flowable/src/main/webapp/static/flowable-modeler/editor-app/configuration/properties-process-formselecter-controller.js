@@ -80,6 +80,7 @@ angular.module('flowableModeler').controller('FlowableProcessFormselecterPopupCt
                         auth: 'r',
                     };
                 });
+                console.log("authList:",$scope.authList,$scope.formProperties)
                 $scope.writeBackFieldList = [];
                 data.data.map(function (item) {
                     if (item.auths.includes("rw")) {

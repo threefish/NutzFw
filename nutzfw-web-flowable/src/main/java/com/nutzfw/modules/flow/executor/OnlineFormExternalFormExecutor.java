@@ -111,7 +111,7 @@ public class OnlineFormExternalFormExecutor implements ExternalFormExecutor {
         FormElementModel formElementModel = this.getFormElementModel(flowTaskVO);
         int tableId = Integer.parseInt(formElementModel.getTableId());
         if (Strings.isNotBlank(flowTaskVO.getBusinessId())) {
-            DataTable dataTable = dataTableService.fetchAuthReadWriteFields(tableId, roleService.queryRoleIds(sessionUserAccount.getId()));
+            DataTable dataTable = dataTableService.fetchAllFields(tableId);
             List<String> showFields = dataMaintainBiz.getQueryFields(dataTable);
             Sql sql = Sqls.create("SELECT $showFields from $tableName where id=@id");
             sql.setVar("tableName", dataTable.getTableName());
@@ -121,7 +121,6 @@ public class OnlineFormExternalFormExecutor implements ExternalFormExecutor {
             dataTableService.dao().execute(sql);
             return dataMaintainBiz.coverVueJsFromData(sql.getObject(Record.class), dataTable.getFields());
         }
-        //TODO 返回一个基类，有发起人发起时间什么的
         return new Object();
     }
 

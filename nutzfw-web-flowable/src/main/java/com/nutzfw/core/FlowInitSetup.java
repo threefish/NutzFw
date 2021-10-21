@@ -8,8 +8,10 @@
 package com.nutzfw.core;
 
 import com.nutzfw.core.common.entity.BaseEntity;
+import com.nutzfw.core.plugin.flowable.util.OnlineFormUtils;
 import com.nutzfw.core.plugin.init.InitSetup;
 import com.nutzfw.modules.sys.entity.QuartzJob;
+import org.beetl.core.GroupTemplate;
 import org.flowable.engine.ProcessEngine;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.mvc.NutConfig;
@@ -17,6 +19,8 @@ import org.nutz.mvc.NutConfig;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
+
+import static com.nutzfw.core.plugin.view.BeetlViewMaker.BEETL_GROUPTEMPLATE_IOC_NAME;
 
 /**
  * @author 黄川 huchuc@vip.qq.com
@@ -28,6 +32,8 @@ public class FlowInitSetup implements InitSetup {
 
     @Override
     public void init(NutConfig nutConfig) {
+        GroupTemplate beetlGroupTemplate = nutConfig.getIoc().get(GroupTemplate.class, BEETL_GROUPTEMPLATE_IOC_NAME);
+        beetlGroupTemplate.registerFunctionPackage("onlineForm", OnlineFormUtils.class);
     }
 
     @Override

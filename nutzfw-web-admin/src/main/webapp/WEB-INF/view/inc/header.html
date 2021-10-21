@@ -106,11 +106,14 @@
     });
     //计算附件个数
     String.prototype.fileCount = function () {
-        var arr = this.split(',');
         var count = 0;
+        if (this == undefined || this == null) {
+            return count;
+        }
+        var arr = this.split(',');
         for (var i in arr) {
             var str = arr[i];
-            if (str != undefined && arr != "" && arr != null && arr != "null" && arr.length != 0) {
+            if (str != "undefined" && str != undefined && arr != "" && arr != null && arr != "null" && arr.length != 0) {
                 count++;
             }
         }
@@ -121,6 +124,7 @@
     html {
         overflow: hidden;
     }
+
     [v-cloak] {
         display: none;
     }

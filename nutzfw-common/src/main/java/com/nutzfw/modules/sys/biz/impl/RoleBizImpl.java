@@ -29,10 +29,8 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.util.NutMap;
 import org.nutz.trans.Trans;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author ysy
@@ -127,7 +125,8 @@ public class RoleBizImpl implements RoleBiz, ISqlDaoExecuteService, ISqlTpl {
             for (Menu menu : menus) {
                 roleMenus.add(new RoleMenus(role.getId(), menu.getId()));
             }
-            for (String id : processDefIds) {
+            final Set<String> collect = Arrays.stream(processDefIds).collect(Collectors.toSet());
+            for (String id : collect) {
                 roleProcessList.add(new RoleProcess(role.getId(), id));
             }
         }

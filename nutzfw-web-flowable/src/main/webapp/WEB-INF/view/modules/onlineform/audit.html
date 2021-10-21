@@ -228,7 +228,7 @@
             </label>
             <div class="col-sm-8">
                 <div class="form-control" style="border: none;">
-                    <% if(!onlineForm.fieldIsReadonlyBoolean(item.id,data.formElementModel)){%>
+                   <% if(!onlineForm.fieldIsReadonlyBoolean(item.id,data.formElementModel)){%>
                     <div class="layui-btn layui-btn-xs layui-btn-normal"
                          @click="handleAddAttach('${item.fieldName}','${item.controlType}','${item.fieldType}','${item.attachSuffix}','datatable')">
                         添加
@@ -295,7 +295,7 @@
     <%for (item in table.fields) {%>
         /*${item.name}*/
         ${item.fieldName}:"",
-            <%}%>}
+       <%}%>}
     ;
 </script>
 <script id="fileBoxTpl" type="text/html">

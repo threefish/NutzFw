@@ -72,14 +72,17 @@ layout("/layouts/blank.html",{title:data.title}){
     <div class="tab-content">
         <div class="tab-pane active" id="formTab" role="tabpanel">
             <div class="box-main" id='formBoxMain'>
+                <!-- 在线表单流程 -->
                 <%if(data.formElementModel.formType=='ONLINE'){%>
 
                  <%if(data.status=='EDIT'){%>
                     <%include("/modules/onlineform/form.html",{}){}%>
-                 <%}else{%>
+                 <%}else if(data.status=='AUDIT'){%>
+                    <%include("/modules/onlineform/audit.html",{}){}%>
+                <%}else{%>
                     <%include("/modules/onlineform/view.html",{}){}%>
-                 <%}%>
-
+                <%}%>
+                <!-- 业务流程 -->
                 <%}else{%>
                     <%include(data.formPage){}%>
                 <%}%>
@@ -429,7 +432,8 @@ layout("/layouts/blank.html",{title:data.title}){
                 if (this.flow.businessId != undefined && this.flow.businessId.length > 0) {
                     var data = core.postJSON("/general/flow/process/loadFormData", {flow: this.flow});
                     if (data.ok) {
-                        form.formData = data.data;
+                        form.formData ={...form.formData, ...data.data} ;
+                        console.log(form.formData)
                     }
                 }
                 $.post("${base}/flowTask/getUserTaskExtension", {

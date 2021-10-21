@@ -16,7 +16,6 @@ layout("/layouts/blank.html",{title:title}){
 </section>
 <script type="text/html" id="toolBarFixed">
     <%if(so.hasPermission('sys.flow.process.update')){%>
-    <a class="layui-btn layui-btn-xs layui-btn-normal" lay-event="authority">权限</a>
     {{# if(d.suspensionState == 1) { }}
     <a class="layui-btn layui-btn-xs layui-btn-normal" lay-event="suspend">挂起</a>
     {{# }else{ }}

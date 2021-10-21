@@ -279,11 +279,11 @@ layout("/layouts/blank.html",{title:title}){
                             rowData['controlType'] = 3;
                             break;
                         case 4://单附件
-                            rowData['length'] = 26;
+                            rowData['length'] = 35;
                             rowData['controlType'] = 7;
                             break;
                         case 5://多附件(20个)
-                            rowData['length'] = 550
+                            rowData['length'] = (35*20)
                             rowData['controlType'] = 7;
                             break;
                     }
@@ -310,7 +310,7 @@ layout("/layouts/blank.html",{title:title}){
                         case 8://图片
                             if (rowData['fieldType'] != 4 || rowData['fieldType'] != 5) {
                                 rowData['fieldType'] = 4;
-                                rowData['length'] = 26;
+                                rowData['length'] = 35;
                             }
                             break;
                     }

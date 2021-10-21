@@ -91,18 +91,6 @@ public class GeneralProcessAction extends BaseAction {
         if (Strings.isBlank(formElementModel.getFormKey())) {
             throw new RuntimeException("表单不能为空");
         }
-        if (formElementModel.getFormType() == FormType.ONLINE) {
-            DataTable dataTable = dataTableService.fetchAuthReadWriteFields(Integer.parseInt(formElementModel.getTableId()), roleService.queryRoleIds(sessionUserAccount.getId()));
-            if (sessionUserAccount == null || sessionUserAccount.getId() == null) {
-                sessionUserAccount = getSessionUserAccount();
-            }
-            //是否有可以显示的字段
-            boolean hasAnyDisplay = dataTable.getFields().stream().anyMatch(TableFields::isFromDisplay);
-            setRequestAttribute("hasAnyDisplay", hasAnyDisplay);
-            setRequestAttribute("table", dataTable);
-            setRequestAttribute("userid", sessionUserAccount.getUserid());
-            setRequestAttribute("user", sessionUserAccount);
-        }
         nutMap.put("formElementModel", formElementModel);
         nutMap.put("formPage", formElementModel.getFormKey());
         nutMap.put("flow", flowTaskVO);
@@ -115,6 +103,18 @@ public class GeneralProcessAction extends BaseAction {
             nutMap.put("status", TaskFormStatusEnum.EDIT);
         } else {
             nutMap.put("status", TaskFormStatusEnum.AUDIT);
+        }
+
+        if (formElementModel.getFormType() == FormType.ONLINE) {
+            DataTable dataTable = dataTableService.fetchAllFields(Integer.parseInt(formElementModel.getTableId()));
+            if (sessionUserAccount == null || sessionUserAccount.getId() == null) {
+                sessionUserAccount = getSessionUserAccount();
+            }
+            //是否有可以显示的字段
+            setRequestAttribute("hasAnyDisplay", dataTable.getFields().stream().anyMatch(TableFields::isFromDisplay));
+            setRequestAttribute("table", dataTable);
+            setRequestAttribute("userid", sessionUserAccount.getUserid());
+            setRequestAttribute("user", sessionUserAccount);
         }
         return nutMap;
     }

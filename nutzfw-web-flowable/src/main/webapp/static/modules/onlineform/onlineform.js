@@ -1,4 +1,5 @@
 var laydate, laytpl, ue = new Object();
+console.log("formData:",formData)
 var form = new Vue({
     el: '#form',
     data: {
@@ -68,9 +69,37 @@ var form = new Vue({
             var isMultiAttach = fieldType == 5;
             //是否纯图片
             var isImage = controlType == 8;
-            core.handleAddAttach(fieldName, isMultiAttach, isImage, attachSuffix, module)
+            this.doHandleAddAttach(fieldName, isMultiAttach, isImage, attachSuffix, module)
+        },
+        doHandleAddAttach: function (fieldName, isMultiAttach, isImage, attachSuffix, module) {
+            var opt = {
+                fileType: isImage ? "img" : "file",// 上传 文件还是 图片 (file ---- 文件  img ---- 图片)
+                fileExtensions: attachSuffix, //文件过滤类型
+                module: module,
+                title: "文件上传",
+                uploadedIds: form.formData[fieldName],
+                ok: function (index, response) {
+                    if (isMultiAttach) {
+                        var ids = new Array();
+                        for (var i in response) {
+                            ids.push(response[i].data);
+                        }
+                        form.formData[fieldName] = ids.join(",");
+                        layer.close(index)
+                    } else {
+                        form.formData[fieldName] = response.data;
+                        layer.close(index)
+                    }
+                }
+            }
+            if (isMultiAttach) {
+                core.multiUpload(opt);
+            } else {
+                core.singleUpload(opt);
+            }
         },
         handleViewAttach: function (fieldName) {
+            console.log(fieldName)
             var data = form.formData[fieldName];
             var json = core.postJSON("/File/fileList", {ids: data});
             var obj = new Array();

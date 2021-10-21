@@ -35,6 +35,7 @@ import org.nutz.dao.Cnd;
 import org.nutz.ioc.Ioc;
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
+import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 
 import java.io.InputStream;
@@ -79,14 +80,18 @@ public class FlowProcessDefinitionServiceImpl implements FlowProcessDefinitionSe
     }
 
     @Override
-    public LayuiTableDataListVO processList(LayuiTableDataListVO vo, String category, String roleId) {
+    public LayuiTableDataListVO processList(LayuiTableDataListVO vo, String category, Set<String> roleIds) {
         ProcessDefinitionQuery processDefinitionQuery;
-        if (Strings.isNotBlank(roleId)) {
-            Set<String> ids = roleProcessService.query(Cnd.where("roleId", "=", roleId)).stream().map(RoleProcess::getProcessDefId).collect(Collectors.toSet());
+        if (Lang.isNotEmpty(roleIds)) {
+            Set<String> ids = roleProcessService.query(Cnd.where("roleId", "in", roleIds)).stream().map(RoleProcess::getProcessDefId).collect(Collectors.toSet());
             if (ids.isEmpty()) {
                 return vo;
             }
-            processDefinitionQuery = repositoryService.createProcessDefinitionQuery().processDefinitionIds(ids).latestVersion().orderByProcessDefinitionKey().asc();
+            // 通过流程定义ID查询全部的最新流程定义
+            List<ProcessDefinition> list = repositoryService.createProcessDefinitionQuery().processDefinitionIds(ids).list();
+            Set<String> keys = list.stream().map(ProcessDefinition::getKey).collect(Collectors.toSet());
+            Set<String> processDefinitionIds = keys.stream().map(key -> repositoryService.createProcessDefinitionQuery().processDefinitionKey(key).latestVersion().singleResult().getId()).collect(Collectors.toSet());
+            processDefinitionQuery = repositoryService.createProcessDefinitionQuery().processDefinitionIds(processDefinitionIds).latestVersion().orderByProcessDefinitionKey().asc();
         } else {
             processDefinitionQuery = repositoryService.createProcessDefinitionQuery().latestVersion().orderByProcessDefinitionKey().asc();
         }

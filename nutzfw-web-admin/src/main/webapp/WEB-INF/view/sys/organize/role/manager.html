@@ -275,10 +275,7 @@ layout("/layouts/blank.html",{title:title}){
                 return dataArr;
             },
             getProcessData: function () {
-                if (table.checkStatus('processTable').data.length == 0){
-                    return  vm.oldProcessDefIds
-                }
-                return table.checkStatus('processTable').data;
+                return [...vm.oldProcessDefIds, ...table.checkStatus('processTable').data];
             },
             saveTableRole: function (roleIds) {
                 var roleData = this.getAuthData();
@@ -484,8 +481,8 @@ layout("/layouts/blank.html",{title:title}){
                                     if (res.includes(row.id)) {
                                         vm.oldProcessDefIds.push(row)
                                         row.LAY_TABLE_INDEX = true;
-                                        $('#processTable').next().find("tr[data-index="+i+"]").find('input[type="checkbox"]').prop('checked', true);
-                                        $('#processTable').next().find("tr[data-index="+i+"]").find('input[type="checkbox"]').next().addClass('layui-form-checked');
+                                        $('#processTable').next().find("tr[data-index=" + i + "]").find('input[type="checkbox"]').prop('checked', true);
+                                        $('#processTable').next().find("tr[data-index=" + i + "]").find('input[type="checkbox"]').next().addClass('layui-form-checked');
                                     }
                                 }
                             })

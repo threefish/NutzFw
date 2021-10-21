@@ -858,12 +858,12 @@ public class DataMaintainBizImpl implements DataMaintainBiz {
                 }
                 break;
             case 4:
-                if (val.length() > 26) {
+                if (val.length() > 35) {
                     msg = MessageFormat.format("{0}只能上传一个文件!", lableName);
                 }
                 break;
             case 5:
-                if (val.length() > 550) {
+                if (val.length() > (20*35)) {
                     msg = MessageFormat.format("{0}只能上传20个文件!", lableName);
                 }
                 break;

@@ -15,6 +15,7 @@ import org.flowable.bpmn.model.Process;
 import org.flowable.bpmn.model.UserTask;
 
 import java.io.InputStream;
+import java.util.Set;
 
 /**
  * @author 黄川 huchuc@vip.qq.com
@@ -25,7 +26,7 @@ public interface FlowProcessDefinitionService {
      * 流程定义列表
      */
     LayuiTableDataListVO processList(LayuiTableDataListVO vo, String category);
-    LayuiTableDataListVO processList(LayuiTableDataListVO vo, String category,String roleId);
+    LayuiTableDataListVO processList(LayuiTableDataListVO vo, String category, Set<String> roleIds);
 
     /**
      * 读取资源，通过部署ID
