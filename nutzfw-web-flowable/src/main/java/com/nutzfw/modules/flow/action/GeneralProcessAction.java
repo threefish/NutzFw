@@ -26,12 +26,12 @@ import com.nutzfw.core.plugin.flowable.vo.FlowTaskVO;
 import com.nutzfw.modules.common.action.BaseAction;
 import com.nutzfw.modules.flow.biz.GeneralFlowBiz;
 import com.nutzfw.modules.flow.service.FlowCustomQueryService;
+import com.nutzfw.modules.flow.vo.NextNodeConfigVO;
 import com.nutzfw.modules.organize.entity.UserAccount;
 import com.nutzfw.modules.sys.entity.DataTable;
 import com.nutzfw.modules.sys.entity.TableFields;
 import com.nutzfw.modules.sys.service.DataTableService;
 import com.nutzfw.modules.sys.service.RoleService;
-import org.flowable.bpmn.model.UserTask;
 import org.flowable.engine.RepositoryService;
 import org.flowable.engine.repository.ProcessDefinition;
 import org.nutz.aop.interceptor.ioc.TransAop;
@@ -131,9 +131,9 @@ public class GeneralProcessAction extends BaseAction {
     @Ok("json")
     public AjaxResult getNextNode(@Param("::form") Map formData, @Param("::flow") FlowTaskVO flowTaskVO) {
         try {
-            UserTask userTask = flowTaskService.previewNextNode(formData, flowTaskVO, getSessionUserAccount());
-            if (userTask != null) {
-                return AjaxResult.sucess(userTask.getId());
+            NextNodeConfigVO nodeConfigVO = flowTaskService.previewNextNode(formData, flowTaskVO, getSessionUserAccount());
+            if (nodeConfigVO != null) {
+                return AjaxResult.sucess(nodeConfigVO);
             }
             return AjaxResult.error("下一步不是用户节点");
         } catch (Exception e) {

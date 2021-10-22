@@ -161,7 +161,7 @@ layout("/layouts/blank.html",{title:title}){
 
 <script type="text/html" id="switchTpl">
     <input type="checkbox" id="nullValue_{{d.LAY_TABLE_INDEX}}" data-index="{{d.LAY_TABLE_INDEX}}"
-           lay-skin="switch" value="{{d.nullValue}}" lay-text="不允许|允许"
+           lay-skin="switch" value="{{d.nullValue}}" lay-text="允许|不允许"
            lay-filter="nullValue" {{ (d.nullValue=='true'||d.nullValue==true)?'checked':'' }}>
 </script>
 <script type="text/html" id="primaryKeyTpl">

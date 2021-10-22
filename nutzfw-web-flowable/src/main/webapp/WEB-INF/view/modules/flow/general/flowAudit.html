@@ -75,16 +75,16 @@ layout("/layouts/blank.html",{title:data.title}){
                 <!-- 在线表单流程 -->
                 <%if(data.formElementModel.formType=='ONLINE'){%>
 
-                 <%if(data.status=='EDIT'){%>
-                    <%include("/modules/onlineform/form.html",{}){}%>
-                 <%}else if(data.status=='AUDIT'){%>
-                    <%include("/modules/onlineform/audit.html",{}){}%>
+                <%if(data.status=='EDIT'){%>
+                <%include("/modules/onlineform/form.html",{}){}%>
+                <%}else if(data.status=='AUDIT'){%>
+                <%include("/modules/onlineform/audit.html",{}){}%>
                 <%}else{%>
-                    <%include("/modules/onlineform/view.html",{}){}%>
+                <%include("/modules/onlineform/view.html",{}){}%>
                 <%}%>
                 <!-- 业务流程 -->
                 <%}else{%>
-                    <%include(data.formPage){}%>
+                <%include(data.formPage){}%>
                 <%}%>
             </div>
         </div>
@@ -103,13 +103,13 @@ layout("/layouts/blank.html",{title:data.title}){
     <div id="container" v-cloak>
         <footer class="navbar-fixed-bottom audit-control">
             <%if(data.status=='AUDIT'){%>
-            <div class="row comment-box" v-if="extensionProperty.replyOpinion">
-                <label class="control-label col-sm-12">
+            <!--   默认展示意见框   <div class="row comment-box" v-if="extensionProperty.replyOpinion">-->
+            <div class="row comment-box" >
+                <label class="control-label">
                     {{extensionProperty.replyOpinionName}}：
                 </label>
                 <div class="col-sm-12">
-                    <textarea class="form-control required" rows="3" style="resize: none"
-                              v-model="flow.comment"></textarea>
+                    <textarea class="form-control" rows="3" style="resize: none" v-model="flow.comment"/>
                 </div>
             </div>
             <%}%>
@@ -271,39 +271,57 @@ layout("/layouts/blank.html",{title:data.title}){
                 var post = {form: form.formData, flow: this.flow};
                 core.postSyncJSON("/general/flow/process/getNextNode", post, function (data) {
                     if (data.ok) {
-                        var opt = {
-                            option: {
-                                url: "/general/flow/process/choiceNextReviewerUser",
-                                method: "post",
-                                param: {
-                                    flow: vm.flow,
-                                    nextNodeId: data.data
+                        if (data.data.extension.taskReviewerScope == "FREE_CHOICE") {
+                            console.log("自由选择")
+                            core.showSelectUsers({
+                                option: {
+                                    multipleSelection: false,
                                 },
-                                key: "query",
-                                checkbox: false,
-                                openSearch: false,
-                                selectPrimaryKey: "userName",
-                                selectPrimaryValues: "",
-                                cols: [
-                                    {field: 'realName', title: '姓名'},
-                                    {field: 'userName', title: '用户名'},
-                                    {field: 'deptName', title: '部门'},
-                                ],
-                            },
-                            title: "请选择下一步流程办理人",
-                            width: "600px",
-                            height: "600px",
-                            onOk: function (selectData) {
-                                if (selectData.length == 0) {
-                                    core.warn("请选择下一步流程办理人")
-                                    return false;
+                                onOk: function (selectData) {
+                                    if (selectData.length == 0) {
+                                        core.warn("请选择下一步流程办理人")
+                                        return false;
+                                    }
+                                    vm.flow.flowNextReviewerAssignee = selectData[0].userName;
+                                    vm.handleDoSaveAudit();
+                                    return true;
                                 }
-                                vm.flow.flowNextReviewerAssignee = selectData[0].userName;
-                                vm.handleDoSaveAudit();
-                                return true;
-                            },
+                            })
+                        } else {
+                            var opt = {
+                                option: {
+                                    url: "/general/flow/process/choiceNextReviewerUser",
+                                    method: "post",
+                                    param: {
+                                        flow: vm.flow,
+                                        nextNodeId: data.data.taskDefId
+                                    },
+                                    key: "query",
+                                    checkbox: false,
+                                    openSearch: false,
+                                    selectPrimaryKey: "userName",
+                                    selectPrimaryValues: "",
+                                    cols: [
+                                        {field: 'realName', title: '姓名'},
+                                        {field: 'userName', title: '用户名'},
+                                        {field: 'deptName', title: '部门'},
+                                    ],
+                                },
+                                title: "请选择下一步流程办理人",
+                                width: "600px",
+                                height: "600px",
+                                onOk: function (selectData) {
+                                    if (selectData.length == 0) {
+                                        core.warn("请选择下一步流程办理人")
+                                        return false;
+                                    }
+                                    vm.flow.flowNextReviewerAssignee = selectData[0].userName;
+                                    vm.handleDoSaveAudit();
+                                    return true;
+                                },
+                            }
+                            core.showChoseTableData(opt);
                         }
-                        core.showChoseTableData(opt);
                     } else {
                         //下一步不是用户节点，忽略[选择下一步审核人]的操作，直接完成任务
                         this.handleDoSaveAudit();
@@ -432,7 +450,7 @@ layout("/layouts/blank.html",{title:data.title}){
                 if (this.flow.businessId != undefined && this.flow.businessId.length > 0) {
                     var data = core.postJSON("/general/flow/process/loadFormData", {flow: this.flow});
                     if (data.ok) {
-                        form.formData ={...form.formData, ...data.data} ;
+                        form.formData = {...form.formData, ...data.data};
                         console.log(form.formData)
                     }
                 }

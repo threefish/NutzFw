@@ -1,6 +1,7 @@
 package com.nutzfw.core.plugin.flowable.context;
 
 import com.nutzfw.core.plugin.flowable.enums.ProcessStatus;
+import com.nutzfw.core.plugin.flowable.vo.FlowTaskVO;
 import lombok.Data;
 
 /**
@@ -14,5 +15,6 @@ public class ProcessContext {
     private String processDefId;
     private String processDefKey;
     private String businessId;
+    private FlowTaskVO flowTaskVO;
     private boolean processCompleted = false;
 }

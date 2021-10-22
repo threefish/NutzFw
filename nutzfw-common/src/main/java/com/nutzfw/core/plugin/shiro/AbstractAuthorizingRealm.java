@@ -159,7 +159,7 @@ public abstract class AbstractAuthorizingRealm extends AuthorizingRealm {
             session.setAttribute(Cons.SESSION_MANAGER_USER_NAMES_KEY, userNames);
         } catch (Exception e) {
             log.error("查询用户管理信息失败！", e);
-            throw new AccountException("系统错误！");
+            throw new AccountException("系统错误！", e);
         }
     }
 }
