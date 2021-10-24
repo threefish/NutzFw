@@ -22,16 +22,20 @@ import com.nutzfw.modules.organize.enums.LeaderTypeEnum;
 import com.nutzfw.modules.organize.service.DepartmentLeaderService;
 import org.apache.commons.collections.CollectionUtils;
 import org.flowable.bpmn.model.UserTask;
+import org.flowable.common.engine.api.delegate.Expression;
 import org.flowable.common.engine.impl.el.ExpressionManager;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.impl.bpmn.behavior.UserTaskActivityBehavior;
+import org.flowable.engine.impl.persistence.entity.ExecutionEntityImpl;
 import org.flowable.task.service.TaskService;
 import org.flowable.task.service.impl.persistence.entity.TaskEntity;
+import org.flowable.variable.api.persistence.entity.VariableInstance;
 import org.nutz.ioc.Ioc;
 import org.nutz.lang.Strings;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -146,8 +150,15 @@ public class CustomUserTaskActivityBehavior extends UserTaskActivityBehavior {
         return flowAssignment;
     }
 
-    private String getExpressionValue(String expression, ExpressionManager expressionManager, DelegateExecution execution) {
-        final Object value = expressionManager.createExpression("${" + expression + "}").getValue(execution);
+    private String getExpressionValue(String expressionStr, ExpressionManager expressionManager, DelegateExecution execution) {
+        if (execution instanceof ExecutionEntityImpl) {
+            Map<String, VariableInstance> variableInstances = ((ExecutionEntityImpl) execution).getRootProcessInstance().getVariableInstances();
+            variableInstances.forEach((key, variableInstance) -> {
+                ((ExecutionEntityImpl) execution).setTransientVariable(key, variableInstance.getValue());
+            });
+        }
+        Expression expression = expressionManager.createExpression("${" + expressionStr + "}");
+        final Object value = expression.getValue(execution);
         return Objects.nonNull(value) ? value.toString() : null;
     }
 
