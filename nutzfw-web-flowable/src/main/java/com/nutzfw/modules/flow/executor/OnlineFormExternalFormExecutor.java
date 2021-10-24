@@ -121,7 +121,7 @@ public class OnlineFormExternalFormExecutor implements ExternalFormExecutor {
             dataTableService.dao().execute(sql);
             return dataMaintainBiz.coverVueJsFromData(sql.getObject(Record.class), dataTable.getFields());
         }
-        return new Object();
+        return new NutMap();
     }
 
     @Override

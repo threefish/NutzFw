@@ -313,7 +313,12 @@
 <script id="formDataScript" type="text/javascript">
     var tableId = "${table.id!}";
     var readonly = "true" == "${data.status=='VIEW'}";
-    var formData = ${data.formDataJson}
+    var formData = {id: '${data.flow.businessId}', userid: "${userid!}",
+    <%for (item in table.fields) {%>
+        /*${item.name}*/
+        ${item.fieldName}:"",
+         <%}%>}
+    ;
 </script>
 <script id="fileBoxTpl" type="text/html">
     <div style="height: 260px;overflow-x:auto">

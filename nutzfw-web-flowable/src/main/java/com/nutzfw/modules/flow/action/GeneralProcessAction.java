@@ -137,6 +137,7 @@ public class GeneralProcessAction extends BaseAction {
             }
             return AjaxResult.error("下一步不是用户节点");
         } catch (Exception e) {
+            log.error(e);
             throw new RuntimeException("事务无法打开！");
         }
     }
@@ -228,6 +229,7 @@ public class GeneralProcessAction extends BaseAction {
             processContext.setProcessDefId(flowTaskVO.getProcDefId());
             processContext.setProcessDefKey(flowTaskVO.getProcDefKey());
             processContext.setBusinessId(flowTaskVO.getBusinessId());
+            processContext.setFlowTaskVO(flowTaskVO);
             ProcessContextHolder.set(processContext);
             if (Strings.isNotBlank(flowTaskVO.getBusinessId())) {
                 String message = generalFlowBiz.userAudit(formData, flowTaskVO, sessionUserAccount);

@@ -72,7 +72,7 @@ public class CustomUserTaskActivityBehavior extends UserTaskActivityBehavior {
             String flowSubmitter = getExpressionValue(FlowConstant.SUBMITTER, expressionManager, execution);
             String flowSubmitterDeptId = getExpressionValue(FlowConstant.SUBMITTER_DEPT_ID, expressionManager, execution);
             final ProcessContext processContext = ProcessContextHolder.get();
-            if (taskExtensionDTO.isDynamicFreeChoiceNextReviewerMode()
+            if (taskExtensionDTO.getTaskReviewerScope() == TaskReviewerScopeEnum.FREE_CHOICE
                     && Objects.nonNull(processContext.getFlowTaskVO())
                     && Strings.isNotBlank(processContext.getFlowTaskVO().getFlowNextReviewerAssignee())) {
                 assignee = processContext.getFlowTaskVO().getFlowNextReviewerAssignee();
