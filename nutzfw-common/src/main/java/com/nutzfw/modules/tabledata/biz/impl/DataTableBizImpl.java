@@ -40,16 +40,16 @@ import java.util.stream.Collectors;
 @SqlsXml
 public class DataTableBizImpl implements DataTableBiz, ISqlTpl {
 
-    private  final Log log = Logs.get();
+    private final Log log = Logs.get();
 
-    private   SqlsTplHolder sqlsTplHolder;
+    private SqlsTplHolder sqlsTplHolder;
 
     @Inject
-    private   DataTableService               tableService;
+    private DataTableService tableService;
     @Inject
-    private   TableFieldsService             fieldsService;
+    private TableFieldsService fieldsService;
     @Inject
-  private   DataTableVersionHistoryService versionHistoryService;
+    private DataTableVersionHistoryService versionHistoryService;
 
     public void init() {
 

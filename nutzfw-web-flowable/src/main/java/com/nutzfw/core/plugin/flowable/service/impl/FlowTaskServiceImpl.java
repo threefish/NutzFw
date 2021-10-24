@@ -26,6 +26,7 @@ import com.nutzfw.core.plugin.flowable.vo.FlowCommentVO;
 import com.nutzfw.core.plugin.flowable.vo.FlowTaskHistoricVO;
 import com.nutzfw.core.plugin.flowable.vo.FlowTaskVO;
 import com.nutzfw.modules.flow.service.FlowTypeService;
+import com.nutzfw.modules.flow.vo.NextNodeConfigVO;
 import com.nutzfw.modules.organize.entity.UserAccount;
 import com.nutzfw.modules.organize.service.UserAccountService;
 import lombok.extern.slf4j.Slf4j;
@@ -808,7 +809,7 @@ public class FlowTaskServiceImpl implements FlowTaskService {
      * @date 2019-10-09
      */
     @Override
-    public UserTask previewNextNode(Map formData, FlowTaskVO flowTaskVO, UserAccount sessionUserAccount) throws Exception {
+    public NextNodeConfigVO previewNextNode(Map formData, FlowTaskVO flowTaskVO, UserAccount sessionUserAccount) throws Exception {
         try {
             Task task = taskService.createTaskQuery().taskId(flowTaskVO.getTaskId()).singleResult();
             String executionId = task.getExecutionId();
@@ -819,7 +820,13 @@ public class FlowTaskServiceImpl implements FlowTaskService {
             vars.put(FlowConstant.FORM_DATA, formData);
             Trans.begin();
             setValuedDataObject(vars, flowTaskVO.getProcDefId(), formData, sessionUserAccount, true);
-            return managementService.executeCommand(new FindNextUserTaskNodeCmd(execution, bpmnModel, vars));
+            final UserTask userTask = managementService.executeCommand(new FindNextUserTaskNodeCmd(execution, bpmnModel, vars));
+            final UserTaskExtensionDTO userTaskExtension = FlowUtils.getUserTaskExtension(userTask);
+            NextNodeConfigVO nodeConfigVO = new NextNodeConfigVO();
+            nodeConfigVO.setTaskDefId(userTask.getId());
+            nodeConfigVO.setTaskDefName(userTask.getName());
+            nodeConfigVO.setExtension(userTaskExtension);
+            return nodeConfigVO;
         } finally {
             Trans.clear(true);
         }

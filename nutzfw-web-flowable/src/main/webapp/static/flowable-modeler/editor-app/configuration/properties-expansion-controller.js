@@ -12,8 +12,7 @@ angular.module('flowableModeler').controller('FlowableExpansionCtrl',
         _internalCreateModal(opts, $modal, $scope);
     }]);
 // '$rootScope', '$scope', '$modal', '$http', '$location',
-angular.module('flowableModeler').controller('FlowableExpansionPopupCtrl',
-    ['$scope', 'editorManager', 'userTaskQueryService', function ($scope, editorManager, userTaskQueryService) {
+angular.module('flowableModeler').controller('FlowableExpansionPopupCtrl', ['$scope', 'editorManager', 'userTaskQueryService', function ($scope, editorManager, userTaskQueryService) {
         let modelJson = editorManager.getModel();
         let resourceId = $scope.selectedShape.resourceId;
         let selectShape = undefined;
@@ -49,30 +48,17 @@ angular.module('flowableModeler').controller('FlowableExpansionPopupCtrl',
             && $scope.property.value.expansionProperties !== undefined
             && $scope.property.value.expansionProperties !== null) {
             $scope.expansionProperties = angular.copy($scope.property.value.expansionProperties);
-            setDefaualtValue("replyOpinionName", "批复意见");
-            setDefaualtValue("replyOpinion", false);
-            setDefaualtValue("connectionCallBack", false);
-            setDefaualtValue("agreeButtonName", "同意");
-            setDefaualtValue("refuseButtonName", "拒绝");
-            setDefaualtValue("formDataDynamicAssignment", "");
-            setDefaualtValue("beforeCreateCurrentTaskFormDataDynamicAssignment", "");
-            setDefaualtValue("afterCreateCurrentTaskFormDataDynamicAssignment", "");
-            setDefaualtValue("taskReviewerScope", "");
-            setDefaualtValue("iocFlowAssignment", "");
-            setDefaualtValue("candidateUsers", []);
-            setDefaualtValue("candidateGroups", []);
-            setDefaualtValue("multiInstanceLoopCharacteristics", 'None');
         } else {
             $scope.expansionProperties = {
-                replyOpinion: false,//是否允许批复意见
-                handwritingSignature: false,//是否允许手写签字
+                replyOpinion: "true",//是否允许批复意见
+                handwritingSignature: "false",//是否允许手写签字
                 callBackType: 'NONE',//回退类型
-                connectionCallBack: false,//连线回退
+                connectionCallBack: "false",//连线回退
                 callBackNodes: "",//可回退节点
                 callBackNodesDesc: "",//可回退节点
-                addMultiInstance: false,//是否允许加签
-                delMultiInstance: false,//是否允许减签
-                delMultiInstanceExecutionIsCompleted: false,//减签后触发父实例完成判断
+                addMultiInstance: "false",//是否允许加签
+                delMultiInstance: "false",//是否允许减签
+                delMultiInstanceExecutionIsCompleted: "false",//减签后触发父实例完成判断
                 agreeButtonName: "同意",//同意按钮文字显示
                 refuseButtonName: "拒绝",//拒绝按钮文字显示
                 formDataDynamicAssignment: "",//表单数据动态赋值
@@ -83,7 +69,7 @@ angular.module('flowableModeler').controller('FlowableExpansionPopupCtrl',
                 candidateUsers: [],//多个候选用户
                 candidateGroups: [],//候选用户角色组
                 iocFlowAssignment: '',//JavaIocBean人员选择器
-                dynamicFreeChoiceNextReviewerMode: false,//自由选择下一步审核人(下一步流程要确保能通过流程条件正确跳转至用户任务节点)
+                dynamicFreeChoiceNextReviewerMode: "false",//自由选择下一步审核人(下一步流程要确保能通过流程条件正确跳转至用户任务节点)
                 signType: 'SCALE',//通过类型
                 signScale: 0,//同意通过比例
                 signNrOfInstances: 0,//总实例数量
@@ -91,6 +77,23 @@ angular.module('flowableModeler').controller('FlowableExpansionPopupCtrl',
                 multiInstanceLoopCharacteristics: "None",//会签类型
             };
         }
+        setDefaualtValue("replyOpinionName", "批复意见");
+        setDefaualtValue("replyOpinion", "true");
+        setDefaualtValue("connectionCallBack", "false");
+        setDefaualtValue("dynamicFreeChoiceNextReviewerMode", "false");
+        setDefaualtValue("agreeButtonName", "同意");
+        setDefaualtValue("refuseButtonName", "拒绝");
+        setDefaualtValue("formDataDynamicAssignment", "");
+        setDefaualtValue("beforeCreateCurrentTaskFormDataDynamicAssignment", "");
+        setDefaualtValue("afterCreateCurrentTaskFormDataDynamicAssignment", "");
+        setDefaualtValue("taskReviewerScope", "");
+        setDefaualtValue("iocFlowAssignment", "");
+        setDefaualtValue("candidateUsers", []);
+        setDefaualtValue("candidateGroups", []);
+        setDefaualtValue("multiInstanceLoopCharacteristics", 'None');
+
+        console.log($scope.expansionProperties)
+
         $scope.expansionProperties.multiInstanceLoopCharacteristics = selectShape.properties.multiinstance_type;
         let callBackNodes = $scope.expansionProperties.callBackNodes.split(",");
         callBackNodes.forEach(id => {

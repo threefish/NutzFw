@@ -10,6 +10,7 @@ package com.nutzfw.core.plugin.flowable.service;
 import com.nutzfw.core.common.vo.LayuiTableDataListVO;
 import com.nutzfw.core.plugin.flowable.vo.FlowTaskHistoricVO;
 import com.nutzfw.core.plugin.flowable.vo.FlowTaskVO;
+import com.nutzfw.modules.flow.vo.NextNodeConfigVO;
 import com.nutzfw.modules.organize.entity.UserAccount;
 import org.flowable.bpmn.model.UserTask;
 import org.flowable.engine.history.HistoricProcessInstance;
@@ -270,6 +271,6 @@ public interface FlowTaskService {
      * @return
      * @throws Exception
      */
-    UserTask previewNextNode(Map formData, FlowTaskVO flowTaskVO, UserAccount sessionUserAccount) throws Exception;
+    NextNodeConfigVO previewNextNode(Map formData, FlowTaskVO flowTaskVO, UserAccount sessionUserAccount) throws Exception;
 
 }

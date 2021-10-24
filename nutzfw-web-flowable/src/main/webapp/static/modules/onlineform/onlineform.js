@@ -1,5 +1,5 @@
 var laydate, laytpl, ue = new Object();
-console.log("formData:",formData)
+console.log("formData:", formData)
 var form = new Vue({
     el: '#form',
     data: {
@@ -164,6 +164,39 @@ var form = new Vue({
                 });
             }
             return json;
+        },
+        handleChoseDetp: function (fieldName) {
+            core.showMenusSimpleTree({
+                title: "选择新部门",
+                url: "/sysOrganize/department/tree",
+                data: {id: "id", pid: "pid", name: "name"},
+                onOk: function (data) {
+                    if (!data) {
+                        core.error("请选择部门!")
+                        return false;
+                    } else {
+                        console.log(data)
+                        form.formData[fieldName ] = data.name;
+                        form.formData[fieldName + '_id'] = data.id;
+                    }
+                    return true;
+                },
+                onSuccess: function (data) {
+                }
+            })
+        },
+        handleChoseUser: function (fieldName) {
+            core.showSelectUsers({
+                option: {
+                    multipleSelection: false,
+                },
+                onOk: function (users) {
+                    console.log(users[0])
+                    form.formData[fieldName] = users[0].realName;
+                    form.formData[fieldName + '_user_name'] = users[0].userName;
+                    return true;
+                }
+            })
         }
     },
     created: function () {

@@ -107,7 +107,7 @@ public class TableFields extends BaseEntity {
      */
     @Column
     @Comment("表单控件类型")
-    private int     controlType;
+    private int controlType;
 
     /**
      * @see FormValidationRulesType

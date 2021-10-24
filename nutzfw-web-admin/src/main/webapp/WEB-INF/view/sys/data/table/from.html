@@ -121,6 +121,8 @@ layout("/layouts/blank.html",{title:title}){
         <option value="6" {{ d.controlType==6?'selected':'' }}>日期(yyyy-MM-dd HH:mm:ss)</option>
         <option value="7" {{ d.controlType==7?'selected':'' }}>附件</option>
         <option value="8" {{ d.controlType==8?'selected':'' }}>图片</option>
+        <option value="9" {{ d.controlType==9?'selected':'' }}>人员选择弹窗</option>
+        <option value="10" {{ d.controlType==10?'selected':'' }}>部门选择弹窗</option>
     </select>
 </script>
 <script type="text/html" id="validationRulesType">
@@ -161,7 +163,7 @@ layout("/layouts/blank.html",{title:title}){
 
 <script type="text/html" id="switchTpl">
     <input type="checkbox" id="nullValue_{{d.LAY_TABLE_INDEX}}" data-index="{{d.LAY_TABLE_INDEX}}"
-           lay-skin="switch" value="{{d.nullValue}}" lay-text="不允许|允许"
+           lay-skin="switch" value="{{d.nullValue}}" lay-text="允许|不允许"
            lay-filter="nullValue" {{ (d.nullValue=='true'||d.nullValue==true)?'checked':'' }}>
 </script>
 <script type="text/html" id="primaryKeyTpl">
@@ -346,9 +348,9 @@ layout("/layouts/blank.html",{title:title}){
                     decimalPoint: '0',
                     defaultValue: 'NULL',
                     fieldType: 0,
-                    nullValue: false,
+                    nullValue: true,
                     primaryKey: false,
-                    fromDisplay: false,
+                    fromDisplay: true,
                     validationRulesType: -1,
                     fromLable: '',
                     fromLableTips: '',

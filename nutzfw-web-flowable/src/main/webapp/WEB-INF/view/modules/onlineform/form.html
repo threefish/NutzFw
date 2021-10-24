@@ -142,26 +142,21 @@
             </div>
         </div>
         <%}else if(item.controlType==2){%>
-        <div class="new-line-box clearfix">
-            <!--多行文本框-->
-            <div class="form-group clearfix">
-                <label class="col-sm-4 control-label">
-                    <span class="required" v-if="!${item.nullValue}">*</span>
-                    ${item.fromLable}：
-                </label>
-            </div>
-            <div class="form-group clearfix" style="width: 100%">
-                <div class="col-sm-12" style="min-height: 70px">
-                                 <textarea rows="2" v-model="formData.${item.fieldName}" class="form-control"
-                                           ${onlineForm.fieldIsReadonly(item.id,data.formElementModel)}
-                                           title="${item.fromLableTips}"
-                                           style="resize: vertical;min-height: 60px"></textarea>
-                    <%if(strutil.length(item.fromLableTips)>0){%>
-                    <div class="box-tips">填写提示：${item.fromLableTips}</div>
-                    <%}%>
+
+        <div class="form-group clearfix">
+            <label class="col-sm-4 control-label">
+                <span class="required" v-if="!${item.nullValue}">*</span>
+                ${item.fromLable}：
+            </label>
+            <div class="col-sm-8">
+                <div class="input-group">
+                    <textarea  v-model="formData.${item.fieldName}" class="form-control" style="resize: vertical;"
+                               ${onlineForm.fieldIsReadonly(item.id,data.formElementModel)}
+                               maxlength="${item.length}" title="${item.fromLableTips}"></textarea>
                 </div>
             </div>
         </div>
+
         <%}else if(item.controlType==3){%>
         <!--UE文本框-->
         <div class="new-line-box clearfix">
@@ -241,6 +236,33 @@
                 </div>
             </div>
         </div>
+        <%}else if(item.controlType==9){%>
+        <div class="form-group clearfix">
+            <label class="col-sm-4 control-label">${item.fromLable}：</label>
+            <div class="col-sm-8">
+                <div class="input-group">
+                    <input type="text" readonly v-model="formData.${item.fieldName}"
+                           class="form-control" maxlength="${item.length}" title="${item.fromLableTips}" readonly
+                    >
+                    <% if(!onlineForm.fieldIsReadonlyBoolean(item.id,data.formElementModel)){%>
+                    <div class="input-group-addon"  @click="handleChoseUser('${item.fieldName}')"><i class="fa fa-edit"></i></div>
+                    <%}%>
+                </div>
+            </div>
+        </div>
+        <%}else if(item.controlType==10){%>
+        <div class="form-group clearfix">
+            <label class="col-sm-4 control-label">${item.fromLable}：</label>
+            <div class="col-sm-8">
+                <div class="input-group">
+                    <input type="text" readonly v-model="formData.${item.fieldName}"
+                           class="form-control" maxlength="${item.length}" title="${item.fromLableTips}" readonly>
+                    <% if(!onlineForm.fieldIsReadonlyBoolean(item.id,data.formElementModel)){%>
+                    <div class="input-group-addon" @click="handleChoseDetp('${item.fieldName}')"><i class="fa fa-edit"></i></div>
+                    <%}%>
+                </div>
+            </div>
+        </div>
         <%}else if(item.fieldType==1&&item.dictDepend==0){%>
         <div class="form-group clearfix">
             <label class="col-sm-4 control-label">
@@ -291,12 +313,7 @@
 <script id="formDataScript" type="text/javascript">
     var tableId = "${table.id!}";
     var readonly = "true" == "${data.status=='VIEW'}";
-    var formData = {id: '${data.flow.businessId}', userid: "${userid!}",
-    <%for (item in table.fields) {%>
-        /*${item.name}*/
-        ${item.fieldName}:"",
-            <%}%>}
-    ;
+    var formData = ${data.formDataJson}
 </script>
 <script id="fileBoxTpl" type="text/html">
     <div style="height: 260px;overflow-x:auto">
