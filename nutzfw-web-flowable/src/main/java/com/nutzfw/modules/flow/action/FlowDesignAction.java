@@ -341,7 +341,7 @@ public class FlowDesignAction extends BaseAction {
                 if (!field.isLogic()) {
                     fieldAuths.add(FieldAuth.rw);
                 }
-                list.add(RoleField.builder().auths(fieldAuths).name(field.getName()).fieldId(field.getId()).tableId(tableId).build());
+                list.add(RoleField.builder().auths(fieldAuths).name(field.getName()).fieldId(field.getId()).fieldName(field.getFieldName()).tableId(tableId).build());
             });
             return LayuiTableDataListVO.allData(list);
         }

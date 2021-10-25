@@ -31,8 +31,70 @@
                 <h3>子流程数据关系绑定-({{selectedShape.resourceId}})</h3>
             </div>
             <div class="modal-body">
-                <div class="detail-group clearfix">
-
+                <label>主子流程都是在线表单</label>
+                <select class="form-control" ng-model="expansionProperties.formType">
+                    <option value="ONLINE">是</option>
+                    <option value="DEVELOP">否</option>
+                </select>
+                <div ng-show="expansionProperties.formType == 'DEVELOP'" style="margin-top:20px">
+                    <label>JSON配置</label>
+                    <textarea class="form-control" ng-model="expansionProperties.jsonData" style="resize: vertical;" rows="5"></textarea>
+                </div>
+                <div class="detail-group clearfix" ng-show="expansionProperties.formType == 'ONLINE'" style="margin-top:20px">
+                    <table class="table table-bordered">
+                        <thead>
+                        <tr>
+                            <th>
+                                <label>主流程表单</label>
+                                <select class="form-control" ng-model="expansionProperties.mainTableId" ng-change="changeMainOnlineFormValue()" style="margin-left:10px;display: inherit;width: 150px;">
+                                    <option ng-repeat="option in tables" value="{{ option.id }}">
+                                        {{ option.name }}
+                                    </option>
+                                </select>
+                            </th>
+                            <th>
+                                <label>子流程表单</label>
+                                <select class="form-control" ng-model="expansionProperties.childTableId" ng-change="changeChildOnlineFormValue()" style="margin-left:10px;display: inherit;width: 150px;">
+                                    <option ng-repeat="option in tables" value="{{ option.id }}">
+                                        {{ option.name }}
+                                    </option>
+                                </select>
+                            </th>
+                            <th width="100px">操作</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>
+                                <select class="form-control" ng-model="mainField">
+                                    <option ng-repeat="option in expansionProperties.mainFields" value="{{ option.fieldId }}">
+                                        {{ option.name }}
+                                    </option>
+                                </select>
+                            </td>
+                            <td>
+                                <select class="form-control" ng-model="childField">
+                                    <option ng-repeat="option in expansionProperties.childFields" value="{{ option.fieldId }}">
+                                        {{ option.name }}
+                                    </option>
+                                </select>
+                            </td>
+                            <td>
+                                <button class="btn btn-default btn-xs" type="button" ng-click="addbind()">绑定字段</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="3"><b>已绑定字段</b></td>
+                        </tr>
+                        <tr ng-repeat="option in expansionProperties.bindFields  track by $index">
+                            <td>{{ option.mainField.name }}</td>
+                            <td>{{ option.childField.name }}</td>
+                            <td>
+                                <button class="btn btn-default btn-xs" type="button" ng-click="delected($index)">删除绑定</button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-primary" ng-click="close()" translate>ACTION.CANCEL</button>
@@ -41,3 +103,4 @@
             </div>
         </div>
     </div>
+</div>

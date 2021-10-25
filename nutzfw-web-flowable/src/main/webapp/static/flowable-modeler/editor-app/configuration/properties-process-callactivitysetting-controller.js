@@ -11,12 +11,35 @@ angular.module('flowableModeler').controller('FlowableProcessCallactivitysetting
 
 
 angular.module('flowableModeler').controller('FlowableProcessCallactivitysettingPopupCtrl', ['$scope', '$http', function ($scope, $http) {
-    console.log("$scope", $scope)
-    console.log("selectedShape", $scope.selectedShape)
-    console.log("selectedShape", $scope.property)
 
-    $scope.expansionProperties = {};
+    console.log("property.value", $scope.property.value)
 
+    $scope.tables = [];
+
+    $scope.mainField = "";
+    $scope.childField = "";
+    debugger
+    if ($scope.property.value != undefined && $scope.property.value.expansionProperties != undefined) {
+        $scope.expansionProperties = angular.copy($scope.property.value.expansionProperties);
+    }else{
+        $scope.expansionProperties = {
+            childTableId:"",
+            mainTableId:"",
+            formType: "ONLINE",
+            jsonData: "",
+            // 主流程字段
+            mainFields: [
+
+            ],
+            // 子流程字段
+            childFields: [
+
+            ],
+            bindFields: [
+
+            ]
+        };
+    }
 
     $scope.save = function () {
 
@@ -25,6 +48,56 @@ angular.module('flowableModeler').controller('FlowableProcessCallactivitysetting
 
         $scope.updatePropertyInModel($scope.property);
         $scope.close();
+    };
+
+    $scope.init = function () {
+        $http({method: 'GET', ignoreErrors: true, url: FLOWABLE.APP_URL.getListAllOnlineFormUrl()})
+            .success(function (data) {
+                $scope.tables = data.map(function (item) {
+                    return {
+                        selected: false,
+                        id: item.id,
+                        name: item.name,
+                    };
+                });
+            })
+    };
+
+    $scope.changeMainOnlineFormValue = function () {
+        $http({
+            method: 'POST', data: "tableId=" + $scope.expansionProperties.mainTableId,
+            headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'},
+            ignoreErrors: true, url: FLOWABLE.APP_URL.getDataTableAllFiledsUrl()
+        }).success(function (data) {
+            $scope.expansionProperties.mainFields = data.data
+        })
+    };
+
+    $scope.changeChildOnlineFormValue = function () {
+        $http({
+            method: 'POST', data: "tableId=" + $scope.expansionProperties.childTableId,
+            headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'},
+            ignoreErrors: true, url: FLOWABLE.APP_URL.getDataTableAllFiledsUrl()
+        }).success(function (data) {
+            $scope.expansionProperties.childFields = data.data
+        })
+    };
+
+
+    $scope.delected = function (index) {
+        $scope.expansionProperties.bindFields.splice(index, 1);
+    };
+
+    $scope.addbind = function () {
+        if ($scope.mainField == "" || $scope.childField == "") {
+            alert("请选择主流程字段和对应的子流程字段")
+        }
+        var mainFieldIndex = $scope.expansionProperties.mainFields.findIndex(value => value.fieldId == $scope.mainField);
+        var mainField = $scope.expansionProperties.mainFields[mainFieldIndex];
+
+        var childFieldIndex = $scope.expansionProperties.mainFields.findIndex(value => value.fieldId == $scope.mainField);
+        var childField = $scope.expansionProperties.childFields[childFieldIndex];
+        $scope.expansionProperties.bindFields.push({mainField: mainField, childField: childField});
     };
 
     $scope.cancel = function () {
@@ -37,5 +110,5 @@ angular.module('flowableModeler').controller('FlowableProcessCallactivitysetting
         $scope.property.mode = 'read';
     };
 
-
+    $scope.init();
 }]);
