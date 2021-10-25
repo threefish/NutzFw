@@ -10,6 +10,7 @@ public class CustomBpmnXMLConverter extends BpmnXMLConverter {
 
     static {
         addConverter(new CustomSequenceFlowXMLConverter());
+        addConverter(new CustomCallActivityXMLConverter());
     }
 
 }

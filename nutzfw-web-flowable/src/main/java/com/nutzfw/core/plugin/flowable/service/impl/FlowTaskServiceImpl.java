@@ -293,7 +293,7 @@ public class FlowTaskServiceImpl implements FlowTaskService {
             if (Strings.isNotBlank(startAct) && !start) {
                 continue;
             }
-            if ("userTask".equals(histIns.getActivityType()) || "startEvent".equals(histIns.getActivityType()) || "endEvent".equals(histIns.getActivityType())) {
+            if ("userTask".equals(histIns.getActivityType()) || "startEvent".equals(histIns.getActivityType()) || "endEvent".equals(histIns.getActivityType())|| "callActivity".equals(histIns.getActivityType())) {
                 // 给节点增加一个序号
                 Integer actNum = actMap.get(histIns.getActivityId());
                 if (actNum == null) {

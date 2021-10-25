@@ -1,0 +1,43 @@
+<style>
+    * {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .modal-content {
+        width: 900px;
+    }
+
+    @media (min-width: 768px) {
+        .modal-dialog {
+            width: 900px;
+            margin: 30px auto;
+        }
+    }
+
+    .table-operate-td label {
+        font-size: 13px
+    }
+
+</style>
+
+<div class="modal" ng-controller="FlowableProcessCallactivitysettingPopupCtrl">
+    <div class="modal-dialog" data-backdrop="static" data-keyboard="false">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button aria-hidden="true" class="close" data-dismiss="modal" ng-click="close()" type="button">&times;
+                </button>
+                <h3>子流程数据关系绑定-({{selectedShape.resourceId}})</h3>
+            </div>
+            <div class="modal-body">
+                <div class="detail-group clearfix">
+
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" ng-click="close()" translate>ACTION.CANCEL</button>
+                    <button class="btn btn-primary" ng-click="save()" translate>ACTION.SAVE</button>
+                </div>
+            </div>
+        </div>
+    </div>

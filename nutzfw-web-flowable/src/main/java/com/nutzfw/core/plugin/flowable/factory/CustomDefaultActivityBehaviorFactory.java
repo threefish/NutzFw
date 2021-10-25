@@ -9,6 +9,7 @@ package com.nutzfw.core.plugin.flowable.factory;
 
 import com.nutzfw.core.plugin.flowable.behavior.*;
 import com.nutzfw.modules.organize.service.DepartmentLeaderService;
+import org.apache.commons.lang3.StringUtils;
 import org.flowable.bpmn.model.*;
 import org.flowable.engine.impl.bpmn.behavior.*;
 import org.flowable.engine.impl.bpmn.helper.ClassDelegate;
@@ -51,6 +52,28 @@ public class CustomDefaultActivityBehaviorFactory extends DefaultActivityBehavio
     public NoneStartEventActivityBehavior createNoneStartEventActivityBehavior(StartEvent startEvent) {
         return new CustomNoneStartEventActivityBehavior();
     }
+
+    // Call activity
+
+    @Override
+    public CallActivityBehavior createCallActivityBehavior(CallActivity callActivity) {
+        String expressionRegex = "\\$+\\{+.+\\}";
+
+        CallActivityBehavior callActivityBehaviour;
+
+        if (StringUtils.isNotEmpty(callActivity.getCalledElement()) && callActivity.getCalledElement().matches(expressionRegex)) {
+            callActivityBehaviour = new CustomCallActivityBehavior(callActivity, expressionManager.createExpression(callActivity.getCalledElement()),
+                    callActivity.getCalledElementType(), callActivity.getMapExceptions(),
+                    callActivity.getFallbackToDefaultTenant());
+        } else {
+            callActivityBehaviour = new CustomCallActivityBehavior(callActivity, callActivity.getCalledElement(), callActivity.getCalledElementType(),
+                    callActivity.getFallbackToDefaultTenant(),
+                    callActivity.getMapExceptions());
+        }
+
+        return callActivityBehaviour;
+    }
+
 
     /**
      * 无特定触发器的结束事件

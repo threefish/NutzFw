@@ -8,6 +8,7 @@
 package com.nutzfw.modules.sys.service.impl;
 
 import com.nutzfw.core.common.service.impl.BaseServiceImpl;
+import com.nutzfw.core.common.util.StreamUtils;
 import com.nutzfw.modules.sys.entity.RoleDepartment;
 import com.nutzfw.modules.sys.service.RoleDepartmentService;
 import org.nutz.dao.Cnd;
@@ -16,6 +17,7 @@ import org.nutz.ioc.loader.annotation.IocBean;
 
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author 黄川 huchuc@vip.qq.com
@@ -23,12 +25,13 @@ import java.util.Set;
  */
 @IocBean(args = {"refer:dao"})
 public class RoleDepartmentServiceImpl extends BaseServiceImpl<RoleDepartment> implements RoleDepartmentService {
+
     public RoleDepartmentServiceImpl(Dao dao) {
         super(dao);
     }
 
     @Override
     public List<RoleDepartment> queryManagerDepartment(Set<String> roleids) {
-        return query(Cnd.NEW().andEX("role_id", "in", roleids).groupBy("dept_id"));
+        return query(Cnd.NEW().andEX("role_id", "in", roleids)).stream().filter(StreamUtils.distinctByKey(RoleDepartment::getDeptId)).collect(Collectors.toList());
     }
 }
