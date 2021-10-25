@@ -31,13 +31,13 @@ import com.nutzfw.modules.organize.entity.UserAccount;
 import com.nutzfw.modules.sys.entity.DataTable;
 import com.nutzfw.modules.sys.entity.TableFields;
 import com.nutzfw.modules.sys.service.DataTableService;
-import com.nutzfw.modules.sys.service.RoleService;
 import org.flowable.engine.RepositoryService;
 import org.flowable.engine.repository.ProcessDefinition;
 import org.nutz.aop.interceptor.ioc.TransAop;
 import org.nutz.ioc.aop.Aop;
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
+import org.nutz.json.Json;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.mvc.annotation.*;
@@ -66,8 +66,6 @@ public class GeneralProcessAction extends BaseAction {
     RepositoryService repositoryService;
     @Inject
     DataTableService dataTableService;
-    @Inject
-    RoleService roleService;
 
     @At("/form")
     @GET
@@ -91,11 +89,13 @@ public class GeneralProcessAction extends BaseAction {
         if (Strings.isBlank(formElementModel.getFormKey())) {
             throw new RuntimeException("表单不能为空");
         }
+        Object formData = generalFlowBiz.loadFormData(flowTaskVO, sessionUserAccount);
         nutMap.put("formElementModel", formElementModel);
         nutMap.put("formPage", formElementModel.getFormKey());
         nutMap.put("flow", flowTaskVO);
         nutMap.put("title", generalFlowBiz.getFlowName(flowTaskVO));
-        nutMap.put("formData", generalFlowBiz.loadFormData(flowTaskVO, sessionUserAccount));
+        nutMap.put("formData", formData);
+        nutMap.put("formDataJson", Json.toJson(formData));
         nutMap.put("status", TaskFormStatusEnum.EDIT);
         if (flowTaskVO.isFinishTask()) {
             nutMap.put("status", TaskFormStatusEnum.VIEW);
@@ -137,6 +137,7 @@ public class GeneralProcessAction extends BaseAction {
             }
             return AjaxResult.error("下一步不是用户节点");
         } catch (Exception e) {
+            log.error(e);
             throw new RuntimeException("事务无法打开！");
         }
     }
@@ -228,6 +229,7 @@ public class GeneralProcessAction extends BaseAction {
             processContext.setProcessDefId(flowTaskVO.getProcDefId());
             processContext.setProcessDefKey(flowTaskVO.getProcDefKey());
             processContext.setBusinessId(flowTaskVO.getBusinessId());
+            processContext.setFlowTaskVO(flowTaskVO);
             ProcessContextHolder.set(processContext);
             if (Strings.isNotBlank(flowTaskVO.getBusinessId())) {
                 String message = generalFlowBiz.userAudit(formData, flowTaskVO, sessionUserAccount);

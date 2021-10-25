@@ -78,7 +78,7 @@ public class DepartmentAction extends BaseAction {
     @Ok("json:{locked:'opAt|opBy'}")
     @POST
     @At("/tree")
-    @RequiresPermissions("sysOrganize.department.index")
+//    @RequiresPermissions("sysOrganize.department.index")
     public List<Department> tree() {
         return departmentService.tree();
     }

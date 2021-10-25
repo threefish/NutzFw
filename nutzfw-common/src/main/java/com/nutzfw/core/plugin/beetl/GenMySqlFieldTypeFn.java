@@ -68,9 +68,9 @@ public class GenMySqlFieldTypeFn implements Function {
                 case 3:
                     return MessageFormat.format("text DEFAULT {0}", fields.getDefaultValue());
                 case 4:
-                    return "varchar(26) DEFAULT NULL";
+                    return "varchar(32) DEFAULT NULL";
                 case 5:
-                    return "varchar(550) DEFAULT NULL";
+                    return "varchar(640) DEFAULT NULL";
                 default:
                     break;
             }

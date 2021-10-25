@@ -31,7 +31,11 @@ public enum ControlType {
     //附件
     Attach(7),
     //图片
-    Img(8);
+    Img(8),
+    //人员选择弹窗
+    CHOSE_USER(9),
+    //部门选择弹窗
+    CHOSE_DEPT(10);
 
     private final int value;
 

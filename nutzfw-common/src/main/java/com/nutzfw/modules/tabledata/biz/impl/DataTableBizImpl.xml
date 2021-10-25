@@ -39,6 +39,11 @@
         update_version int(11) DEFAULT 0 NOT NULL COMMENT '更新版本',
         <exp>for(item in list){</exp>
         ${item.fieldName} ${genMysqlFieldType(item)} COMMENT '${item.comment}',
+        <exp>if(item.controlType==10){</exp>
+        ${item.fieldName}_id varchar(32) COMMENT '${item.comment}的ID',
+        <exp>}else if(item.controlType==9){</exp>
+        ${item.fieldName}_user_name varchar(32) COMMENT '${item.comment}的user_name',
+        <exp>}</exp>
         <exp>}</exp>
         PRIMARY KEY (id
         <exp>for(item in list){</exp>

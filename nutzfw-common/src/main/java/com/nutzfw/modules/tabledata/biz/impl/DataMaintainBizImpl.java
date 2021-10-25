@@ -34,6 +34,7 @@ import com.nutzfw.modules.tabledata.vo.DictDependentChangeVO;
 import com.nutzfw.modules.tabledata.vo.ReviewChangeVO;
 import com.nutzfw.modules.tabledata.vo.SingeDataMaintainQueryVO;
 import com.nutzfw.modules.tabledata.vo.TableColsVO;
+import org.apache.http.util.Asserts;
 import org.nutz.dao.Cnd;
 import org.nutz.dao.Sqls;
 import org.nutz.dao.entity.Record;
@@ -521,6 +522,12 @@ public class DataMaintainBizImpl implements DataMaintainBiz {
             } else {
                 showFields.add(field.getTableName() + "." + field.getFieldName());
             }
+            if (field.getControlType() == ControlType.CHOSE_DEPT.getValue()) {
+                showFields.add(field.getTableName() + "." + field.getFieldName() + "_id");
+            }
+            if (field.getControlType() == ControlType.CHOSE_USER.getValue()) {
+                showFields.add(field.getTableName() + "." + field.getFieldName() + "_user_name");
+            }
         });
         List<String> systemFields = new ArrayList<>();
         if (dataTable.getTableType() != TableType.SingleTable) {
@@ -679,6 +686,7 @@ public class DataMaintainBizImpl implements DataMaintainBiz {
      * @return
      */
     private Record coverDate(Record record, List<TableFields> fieldList) {
+        Asserts.notNull(record, "数据不存在");
         //日期转换
         fieldList.stream().filter(fields -> fields.getFieldType() == FieldType.Date.getValue() && (fields.getControlType() == ControlType.Date.getValue() || fields.getControlType() == ControlType.DateTime.getValue())).forEach(fields -> {
             Object obj = record.get(fields.getFieldName());
@@ -707,6 +715,14 @@ public class DataMaintainBizImpl implements DataMaintainBiz {
                     }
                 }
                 record.set(fields.getFieldName(), value);
+            }
+        });
+        fieldList.stream().forEach(fields -> {
+            if (fields.getControlType() == ControlType.CHOSE_USER.getValue()) {
+                record.set(fields.getFieldName() + "_user_name", record.get(fields.getFieldName() + "_user_name"));
+            }
+            if (fields.getControlType() == ControlType.CHOSE_DEPT.getValue()) {
+                record.set(fields.getFieldName() + "_id", record.get(fields.getFieldName() + "_id"));
             }
         });
         return record;
@@ -863,7 +879,7 @@ public class DataMaintainBizImpl implements DataMaintainBiz {
                 }
                 break;
             case 5:
-                if (val.length() > (20*35)) {
+                if (val.length() > (20 * 35)) {
                     msg = MessageFormat.format("{0}只能上传20个文件!", lableName);
                 }
                 break;
