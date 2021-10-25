@@ -46,6 +46,10 @@ FLOWABLE.PROPERTY_CONFIG =
             "readModeTemplateUrl": FLOWABLE.CONFIG.webContextRoot + "editor-app/configuration/properties/process-flowable-formselecter-property-read-template.html",
             "writeModeTemplateUrl": FLOWABLE.CONFIG.webContextRoot + "editor-app/configuration/properties/process-flowable-formselecter-property-write-template.html"
         },
+        "flowable-callactivitysetting": {
+            "readModeTemplateUrl": FLOWABLE.CONFIG.webContextRoot + "editor-app/configuration/properties/process-flowable-callactivitysetting-property-read-template.html",
+            "writeModeTemplateUrl": FLOWABLE.CONFIG.webContextRoot + "editor-app/configuration/properties/process-flowable-callactivitysetting-property-write-template.html"
+        },
         "flowable-ordering": {
             "readModeTemplateUrl": FLOWABLE.CONFIG.webContextRoot + "editor-app/configuration/properties/default-value-display-template.html",
             "writeModeTemplateUrl": FLOWABLE.CONFIG.webContextRoot + "editor-app/configuration/properties/ordering-property-write-template.html"

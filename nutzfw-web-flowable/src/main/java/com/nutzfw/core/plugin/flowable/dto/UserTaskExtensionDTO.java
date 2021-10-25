@@ -145,6 +145,10 @@ public class UserTaskExtensionDTO {
      * 会签人全部参与处理
      */
     Boolean signAll;
+    /**
+     * 表单字段取人
+     */
+    String assigneesFormDataField;
 
 
     public static UserTaskExtensionDTO NEW() {

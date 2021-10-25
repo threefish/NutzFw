@@ -11,6 +11,7 @@ import com.nutzfw.core.plugin.flowable.config.listener.NutzFwProcessEngineLifecy
 import com.nutzfw.core.plugin.flowable.elbeans.IocElBeans;
 import com.nutzfw.core.plugin.flowable.factory.CustomDefaultActivityBehaviorFactory;
 import com.nutzfw.core.plugin.flowable.interceptor.CustomCreateUserTaskInterceptor;
+import com.nutzfw.core.plugin.flowable.interceptor.CustomStartProcessInstanceInterceptor;
 import com.nutzfw.core.plugin.flowable.listener.ProccessStratAndCompletedListener;
 import com.nutzfw.core.plugin.flowable.listener.ProxyFlowableEventListener;
 import com.nutzfw.core.plugin.flowable.listener.handle.TaskMessageNoticeHandle;
@@ -24,6 +25,7 @@ import org.flowable.common.engine.impl.history.HistoryLevel;
 import org.flowable.engine.ProcessEngine;
 import org.flowable.engine.ProcessEngineConfiguration;
 import org.flowable.engine.impl.cfg.StandaloneProcessEngineConfiguration;
+import org.flowable.engine.interceptor.StartProcessInstanceInterceptor;
 import org.nutz.ioc.Ioc;
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
@@ -51,6 +53,8 @@ public class NutzFwProcessEngineConfiguration extends StandaloneProcessEngineCon
     DepartmentLeaderService departmentLeaderService;
     @Inject
     CustomCreateUserTaskInterceptor customCreateUserTaskInterceptor;
+    @Inject
+    CustomStartProcessInstanceInterceptor customStartProcessInstanceInterceptor;
 
     /**
      * 变量与父类变量重名如果不覆盖 setDataSource 方法，注入 dataSource 时会导致当前类的dataSource为null
@@ -84,6 +88,7 @@ public class NutzFwProcessEngineConfiguration extends StandaloneProcessEngineCon
         //自定义行为类工厂
         this.activityBehaviorFactory = new CustomDefaultActivityBehaviorFactory(departmentLeaderService, ioc);
         this.setCreateUserTaskInterceptor(customCreateUserTaskInterceptor);
+        this.setStartProcessInstanceInterceptor(customStartProcessInstanceInterceptor);
         this.initElBeans();
         return super.buildProcessEngine();
     }

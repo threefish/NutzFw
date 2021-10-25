@@ -43,6 +43,19 @@
       ]
     },
     {
+      "name": "callactivitysettingpackage",
+      "properties": [
+        {
+          "id": "callactivitysetting",
+          "type": "flowable-callactivitysetting",
+          "title": "设置",
+          "value": "",
+          "description": "",
+          "popular": true
+        }
+      ]
+    },
+    {
       "name": "namepackage",
       "properties": [
         {
@@ -2310,21 +2323,12 @@
         "结构列表"
       ],
       "propertyPackages": [
+        "callactivitysettingpackage",
         "overrideidpackage",
         "namepackage",
-        "documentationpackage",
         "asynchronousdefinitionpackage",
-        "exclusivedefinitionpackage",
-        "executionlistenerspackage",
         "callactivitycalledelementpackage",
-        "callactivityinparameterspackage",
-        "callactivityoutparameterspackage",
-        "multiinstance_typepackage",
-        "multiinstance_cardinalitypackage",
-        "multiinstance_collectionpackage",
-        "multiinstance_variablepackage",
-        "multiinstance_conditionpackage",
-        "isforcompensationpackage"
+        "documentationpackage"
       ],
       "hiddenPropertyPackages": [],
       "roles": [

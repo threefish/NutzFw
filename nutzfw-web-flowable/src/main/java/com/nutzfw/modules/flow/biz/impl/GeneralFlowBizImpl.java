@@ -16,6 +16,7 @@ import com.nutzfw.core.plugin.flowable.dto.CandidateGroupsDTO;
 import com.nutzfw.core.plugin.flowable.dto.CandidateUsersDTO;
 import com.nutzfw.core.plugin.flowable.dto.FlowSubmitInfoDTO;
 import com.nutzfw.core.plugin.flowable.dto.UserTaskExtensionDTO;
+import com.nutzfw.core.plugin.flowable.enums.ProcessStatus;
 import com.nutzfw.core.plugin.flowable.enums.TaskReviewerScopeEnum;
 import com.nutzfw.core.plugin.flowable.extmodel.FormElementModel;
 import com.nutzfw.core.plugin.flowable.service.FlowCacheService;
@@ -40,10 +41,7 @@ import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -77,6 +75,16 @@ public class GeneralFlowBizImpl implements GeneralFlowBiz {
 
     @Override
     public String start(Map formData, FlowTaskVO flowTaskVO, UserAccount sessionUserAccount, Set<String> roleCodes) {
+        ProcessContext processContext = new ProcessContext();
+        processContext.setProcessStatus(ProcessStatus.UNDER_REVIEW);
+        processContext.setProcessInstanceId(flowTaskVO.getProcInsId());
+        processContext.setProcessDefId(flowTaskVO.getProcDefId());
+        processContext.setProcessDefKey(flowTaskVO.getProcDefKey());
+        processContext.setBusinessId(flowTaskVO.getBusinessId());
+        processContext.setFlowTaskVO(flowTaskVO);
+        processContext.setFormData(formData);
+        processContext.setInitiator(sessionUserAccount.getUserName());
+        ProcessContextHolder.set(processContext);
         // 设置当前流程任务办理人
         Authentication.setAuthenticatedUserId(sessionUserAccount.getUserName());
         ExternalFormExecutor executor = getExternalFormExecutor(flowTaskVO.getProcDefId());
@@ -89,6 +97,7 @@ public class GeneralFlowBizImpl implements GeneralFlowBiz {
             formData = executor.start(formData, flowTaskVO, sessionUserAccount);
             //存储最新的formData
             variables.put(FlowConstant.FORM_DATA, formData);
+            variables.put(FlowConstant.AUDIT_PASS, flowTaskVO.isPass());
             String primaryKeyId = formData.getOrDefault(FlowConstant.PRIMARY_KEY, "").toString();
             if (Strings.isBlank(primaryKeyId)) {
                 throw new RuntimeException("业务ID不能为空");
@@ -132,6 +141,16 @@ public class GeneralFlowBizImpl implements GeneralFlowBiz {
 
     @Override
     public String userAudit(Map formData, FlowTaskVO flowTaskVO, UserAccount sessionUserAccount) {
+        ProcessContext processContext = new ProcessContext();
+        processContext.setProcessStatus(ProcessStatus.UNDER_REVIEW);
+        processContext.setProcessInstanceId(flowTaskVO.getProcInsId());
+        processContext.setProcessDefId(flowTaskVO.getProcDefId());
+        processContext.setProcessDefKey(flowTaskVO.getProcDefKey());
+        processContext.setBusinessId(flowTaskVO.getBusinessId());
+        processContext.setFlowTaskVO(flowTaskVO);
+        processContext.setFormData(formData);
+        processContext.setInitiator(sessionUserAccount.getUserName());
+        ProcessContextHolder.set(processContext);
         // 设置当前流程任务办理人
         Authentication.setAuthenticatedUserId(sessionUserAccount.getUserName());
         FlowUtils.setFlowTaskVo(flowTaskVO, flowTaskService.getTaskOrHistoryTask(flowTaskVO.getTaskId()), sessionUserAccount.getUserName());
@@ -183,7 +202,6 @@ public class GeneralFlowBizImpl implements GeneralFlowBiz {
         //变量别修改过了，所以从新设置下
         vars.put(FlowConstant.FORM_DATA, formData);
         flowTaskService.complete(flowTaskVO, vars);
-        ProcessContext processContext = ProcessContextHolder.get();
         if (processContext.isProcessCompleted()) {
             executor.processCompleted(formData, flowTaskVO, sessionUserAccount);
         }

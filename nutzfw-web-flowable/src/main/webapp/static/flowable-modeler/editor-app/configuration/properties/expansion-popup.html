@@ -210,6 +210,7 @@
                                             <option value="MULTIPLE_USERS">多个候选用户</option>
                                             <option value="JAVA_BEAN_ASSIGNMENT">由JavaIocBean人员选择器选取审核人员或组</option>
                                             <option value="FREE_CHOICE">自由选择</option>
+                                            <option value="FORM_DATA_FIELD">根据指定表单字段取值</option>
                                         </select>
                                     </div>
                                     <div class="form-group clearfix"
@@ -219,6 +220,15 @@
                                             <input class="form-control ng-pristine ng-untouched ng-valid"
                                                    ng-model="expansionProperties.iocFlowAssignment"
                                                    placeholder="$ioc:flowUserSelect"
+                                                   type="text">
+                                        </div>
+                                    </div>
+                                    <div class="form-group clearfix"
+                                         ng-show="expansionProperties.taskReviewerScope=='FORM_DATA_FIELD'">
+                                        <div class="form-group">
+                                            <input class="form-control ng-pristine ng-untouched ng-valid"
+                                                   ng-model="expansionProperties.assigneesFormDataField"
+                                                   placeholder="字段名"
                                                    type="text">
                                         </div>
                                     </div>

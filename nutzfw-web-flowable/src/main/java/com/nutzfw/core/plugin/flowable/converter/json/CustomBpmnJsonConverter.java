@@ -11,12 +11,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
+import com.nutzfw.core.plugin.flowable.converter.element.CustomCallActivity;
+import com.nutzfw.core.plugin.flowable.converter.element.CustomSequenceFlow;
 import com.nutzfw.core.plugin.flowable.util.FlowUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.flowable.bpmn.model.BpmnModel;
-import org.flowable.bpmn.model.ExtensionElement;
 import org.flowable.bpmn.model.Process;
-import org.flowable.bpmn.model.ValuedDataObject;
+import org.flowable.bpmn.model.*;
 import org.flowable.common.engine.impl.util.CollectionUtil;
 import org.flowable.editor.language.json.converter.BpmnJsonConverter;
 import org.flowable.editor.language.json.model.ModelInfo;
@@ -36,12 +36,17 @@ public class CustomBpmnJsonConverter extends BpmnJsonConverter {
     public static final String EXTERNAL_FORM_EXECUTOR = "externalformexecutor";
     public static final String DATA_OBJECTS_EXPRESSION = "expression";
     private static final String[] PROPERTY_KEYS = new String[]{EXTERNAL_FORM_EXECUTOR, FORM_KEY_DEFINITION};
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     static {
-        CustomUserTaskJsonConverter.customFillTypes(convertersToBpmnMap, convertersToJsonMap);
-    }
+        convertersToBpmnMap.put(STENCIL_TASK_USER, CustomUserTaskJsonConverter.class);
+        convertersToBpmnMap.put(STENCIL_SEQUENCE_FLOW, CustomSequenceFlowJsonConverter.class);
+        convertersToBpmnMap.put(STENCIL_CALL_ACTIVITY, CustomCallActivityJsonConverter.class);
 
-    ObjectMapper objectMapper = new ObjectMapper();
+        convertersToJsonMap.put(UserTask.class, CustomUserTaskJsonConverter.class);
+        convertersToJsonMap.put(CustomSequenceFlow.class, CustomSequenceFlowJsonConverter.class);
+        convertersToJsonMap.put(CustomCallActivity.class, CustomCallActivityJsonConverter.class);
+    }
 
     public static ExtensionElement buildExtensionElement(String name, String value) {
         ExtensionElement extensionElement = new ExtensionElement();

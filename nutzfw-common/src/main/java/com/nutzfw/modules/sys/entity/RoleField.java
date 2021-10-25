@@ -47,6 +47,8 @@ public class RoleField {
     @Column("auth")
     private FieldAuth auth;
 
+    private String fieldName;
+
     /**
      * 可以拥有的权限
      */

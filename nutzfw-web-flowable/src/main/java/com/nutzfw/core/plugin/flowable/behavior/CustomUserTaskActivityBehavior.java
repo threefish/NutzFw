@@ -33,10 +33,7 @@ import org.flowable.variable.api.persistence.entity.VariableInstance;
 import org.nutz.ioc.Ioc;
 import org.nutz.lang.Strings;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -93,6 +90,17 @@ public class CustomUserTaskActivityBehavior extends UserTaskActivityBehavior {
                         break;
                     case USER_ROLE_GROUPS:
                         candidateGroups = taskExtensionDTO.getCandidateGroups().stream().map(CandidateGroupsDTO::getRoleCode).collect(Collectors.toList());
+                        break;
+                    case FORM_DATA_FIELD:
+                        Object assigneesObject = processContext.getFormData().get(taskExtensionDTO.getAssigneesFormDataField() + "_user_name");
+                        if (Objects.nonNull(assigneesObject)) {
+                            String[] assignees = Strings.splitIgnoreBlank(assigneesObject.toString());
+                            if (assignees.length > 1) {
+                                candidateUsers = Arrays.asList(assignees);
+                            } else if (assignees.length == 1) {
+                                assignee = assignees[0];
+                            }
+                        }
                         break;
                     case DEPARTMENT_HEAD:
                     case DEPARTMENT_LEADER:

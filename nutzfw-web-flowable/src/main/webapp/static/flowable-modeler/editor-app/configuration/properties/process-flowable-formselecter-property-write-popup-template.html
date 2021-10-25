@@ -125,11 +125,13 @@
                                         <tr>
                                             <th style="width:100px">#</th>
                                             <th>字段名</th>
+                                            <th>物理字段</th>
                                             <th style="width:300px">权限</th>
                                         </tr>
                                         <tr ng-repeat="field in onlineFields track by $index" ng-init="tIndex = $index">
                                             <td>{{$index+1}}</td>
                                             <td>{{field.name}}</td>
+                                            <td>{{field.fieldName}}</td>
                                             <td class="table-operate-td">
                                                 <label style="margin-right: 15px" ng-show="field.auths.include('hide')">
                                                     <input type="radio" value="hide" ng-model="authList[$index].auth">

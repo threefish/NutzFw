@@ -11,12 +11,9 @@ import com.nutzfw.core.common.cons.Cons;
 import com.nutzfw.core.common.filter.CheckRoleAndSession;
 import com.nutzfw.core.common.vo.AjaxResult;
 import com.nutzfw.core.common.vo.LayuiTableDataListVO;
-import com.nutzfw.core.plugin.flowable.context.ProcessContext;
-import com.nutzfw.core.plugin.flowable.context.ProcessContextHolder;
 import com.nutzfw.core.plugin.flowable.dto.FlowSubmitInfoDTO;
 import com.nutzfw.core.plugin.flowable.dto.UserTaskExtensionDTO;
 import com.nutzfw.core.plugin.flowable.enums.FormType;
-import com.nutzfw.core.plugin.flowable.enums.ProcessStatus;
 import com.nutzfw.core.plugin.flowable.enums.TaskFormStatusEnum;
 import com.nutzfw.core.plugin.flowable.extmodel.FormElementModel;
 import com.nutzfw.core.plugin.flowable.service.FlowProcessDefinitionService;
@@ -223,14 +220,6 @@ public class GeneralProcessAction extends BaseAction {
             if (flowTaskVO.getTurnDown() == true && Strings.isBlank(flowTaskVO.getComment())) {
                 return AjaxResult.error("驳回意见不能为空！");
             }
-            ProcessContext processContext = new ProcessContext();
-            processContext.setProcessStatus(ProcessStatus.UNDER_REVIEW);
-            processContext.setProcessInstanceId(flowTaskVO.getProcInsId());
-            processContext.setProcessDefId(flowTaskVO.getProcDefId());
-            processContext.setProcessDefKey(flowTaskVO.getProcDefKey());
-            processContext.setBusinessId(flowTaskVO.getBusinessId());
-            processContext.setFlowTaskVO(flowTaskVO);
-            ProcessContextHolder.set(processContext);
             if (Strings.isNotBlank(flowTaskVO.getBusinessId())) {
                 String message = generalFlowBiz.userAudit(formData, flowTaskVO, sessionUserAccount);
                 if (message != null) {
