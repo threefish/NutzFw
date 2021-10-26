@@ -33,10 +33,12 @@ import com.nutzfw.modules.sys.entity.TableFields;
 import com.nutzfw.modules.sys.enums.FieldAuth;
 import com.nutzfw.modules.sys.service.DataTableService;
 import com.nutzfw.modules.sys.service.RoleService;
+import org.apache.commons.io.filefilter.FalseFileFilter;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.flowable.bpmn.model.Process;
 import org.flowable.bpmn.model.*;
 import org.flowable.common.engine.api.FlowableException;
+import org.flowable.common.engine.impl.util.io.BytesStreamSource;
 import org.flowable.editor.constants.ModelDataJsonConstants;
 import org.flowable.editor.constants.StencilConstants;
 import org.flowable.engine.RepositoryService;
@@ -199,13 +201,27 @@ public class FlowDesignAction extends BaseAction {
         List<ValidationError> errors = new ArrayList<>();
         try {
             ObjectNode modelNode = (ObjectNode) new ObjectMapper().readTree(new StringReader(Json.toJson(body, JsonFormat.compact())));
+            System.out.println("------转换前的JSON---------");
+            System.out.println(modelNode.toString());
+            System.out.println("---------------");
             BpmnModel bpmnModel = customBpmnJsonConverter.convertToBpmnModel(modelNode);
             ProcessValidator validator = new CustomProcessValidatorFactory().createDefaultProcessValidator();
             errors = validator.validate(bpmnModel);
-
-
-            byte[] bpmnBytes = new CustomBpmnXMLConverter().convertToXML(bpmnModel, Encoding.UTF8);
+            CustomBpmnXMLConverter customBpmnXMLConverter = new CustomBpmnXMLConverter();
+            byte[] bpmnBytes = customBpmnXMLConverter.convertToXML(bpmnModel, Encoding.UTF8);
+            System.out.println("-------第一次转换的XML--------");
             System.out.println(new String(bpmnBytes));
+            System.out.println("---------------");
+            BpmnModel bpmnModel1 = customBpmnXMLConverter.convertToBpmnModel(new BytesStreamSource(bpmnBytes), false, false);
+            ObjectNode jsonNodes = customBpmnJsonConverter.convertToJson(bpmnModel1);
+            System.out.println("-------转换后的JSON--------");
+            System.out.println(jsonNodes.toString());
+            System.out.println("---------------");
+
+            System.out.println(new String(customBpmnXMLConverter.convertToXML(bpmnModel1, Encoding.UTF8)));
+            System.out.println("-------第二次转换的XML--------");
+            System.out.println(new String(bpmnBytes));
+            System.out.println("---------------");
         } catch (IOException e) {
             log.error(e);
         }

@@ -79,15 +79,15 @@ public class CustomUserTaskJsonConverter extends UserTaskJsonConverter {
     /**
      * 添加扩展属性
      *
-     * @param userTask
+     * @param flowElement
      * @param userTaskExpansion
      */
-    private void addExpansionPropertiesElement(UserTask userTask, JsonNode userTaskExpansion) {
+    private void addExpansionPropertiesElement(FlowElement flowElement, JsonNode userTaskExpansion) {
         if (userTaskExpansion != null && userTaskExpansion instanceof ObjectNode) {
             JsonNode jsonNode = userTaskExpansion.get(EXPANSION_PROPERTIES);
             if (jsonNode != null && jsonNode instanceof ObjectNode) {
                 ExtensionElement element = FlowUtils.buildExtensionElement(USER_TASK_EXTENSION_ELEMENT_NAME, jsonNode.toString());
-                userTask.addExtensionElement(element);
+                flowElement.addExtensionElement(element);
             }
         }
 

@@ -19,9 +19,11 @@ angular.module('flowableModeler').controller('FlowableProcessCallactivitysetting
     $scope.mainField = "";
     $scope.childField = "";
 
-    if ($scope.property.value != undefined && typeof $scope.property.value == "string" && $scope.property.value !="") {
+    if ($scope.property.value != undefined && typeof $scope.property.value == "string" && $scope.property.value != "") {
         $scope.expansionProperties = JSON.parse($scope.property.value);
-    } else {
+    }if (typeof $scope.property.value == "object" ){
+        $scope.expansionProperties = $scope.property.value;
+    } else{
         $scope.expansionProperties = {
             childTableId: "",
             mainTableId: "",
@@ -76,13 +78,18 @@ angular.module('flowableModeler').controller('FlowableProcessCallactivitysetting
     $scope.addbind = function () {
         if ($scope.mainField == "" || $scope.childField == "") {
             alert("请选择主流程字段和对应的子流程字段")
+            return;
         }
         var mainFieldIndex = $scope.expansionProperties.mainFields.findIndex(value => value.fieldId == $scope.mainField);
         var mainField = $scope.expansionProperties.mainFields[mainFieldIndex];
 
-        var childFieldIndex = $scope.expansionProperties.mainFields.findIndex(value => value.fieldId == $scope.childField);
+        var childFieldIndex = $scope.expansionProperties.childFields.findIndex(value => value.fieldId == $scope.childField);
         var childField = $scope.expansionProperties.childFields[childFieldIndex];
-        $scope.expansionProperties.bindFields.push({mainField: mainField, childField: childField});
+        if (childField && childField) {
+            $scope.expansionProperties.bindFields.push({mainField: mainField, childField: childField});
+        } else {
+            alert("字段存在不存在！！！")
+        }
     };
 
     $scope.cancel = function () {
@@ -99,9 +106,7 @@ angular.module('flowableModeler').controller('FlowableProcessCallactivitysetting
 
 
     $scope.save = function () {
-
-        $scope.property.value = JSON.stringify($scope.expansionProperties);
-
+        $scope.property.value = $scope.expansionProperties;
         $scope.updatePropertyInModel($scope.property);
         $scope.close();
     };

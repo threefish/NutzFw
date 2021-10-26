@@ -1,7 +1,9 @@
 package com.nutzfw.core.plugin.flowable.converter.xml;
 
 import com.nutzfw.core.plugin.flowable.converter.element.CustomCallActivity;
+import com.nutzfw.core.plugin.flowable.converter.json.CustomCallActivityJsonConverter;
 import org.flowable.bpmn.converter.CallActivityXMLConverter;
+import org.flowable.bpmn.converter.util.BpmnXMLUtil;
 import org.flowable.bpmn.model.BaseElement;
 import org.flowable.bpmn.model.BpmnModel;
 
@@ -29,6 +31,11 @@ public class CustomCallActivityXMLConverter extends CallActivityXMLConverter {
     @Override
     protected BaseElement convertXMLToElement(XMLStreamReader xtr, BpmnModel model) throws Exception {
         return super.convertXMLToElement(xtr, model);
+    }
+
+    @Override
+    public void convertToXML(XMLStreamWriter xtw, BaseElement baseElement, BpmnModel model) throws Exception {
+        super.convertToXML(xtw, baseElement, model);
     }
 
     @Override

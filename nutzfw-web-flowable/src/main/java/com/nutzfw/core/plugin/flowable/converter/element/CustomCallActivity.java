@@ -7,4 +7,20 @@ import org.flowable.bpmn.model.CallActivity;
  */
 public class CustomCallActivity extends CallActivity {
 
+
+    public static CustomCallActivity of(CallActivity callActivity) {
+        final CustomCallActivity customCallActivity = new CustomCallActivity();
+        customCallActivity.setValues(callActivity);
+        return customCallActivity;
+    }
+
+
+    @Override
+    public void setValues(CallActivity otherFlow) {
+        super.setValues(otherFlow);
+        if (otherFlow instanceof CustomCallActivity) {
+
+        }
+    }
+
 }
