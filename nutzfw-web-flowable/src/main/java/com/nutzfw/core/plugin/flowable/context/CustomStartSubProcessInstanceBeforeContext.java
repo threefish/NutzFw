@@ -1,5 +1,6 @@
 package com.nutzfw.core.plugin.flowable.context;
 
+import com.nutzfw.core.plugin.flowable.converter.element.CustomCallActivity;
 import lombok.Data;
 import org.flowable.bpmn.model.CallActivity;
 import org.flowable.bpmn.model.FlowElement;
@@ -18,7 +19,7 @@ import java.util.Map;
 @Data
 public class CustomStartSubProcessInstanceBeforeContext extends StartSubProcessInstanceBeforeContext {
 
-    CallActivity callActivity;
+    CustomCallActivity callActivity;
 
     public CustomStartSubProcessInstanceBeforeContext(String businessKey, String processInstanceName, Map<String, Object> variables, ExecutionEntity callActivityExecution, List<IOParameter> inParameters, boolean inheritVariables, String initialActivityId, FlowElement initialFlowElement, Process process, ProcessDefinition processDefinition) {
         super(businessKey, processInstanceName, variables, callActivityExecution, inParameters, inheritVariables, initialActivityId, initialFlowElement, process, processDefinition);

@@ -92,7 +92,12 @@ public class CustomUserTaskActivityBehavior extends UserTaskActivityBehavior {
                         candidateGroups = taskExtensionDTO.getCandidateGroups().stream().map(CandidateGroupsDTO::getRoleCode).collect(Collectors.toList());
                         break;
                     case FORM_DATA_FIELD:
-                        Object assigneesObject = processContext.getFormData().get(taskExtensionDTO.getAssigneesFormDataField() + "_user_name");
+                        Object assigneesObject;
+                        if (processContext.isChildProcessContext()) {
+                            assigneesObject = processContext.getChildProcessContext().getFormData().get(taskExtensionDTO.getAssigneesFormDataField() + "_user_name");
+                        } else {
+                            assigneesObject = processContext.getFormData().get(taskExtensionDTO.getAssigneesFormDataField() + "_user_name");
+                        }
                         if (Objects.nonNull(assigneesObject)) {
                             String[] assignees = Strings.splitIgnoreBlank(assigneesObject.toString());
                             if (assignees.length > 1) {

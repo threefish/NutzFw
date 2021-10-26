@@ -45,7 +45,6 @@ public class CustomCallActivityJsonConverter extends CallActivityJsonConverter {
                 flowElement.addExtensionElement(element);
             }
         }
-        CustomCallActivity customCallActivity = CustomCallActivity.of((CallActivity) flowElement);
         return flowElement;
     }
 }

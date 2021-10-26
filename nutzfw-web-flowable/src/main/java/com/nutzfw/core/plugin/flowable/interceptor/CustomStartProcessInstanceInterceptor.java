@@ -5,6 +5,8 @@ import com.nutzfw.core.plugin.flowable.constant.FlowConstant;
 import com.nutzfw.core.plugin.flowable.context.CustomStartSubProcessInstanceBeforeContext;
 import com.nutzfw.core.plugin.flowable.context.ProcessContext;
 import com.nutzfw.core.plugin.flowable.context.ProcessContextHolder;
+import com.nutzfw.core.plugin.flowable.converter.element.CustomCallActivity;
+import com.nutzfw.core.plugin.flowable.dto.ChildFlowExtensionDTO;
 import com.nutzfw.core.plugin.flowable.enums.ProcessStatus;
 import com.nutzfw.core.plugin.flowable.service.FlowProcessDefinitionService;
 import com.nutzfw.core.plugin.flowable.service.FlowTaskService;
@@ -12,15 +14,17 @@ import com.nutzfw.core.plugin.flowable.vo.FlowTaskVO;
 import com.nutzfw.modules.flow.executor.ExternalFormExecutor;
 import com.nutzfw.modules.organize.entity.UserAccount;
 import com.nutzfw.modules.organize.service.UserAccountService;
+import com.nutzfw.modules.sys.entity.RoleField;
 import lombok.extern.slf4j.Slf4j;
-import org.flowable.bpmn.model.CallActivity;
 import org.flowable.engine.interceptor.*;
 import org.flowable.engine.repository.ProcessDefinition;
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.lang.Strings;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author 黄川 huchuc@vip.qq.com
@@ -65,8 +69,7 @@ public class CustomStartProcessInstanceInterceptor implements StartProcessInstan
     public void beforeStartSubProcessInstance(StartSubProcessInstanceBeforeContext startSubProcessInstanceBeforeContext) {
         CustomStartSubProcessInstanceBeforeContext instanceContext = ((CustomStartSubProcessInstanceBeforeContext) startSubProcessInstanceBeforeContext);
 
-        final CallActivity callActivity = instanceContext.getCallActivity();
-
+        final CustomCallActivity callActivity = instanceContext.getCallActivity();
 
         final ProcessContext processContext = ProcessContextHolder.get();
         final ProcessContext childprocessContext = new ProcessContext();
@@ -77,16 +80,29 @@ public class CustomStartProcessInstanceInterceptor implements StartProcessInstan
         flowTaskVO.setProcDefKey(childProcessDefinition.getKey());
         ExternalFormExecutor childFormExecutor = flowProcessDefinitionService.getExternalFormExecutor(childProcessDefinition.getId());
         Map<String, Object> variables = Maps.newHashMap();
-        Map<String, Object> formData = Maps.newHashMap();
+        Map<String, Object> childFormData = Maps.newHashMap();
+        Map<String, Object> mainFormData = processContext.getFormData();
         // 根据模型设计器上绑定的映射关系计算新表单数据
-
-
-        flowTaskVO.setFormData(formData);
-        flowTaskService.setValuedDataObject(variables, childProcessDefinition.getId(), formData, userAccount, false);
-        formData = childFormExecutor.start(formData, flowTaskVO, userAccount);
-        variables.put(FlowConstant.FORM_DATA, formData);
+        List<ChildFlowExtensionDTO.BindField> bindFields = callActivity.getExtension().getBindFields();
+        for (ChildFlowExtensionDTO.BindField bindField : bindFields) {
+            RoleField mainField = bindField.getMainField();
+            RoleField childField = bindField.getChildField();
+            childFormData.put(childField.getFieldName(), mainFormData.get(mainField.getFieldName()));
+            Object _id = mainFormData.get(mainField.getFieldName() + "_id");
+            Object _user_name = mainFormData.get(mainField.getFieldName() + "_user_name");
+            if (Objects.nonNull(_id)) {
+                childFormData.put(childField.getFieldName() + "_id", _id);
+            }
+            if (Objects.nonNull(_user_name)) {
+                childFormData.put(childField.getFieldName() + "_user_name", _user_name);
+            }
+        }
+        flowTaskVO.setFormData(childFormData);
+        flowTaskService.setValuedDataObject(variables, childProcessDefinition.getId(), childFormData, userAccount, false);
+        childFormData = childFormExecutor.start(childFormData, flowTaskVO, userAccount);
+        variables.put(FlowConstant.FORM_DATA, childFormData);
         variables.put(FlowConstant.AUDIT_PASS, true);
-        String primaryKeyId = formData.getOrDefault(FlowConstant.PRIMARY_KEY, "").toString();
+        String primaryKeyId = childFormData.getOrDefault(FlowConstant.PRIMARY_KEY, "").toString();
         if (Strings.isBlank(primaryKeyId)) {
             throw new RuntimeException("业务ID不能为空");
         }
@@ -99,7 +115,7 @@ public class CustomStartProcessInstanceInterceptor implements StartProcessInstan
         childprocessContext.setProcessDefKey(childProcessDefinition.getKey());
         childprocessContext.setBusinessId(primaryKeyId);
         childprocessContext.setFlowTaskVO(flowTaskVO);
-        childprocessContext.setFormData(formData);
+        childprocessContext.setFormData(childFormData);
         processContext.setChildProcessContext(childprocessContext);
     }
 
@@ -110,6 +126,5 @@ public class CustomStartProcessInstanceInterceptor implements StartProcessInstan
      */
     @Override
     public void afterStartSubProcessInstance(StartSubProcessInstanceAfterContext instanceContext) {
-        throw new RuntimeException("xxx");
     }
 }
