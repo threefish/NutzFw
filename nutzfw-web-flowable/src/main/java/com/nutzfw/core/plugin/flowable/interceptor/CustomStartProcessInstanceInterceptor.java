@@ -109,7 +109,7 @@ public class CustomStartProcessInstanceInterceptor implements StartProcessInstan
         instanceContext.setVariables(variables);
         instanceContext.setBusinessKey(primaryKeyId);
         instanceContext.setProcessInstanceName("子流程：" + variables.getOrDefault(FlowConstant.PROCESS_TITLE, "默认子流程标题").toString());
-
+        variables.put(FlowConstant.PROCESS_TITLE, instanceContext.getProcessInstanceName());
         childprocessContext.setProcessStatus(ProcessStatus.UNDER_REVIEW);
         childprocessContext.setProcessDefId(childProcessDefinition.getId());
         childprocessContext.setProcessDefKey(childProcessDefinition.getKey());
