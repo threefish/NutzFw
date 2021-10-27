@@ -102,7 +102,8 @@
                                         <div class="col-sm-10">
                                             <select class="form-control ng-pristine ng-untouched ng-valid"
                                                     ng-model="formProperties.writeBackProccessStatusField">
-                                                <option ng-repeat="item in writeBackFieldList" value="{{ item.id }}" ng-selected="{{ item.selected }}">
+                                                <option ng-repeat="item in writeBackFieldList" value="{{ item.id }}"
+                                                        ng-selected="{{ item.selected }}">
                                                     {{ item.name }}
                                                 </option>
                                             </select>
@@ -125,22 +126,24 @@
                                         <tr>
                                             <th style="width:100px">#</th>
                                             <th>字段名</th>
+                                            <th>物理字段</th>
                                             <th style="width:300px">权限</th>
                                         </tr>
                                         <tr ng-repeat="field in onlineFields track by $index" ng-init="tIndex = $index">
                                             <td>{{$index+1}}</td>
                                             <td>{{field.name}}</td>
+                                            <td>{{field.fieldName}}</td>
                                             <td class="table-operate-td">
                                                 <label style="margin-right: 15px" ng-show="field.auths.include('hide')">
-                                                    <input type="radio" value="hide" ng-model="authList[$index].auth">
+                                                    <input type="radio" value="hide" ng-model="authList[$index].auth" ng-change="changeAuthListValueByIndex(this,$index)">
                                                     &nbsp;不可见
                                                 </label>
                                                 <label style="margin-right: 15px" ng-show="field.auths.include('r')">
-                                                    <input type="radio" value="r" ng-model="authList[$index].auth">
+                                                    <input type="radio" value="r" ng-model="authList[$index].auth" ng-change="changeAuthListValueByIndex(this,$index)">
                                                     &nbsp;只读
                                                 </label>
                                                 <label style="margin-right: 15px" ng-show="field.auths.include('rw')">
-                                                    <input type="radio" value="rw" ng-model="authList[$index].auth">
+                                                    <input type="radio" value="rw" ng-model="authList[$index].auth" ng-change="changeAuthListValueByIndex(this,$index)">
                                                     &nbsp;可读写
                                                 </label>
                                             </td>

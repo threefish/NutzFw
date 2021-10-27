@@ -75,6 +75,7 @@ angular.module('flowableModeler').controller('FlowableExpansionPopupCtrl', ['$sc
                 signNrOfInstances: 0,//总实例数量
                 signAll: 0,//会签人全部参与处理
                 multiInstanceLoopCharacteristics: "None",//会签类型
+                assigneesFormDataField: "",//表单字段
             };
         }
         setDefaualtValue("replyOpinionName", "批复意见");

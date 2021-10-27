@@ -8,10 +8,11 @@
 package com.nutzfw.core.plugin.flowable.behavior;
 
 import com.nutzfw.core.plugin.flowable.context.CustomStartSubProcessInstanceBeforeContext;
+import com.nutzfw.core.plugin.flowable.converter.element.CustomCallActivity;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.flowable.bpmn.model.*;
 import org.flowable.bpmn.model.Process;
+import org.flowable.bpmn.model.*;
 import org.flowable.common.engine.api.FlowableException;
 import org.flowable.common.engine.api.delegate.Expression;
 import org.flowable.common.engine.api.delegate.event.FlowableEngineEventType;
@@ -29,7 +30,6 @@ import org.flowable.engine.impl.util.CommandContextUtil;
 import org.flowable.engine.impl.util.EntityLinkUtil;
 import org.flowable.engine.impl.util.ProcessDefinitionUtil;
 import org.flowable.engine.interceptor.StartSubProcessInstanceAfterContext;
-import org.flowable.engine.interceptor.StartSubProcessInstanceBeforeContext;
 import org.flowable.engine.repository.ProcessDefinition;
 
 import java.util.HashMap;
@@ -45,21 +45,22 @@ import java.util.Map;
 public class CustomCallActivityBehavior extends CallActivityBehavior {
 
 
-   private CallActivity callActivity;
+    private CustomCallActivity callActivity;
 
-    public CustomCallActivityBehavior(CallActivity callActivity,String processDefinitionKey, String calledElementType, Boolean fallbackToDefaultTenant, List<MapExceptionEntry> mapExceptions) {
+    public CustomCallActivityBehavior(CallActivity callActivity, String processDefinitionKey, String calledElementType, Boolean fallbackToDefaultTenant, List<MapExceptionEntry> mapExceptions) {
         super(processDefinitionKey, calledElementType, fallbackToDefaultTenant, mapExceptions);
+        this.callActivity = CustomCallActivity.of(callActivity);
     }
 
-    public CustomCallActivityBehavior(CallActivity callActivity,Expression processDefinitionExpression, String calledElementType, List<MapExceptionEntry> mapExceptions, Boolean fallbackToDefaultTenant) {
+    public CustomCallActivityBehavior(CallActivity callActivity, Expression processDefinitionExpression, String calledElementType, List<MapExceptionEntry> mapExceptions, Boolean fallbackToDefaultTenant) {
         super(processDefinitionExpression, calledElementType, mapExceptions, fallbackToDefaultTenant);
+        this.callActivity = CustomCallActivity.of(callActivity);
     }
 
     @Override
     public void execute(DelegateExecution execution) {
 
         ExecutionEntity executionEntity = (ExecutionEntity) execution;
-        CallActivity callActivity = (CallActivity) executionEntity.getCurrentFlowElement();
 
         CommandContext commandContext = CommandContextUtil.getCommandContext();
 
@@ -149,7 +150,7 @@ public class CustomCallActivityBehavior extends CallActivityBehavior {
                             inParameter.getTargetExpression());
                 }
 
-            } else if (StringUtils.isNotEmpty(inParameter.getTarget())){
+            } else if (StringUtils.isNotEmpty(inParameter.getTarget())) {
                 variableName = inParameter.getTarget();
 
             }

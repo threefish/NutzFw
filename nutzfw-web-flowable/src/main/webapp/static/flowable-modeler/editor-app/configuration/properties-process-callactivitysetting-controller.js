@@ -18,37 +18,24 @@ angular.module('flowableModeler').controller('FlowableProcessCallactivitysetting
 
     $scope.mainField = "";
     $scope.childField = "";
-    debugger
-    if ($scope.property.value != undefined && $scope.property.value.expansionProperties != undefined) {
-        $scope.expansionProperties = angular.copy($scope.property.value.expansionProperties);
-    }else{
+
+    if ($scope.property.value != undefined && typeof $scope.property.value == "string" && $scope.property.value != "") {
+        $scope.expansionProperties = JSON.parse($scope.property.value);
+    }if (typeof $scope.property.value == "object" ){
+        $scope.expansionProperties = $scope.property.value;
+    } else{
         $scope.expansionProperties = {
-            childTableId:"",
-            mainTableId:"",
+            childTableId: "",
+            mainTableId: "",
             formType: "ONLINE",
             jsonData: "",
             // 主流程字段
-            mainFields: [
-
-            ],
+            mainFields: [],
             // 子流程字段
-            childFields: [
-
-            ],
-            bindFields: [
-
-            ]
+            childFields: [],
+            bindFields: []
         };
     }
-
-    $scope.save = function () {
-
-        $scope.property.value = {};
-        $scope.property.value.expansionProperties = $scope.expansionProperties;
-
-        $scope.updatePropertyInModel($scope.property);
-        $scope.close();
-    };
 
     $scope.init = function () {
         $http({method: 'GET', ignoreErrors: true, url: FLOWABLE.APP_URL.getListAllOnlineFormUrl()})
@@ -91,13 +78,18 @@ angular.module('flowableModeler').controller('FlowableProcessCallactivitysetting
     $scope.addbind = function () {
         if ($scope.mainField == "" || $scope.childField == "") {
             alert("请选择主流程字段和对应的子流程字段")
+            return;
         }
         var mainFieldIndex = $scope.expansionProperties.mainFields.findIndex(value => value.fieldId == $scope.mainField);
         var mainField = $scope.expansionProperties.mainFields[mainFieldIndex];
 
-        var childFieldIndex = $scope.expansionProperties.mainFields.findIndex(value => value.fieldId == $scope.mainField);
+        var childFieldIndex = $scope.expansionProperties.childFields.findIndex(value => value.fieldId == $scope.childField);
         var childField = $scope.expansionProperties.childFields[childFieldIndex];
-        $scope.expansionProperties.bindFields.push({mainField: mainField, childField: childField});
+        if (childField && childField) {
+            $scope.expansionProperties.bindFields.push({mainField: mainField, childField: childField});
+        } else {
+            alert("字段存在不存在！！！")
+        }
     };
 
     $scope.cancel = function () {
@@ -111,4 +103,12 @@ angular.module('flowableModeler').controller('FlowableProcessCallactivitysetting
     };
 
     $scope.init();
+
+
+    $scope.save = function () {
+        $scope.property.value = $scope.expansionProperties;
+        $scope.updatePropertyInModel($scope.property);
+        $scope.close();
+    };
+
 }]);

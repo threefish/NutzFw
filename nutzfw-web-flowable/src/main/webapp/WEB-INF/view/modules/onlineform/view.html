@@ -90,7 +90,7 @@
         <%
         for(item in table.fields){
         //表单显示
-        if(item.fromDisplay==true){
+        if(item.fromDisplay==true && !onlineForm.fieldIsHidden(item.id,data.formElementModel)){
         //是逻辑字段
         if(item.logic==true){
         %>

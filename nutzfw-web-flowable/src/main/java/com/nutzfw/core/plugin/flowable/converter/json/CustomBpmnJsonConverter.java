@@ -45,7 +45,7 @@ public class CustomBpmnJsonConverter extends BpmnJsonConverter {
 
         convertersToJsonMap.put(UserTask.class, CustomUserTaskJsonConverter.class);
         convertersToJsonMap.put(CustomSequenceFlow.class, CustomSequenceFlowJsonConverter.class);
-        convertersToJsonMap.put(CustomCallActivity.class, CustomCallActivityJsonConverter.class);
+        convertersToJsonMap.put(CallActivity.class, CustomCallActivityJsonConverter.class);
     }
 
     public static ExtensionElement buildExtensionElement(String name, String value) {

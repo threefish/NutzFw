@@ -11,8 +11,8 @@ angular.module('flowableModeler').controller('FlowableProcessFormselecterCtrl',
 
 
 angular.module('flowableModeler').controller('FlowableProcessFormselecterPopupCtrl', ['$scope', '$http', function ($scope, $http) {
-    console.log("$scope",$scope)
-    console.log("selectedShape",$scope.selectedShape)
+    console.log("$scope", $scope)
+    console.log("selectedShape", $scope.selectedShape)
     $scope.tables = [];
     $scope.onlineFields = [];
     $scope.activeTab = 1;
@@ -60,10 +60,18 @@ angular.module('flowableModeler').controller('FlowableProcessFormselecterPopupCt
                 $scope.changeOnlineFormValue(function () {
                     // 设置权限回写
                     $scope.authList = $scope.formProperties.fieldAuths;
+                    console.log($scope.authList)
                 })
             })
     };
 
+
+    $scope.changeAuthListValueByIndex = function (event, $index) {
+        $scope.authList[$index] = {
+            field: event.field.fieldId,
+            auth: $scope.authList[$index].auth
+        }
+    }
 
     $scope.changeOnlineFormValue = function (callback) {
         if ($scope.formProperties.formKey != undefined && $scope.formProperties.formKey != "") {
@@ -72,7 +80,7 @@ angular.module('flowableModeler').controller('FlowableProcessFormselecterPopupCt
                 headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'},
                 ignoreErrors: true, url: FLOWABLE.APP_URL.getDataTableAllFiledsUrl()
             }).success(function (data) {
-                $scope.onlineFields = data.data
+                $scope.onlineFields = data.data;
                 // 设置默认权限
                 $scope.authList = data.data.map(function (item) {
                     return {
@@ -80,7 +88,6 @@ angular.module('flowableModeler').controller('FlowableProcessFormselecterPopupCt
                         auth: 'r',
                     };
                 });
-                console.log("authList:",$scope.authList,$scope.formProperties)
                 $scope.writeBackFieldList = [];
                 data.data.map(function (item) {
                     if (item.auths.includes("rw")) {

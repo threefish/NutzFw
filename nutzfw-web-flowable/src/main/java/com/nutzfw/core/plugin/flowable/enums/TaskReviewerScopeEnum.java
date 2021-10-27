@@ -35,6 +35,8 @@ public enum TaskReviewerScopeEnum {
 
     FREE_CHOICE("自由选择"),
 
+    FORM_DATA_FIELD("表单字段"),
+
     JAVA_BEAN_ASSIGNMENT("由JavaIocBean人员选择器选取审核人员或组");
 
     static HashMap<String, TaskReviewerScopeEnum> lookup = new HashMap<>();
