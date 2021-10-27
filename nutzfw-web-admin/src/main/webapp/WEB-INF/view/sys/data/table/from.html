@@ -30,6 +30,13 @@ layout("/layouts/blank.html",{title:title}){
         height: 180px;
         resize: none;
     }
+
+    .trigger-box {
+        padding: 30px;
+        height: 80vh;
+        overflow-x: hidden;
+        overflow-y: auto;
+    }
 </style>
 <section id="container" v-cloak>
     <div class="layui-tab layui-tab-brief" lay-filter="tabChange">
@@ -38,6 +45,7 @@ layout("/layouts/blank.html",{title:title}){
             <li>字段属性</li>
             <li>前台页面</li>
             <li>字典效验</li>
+            <li>业务预警</li>
         </ul>
         <div class="layui-tab-content">
             <div class="layui-tab-item layui-show">
@@ -86,6 +94,59 @@ layout("/layouts/blank.html",{title:title}){
                 表单显示文字不填则默认为字段名称
             </div>
             <div class="layui-tab-item" id="tab3">
+
+            </div>
+            <div class="layui-tab-item">
+                <button type="button" style="margin-bottom: 10px" class="layui-btn layui-btn-sm" @click="addTriggers">增加一个业务触发器</button>
+                <div class="layui-bg-gray trigger-box">
+                    <div class="layui-row layui-col-space15">
+                        <div v-if="triggers.length==0" style="text-align: center;font-size: 30px">未定义触发器</div>
+                        <div v-for="(trigger,index) in triggers" class="layui-card">
+                            <div class="layui-card-header">
+                                <button type="button" @click="delTriggers(index)" class="layui-btn layui-btn-xs">删除触发器 {{triggers.length-index}}
+                                </button>
+                            </div>
+                            <div class="layui-card-body">
+                                <div class="form-group" style="margin-bottom: 30px">
+                                    <label class="col-sm-4 control-label lable-right">生效条件<span class="required">*</span>：</label>
+                                    <div class="col-sm-6">
+                                        <textarea type="text" style="resize: vertical" v-model="triggers[index].effectiveConditions"
+                                                  class="form-control" placeholder="参考：流程状态 = 通过 and 推送消息次数 = 0 会被转换为：f_11='通过' and f_12=0 拼到sql中'"></textarea>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label lable-right">触发动作：</label>
+                                    <div class="col-sm-6">
+                                        <select class="form-control" v-model="triggers[index].triggerAction">
+                                            <option value="SEND_MESSAGE">发送消息提醒</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group" style="margin-bottom: 30px">
+                                    <label class="col-sm-4 control-label lable-right">触发时机：</label>
+                                    <div class="col-sm-6">
+                                        <textarea type="text" v-model="triggers[index].triggerTiming" style="resize: vertical"
+                                                  class="form-control"></textarea>
+                                    </div>
+                                </div>
+                                <div class="form-group" style="margin-bottom: 30px">
+                                    <label class="col-sm-4 control-label lable-right">发送消息给：</label>
+                                    <div class="col-sm-6">
+                                        <textarea type="text" v-model="triggers[index].receiveUserField" placeholder="配置人员字段，发送多个人可以用逗号隔开"
+                                                  style="resize: vertical" class="form-control"></textarea>
+                                    </div>
+                                </div>
+                                <div class="form-group" style="margin-bottom: 30px">
+                                    <label class="col-sm-4 control-label lable-right">消息模板：</label>
+                                    <div class="col-sm-6">
+                                        <textarea type="text" v-model="triggers[index].messageTemplate" placeholder="您的xx将于xx时到期，请注意。"
+                                                  style="resize: vertical" class="form-control"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
             </div>
         </div>
@@ -191,7 +252,7 @@ layout("/layouts/blank.html",{title:title}){
     var cols = new Object();
     cols.cols1 = [[
         {title: '序号', type: 'numbers', width: 50},
-        {field: 'fieldName', title: '列名',style:"background: #f5f2f2;"},
+        {field: 'fieldName', title: '列名', style: "background: #f5f2f2;"},
         {field: 'name', title: '字段名', edit: 'text'},
         {field: 'comment', title: '备注', edit: 'text'},
         {field: 'fieldType', title: '字段类型', templet: "#fieldType"},
@@ -235,17 +296,33 @@ layout("/layouts/blank.html",{title:title}){
                 name: "${table.name!}",
                 comment: "${table.comment!}",
                 formTemplate: "${table.formTemplate!}",
+                triggersJsonText: '',
             },
             fromDataSubmit: false,
             fromDataEdit: true,
-
+            triggers: ${table.triggersJsonText!}
         },
         methods: {
+            addTriggers: function () {
+                let data = [{
+                    effectiveConditions: "",
+                    triggerAction: "SEND_MESSAGE",
+                    triggerTiming: "",
+                    receiveUserField: "",
+                    messageTemplate: "",
+                }, ...this.triggers]
+                this.triggers = []
+                this.triggers = data;
+            },
+            delTriggers: function (index) {
+                this.triggers.splice(index, 1);
+            },
             handleSave: function () {
+                this.fromData.triggersJsonText = JSON.stringify(this.triggers);
                 var data = this.getListPageData();
                 var json = core.postJSON("/sysDataTable/save", {
                     table: JSON.stringify(this.fromData),
-                    list: JSON.stringify(data)
+                    list: JSON.stringify(data),
                 });
                 core.msg(json);
                 return json.ok;
@@ -285,7 +362,7 @@ layout("/layouts/blank.html",{title:title}){
                             rowData['controlType'] = 7;
                             break;
                         case 5://多附件(20个)
-                            rowData['length'] = (35*20)
+                            rowData['length'] = (35 * 20)
                             rowData['controlType'] = 7;
                             break;
                     }
@@ -316,8 +393,7 @@ layout("/layouts/blank.html",{title:title}){
                             }
                             break;
                     }
-                }
-                else if (field == "dictSysCode" && val != "") {
+                } else if (field == "dictSysCode" && val != "") {
                     if (rowData['multipleDict'] == 'true') {
                         rowData['fieldType'] = 0;
                         rowData['length'] = 100;
@@ -398,7 +474,9 @@ layout("/layouts/blank.html",{title:title}){
             }
         },
         created: function () {
-
+            if (this.fromData.triggersJsonText !== "") {
+                this.triggers = JSON.parse(this.fromData.triggersJsonText)
+            }
         },
         mounted: function () {
             var editField = JSON.parse('${fields!}');

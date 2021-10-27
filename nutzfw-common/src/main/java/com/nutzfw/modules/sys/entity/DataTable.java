@@ -8,11 +8,15 @@
 package com.nutzfw.modules.sys.entity;
 
 import com.nutzfw.core.common.entity.BaseEntity;
+import com.nutzfw.modules.sys.dto.BusinessTableTrigger;
 import com.nutzfw.modules.tabledata.enums.TableType;
 import lombok.*;
 import org.nutz.dao.entity.annotation.*;
+import org.nutz.json.Json;
+import org.nutz.lang.Strings;
 import org.nutz.plugins.validation.annotation.Validations;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -85,6 +89,24 @@ public class DataTable extends BaseEntity {
      */
     @Many(field = "tableId")
     private List<TableFields> fields;
+
+
+    @Column
+    @Comment("触发器JSON")
+    @ColDefine(type = ColType.TEXT)
+    private String triggersJsonText;
+    /**
+     * 触发器
+     */
+    private List<BusinessTableTrigger> triggers;
+
+    public String getTriggersJsonText() {
+        return Strings.isBlank(triggersJsonText) ? "[]" : triggersJsonText;
+    }
+
+    public List<BusinessTableTrigger> getTriggers() {
+        return Strings.isBlank(triggersJsonText) ? Collections.EMPTY_LIST : Json.fromJsonAsList(BusinessTableTrigger.class, this.triggersJsonText);
+    }
 
     public String getPrimaryKey() {
         return isUuid() ? "uuid" : "id";

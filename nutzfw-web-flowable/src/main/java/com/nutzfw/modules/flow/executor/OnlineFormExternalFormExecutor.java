@@ -81,10 +81,7 @@ public class OnlineFormExternalFormExecutor implements ExternalFormExecutor {
         try {
             NutMap data = dataMaintainBiz.formJsonData(Json.toJson(formData), sessionUserAccount);
             List<String> errmsg = dataMaintainBiz.checkTableData(tableId, data, DataMaintainBiz.UNIQUE_FIELD);
-            Optional<TableFields> writeBackProccessStatusField = dataTableService.fetchAllFields(tableId).getFields().stream()
-                    .filter(fields -> String.valueOf(fields.getId()).equals(formElementModel.getWriteBackProccessStatusField())).findAny();
             if (errmsg.size() == 0) {
-
                 dataMaintainBiz.saveTableData(tableId, data, sessionUserAccount);
                 return null;
             } else {

@@ -8,7 +8,6 @@
 package com.nutzfw.core;
 
 import com.github.threefish.nutz.sqltpl.SqlTplResourceLoader;
-import com.github.threefish.nutz.sqltpl.SqlsTplHolder;
 import com.github.threefish.nutz.sqltpl.templte.beetl.BeetlSqlTemplteEngineImpl;
 import com.nutzfw.core.common.cons.Cons;
 import com.nutzfw.core.common.el.function.DateFormat;
@@ -28,6 +27,7 @@ import com.nutzfw.modules.organize.entity.UserAccount;
 import com.nutzfw.modules.sys.biz.DictBiz;
 import com.nutzfw.modules.sys.entity.*;
 import com.nutzfw.modules.sys.quartz.job.AutoSendMailJob;
+import com.nutzfw.modules.sys.quartz.job.BusinessTableTriggerJob;
 import com.nutzfw.modules.sys.quartz.job.DatabaseBackupJob;
 import com.nutzfw.modules.sys.service.DictService;
 import com.nutzfw.modules.tabledata.entity.DataTableVersionHistory;
@@ -210,6 +210,7 @@ public class MainSetup extends AbstractInitSetup implements Setup {
         quartzJobs.add(buildeQuartJob(ApmJob.class, "*/15 * * * * ?", "服务器状态监控服务", "服务器状态监控服务", false, null));
         quartzJobs.add(buildeQuartJob(AutoSendMailJob.class, "*/15 * * * * ?", "自动发送邮件定时任务", "自动发送邮件定时任务", false, null));
         quartzJobs.add(buildeQuartJob(DatabaseBackupJob.class, "0 0 0 3 * ? ", "数据库定时备份任务", "数据库定时备份任务", true, null));
+        quartzJobs.add(buildeQuartJob(BusinessTableTriggerJob.class, "0 0/5 * * * ? *", "在线表单业务触发器", "在线表单业务触发器", true, null));
     }
 
     /**

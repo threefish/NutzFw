@@ -128,6 +128,7 @@ public class DataTableBizImpl implements DataTableBiz, ISqlTpl {
             oldTable.setComment(newTable.getComment());
             oldTable.setTableType(newTable.getTableType());
             oldTable.setFormTemplate(newTable.getFormTemplate());
+            oldTable.setTriggersJsonText(newTable.getTriggersJsonText());
             if (!oldTable.isSystem()) {
                 oldTable.setTableName(DataTableService.TABLE_PREFIX + oldTable.getId());
             }
