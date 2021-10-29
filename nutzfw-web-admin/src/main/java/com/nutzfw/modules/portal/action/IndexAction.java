@@ -16,6 +16,8 @@ import com.nutzfw.modules.organize.entity.UserAccount;
 import com.nutzfw.modules.portal.biz.IndexBiz;
 import com.nutzfw.modules.portal.entity.MsgNotice;
 import com.nutzfw.modules.sys.entity.Dict;
+import com.nutzfw.modules.sys.service.SysNoticeService;
+import org.nutz.dao.Cnd;
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.lang.util.NutMap;
@@ -32,7 +34,8 @@ import org.nutz.mvc.annotation.*;
 public class IndexAction extends BaseAction {
     @Inject
     IndexBiz indexBiz;
-
+    @Inject
+    SysNoticeService sysNoticeService;
 
     @POST
     @At("/userinfo")
@@ -81,6 +84,20 @@ public class IndexAction extends BaseAction {
         try {
             UserAccount account = getSessionUserAccount();
             return indexBiz.msgNotices(account);
+        } catch (Exception e) {
+            return AjaxResult.error("操作失败");
+        }
+    }
+
+    @POST
+    @At("/sysNotices")
+    @Ok("json:{nullAsEmtry:true,dateFormat:'yyyy年MM月dd日 HH时mm分ss秒'}")
+    public AjaxResult sysNotices() {
+        try {
+            UserAccount account = getSessionUserAccount();
+            Cnd cnd = Cnd.where("haveRead", "=", false).and("userName", "=", account.getUserName());
+            LayuiTableDataListVO layuiTableDataListVO = sysNoticeService.listPage(1, 10, cnd);
+            return AjaxResult.sucess(layuiTableDataListVO.getData());
         } catch (Exception e) {
             return AjaxResult.error("操作失败");
         }

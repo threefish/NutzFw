@@ -137,6 +137,13 @@ layout("/layouts/blank.html",{title:title}){
                                     </div>
                                 </div>
                                 <div class="form-group" style="margin-bottom: 30px">
+                                    <label class="col-sm-4 control-label lable-right">执行次数限制回写字段：</label>
+                                    <div class="col-sm-6">
+                                        <textarea type="text" v-model="triggers[index].frequencyLimitField" placeholder="执行次数限制回写字段"
+                                                  style="resize: vertical" class="form-control"></textarea>
+                                    </div>
+                                </div>
+                                <div class="form-group" style="margin-bottom: 30px">
                                     <label class="col-sm-4 control-label lable-right">消息模板：</label>
                                     <div class="col-sm-6">
                                         <textarea type="text" v-model="triggers[index].messageTemplate" placeholder="您的xx将于xx时到期，请注意。"
@@ -310,6 +317,7 @@ layout("/layouts/blank.html",{title:title}){
                     triggerTiming: "",
                     receiveUserField: "",
                     messageTemplate: "",
+                    frequencyLimitField: "",
                 }, ...this.triggers]
                 this.triggers = []
                 this.triggers = data;

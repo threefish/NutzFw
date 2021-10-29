@@ -305,38 +305,18 @@ layout("/layouts/blank.html",{title:"后台管理主页"}){
             </div>
         </div>
         <!--消息提醒-->
-        <div class="drag-box col-lg-4 col-md-6 col-sm-6" sort-id="2">
+        <div sort-id="2" class="drag-box col-lg-4 col-md-6 col-sm-6">
             <div class="box">
                 <div class="box-header drag-title">
-                    <h3 class="box-title">下一步计划</h3>
+                    <h3 class="box-title">站内消息</h3>
                 </div>
-                <div class="box-body border-radius-none" >
-                    <div style="margin: 5px">计划</div>
-                    <ul style="padding-left: 15px">
-                        <li>1、按照功能列表完善工作流</li>
-                        <li>2、按照功能列表添加在线报表</li>
-                        <li>3、重构、优化代码</li>
-                        <li>4、拆分为分布式项目</li>
-                    </ul>
-                    <div style="margin: 5px">试试走一下工作流</div>
-                    <ul style="padding-left: 15px">
-                        <li>按照这个顺序 zhansan -> wldao -> kezhang -> liyuanzhang  </li>
-                    </ul>
+                <div class="box-body border-radius-none" id="sys_notices" style="display: none;">
+                    <div class="msg_notice_div" v-for="(item,i) in sysNotices">
+                        <a href="#" @click="showSysNotices(item,i)">{{item.content}}</a>
+                    </div>
                 </div>
-            </div>
-        </div>
-        <!--消息提醒-->
-        <div class="drag-box col-lg-4 col-md-6 col-sm-6" sort-id="2">
-            <div class="box">
-                <div class="box-header drag-title">
-                    <h3 class="box-title">
-                        开源不易，请作者喝杯咖啡或给一颗心
-                        <a href='https://gitee.com/threefish/NutzFw/stargazers' target="_blank"><img alt='star' src='https://gitee.com/threefish/NutzFw/badge/star.svg?theme=white'/></a>
-                        聊表心意，感谢！
-                    </h3>
-                </div>
-                <div class="box-body border-radius-none">
-                    <img src="https://gitee.com/threefish/NutzCodeInsight/raw/master/image/donation.jpg" style="width: 100%;">
+                <div class="no_data" v-if="notices.length==0">
+                    暂时没有消息提醒!
                 </div>
             </div>
         </div>
@@ -344,7 +324,6 @@ layout("/layouts/blank.html",{title:"后台管理主页"}){
         <div sort-id="2" class="drag-box col-lg-4 col-md-6 col-sm-6">
             <div class="box">
                 <div class="box-header drag-title">
-                    <!--<i class="fa fa-th"></i>-->
                     <h3 class="box-title">消息提醒</h3>
                 </div>
                 <div class="box-body border-radius-none" id="notice_total" style="display: none;">
@@ -447,6 +426,7 @@ layout("/layouts/blank.html",{title:"后台管理主页"}){
             notices: [],
             newsList: [],
             imgNewList: [],
+            sysNotices: [],
         },
         methods: {
             showMsgTab: function (item, index) {
@@ -455,6 +435,15 @@ layout("/layouts/blank.html",{title:"后台管理主页"}){
                     title: item.name,
                     close: true,
                     url: "${base}/index/msgDetail?mid=" + item.id,
+                    urlType: "",
+                });
+            },
+            showSysNotices: function (item, index) {
+                window.parent.addTabs({
+                    id: 'tabs_' + index,
+                    title: item.name,
+                    close: true,
+                    url: "${base}/index/sysNoticeDetail?mid=" + item.id,
                     urlType: "",
                 });
             },
@@ -532,6 +521,23 @@ layout("/layouts/blank.html",{title:"后台管理主页"}){
                         if (data.ok) {
                             vm.notices = data.data;
                             $("#notice_total").show();
+                        }
+                    }
+                });
+            },
+            fn_loadSysNotices: function () {
+                $.ajax({
+                    url: base + "/index/sysNotices",
+                    type: "POST",
+                    async: true,
+                    error: function () {
+                        layer.msg("网络连接出错", {icon: 5, time: 1000});
+                    },
+                    dataType: "json",
+                    success: function (data) {
+                        if (data.ok) {
+                            vm.sysNotices = data.data;
+                            $("#sys_notices").show();
                         }
                     }
                 });
@@ -664,6 +670,7 @@ layout("/layouts/blank.html",{title:"后台管理主页"}){
             this.fn_loadStatisticsConfigures();
             this.fun_ready();
             this.fun_loadNews();
+            this.fn_loadSysNotices();
         },
     });
     //layui

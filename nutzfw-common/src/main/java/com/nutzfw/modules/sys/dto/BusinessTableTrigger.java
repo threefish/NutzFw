@@ -15,4 +15,5 @@ public class BusinessTableTrigger {
   private String triggerTiming;
   private String receiveUserField;
   private String messageTemplate;
+  private String frequencyLimitField;
 }
