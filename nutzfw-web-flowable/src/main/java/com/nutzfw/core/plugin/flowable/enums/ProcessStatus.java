@@ -6,6 +6,7 @@ import lombok.Getter;
 /**
  * @author 黄川 huchuc@vip.qq.com
  * date: 2021/10/19
+ * PROCESS_STATUS
  */
 @Getter
 @AllArgsConstructor

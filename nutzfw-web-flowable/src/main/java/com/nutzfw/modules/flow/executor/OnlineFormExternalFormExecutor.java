@@ -167,7 +167,7 @@ public class OnlineFormExternalFormExecutor implements ExternalFormExecutor {
                 .findAny();
         ProcessContext processContext = ProcessContextHolder.get();
         Assert.isTrue(writeBackProccessStatusField.isPresent(), "流程状态回写字段不能未设置");
-        data.put(writeBackProccessStatusField.get().getFieldName(), processContext.getProcessStatus());
+        data.put(writeBackProccessStatusField.get().getFieldName(), processContext.getProcessStatus().getValue());
         dataMaintainBiz.saveTableData(tableId, data, sessionUserAccount);
     }
 }
