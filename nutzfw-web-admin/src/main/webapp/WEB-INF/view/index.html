@@ -258,6 +258,10 @@ layout("/layouts/blank.html",{title:"后台管理主页"}){
     .layui-carousel-ind {
         top: -56px;
     }
+
+    .read {
+        color: #b3c5cf;
+    }
 </style>
 <section class="content" id="container">
     <div class="row" id="all_fun"></div>
@@ -312,7 +316,7 @@ layout("/layouts/blank.html",{title:"后台管理主页"}){
                 </div>
                 <div class="box-body border-radius-none" id="sys_notices" style="display: none;">
                     <div class="msg_notice_div" v-for="(item,i) in sysNotices">
-                        <a href="#" @click="showSysNotices(item,i)">{{item.content}}</a>
+                        <a href="#" @click="showSysNotices(item,i)" :class="item.haveRead?'read':'no-read'">({{item.haveRead?'已读':'未读'}})&nbsp;&nbsp;{{item.summary}}</a>
                     </div>
                 </div>
                 <div class="no_data" v-if="notices.length==0">
@@ -439,12 +443,17 @@ layout("/layouts/blank.html",{title:"后台管理主页"}){
                 });
             },
             showSysNotices: function (item, index) {
-                window.parent.addTabs({
-                    id: 'tabs_' + index,
-                    title: item.name,
-                    close: true,
-                    url: "${base}/index/sysNoticeDetail?mid=" + item.id,
-                    urlType: "",
+                var html = "<div style='font-size: 16px;padding: 20px'>" + item.content + "</div>";
+                html += "<div style='text-align: right'>" + item.opAt + "</div>"
+                window.parent.layer.open({
+                    type: 1,
+                    title: '站内消息详情',
+                    content: html,
+                    area: ['500px', '500px'],
+                    end: function () {
+                        core.getJSON("/index/redSysNotice?id=" + item.uuid);
+                        vm.fn_loadSysNotices();
+                    }
                 });
             },
             showPersonalInfo: function () {

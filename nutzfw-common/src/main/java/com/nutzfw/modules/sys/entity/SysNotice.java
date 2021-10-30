@@ -4,6 +4,7 @@ import com.nutzfw.core.common.entity.BaseEntity;
 import lombok.*;
 import org.nutz.dao.entity.annotation.*;
 import org.nutz.dao.interceptor.annotation.PrevInsert;
+import org.nutz.lang.Strings;
 
 /**
  * @author 黄川 huchuc@vip.qq.com
@@ -36,7 +37,10 @@ public class SysNotice extends BaseEntity {
     @Comment("正文")
     @Column("content")
     private String content;
-
+    /**
+     * 摘要
+     */
+    private String summary;
 
     @Comment("链接地址")
     @Column("linkUrl")
@@ -46,5 +50,12 @@ public class SysNotice extends BaseEntity {
     @Column("is_haveRead")
     private Boolean haveRead;
 
+    public void setContent(String content) {
+        this.content = content;
+        this.summary = this.content;
+    }
 
+    public String getSummary() {
+        return Strings.cutStr(40, summary, "");
+    }
 }
