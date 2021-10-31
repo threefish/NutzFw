@@ -16,6 +16,9 @@ import com.nutzfw.modules.organize.entity.UserAccount;
 import com.nutzfw.modules.portal.biz.IndexBiz;
 import com.nutzfw.modules.portal.entity.MsgNotice;
 import com.nutzfw.modules.sys.entity.Dict;
+import com.nutzfw.modules.sys.entity.SysNotice;
+import com.nutzfw.modules.sys.service.SysNoticeService;
+import org.nutz.dao.Cnd;
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.lang.util.NutMap;
@@ -32,7 +35,8 @@ import org.nutz.mvc.annotation.*;
 public class IndexAction extends BaseAction {
     @Inject
     IndexBiz indexBiz;
-
+    @Inject
+    SysNoticeService sysNoticeService;
 
     @POST
     @At("/userinfo")
@@ -81,6 +85,37 @@ public class IndexAction extends BaseAction {
         try {
             UserAccount account = getSessionUserAccount();
             return indexBiz.msgNotices(account);
+        } catch (Exception e) {
+            return AjaxResult.error("操作失败");
+        }
+    }
+
+    @POST
+    @At("/sysNotices")
+    @Ok("json:{nullAsEmtry:true,dateFormat:'yyyy年MM月dd日 HH时mm分ss秒'}")
+    public AjaxResult sysNotices() {
+        try {
+            UserAccount account = getSessionUserAccount();
+            Cnd cnd = Cnd.where("userName", "=", account.getUserName());
+            cnd.asc("haveRead");
+            cnd.asc("opAt");
+            LayuiTableDataListVO layuiTableDataListVO = sysNoticeService.listPage(1, 8, cnd);
+            return AjaxResult.sucess(layuiTableDataListVO.getData());
+        } catch (Exception e) {
+            return AjaxResult.error("操作失败");
+        }
+    }
+
+
+    @GET
+    @At("/redSysNotice")
+    @Ok("json:{nullAsEmtry:true,dateFormat:'yyyy年MM月dd日 HH时mm分ss秒'}")
+    public AjaxResult redSysNotice(@Param("id") String uuid) {
+        try {
+            SysNotice sysNotice = sysNoticeService.fetch(uuid);
+            sysNotice.setHaveRead(true);
+            sysNoticeService.update(sysNotice);
+            return AjaxResult.sucess("");
         } catch (Exception e) {
             return AjaxResult.error("操作失败");
         }

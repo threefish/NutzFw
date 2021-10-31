@@ -81,10 +81,7 @@ public class OnlineFormExternalFormExecutor implements ExternalFormExecutor {
         try {
             NutMap data = dataMaintainBiz.formJsonData(Json.toJson(formData), sessionUserAccount);
             List<String> errmsg = dataMaintainBiz.checkTableData(tableId, data, DataMaintainBiz.UNIQUE_FIELD);
-            Optional<TableFields> writeBackProccessStatusField = dataTableService.fetchAllFields(tableId).getFields().stream()
-                    .filter(fields -> String.valueOf(fields.getId()).equals(formElementModel.getWriteBackProccessStatusField())).findAny();
             if (errmsg.size() == 0) {
-
                 dataMaintainBiz.saveTableData(tableId, data, sessionUserAccount);
                 return null;
             } else {
@@ -170,7 +167,7 @@ public class OnlineFormExternalFormExecutor implements ExternalFormExecutor {
                 .findAny();
         ProcessContext processContext = ProcessContextHolder.get();
         Assert.isTrue(writeBackProccessStatusField.isPresent(), "流程状态回写字段不能未设置");
-        data.put(writeBackProccessStatusField.get().getFieldName(), processContext.getProcessStatus());
+        data.put(writeBackProccessStatusField.get().getFieldName(), processContext.getProcessStatus().getValue());
         dataMaintainBiz.saveTableData(tableId, data, sessionUserAccount);
     }
 }
