@@ -18,7 +18,6 @@ import org.nutz.ioc.Ioc;
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.lang.Strings;
-import org.nutz.trans.Atom;
 import org.nutz.trans.Trans;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobDataMap;
@@ -82,6 +81,7 @@ public class BusinessTableTriggerJob extends BaseJob {
                 sql.setVar("sql2", " and " + sql2);
             }
             sql.setCallback(Sqls.callback.records());
+            log.info(String.format("执行器SQL：%s", sql));
             dataTableService.dao().execute(sql);
             List<Record> list = sql.getList(Record.class);
             // 批量转换数据

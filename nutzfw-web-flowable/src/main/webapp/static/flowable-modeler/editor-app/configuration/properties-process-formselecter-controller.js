@@ -1,5 +1,22 @@
 angular.module('flowableModeler').controller('FlowableProcessFormselecterCtrl',
-    ['$scope', '$modal', '$timeout', '$translate', function ($scope, $modal, $timeout, $translate) {
+    ['$scope', '$modal', 'editorManager', function ($scope, $modal, $editorManager) {
+
+        console.log("selectedShape", $scope.selectedShape)
+
+        let modelJson = $editorManager.getModel();
+        let resourceId = $scope.selectedShape.resourceId;
+        let selectShape = undefined;
+        for (let i in modelJson.childShapes) {
+            let tempResourceId = modelJson.childShapes[i].resourceId;
+            if (tempResourceId != undefined && resourceId === tempResourceId) {
+                selectShape = modelJson.childShapes[i];
+                break;
+            }
+        }
+        if (selectShape && selectShape.stencil.id == "StartNoneEvent") {
+            alert("开始节点不需要设置表单")
+            return;
+        }
         // Config for the modal window
         var opts = {
             template: 'editor-app/configuration/properties/process-flowable-formselecter-property-write-popup-template.html?version=' + Date.now(),
@@ -10,9 +27,9 @@ angular.module('flowableModeler').controller('FlowableProcessFormselecterCtrl',
     }]);
 
 
-angular.module('flowableModeler').controller('FlowableProcessFormselecterPopupCtrl', ['$scope', '$http', function ($scope, $http) {
-    console.log("$scope", $scope)
-    console.log("selectedShape", $scope.selectedShape)
+angular.module('flowableModeler').controller('FlowableProcessFormselecterPopupCtrl', ['$scope', '$http', 'editorManager', function ($scope, $http, $editorManager) {
+
+
     $scope.tables = [];
     $scope.onlineFields = [];
     $scope.activeTab = 1;

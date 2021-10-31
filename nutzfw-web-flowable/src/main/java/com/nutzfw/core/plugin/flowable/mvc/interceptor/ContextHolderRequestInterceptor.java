@@ -2,6 +2,7 @@ package com.nutzfw.core.plugin.flowable.mvc.interceptor;
 
 import com.nutzfw.core.mvc.interceptor.RequestInterceptor;
 import com.nutzfw.core.plugin.flowable.context.ProcessContextHolder;
+import org.flowable.common.engine.impl.identity.Authentication;
 import org.nutz.ioc.loader.annotation.IocBean;
 
 import javax.servlet.http.HttpServletRequest;
@@ -21,5 +22,6 @@ public class ContextHolderRequestInterceptor implements RequestInterceptor {
     @Override
     public void after(HttpServletRequest request, HttpServletResponse response) {
         ProcessContextHolder.remove();
+        Authentication.setAuthenticatedUserId(null);
     }
 }

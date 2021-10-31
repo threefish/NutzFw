@@ -153,6 +153,7 @@ public class DataTableAction extends BaseAction {
     @AutoCreateMenuAuth(name = "创建表单", icon = "fa-cogs", type = AutoCreateMenuAuth.RESOURCE, parentPermission = "sysDataTable.manager")
     public void add() {
         setRequestAttribute("fields", "[]");
+        setRequestAttribute("triggers", "[]");
     }
 
     @At("/edit")
@@ -164,6 +165,7 @@ public class DataTableAction extends BaseAction {
         DataTable dataTable = tableService.fetchAllNotDelectFields(id);
         setRequestAttribute("fields", Json.toJson(dataTable.getFields(), JsonFormat.compact()));
         setRequestAttribute("table", dataTable);
+        setRequestAttribute("triggers", dataTable.getTriggersJsonText());
     }
 
     @At("/synchronize")

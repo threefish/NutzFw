@@ -39,6 +39,10 @@ public interface FlowConstant {
      */
     String AUDIT_PASS = "auditPass";
     /**
+     * 流程状态
+     */
+    String PROCESS_STATUS = "ProcessStatus";
+    /**
      * 流程审核状态-驳回
      * 变量
      */

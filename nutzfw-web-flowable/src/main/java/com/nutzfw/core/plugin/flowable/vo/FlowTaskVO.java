@@ -8,6 +8,7 @@
 package com.nutzfw.core.plugin.flowable.vo;
 
 import com.nutzfw.core.common.util.DateUtil;
+import com.nutzfw.core.plugin.flowable.enums.ProcessStatus;
 import com.nutzfw.core.plugin.flowable.enums.TaskStatusEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -164,6 +165,10 @@ public class FlowTaskVO {
      * 流程驳回后用户使用start接口重新申请流程使用
      */
     Boolean reaffirm;
+    /**
+     * 当前流程状态
+     */
+    ProcessStatus processStatus;
 
     public void setHisActInsDuTime(Long duTime) {
         if (duTime == null) {

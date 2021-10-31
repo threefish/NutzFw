@@ -16,6 +16,7 @@ import com.nutzfw.core.plugin.flowable.constant.FlowConstant;
 import com.nutzfw.core.plugin.flowable.converter.json.CustomBpmnJsonConverter;
 import com.nutzfw.core.plugin.flowable.dto.UserTaskExtensionDTO;
 import com.nutzfw.core.plugin.flowable.enums.CallBackTypeEnum;
+import com.nutzfw.core.plugin.flowable.enums.ProcessStatus;
 import com.nutzfw.core.plugin.flowable.enums.TaskStatusEnum;
 import com.nutzfw.core.plugin.flowable.service.FlowCacheService;
 import com.nutzfw.core.plugin.flowable.service.FlowProcessDefinitionService;
@@ -49,7 +50,6 @@ import org.flowable.task.api.TaskInfo;
 import org.flowable.task.api.TaskQuery;
 import org.flowable.task.api.history.HistoricTaskInstance;
 import org.flowable.task.api.history.HistoricTaskInstanceQuery;
-import org.flowable.variable.api.history.HistoricVariableInstance;
 import org.nutz.el.El;
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
@@ -187,12 +187,14 @@ public class FlowTaskServiceImpl implements FlowTaskService {
             flow.setProcDefKey(pd.getKey());
             flow.setProcDefversion(pd.getVersion());
             flow.setProcInsId(hisprocIns.getId());
-            HistoricVariableInstance historicVariableInstance = historyService.createHistoricVariableInstanceQuery().processInstanceId(hisprocIns.getId()).variableName(FlowConstant.PROCESS_TITLE).singleResult();
             flow.setCreateTime(hisprocIns.getStartTime());
             flow.setEndTime(hisprocIns.getEndTime());
-            Optional.ofNullable(historicVariableInstance).filter(h -> Objects.nonNull(h.getValue())).ifPresent(history -> {
-                flow.setTaskTitle(historicVariableInstance.getValue().toString());
-            });
+            Optional.ofNullable(historyService.createHistoricVariableInstanceQuery().processInstanceId(hisprocIns.getId()).variableName(FlowConstant.PROCESS_TITLE).singleResult())
+                    .filter(h -> Objects.nonNull(h.getValue()))
+                    .ifPresent(history -> flow.setTaskTitle(history.getValue().toString()));
+            Optional.ofNullable(historyService.createHistoricVariableInstanceQuery().processInstanceId(hisprocIns.getId()).variableName(FlowConstant.PROCESS_STATUS).singleResult())
+                    .filter(h -> Objects.nonNull(h.getValue()))
+                    .ifPresent(history -> flow.setProcessStatus(ProcessStatus.valueOf(history.getValue().toString())));
             flow.setBusinessId(hisprocIns.getBusinessKey());
             flow.setHisActInsActName(hisprocIns.getName());
             flow.setProcInsId(hisprocIns.getId());
@@ -265,6 +267,9 @@ public class FlowTaskServiceImpl implements FlowTaskService {
                     .processFinished(historicTaskInstance.getEndActivityId() != null)
                     .status(TaskStatusEnum.FINISH)
                     .build();
+            Optional.ofNullable(historyService.createHistoricVariableInstanceQuery().processInstanceId(historicTaskInstance.getId()).variableName(FlowConstant.PROCESS_STATUS).singleResult())
+                    .filter(h -> Objects.nonNull(h.getValue()))
+                    .ifPresent(history -> flow.setProcessStatus(ProcessStatus.valueOf(history.getValue().toString())));
             actList.add(flow);
         }
         vo.setData(actList);
@@ -293,7 +298,7 @@ public class FlowTaskServiceImpl implements FlowTaskService {
             if (Strings.isNotBlank(startAct) && !start) {
                 continue;
             }
-            if ("userTask".equals(histIns.getActivityType()) || "startEvent".equals(histIns.getActivityType()) || "endEvent".equals(histIns.getActivityType())|| "callActivity".equals(histIns.getActivityType())) {
+            if ("userTask".equals(histIns.getActivityType()) || "startEvent".equals(histIns.getActivityType()) || "endEvent".equals(histIns.getActivityType()) || "callActivity".equals(histIns.getActivityType())) {
                 // 给节点增加一个序号
                 Integer actNum = actMap.get(histIns.getActivityId());
                 if (actNum == null) {

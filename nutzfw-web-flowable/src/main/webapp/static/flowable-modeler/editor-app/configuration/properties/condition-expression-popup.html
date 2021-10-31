@@ -22,6 +22,9 @@
                         <div class="col-xs-10">
                             <textarea class=" form-control" ng-model="expression.staticValue" placeholder="使用el表达式，结果返回true则条件通过" rows="15"/>
                         </div>
+                        <div>
+                            <label class="col-xs-20">内置变量：${auditPass} 代表通过、同意  ${!auditPass} 代表拒绝、不同意  </label>
+                        </div>
                     </div>
                     <div class="form-group clearfix" ng-show="expression.type=='sql'">
                         <label class="col-xs-2">SQL语句</label>

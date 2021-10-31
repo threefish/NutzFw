@@ -59,6 +59,20 @@ layout("/layouts/blank.html",{title:title}){
                                 }
                             },
                             {
+                                field: 'processStatus', title: '流程状态', templet: function (d) {
+                                    if (d.processStatus == 'UNDER_REVIEW') {
+                                        return "<span style='color: #f700ff'>审核中</span>";
+                                    }
+                                    if (d.processStatus == 'IS_PASSED') {
+                                        return "<span style='color: #0080ff'>已通过</span>";
+                                    }
+                                    if (d.processStatus == 'NOT_PASS') {
+                                        return "<span style='color: #f3d380'>未通过</span>";
+                                    }
+                                    return d.processStatus;
+                                }
+                            },
+                            {
                                 field: 'version', title: '流程版本', templet: function (d) {
                                     return 'V:' + d.procDefversion;
                                 }
