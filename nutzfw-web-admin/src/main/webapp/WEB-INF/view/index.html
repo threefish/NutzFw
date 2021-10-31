@@ -314,12 +314,12 @@ layout("/layouts/blank.html",{title:"后台管理主页"}){
                 <div class="box-header drag-title">
                     <h3 class="box-title">站内消息</h3>
                 </div>
-                <div class="box-body border-radius-none" id="sys_notices" style="display: none;">
+                <div class="border-radius-none" id="sys_notices" style="display: none;">
                     <div class="msg_notice_div" v-for="(item,i) in sysNotices">
                         <a href="#" @click="showSysNotices(item,i)" :class="item.haveRead?'read':'no-read'">({{item.haveRead?'已读':'未读'}})&nbsp;&nbsp;{{item.summary}}</a>
                     </div>
                 </div>
-                <div class="no_data" v-if="notices.length==0">
+                <div class="no_data" v-if="sysNotices.length==0">
                     暂时没有消息提醒!
                 </div>
             </div>
