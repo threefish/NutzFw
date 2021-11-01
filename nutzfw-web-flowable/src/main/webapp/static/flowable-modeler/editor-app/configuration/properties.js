@@ -42,6 +42,10 @@ FLOWABLE.PROPERTY_CONFIG =
             "readModeTemplateUrl": FLOWABLE.CONFIG.webContextRoot + "editor-app/configuration/properties/process-flowable-externalformexecutor-property-read-template.html",
             "writeModeTemplateUrl": FLOWABLE.CONFIG.webContextRoot + "editor-app/configuration/properties/process-flowable-externalformexecutor-property-write-template.html"
         },
+        "flowable-callactivitycalledelementselecter": {
+            "readModeTemplateUrl": FLOWABLE.CONFIG.webContextRoot + "editor-app/configuration/properties/flowable-callactivitycalledelementselecter-property-read-template.html",
+            "writeModeTemplateUrl": FLOWABLE.CONFIG.webContextRoot + "editor-app/configuration/properties/flowable-callactivitycalledelementselecter-property-write-template.html"
+        },
         "flowable-formselecter": {
             "readModeTemplateUrl": FLOWABLE.CONFIG.webContextRoot + "editor-app/configuration/properties/process-flowable-formselecter-property-read-template.html",
             "writeModeTemplateUrl": FLOWABLE.CONFIG.webContextRoot + "editor-app/configuration/properties/process-flowable-formselecter-property-write-template.html"

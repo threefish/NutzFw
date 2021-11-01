@@ -33,7 +33,6 @@ import com.nutzfw.modules.sys.entity.TableFields;
 import com.nutzfw.modules.sys.enums.FieldAuth;
 import com.nutzfw.modules.sys.service.DataTableService;
 import com.nutzfw.modules.sys.service.RoleService;
-import org.apache.commons.io.filefilter.FalseFileFilter;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.flowable.bpmn.model.Process;
 import org.flowable.bpmn.model.*;
@@ -43,11 +42,11 @@ import org.flowable.editor.constants.ModelDataJsonConstants;
 import org.flowable.editor.constants.StencilConstants;
 import org.flowable.engine.RepositoryService;
 import org.flowable.engine.repository.Model;
+import org.flowable.engine.repository.ProcessDefinition;
 import org.flowable.idm.api.User;
 import org.flowable.idm.engine.impl.persistence.entity.GroupEntity;
 import org.flowable.ui.common.model.ResultListDataRepresentation;
 import org.flowable.ui.common.model.UserRepresentation;
-import org.flowable.ui.common.util.XmlUtil;
 import org.flowable.validation.ProcessValidator;
 import org.flowable.validation.ValidationError;
 import org.nutz.dao.Cnd;
@@ -63,10 +62,7 @@ import org.nutz.mvc.Mvcs;
 import org.nutz.mvc.adaptor.JsonAdaptor;
 import org.nutz.mvc.annotation.*;
 
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -322,6 +318,19 @@ public class FlowDesignAction extends BaseAction {
             ExternalFormExecutor externalFormExecutor = Mvcs.getIoc().get(ExternalFormExecutor.class, iocBeanName);
             return new OptionVO("$ioc:" + iocBeanName, externalFormExecutor.getUniqueName());
         }).collect(Collectors.toList());
+    }
+
+    /**
+     * 获取全部已部署流程
+     *
+     * @return
+     */
+    @At("/listCallactivityCalleDelementSelecter")
+    @Ok("json")
+    @GET
+    public List<OptionVO> listCallactivityCalleDelementSelecter() {
+        List<ProcessDefinition> list = repositoryService.createProcessDefinitionQuery().latestVersion().list();
+        return list.stream().map(processDefinition -> new OptionVO(processDefinition.getKey(), processDefinition.getName())).collect(Collectors.toList());
     }
 
     /**

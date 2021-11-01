@@ -1,0 +1,5 @@
+<div ng-controller="FlowableCallactivitycalledelementselecterCtrl">
+    <select ng-change="changeValue()" ng-model="property.value">
+        <option ng-repeat="option in options" value="{{ option.id }}" ng-selected="{{ option.selected }}">{{ option.name }}</option>
+    </select>
+</div>

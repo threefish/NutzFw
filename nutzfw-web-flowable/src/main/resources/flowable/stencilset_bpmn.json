@@ -945,8 +945,8 @@
       "properties": [
         {
           "id": "callactivitycalledelement",
-          "type": "String",
-          "title": "被调用元素",
+          "type": "flowable-callactivitycalledelementselecter",
+          "title": "设置已部署的流程为子流程",
           "value": "",
           "description": "流程引用.",
           "popular": true

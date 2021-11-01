@@ -254,6 +254,9 @@ FLOWABLE.APP_URL = {
     getListExternalFormExecutorUrl: function () {
         return FLOWABLE.CONFIG.contextRoot + '/flowDesign/listExternalFormExecutor';
     },
+    getCallactivityCalleDelementSelecterUrl: function () {
+        return FLOWABLE.CONFIG.contextRoot + '/flowDesign/listCallactivityCalleDelementSelecter';
+    },
     getListAllOnlineFormUrl: function () {
         return FLOWABLE.CONFIG.contextRoot + '/flowDesign/listAllOnlineForm';
     },
