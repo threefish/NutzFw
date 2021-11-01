@@ -48,7 +48,7 @@
         {
           "id": "callactivitysetting",
           "type": "flowable-callactivitysetting",
-          "title": "设置",
+          "title": "设置主子流程字段映射",
           "value": "",
           "description": "",
           "popular": true
