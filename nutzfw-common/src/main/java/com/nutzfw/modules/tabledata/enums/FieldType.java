@@ -7,6 +7,9 @@
 
 package com.nutzfw.modules.tabledata.enums;
 
+import java.util.EnumSet;
+import java.util.HashMap;
+
 /**
  * @author 黄川 huchuc@vip.qq.com
  * @date: 2018/6/5
@@ -27,10 +30,29 @@ public enum FieldType {
     //多附件(20个) varchar 550
     MultiAttach(5);
 
+    private final static HashMap<Integer, FieldType> lookup = new HashMap<>();
+
+    static {
+        for (FieldType typeEnum : EnumSet.allOf(FieldType.class)) {
+            lookup.put(typeEnum.value, typeEnum);
+        }
+    }
+
     private final int value;
+
 
     FieldType(int value) {
         this.value = value;
+    }
+
+    /**
+     * 通过value获取枚举
+     *
+     * @param value
+     * @return
+     */
+    public static FieldType valOf(Integer value) {
+        return lookup.get(value);
     }
 
     public int getValue() {

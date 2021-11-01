@@ -26,7 +26,6 @@ import com.nutzfw.modules.sys.service.TableFieldsService;
 import com.nutzfw.modules.tabledata.biz.DataMaintainBiz;
 import com.nutzfw.modules.tabledata.entity.UserDataChangeHistory;
 import com.nutzfw.modules.tabledata.enums.*;
-import com.nutzfw.modules.tabledata.service.DataImportHistoryService;
 import com.nutzfw.modules.tabledata.service.UserDataChangeHistoryService;
 import com.nutzfw.modules.tabledata.util.DataImportPoiUtil;
 import com.nutzfw.modules.tabledata.util.DataUtil;
@@ -66,14 +65,13 @@ import java.util.*;
 public class DataMaintainBizImpl implements DataMaintainBiz {
 
 
+    private static final String NULL_STR = "NULL";
     @Inject
     UserAccountService accountService;
     @Inject
     DataTableService tableService;
     @Inject
     TableFieldsService fieldsService;
-    @Inject
-    DataImportHistoryService importHistoryService;
     @Inject
     DictBiz dictBiz;
     @Inject
@@ -129,7 +127,6 @@ public class DataMaintainBizImpl implements DataMaintainBiz {
     public LayuiTableDataListVO listUserDataPage(int pageNum, int pageSize, int tableid, String userid, Set<String> sessionManagerUserNames) {
         return listDataByCnd(pageNum, pageSize, tableid, userid, "", "", new String[0], null, sessionManagerUserNames);
     }
-
 
     /**
      * 取得表数据
@@ -391,7 +388,6 @@ public class DataMaintainBizImpl implements DataMaintainBiz {
         return data;
     }
 
-
     /**
      * 只针对用户主表，从表慎用
      *
@@ -541,7 +537,6 @@ public class DataMaintainBizImpl implements DataMaintainBiz {
         return showFields;
     }
 
-
     /**
      * 转化数据-翻译字典ID为中文数据显示-并处理日期
      *
@@ -565,7 +560,6 @@ public class DataMaintainBizImpl implements DataMaintainBiz {
         names.clear();
         return records;
     }
-
 
     /**
      * 转化数据-翻译字典ID为中文数据显示-并处理日期
@@ -642,7 +636,6 @@ public class DataMaintainBizImpl implements DataMaintainBiz {
         newRecordData.putAll(data);
         return coverDataToView(newRecordData, tableFieldsList);
     }
-
 
     /**
      * 转化数据-翻译字典ID为中文数据显示-并处理日期
@@ -728,7 +721,6 @@ public class DataMaintainBizImpl implements DataMaintainBiz {
         return record;
     }
 
-
     /**
      * 转换为vuejs支持的表单数据，主要针对复选框和下拉复选
      *
@@ -774,7 +766,6 @@ public class DataMaintainBizImpl implements DataMaintainBiz {
         });
         return errorMsgs;
     }
-
 
     /**
      * 效验数据是否符合设定规则-忽略附件-忽略依赖值
@@ -892,7 +883,6 @@ public class DataMaintainBizImpl implements DataMaintainBiz {
         return msg;
     }
 
-
     /**
      * 效验数据是否符合设定规则
      *
@@ -1007,7 +997,6 @@ public class DataMaintainBizImpl implements DataMaintainBiz {
             tableService.dao().update(data);
         }
     }
-
 
     /**
      * 带前缀的是转换时候将依赖值给转换进去了，在这里过滤掉
@@ -1131,7 +1120,6 @@ public class DataMaintainBizImpl implements DataMaintainBiz {
         return reviewChangeVOList;
     }
 
-
     /**
      * 保存数据前转换下不符合数据库规则的数据
      *
@@ -1144,34 +1132,44 @@ public class DataMaintainBizImpl implements DataMaintainBiz {
             Object val = data.get(f.getFieldName());
             if (val != null) {
                 String valStr = Strings.sNull(val).trim();
-                switch (f.getFieldType()) {
-                    case 1:
-                        //数值型
-                        if (val instanceof String && Strings.isNotBlank(valStr)) {
-                            data.setv(f.getFieldName(), BigDecimal.valueOf(Double.parseDouble(valStr)));
-                        } else if (!(val instanceof BigDecimal || val instanceof Number || val instanceof Double || val instanceof Float || val instanceof Integer)) {
-                            data.setv(f.getFieldName(), null);
+                final FieldType fieldType = FieldType.valOf(f.getFieldType());
+                if (fieldType == FieldType.Decimal) {
+                    //数值型
+                    if (val instanceof String && Strings.isNotBlank(valStr)) {
+                        data.setv(f.getFieldName(), BigDecimal.valueOf(Double.parseDouble(valStr)));
+                    } else if (!(val instanceof BigDecimal || val instanceof Number || val instanceof Double || val instanceof Float || val instanceof Integer)) {
+                        data.setv(f.getFieldName(), null);
+                    }
+                }
+                if (fieldType == FieldType.Date) {
+                    //日期
+                    if (val instanceof String && Strings.isNotBlank(valStr)) {
+                        String format = DateUtil.YYYY_MM_DD_HH_MM_SS;
+                        if (f.getControlType() == ControlType.Date.getValue()) {
+                            format = DateUtil.YYYY_MM_DD;
                         }
-                        break;
-                    case 2:
-                        //日期
-                        if (val instanceof String && Strings.isNotBlank(valStr)) {
-                            String format = DateUtil.YYYY_MM_DD_HH_MM_SS;
-                            if (f.getControlType() == ControlType.Date.getValue()) {
-                                format = DateUtil.YYYY_MM_DD;
-                            }
-                            data.setv(f.getFieldName(), DateUtil.string2date(valStr, format));
-                        } else if (!(val instanceof java.util.Date || val instanceof java.sql.Date || val instanceof java.sql.Timestamp)) {
-                            data.setv(f.getFieldName(), null);
-                        }
-                        break;
-                    default:
-                        break;
+                        data.setv(f.getFieldName(), DateUtil.string2date(valStr, format));
+                    } else if (!(val instanceof java.util.Date || val instanceof java.sql.Date || val instanceof java.sql.Timestamp)) {
+                        data.setv(f.getFieldName(), null);
+                    }
                 }
             }
             //不修改逻辑字段值
             if (f.isLogic()) {
                 data.remove(f.getFieldName());
+            }
+        });
+        tableFields.stream().filter(tf -> !tf.isFromDisplay()).forEach(tf -> {
+            Object val = data.get(tf.getFieldName());
+            if (Objects.nonNull(val)) {
+                String valStr = Strings.sNull(val).trim();
+                // 当前值是空的，但是数据库有默认值配置，去除当前字段的空值避免无法插入
+                if (Strings.isBlank(valStr) && !NULL_STR.equals(tf.getDefaultValue())) {
+                    data.remove(tf.getFieldName());
+                }
+            } else {
+                // 没有值，且不是表单显示字段，移除
+                data.remove(tf.getFieldName());
             }
         });
         //所有依赖字段
