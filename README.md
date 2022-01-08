@@ -4,9 +4,6 @@
 [![PowerByNutz](https://img.shields.io/badge/PowerBy-Nutz-green.svg)](https://github.com/nutzam/nutz)
 
 
-# [大带宽20M起 ，便宜 HK\US VPS推荐](https://kvm.yunserver.com/aff.php?aff=1013)
-
-
 #### 介绍
 
 Java开源企业级快速开发框架、后台管理系统，拥有完善的权限控制、代码生成器、自定义表单、动态数据库、灵活的工作流、手机APP客户端、支持前后端分离开发。
@@ -25,25 +22,22 @@ Java开源企业级快速开发框架、后台管理系统，拥有完善的权�
 [QQ交流群:671442044](https://shang.qq.com/wpa/qunwpa?idkey=6f668db4991eb344d1cf643617665a34f654c08e0d73cb34777fca6b1679ace5)
 
 
-[在线demo](http://39.105.138.19:8080/management/login) 感谢群友：棉花糖TWO 提供的在线服务器
-> 账号密码： admin 666666
-
 #### [NutzFw 开发文档详见wikis](https://gitee.com/threefish/NutzFw/wikis/pages)
 
 Nutz 社区支持 [https://nutz.cn](https://nutz.cn) 及 Nutz 使用手册 [https://nutzam.com/core/nutz_preface.html](https://nutzam.com/core/nutz_preface.html)
 
 #### 功能列表
 
-- [x] 1 在线表单管理---(优化安排：添加表引用字段)
+- [x] 1 在线表单管理
 - [x] 2 数据字典管理
 - [x] 2 数据表数据复杂查询
-- [x] 3 组织架构管理---(优化安排：需要重构)
-- [x] 4 用户管理---(优化安排：需要重构)
+- [x] 3 组织架构管理
+- [x] 4 用户管理
 - [x] 5 角色权限管理、精细化人员管理范围
 - [x] 6 Nutz国际化
 - [x] 7 邮件管理（可配置3个免费邮箱发送邮件）
 - [x] 8 新闻管理
-- [x] 9 首页门户配置---(优化安排：需要重构)
+- [x] 9 首页门户配置
 - [x] 10 oshi 服务器状态监控
 - [x] 11 druid监控
 - [x] 12 redis集成
@@ -60,8 +54,7 @@ Nutz 社区支持 [https://nutz.cn](https://nutz.cn) 及 Nutz 使用手册 [http
 - [x] 23 人员异动（部门岗位调整）（优化安排：流程需要使用工作流调整）
 - [x] 24 个人资料维护（优化安排：流程需要使用工作流调整）
 - [x] 25 通讯录（优化安排：需要重构）
-- [ ] 25 将现有的POI操作工具类分离，重构出一个POI操作工具为独立模块（模版式导入、导出）
-- [x] 26 授权管理(license)
+- [ ] 26 将现有的POI操作工具类分离，重构出一个POI操作工具为独立模块（模版式导入、导出）
 - [x] 27 标准化CAS接入
 - [x] 28 Flowable 工作流深度定制（可以实现快速配置开发）
     - [x] 0 我的任务
@@ -77,7 +70,6 @@ Nutz 社区支持 [https://nutz.cn](https://nutz.cn) 及 Nutz 使用手册 [http
         - [x] 比例通过制度
         - [x] 一票否决
         - [x] 一票通过
-    - [ ] 6  任意跳转
     - [x] 7  委托任务
     - [x] 8  转派任务
     - [ ] 9  自动委托(全局自动委托)
@@ -86,14 +78,9 @@ Nutz 社区支持 [https://nutz.cn](https://nutz.cn) 及 Nutz 使用手册 [http
     - [ ] 12 流程撤回
     - [ ] 13 中国式流程加签
     - [ ] 14 流程任务管理员全局管理
-        - [ ] 1 指派给任意人员
-    - [ ] 13 在线表单集成工作流实现OA
-        - [ ] 1 在线表单设计器 
-            - [ ] PC表单         
-            - [ ] APP表单         
-- [ ] 29 在线报表
-    - [ ] 1 SQL模式统计报表（自定义各种图表）
-    - [ ] 2 基于在线表单的统计报表（自定义各种图表）
+    - [x] 14 在线表单集成工作流实现OA
+    - [x] 15 子流程
+
 
 
 
